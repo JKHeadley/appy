@@ -8,4 +8,4 @@
 
 Love,
 
-The Scal.io Team
+The Appy Team

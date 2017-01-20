@@ -76,9 +76,9 @@ const config = {
     },
     clientURL: {
         $filter: 'env',
-        local: 'http://localhost:3000',
-        production: 'http://appy.com',
-        $default: 'http://localhost:3000'
+        local: 'http://localhost:8125',
+        production: 'http://localhost:8125',
+        $default: 'http://localhost:8125'
     },
     restHapiConfig: {
         server: {

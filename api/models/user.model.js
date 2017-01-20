@@ -608,15 +608,9 @@ module.exports = function (mongoose) {
               },
               user: ['keyHash', function (results, done) {
                 let userPayload = { payload: request.payload.user };
-                let promise = {};
-                let promises = [];
-                let roleProfile = {};
-                let company = {};
-                let user = {};
                 let userCopy = {};
-                let userData = {};
 
-                userData = {
+                let userData = {
                   firstName: userPayload.payload.firstName,
                   lastName: userPayload.payload.lastName,
                   password: userPayload.payload.password,
@@ -630,8 +624,8 @@ module.exports = function (mongoose) {
                 };
 
                 restHapi.create(User, userData, Log)
-                    .then(function() {
-                      done(null, userCopy);
+                    .then(function(user) {
+                      done(null, user);
                     })
                     .catch(function(err) {
                       Log.error(err);
@@ -684,7 +678,7 @@ module.exports = function (mongoose) {
                     email: results.user.email,
                     key: results.keyHash.key }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "4h" } );//TODO: match expiration with activateAccount expiration
 
-                  var invitee = request.auth.credentials.user;
+                  var invitee = request.auth.credentials ? request.auth.credentials.user : { firstName: "Appy", lastName: "Admin" } ;
                   var context = {
                     clientURL: Config.get('/clientURL'),
                     websiteName: Config.get('/websiteName'),
@@ -752,7 +746,6 @@ module.exports = function (mongoose) {
                     password: Joi.string().required(),
                   }).required(),
                   role: Joi.string().required(),
-                  roleData: Joi.any(),
                   registerType: Joi.any().valid(['Register','Invite']).required()
                 }
               },
@@ -913,7 +906,7 @@ module.exports = function (mongoose) {
               assign: 'decoded',
               method: function (request, reply) {
 
-                jwt.verify(request.payload.token, Config.get('/jwtSecret'), function(err, decoded) {
+                jwt.verify(request.query.token, Config.get('/jwtSecret'), function(err, decoded) {
                   if (err) {
                     return reply(Boom.badRequest('Invalid email or key.'));
                   }
@@ -989,7 +982,7 @@ module.exports = function (mongoose) {
           };
 
           server.route({
-            method: 'POST',
+            method: 'GET',
             path: '/user/activate',
             config: {
               handler: accountActivationHandler,
@@ -997,7 +990,7 @@ module.exports = function (mongoose) {
               description: 'User account activation.',
               tags: ['api', 'User', 'Activate Account'],
               validate: {
-                payload: {
+                query: {
                   token: Joi.string().required()
                 }
               },

@@ -2,7 +2,7 @@
 
 Thanks for signing up! You're almost done, please click on the link below to activate your account:
 
-{{clientURL}}/activate/?token={{key}}
+{{clientURL}}/user/activate?token={{key}}
 
 
 Love,
