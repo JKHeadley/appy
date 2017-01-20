@@ -18,14 +18,6 @@ const config = {
             ADMIN:                 'Admin'
         }
     },
-    port: {
-        web: {
-            $filter: 'env',
-            test: 9092,
-            production: process.env.PORT,
-            $default: 9002
-        }
-    },
     authAttempts: {
         forIp: 50,
         forIpAndUser: 7
@@ -47,7 +39,7 @@ const config = {
             port: 465,
             secure: true,
             auth: {
-                user: 'justin@scal.io',
+                user: 'api@appy.com',
                 pass: process.env.SMTP_PASSWORD
             }
         },
@@ -56,7 +48,7 @@ const config = {
             port: 465,
             secure: true,
             auth: {
-                user: 'justin@scal.io',
+                user: 'api@appy.com',
                 pass: process.env.SMTP_PASSWORD
             }
         }
@@ -68,18 +60,18 @@ const config = {
      */
     defaultEmail: {
         $filter: 'env',
-        local: 'justin@scal.io',
-        development: 'justin@scal.io',
-        production: 'justin@scal.io'
+        local: 'api@appy.com',
+        development: 'api@appy.com',
+        production: 'api@appy.com'
     },
     system: {
         fromAddress: {
             name: 'appy',
-            address: 'justin@scal.io'
+            address: 'api@appy.com'
         },
         toAddress: {
             name: 'appy',
-            address: 'justin@scal.io'
+            address: 'api@appy.com'
         }
     },
     clientURL: {
@@ -93,7 +85,7 @@ const config = {
             port: {
                 $filter: 'env',
                 production: process.env.PORT,
-                $default: 9002
+                $default: 8125
             }
         },
         mongo: {

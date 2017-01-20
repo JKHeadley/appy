@@ -36,7 +36,7 @@ gulp.task('seed', [], function() {
                     {
                         firstName: 'test',
                         lastName: 'admin',
-                        email: 'admin@scal.io',
+                        email: 'admin@appy.com',
                         password: password,
                         role: USER_ROLES.ADMIN
                     }
@@ -76,7 +76,6 @@ function dropCollections(models) {
         })
         .then(function() {
             Log.log('admins removed');
-            deferred.resolve();
         })
         .catch(function (error) {
             Log.error(error);
