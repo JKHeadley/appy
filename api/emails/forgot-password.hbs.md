@@ -1,11 +1,9 @@
 ### Forgot your password?
 
-We received a request to reset the password for your account.
+We received a request to reset the password for your account, you will need the token below.
 
-Please follow the following URL:
-
-{{clientURL}}/user/password/forgot?token={{key}}
+{{key}}
 
 Love,
 
-The Scal.io Team
+The {{websiteName}} Team

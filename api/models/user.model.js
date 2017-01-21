@@ -336,12 +336,11 @@ module.exports = function (mongoose) {
 
             Async.auto({
               keyHash: function (done) {
-
                 Session.generateKeyHash(done);
               },
               user: ['keyHash', function (results, done) {
 
-                const id = request.pre.user._id.toString();
+                const _id = request.pre.user._id.toString();
                 const update = {
                   $set: {
                     resetPassword: {
@@ -351,17 +350,31 @@ module.exports = function (mongoose) {
                   }
                 };
 
-                User.findByIdAndUpdate(id, update, done);
+                User.findByIdAndUpdate(_id, update, done);
               }],
               email: ['user', function (results, done) {
 
+                const firstName = results.user.firstName ? results.user.firstname : null;
+                const lastName = results.user.lastName ? results.user.lastName : null;
+
                 const emailOptions = {
-                  subject: 'Reset your ' + Config.get('/projectName') + ' password',
-                  to: request.payload.email
+                  subject: 'Reset your ' + Config.get('/websiteName') + ' password',
+                  to: {
+                    name: firstName + " " + lastName,
+                    address: request.payload.email
+                  }
                 };
+
                 const template = 'forgot-password';
-                const context = {
-                  key: results.keyHash.key
+
+                var token = jwt.sign({
+                  email: request.payload.email,
+                  key: results.keyHash.key }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "4h" } );//TODO: match expiration with activateAccount expiration
+
+                var context = {
+                  clientURL: Config.get('/clientURL'),
+                  websiteName: Config.get('/websiteName'),
+                  key: token
                 };
 
                 mailer.sendEmail(emailOptions, template, context, done);
@@ -379,7 +392,7 @@ module.exports = function (mongoose) {
 
           server.route({
             method: 'POST',
-            path: '/user/login/forgot',
+            path: '/user/password/forgot',
             config: {
               handler: forgotPasswordHandler,
               auth: null,
@@ -414,36 +427,50 @@ module.exports = function (mongoose) {
 
           Log.note("Generating Reset Password endpoint for " + collectionName);
 
-          const resetPasswordPre = [{
-            assign: 'user',
-            method: function (request, reply) {
+          const resetPasswordPre = [
+            {
+              assign: 'decoded',
+              method: function (request, reply) {
 
-              const conditions = {
-                email: request.payload.email,
-                'resetPassword.expires': { $gt: Date.now() }
-              };
+                jwt.verify(request.payload.token, Config.get('/jwtSecret'), function(err, decoded) {
+                  if (err) {
+                    return reply(Boom.badRequest('Invalid email or key.'));
+                  }
 
-              User.findOne(conditions, (err, user) => {
+                  reply(decoded);
+                });
+              }
+            },
+            {
+              assign: 'user',
+              method: function (request, reply) {
 
-                if (err) {
-                  return reply(err);
-                }
+                const conditions = {
+                  email: request.pre.decoded.email,
+                  'resetPassword.expires': { $gt: Date.now() }
+                };
 
-                if (!user) {
-                  return reply(Boom.badRequest('Invalid email or key.'));
-                }
+                User.findOne(conditions, (err, user) => {
 
-                reply(user);
-              });
-            }
-          }];
+                  if (err) {
+                    return reply(err);
+                  }
+
+                  if (!user) {
+                    return reply(Boom.badRequest('Invalid email or key.'));
+                  }
+
+                  reply(user);
+                });
+              }
+            }];
 
           const resetPasswordHandler = function (request, reply) {
 
             Async.auto({
               keyMatch: function (done) {
 
-                const key = request.payload.key;
+                const key = request.pre.decoded.key;
                 const token = request.pre.user.resetPassword.token;
                 Bcrypt.compare(key, token, done);
               },
@@ -481,7 +508,7 @@ module.exports = function (mongoose) {
 
           server.route({
             method: 'POST',
-            path: '/user/login/reset',
+            path: '/user/password/reset',
             config: {
               handler: resetPasswordHandler,
               auth: null,
@@ -489,8 +516,7 @@ module.exports = function (mongoose) {
               tags: ['api', 'User', 'Reset Password'],
               validate: {
                 payload: {
-                  key: Joi.string().required(),
-                  email: Joi.string().email().required(),
+                  token: Joi.string().required(),
                   password: Joi.string().required()
                 }
               },
@@ -650,6 +676,7 @@ module.exports = function (mongoose) {
 
                   var context = {
                     clientURL: Config.get('/clientURL'),
+                    websiteName: Config.get('/websiteName'),
                     key: token
                   };
 

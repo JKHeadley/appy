@@ -7,4 +7,4 @@ Thanks for signing up! You're almost done, please click on the link below to act
 
 Love,
 
-The Scal.io Team
+The {{websiteName}} Team
