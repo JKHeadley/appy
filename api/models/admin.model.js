@@ -21,35 +21,6 @@ module.exports = function (mongoose) {
           model: "user"
         }
       }
-    },
-    createInstance: function(name, callback) {
-
-      const nameParts = name.trim().split(/\s/);
-
-      const document = {
-        name: {
-          first: nameParts.shift(),
-          middle: nameParts.length > 1 ? nameParts.shift() : undefined,
-          last: nameParts.join(' ')
-        },
-        createdAt: new Date()
-      };
-
-      this.insertOne(document, (err, docs) => {
-
-        if (err) {
-          return callback(err);
-        }
-
-        callback(null, docs[0]);
-      });
-    },
-
-    findByUsername: function(username, callback) {
-
-      const query = { 'user.name': username.toLowerCase() };
-
-      this.findOne(query, callback);
     }
   };
   

@@ -20,7 +20,8 @@ module.exports = function (mongoose) {
     var Schema = new mongoose.Schema({
         isActive: {
             type: Types.Boolean,
-            default: true
+            allowOnUpdate: false,
+            default: false
         },
         password: {
             type: Types.String,
@@ -90,9 +91,6 @@ module.exports = function (mongoose) {
                     const AuthAttempt = mongoose.model('authAttempt');
                     const Session = mongoose.model('session');
                     const User = mongoose.model('user');
-                    const Boom = require("boom");
-                    const createToken = require('../utilities/token');
-                    const Config = require('../../config');
 
                     var collectionName = model.collectionDisplayName || model.modelName;
 
@@ -106,18 +104,16 @@ module.exports = function (mongoose) {
                                 const ip = request.info.remoteAddress;
                                 const email = request.payload.email;
 
-                                AuthAttempt.abuseDetected(ip, email, (err, detected) => {
-
-                                    if (err) {
-                                        Log.error(err);
-                                        return reply(err);
-                                    }
-
+                                AuthAttempt.abuseDetected(ip, email, Log)
+                                .then(function(detected) {
                                     if (detected) {
                                         return reply(Boom.badRequest('Maximum number of auth attempts reached. Please try again later.'));
                                     }
-
-                                    reply();
+                                    return reply();
+                                })
+                                .catch(function(error) {
+                                    Log.error(error);
+                                    return reply(Boom.gatewayTimeout('An error occurred.'))
                                 });
                             }
                         },
@@ -128,15 +124,14 @@ module.exports = function (mongoose) {
                                 const email = request.payload.email;
                                 const password = request.payload.password;
 
-                                User.findByCredentials(email, password, Log, (err, user) => {
-
-                                    if (err) {
-                                        Log.error(err);
-                                        return reply(err);
-                                    }
-
-                                    reply(user);
-                                });
+                                User.findByCredentials(email, password, Log)
+                                    .then(function(user) {
+                                        return reply(user);
+                                    })
+                                    .catch(function(error) {
+                                        Log.error(error);
+                                        return reply(Boom.gatewayTimeout('An error occurred.'))
+                                    });
                             }
                         },
                         {
@@ -150,15 +145,14 @@ module.exports = function (mongoose) {
                                 const ip = request.info.remoteAddress;
                                 const email = request.payload.email;
 
-
-                                AuthAttempt.createInstance(ip, email, (err, authAttempt) => {
-
-                                    if (err) {
-                                        return reply(err);
-                                    }
-
-                                    return reply(Boom.badRequest('Invalid Email or Password.'));
-                                });
+                                AuthAttempt.createInstance(ip, email, Log)
+                                    .then(function(authAttempt) {
+                                        return reply(Boom.badRequest('Invalid Email or Password.'));
+                                    })
+                                    .catch(function(error) {
+                                        Log.error(error);
+                                        return reply(Boom.gatewayTimeout('An error occurred.'))
+                                    });
                             }
                         },
                         {
@@ -177,16 +171,14 @@ module.exports = function (mongoose) {
                             assign: 'session',
                             method: function (request, reply) {
 
-                                Session.createInstance(request.pre.user._id, (err, session) => {
-
-                                    if (err) {
-                                        Log.error(err);
-                                        return reply(err);
-                                    }
-
-
-                                    return reply(session);
-                                });
+                                Session.createInstance(request.pre.user._id)
+                                    .then(function(session) {
+                                        return reply(session);
+                                    })
+                                    .catch(function(error) {
+                                        Log.error(error);
+                                        return reply(Boom.gatewayTimeout('An error occurred.'))
+                                    });
                             }
                         }
                     ];
@@ -203,7 +195,7 @@ module.exports = function (mongoose) {
                             authHeader = 'Bearer ' + token;
                         }
 
-                        reply({
+                        return reply({
                             user: request.pre.user,
                             id_token: token,
                             session: request.pre.session,
@@ -258,18 +250,19 @@ module.exports = function (mongoose) {
                         const credentials = request.auth.credentials || {session: {}};
                         const session = credentials.session || {};
 
-                        Session.findByIdAndRemove(session._id, (err, sessionDoc) => {
+                        Session.findByIdAndRemove(session._id)
+                            .then(function(sessionDoc) {
 
-                            if (err) {
-                                return reply(err);
-                            }
+                                if (!sessionDoc) {
+                                    return reply(Boom.notFound('Session not found.'));
+                                }
 
-                            if (!sessionDoc) {
-                                return reply(Boom.notFound('Document not found.'));
-                            }
-
-                            reply({message: 'Success.'});
-                        });
+                                return reply({message: 'Success.'});
+                            })
+                            .catch(function(error) {
+                                Log.error(error);
+                                return reply(Boom.badImplementation('There was an error accessing the database.'));
+                            });
                     };
 
                     server.route({
@@ -300,8 +293,8 @@ module.exports = function (mongoose) {
                 //Forgot Password Endpoint
                 function (server, model, options, Log) {
                     Log = Log.bind(chalk.magenta("Forgot Password"));
+                    const User = model;
                     const Session = mongoose.model('session');
-                    const User = mongoose.model('user');
 
                     var collectionName = model.collectionDisplayName || model.modelName;
 
@@ -315,18 +308,17 @@ module.exports = function (mongoose) {
                                 email: request.payload.email
                             };
 
-                            User.findOne(conditions, (err, user) => {
-
-                                if (err) {
-                                    return reply(err);
-                                }
-
-                                if (!user) {
-                                    return reply({message: 'Success.'}).takeover();
-                                }
-
-                                reply(user);
-                            });
+                            User.findOne(conditions)
+                                .then(function(user) {
+                                    if (!user) {
+                                        return reply({message: 'Success.'}).takeover();
+                                    }
+                                    return reply(user);
+                                })
+                                .catch(function(error) {
+                                    Log.error(error);
+                                    return reply(Boom.badImplementation('There was an error accessing the database.'));
+                                });
                         }
                     }];
 
@@ -334,28 +326,28 @@ module.exports = function (mongoose) {
 
                         const mailer = request.server.plugins.mailer;
 
-                        Async.auto({
-                            keyHash: function (done) {
-                                Session.generateKeyHash(done);
-                            },
-                            user: ['keyHash', function (results, done) {
+                        let keyHash = {},
+                            user = {};
+
+                        Session.generateKeyHash(Log)
+                            .then(function(result) {
+                                keyHash = result;
 
                                 const _id = request.pre.user._id.toString();
                                 const update = {
-                                    $set: {
-                                        resetPassword: {
-                                            token: results.keyHash.hash,
-                                            expires: Date.now() + 10000000
-                                        }
+                                    resetPassword: {
+                                        token: keyHash.hash,
+                                        expires: Date.now() + 10000000
                                     }
                                 };
 
-                                User.findByIdAndUpdate(_id, update, done);
-                            }],
-                            email: ['user', function (results, done) {
+                                return restHapi.update(User, _id, update);
+                            })
+                            .then(function(result) {
+                                user = result;
 
-                                const firstName = results.user.firstName ? results.user.firstname : null;
-                                const lastName = results.user.lastName ? results.user.lastName : null;
+                                const firstName = user.firstName ? user.firstName : null;
+                                const lastName = user.lastName ? user.lastName : null;
 
                                 const emailOptions = {
                                     subject: 'Reset your ' + Config.get('/websiteName') + ' password',
@@ -369,7 +361,7 @@ module.exports = function (mongoose) {
 
                                 var token = jwt.sign({
                                     email: request.payload.email,
-                                    key: results.keyHash.key
+                                    key: keyHash.key
                                 }, Config.get('/jwtSecret'), {algorithm: 'HS256', expiresIn: "4h"});//TODO: match expiration with activateAccount expiration
 
                                 var context = {
@@ -378,17 +370,15 @@ module.exports = function (mongoose) {
                                     key: token
                                 };
 
-                                mailer.sendEmail(emailOptions, template, context, done);
-                            }]
-                        }, (err, results) => {
-
-                            if (err) {
-                                Log.error(err);
-                                return reply(err);
-                            }
-
-                            reply({message: 'Success.'});
-                        });
+                                return mailer.sendEmail(emailOptions, template, context, Log);
+                            })
+                            .then(function(result) {
+                                reply({message: 'Success.'});
+                            })
+                            .catch(function(error) {
+                                Log.error(error);
+                                return reply(Boom.gatewayTimeout('An error occurred.'))
+                            });
                     };
 
                     server.route({
@@ -422,7 +412,7 @@ module.exports = function (mongoose) {
                 //Reset Password Endpoint
                 function (server, model, options, Log) {
                     Log = Log.bind(chalk.magenta("Reset Password"));
-                    const User = mongoose.model('user');
+                    const User = model;
 
                     var collectionName = model.collectionDisplayName || model.modelName;
 
@@ -438,7 +428,7 @@ module.exports = function (mongoose) {
                                         return reply(Boom.badRequest('Invalid email or key.'));
                                     }
 
-                                    reply(decoded);
+                                    return reply(decoded);
                                 });
                             }
                         },
@@ -451,60 +441,53 @@ module.exports = function (mongoose) {
                                     'resetPassword.expires': {$gt: Date.now()}
                                 };
 
-                                User.findOne(conditions, (err, user) => {
-
-                                    if (err) {
-                                        return reply(err);
-                                    }
-
-                                    if (!user) {
-                                        return reply(Boom.badRequest('Invalid email or key.'));
-                                    }
-
-                                    reply(user);
-                                });
+                                User.findOne(conditions)
+                                    .then(function(user) {
+                                        if (!user) {
+                                            return reply(Boom.badRequest('Invalid email or key.'));
+                                        }
+                                        return reply(user);
+                                    })
+                                    .catch(function(error) {
+                                        Log.error(error);
+                                        return reply(Boom.badImplementation('There was an error accessing the database.'));
+                                    });
                             }
                         }];
 
                     const resetPasswordHandler = function (request, reply) {
 
-                        Async.auto({
-                            keyMatch: function (done) {
-
-                                const key = request.pre.decoded.key;
-                                const token = request.pre.user.resetPassword.token;
-                                Bcrypt.compare(key, token, done);
-                            },
-                            passwordHash: ['keyMatch', function (results, done) {
-
-                                if (!results.keyMatch) {
+                        const key = request.pre.decoded.key;
+                        const token = request.pre.user.resetPassword.token;
+                        Bcrypt.compare(key, token)
+                            .then(function(keyMatch) {
+                                if (!keyMatch) {
                                     return reply(Boom.badRequest('Invalid email or key.'));
                                 }
 
-                                User.generatePasswordHash(request.payload.password, done);
-                            }],
-                            user: ['passwordHash', function (results, done) {
+                                return User.generatePasswordHash(request.payload.password, Log);
+                            })
+                            .then(function(passwordHash) {
 
-                                const id = request.pre.user._id.toString();
+                                const _id = request.pre.user._id.toString();
                                 const update = {
                                     $set: {
-                                        password: results.passwordHash.hash
+                                        password: passwordHash.hash
                                     },
                                     $unset: {
                                         resetPassword: undefined
                                     }
                                 };
 
-                                User.findByIdAndUpdate(id, update, done);
-                            }]
-                        }, (err, results) => {
-
-                            if (err) {
-                                return reply(err);
-                            }
-
-                            reply({message: 'Success.'});
-                        });
+                                return restHapi.update(User, _id, update);
+                            })
+                            .then(function(result) {
+                                return reply({message: 'Success.'});
+                            })
+                            .catch(function(error) {
+                                Log.error(error);
+                                return reply(Boom.gatewayTimeout('An error occurred.'))
+                            });
                     };
 
                     server.route({
@@ -539,7 +522,7 @@ module.exports = function (mongoose) {
                 //Check Email Endpoint
                 function (server, model, options, Log) {
                     Log = Log.bind(chalk.magenta("Check Email"));
-                    const User = mongoose.model('user');
+                    const User = model;
 
                     var collectionName = model.collectionDisplayName || model.modelName;
 
@@ -547,9 +530,9 @@ module.exports = function (mongoose) {
 
                     const checkEmailHandler = function (request, reply) {
 
-                        User.find({email: request.payload.email})
-                            .then(function (results) {
-                                if (results.length > 0) {
+                        User.findOne({email: request.payload.email})
+                            .then(function (result) {
+                                if (result) {
                                     Log.log("Email already exists.");
                                     return reply(true);
                                 }
@@ -594,7 +577,7 @@ module.exports = function (mongoose) {
                 //Registration Endpoint
                 function (server, model, options, Log) {
                     Log = Log.bind(chalk.magenta("Register"));
-                    const User = mongoose.model('user');
+                    const User = model;
                     const Session = mongoose.model('session');
 
                     var collectionName = model.collectionDisplayName || model.modelName;
@@ -609,149 +592,126 @@ module.exports = function (mongoose) {
                                 email: request.payload.email
                             };
 
-                            User.findOne(conditions, (err, user) => {
-
-                                if (err) {
-                                    return reply(err);
-                                }
-
-                                if (user) {
-                                    return reply(Boom.conflict('Email already in use.'));
-                                }
-
-                                reply(true);
-                            });
+                            User.findOne(conditions)
+                                .then(function(user) {
+                                    
+                                    if (user) {
+                                        return reply(Boom.conflict('Email already in use.'));
+                                    }
+    
+                                    return reply(true);
+                                })
+                                .catch(function(error) {
+                                    Log.error(error);
+                                    return reply(Boom.badImplementation('There was an error accessing the database.'));
+                                });
                         }
                     }];
 
-                    const signUpHandler = function (request, reply) {
+                    const registerHandler = function (request, reply) {
 
                         const mailer = request.server.plugins.mailer;
 
-                        Async.auto({
-                            keyHash: function (done) {
+                        let keyHash = {},
+                            user = {},
+                            originalPassword = "";
+                        
+                        Session.generateKeyHash(Log)
+                            .then(function(result) {
+                                keyHash = result;
 
-                                Session.generateKeyHash(done);
-                            },
-                            user: ['keyHash', function (results, done) {
-                                let userPayload = {payload: request.payload.user};
-                                let userCopy = {};
+                                user = request.payload.user;
+                                
+                                originalPassword = user.password;
 
-                                let userData = {
-                                    firstName: userPayload.payload.firstName,
-                                    lastName: userPayload.payload.lastName,
-                                    password: userPayload.payload.password,
-                                    email: userPayload.payload.email,
-                                    role: request.payload.role,
-                                    isActive: false,
-                                    activateAccount: {
-                                        token: results.keyHash.hash,
-                                        expires: Date.now() + 10000000 //TODO: set token expiration in config
-                                    }
+                                user.isActive = false;
+                                user.activateAccount = {
+                                    token: keyHash.hash,
+                                    expires: Date.now() + 10000000 //TODO: set token expiration in config
                                 };
 
-                                restHapi.create(User, userData, Log)
-                                    .then(function (user) {
-                                        done(null, user);
-                                    })
-                                    .catch(function (err) {
-                                        Log.error(err);
-                                        done(err, null);
-                                    });
+                                return restHapi.create(User, user, Log);
+                            })
+                            .then(function(result) {
+                                user = result;
 
-                            }],
-                            welcome: ['user', function (results, done) {
                                 if (request.payload.registerType === "Register") {
                                     const emailOptions = {
                                         subject: 'Activate your ' + Config.get('/websiteName') + ' account',
                                         to: {
                                             name: request.payload.firstName + " " + request.payload.lastName,
-                                            address: results.user.email
+                                            address: user.email
                                         }
                                     };
                                     const template = 'welcome';
 
-                                    var token = jwt.sign({
-                                        email: results.user.email,
-                                        key: results.keyHash.key
+                                    const token = jwt.sign({
+                                        email: user.email,
+                                        key: keyHash.key
                                     }, Config.get('/jwtSecret'), {algorithm: 'HS256', expiresIn: "4h"});//TODO: match expiration with activateAccount expiration
 
-                                    var context = {
+                                    let context = {
                                         clientURL: Config.get('/clientURL'),
                                         websiteName: Config.get('/websiteName'),
                                         key: token
                                     };
 
-                                    mailer.sendEmail(emailOptions, template, context, (err) => {
-
-                                        if (err) {
-                                            Log.error('sending welcome email failed:', err.stack);
-                                        }
-                                    });
+                                    mailer.sendEmail(emailOptions, template, context, Log)
+                                        .catch(function(error) {
+                                            Log.error('sending welcome email failed:', error);
+                                        });
                                 }
-
-                                done();
-                            }],
-                            invite: ['user', function (results, done) {
-                                if (request.payload.registerType === "Invite") {
+                                else if (request.payload.registerType === "Invite") {
                                     const emailOptions = {
                                         subject: 'Invitation to ' + Config.get('/websiteName'),
                                         to: {
                                             name: request.payload.firstName + " " + request.payload.lastName,
-                                            address: results.user.email
+                                            address: user.email
                                         }
                                     };
                                     const template = 'invite';
 
                                     var token = jwt.sign({
-                                        email: results.user.email,
-                                        key: results.keyHash.key
+                                        email: user.email,
+                                        key: keyHash.key
                                     }, Config.get('/jwtSecret'), {algorithm: 'HS256', expiresIn: "4h"});//TODO: match expiration with activateAccount expiration
 
                                     var invitee = request.auth.credentials ? request.auth.credentials.user : {
                                         firstName: "Appy",
                                         lastName: "Admin"
                                     };
-                                    var context = {
+                                    let context = {
                                         clientURL: Config.get('/clientURL'),
                                         websiteName: Config.get('/websiteName'),
                                         inviteeName: invitee.firstName + ' ' + invitee.lastName,
                                         email: request.payload.user.email,
-                                        password: request.payload.originalPassword,
+                                        password: originalPassword,
                                         key: token
                                     };
 
-                                    mailer.sendEmail(emailOptions, template, context, (err) => {
-
-                                        if (err) {
-                                            Log.error('sending invite email failed:', err.stack);
-                                        }
-                                    });
+                                    mailer.sendEmail(emailOptions, template, context, Log)
+                                        .catch(function(error) {
+                                            Log.error('sending invite email failed:', error);
+                                        });
                                 }
 
-                                done();
-                            }],
-                            session: ['user', function (results, done) {//TODO: probably don't need this session
-                                Session.createInstance(results.user._id.toString(), done);
-                            }]
-                        }, (err, results) => {
+                                return Session.createInstance(user._id.toString());
+                            })
+                            .then(function(session) {
+                                const credentials = session._id + ':' + session.key;
+                                const authHeader = 'Basic ' + new Buffer(credentials).toString('base64');
 
-                            if (err) {
-                                Log.error(err);
-                                return reply(Boom.badRequest(err.message));
-                            }
-
-                            const user = results.user;
-                            const credentials = results.session._id + ':' + results.session.key;
-                            const authHeader = 'Basic ' + new Buffer(credentials).toString('base64');
-
-                            reply({
-                                user: user,
-                                session: results.session,
-                                id_token: createToken(user, results.session),
-                                authHeader
+                                return reply({
+                                    user: user,
+                                    session: session,
+                                    id_token: createToken(user, session),
+                                    authHeader
+                                });
+                            })
+                            .catch(function(error) {
+                                Log.error(error);
+                                return reply(Boom.gatewayTimeout('An error occurred.'))
                             });
-                        });
                     };
 
                     let auth = {};
@@ -766,7 +726,7 @@ module.exports = function (mongoose) {
                         method: 'POST',
                         path: '/user/register',
                         config: {
-                            handler: signUpHandler,
+                            handler: registerHandler,
                             auth: auth,
                             description: 'User registration.',
                             tags: ['api', 'User', 'Registration'],
@@ -800,7 +760,7 @@ module.exports = function (mongoose) {
                 //Send Activation Email Endpoint
                 function (server, model, options, Log) {
                     Log = Log.bind(chalk.magenta("Send Activation Email"));
-                    const User = mongoose.model('user');
+                    const User = model;
                     const Session = mongoose.model('session');
 
                     var collectionName = model.collectionDisplayName || model.modelName;
@@ -814,14 +774,14 @@ module.exports = function (mongoose) {
 
                                 const email = request.payload.email;
 
-                                User.findOne({email: email}, (err, user) => {
-
-                                    if (err) {
-                                        return reply(err);
-                                    }
-
-                                    reply(user);
-                                });
+                                User.findOne({email: email})
+                                    .then(function(user) {
+                                        return reply(user);
+                                    })
+                                    .catch(function(error) {
+                                        Log.error(error);
+                                        return reply(Boom.badImplementation('There was an error accessing the database.'));
+                                    });
                             }
                         },
                     ];
@@ -829,34 +789,28 @@ module.exports = function (mongoose) {
                     const sendActivationEmailHandler = function (request, reply) {
 
                         const mailer = request.server.plugins.mailer;
+                        
+                        let keyHash = {},
+                            user = {};
 
-                        Async.auto({
-                            keyHash: function (done) {
-
-                                Session.generateKeyHash(done);
-                            },
-                            user: ['keyHash', function (results, done) {
-
-                                var document = {
+                        Session.generateKeyHash(Log)
+                            .then(function(result) {
+                                keyHash = result;
+                                
+                                const document = {
                                     activateAccount: {
-                                        token: results.keyHash.hash,
+                                        token: keyHash.hash,
                                         expires: Date.now() + 10000000 //TODO: set token expiration in config
                                     }
                                 };
 
-                                User.findByIdAndUpdate(request.pre.user._id, document)
-                                    .then(function (user) {
-                                        done(null, user);
-                                    })
-                                    .catch(function (err) {
-                                        done(err, null);
-                                    });
+                                return restHapi.update(User, request.pre.user._id, document);
+                            })
+                            .then(function(result) {
+                                user = result;
 
-                            }],
-                            welcome: ['user', function (results, done) {
-
-                                const firstName = results.user.firstName ? results.user.firstName : null;
-                                const lastName = results.user.lastName ? results.user.lastName : null;
+                                const firstName = user.firstName ? user.firstName : null;
+                                const lastName = user.lastName ? user.lastName : null;
 
                                 const emailOptions = {
                                     subject: 'Activate your ' + Config.get('/websiteName') + ' account',
@@ -867,9 +821,9 @@ module.exports = function (mongoose) {
                                 };
                                 const template = 'welcome';
 
-                                var token = jwt.sign({
+                                const token = jwt.sign({
                                     email: request.payload.email,
-                                    key: results.keyHash.key
+                                    key: keyHash.key
                                 }, Config.get('/jwtSecret'), {algorithm: 'HS256', expiresIn: "4h"});//TODO: match expiration with activateAccount expiration
 
 
@@ -878,24 +832,17 @@ module.exports = function (mongoose) {
                                     key: token
                                 };
 
-                                mailer.sendEmail(emailOptions, template, context, (err) => {
+                                mailer.sendEmail(emailOptions, template, context, Log)
+                                    .catch(function(error) {
+                                        Log.error('sending activation email failed:', error);
+                                    });
 
-                                    if (err) {
-                                        Log.error('Send activation email failed:', err);
-                                    }
-                                });
-
-                                done();
-                            }]
-                        }, (err, results) => {
-
-                            if (err) {
-                                Log.error(err);
-                                return reply(err);
-                            }
-
-                            reply("Activation email sent.");
-                        });
+                                return reply("Activation email sent.");
+                            })
+                            .catch(function(error) {
+                                Log.error(error);
+                                return reply(Boom.gatewayTimeout('An error occurred.'))
+                            });
                     };
 
                     server.route({
@@ -929,7 +876,7 @@ module.exports = function (mongoose) {
                 //Account Activation Endpoint
                 function (server, model, options, Log) {
                     Log = Log.bind(chalk.magenta("Activate Account"));
-                    const User = mongoose.model('user');
+                    const User = model;
 
                     var collectionName = model.collectionDisplayName || model.modelName;
 
@@ -958,42 +905,32 @@ module.exports = function (mongoose) {
                                     'activateAccount.expires': {$gt: Date.now()}
                                 };
 
-                                User.findOne(conditions, (err, user) => {
-
-                                    if (err) {
-                                        return reply(err);
-                                    }
-
-                                    if (!user) {
-                                        return reply(Boom.badRequest('Invalid email or key.'));
-                                    }
-
-                                    reply(user);
-                                });
+                                User.findOne(conditions)
+                                    .then(function(user) {
+                                        if (!user) {
+                                            return reply(Boom.badRequest('Invalid email or key.'));
+                                        }
+                                        reply(user);
+                                    })
+                                    .catch(function(error) {
+                                        Log.error(error);
+                                        return reply(Boom.badImplementation('There was an error accessing the database.'));
+                                    });
                             }
                         }
                     ];
 
                     const accountActivationHandler = function (request, reply) {
 
-                        Async.auto({
-                            keyMatch: function (done) {
-
-                                const key = request.pre.decoded.key;
-                                const token = request.pre.user.activateAccount.token;
-                                Bcrypt.compare(key, token, done);
-                            },
-                            passwordHash: ['keyMatch', function (results, done) {
-
-                                if (!results.keyMatch) {
+                        const key = request.pre.decoded.key;
+                        const token = request.pre.user.activateAccount.token;
+                        Bcrypt.compare(key, token)
+                            .then(function(keyMatch) {
+                                if (!keyMatch) {
                                     return reply(Boom.badRequest('Invalid email or key.'));
                                 }
 
-                                done();
-                            }],
-                            user: ['passwordHash', function (results, done) {
-
-                                const id = request.pre.user._id.toString();
+                                const _id = request.pre.user._id.toString();
                                 const update = {
                                     $set: {
                                         isActive: true
@@ -1003,16 +940,15 @@ module.exports = function (mongoose) {
                                     }
                                 };
 
-                                User.findByIdAndUpdate(id, update, done);
-                            }]
-                        }, (err, results) => {
-
-                            if (err) {
-                                return reply(err);
-                            }
-
-                            reply({message: 'Success.'});
-                        });
+                                return restHapi.update(User, _id, update);
+                            })
+                            .then(function(result) {
+                                return reply({message: 'Success.'});
+                            })
+                            .catch(function(error) {
+                                Log.error(error);
+                                return reply(Boom.gatewayTimeout('An error occurred.'))
+                            });
                     };
 
                     server.route({
@@ -1046,123 +982,54 @@ module.exports = function (mongoose) {
             ],
             create: {
                 pre: function (payload, Log) {
-                    var deferred = Q.defer();
 
-                    mongoose.model('user').generatePasswordHash(payload.password, function (err, hashedPassword) {
-
-                        if (err) {
-                            deferred.reject(err);
-                        }
-                        else {
+                    return mongoose.model('user').generatePasswordHash(payload.password, Log)
+                        .then(function(hashedPassword) {
                             payload.password = hashedPassword.hash;
-                            deferred.resolve(payload);
-                        }
-
-                    });
-
-                    return deferred.promise;
+                            return payload;
+                        });
                 }
             }
         },
 
-        createInstance: function (user) {
-            var deferred = Q.defer();
+        generatePasswordHash: function (password, Log) {
 
-            mongoose.model('user').generatePasswordHash(user.password, function (err, hashedPassword) {
-
-                if (err) {
-                    deferred.reject(err);
-                }
-                else {
-                    user.password = hashedPassword.hash;
-                    deferred.resolve(mongoose.model('user').create(user));
-                }
-
-            });
-
-            return deferred.promise;
+            return Bcrypt.genSalt(10)
+                .then(function(salt) {
+                    return Bcrypt.hash(password, salt);
+                })
+                .then(function(hash) {
+                    return { password, hash }
+                })
         },
 
-        generatePasswordHash: function (password, callback) {
-
-            Async.auto({
-                salt: function (done) {
-
-                    Bcrypt.genSalt(10, done);
-                },
-                hash: ['salt', function (results, done) {
-
-                    Bcrypt.hash(password, results.salt, done);
-                }]
-            }, (err, results) => {
-
-                if (err) {
-                    return callback(err);
-                }
-
-                callback(null, {
-                    password,
-                    hash: results.hash
-                });
-            });
-        },
-
-        findByCredentials: function (email, password, Log, callback) {
+        findByCredentials: function (email, password, Log) {
 
             const self = this;
 
-            Async.auto({
-                user: function (done) {
+            const query = {
+                email: email
+            };
 
-                    const query = {
-                        email: email
-                    };
+            let user = {};
 
-                    var mongooseQuery = self.findOne(query);
-                    //EXPL: populate any existing role profile
-                    mongooseQuery.populate([
-                        {path: 'admin'},
-                        {path: 'buildingManager', populate: {path: 'company', populate: {path: 'primaryContact'}}},
-                        {path: 'tradeExpert', populate: {path: 'company', populate: {path: 'primaryContact'}}},
-                        {path: 'firstResponder', populate: {path: 'company', populate: {path: 'primaryContact'}}}
-                    ]);
-                    mongooseQuery.exec()
-                        .then(function (user) {
-                            done(null, user);
-                        })
-                        .catch(function (err) {
-                            done(err, null);
-                        });
-                },
-                passwordMatch: ['user', function (results, done) {
+            return self.findOne(query)
+                .then(function(result) {
+                    user = result;
 
-                    if (!results.user) {
-                        return done(null, false);
+                    if (!user) {
+                        return false;
                     }
 
-                    const source = results.user.password;
+                    const source = user.password;
 
-                    Bcrypt.compare(password, source, done);
-                }]
-            }, (err, results) => {
-
-                if (err) {
-                    return callback(err);
-                }
-
-                if (results.passwordMatch) {
-                    return callback(null, results.user);
-                }
-
-                callback();
-            });
-        },
-
-        findByEmail: function (email, callback) {
-
-            const query = {email: email.toLowerCase()};
-
-            this.findOne(query, callback);
+                    return Bcrypt.compare(password, source);
+                })
+                .then(function(passwordMatch) {
+                    if (passwordMatch) {
+                        return user;
+                    }
+                });
         }
     };
 

@@ -32,104 +32,72 @@ module.exports = function (mongoose) {
         }
       }
     },
-    generateKeyHash: function(callback) {
+    generateKeyHash: function(Log) {
 
       const key = Uuid.v4();
 
-      Async.auto({
-        salt: function (done) {
-
-          Bcrypt.genSalt(10, done);
-        },
-        hash: ['salt', function (results, done) {
-
-          Bcrypt.hash(key, results.salt, done);
-        }]
-      }, (err, results) => {
-
-        if (err) {
-          return callback(err);
-        }
-
-        callback(null, {
-          key,
-          hash: results.hash
-        });
-      });
-    },
-
-    createInstance: function(userId, callback) {
-
-      const self = this;
-
-      Async.auto({
-        keyHash: this.generateKeyHash.bind(this),
-        newSession: ['keyHash', function (results, done) {
-
-          const document = {
-            user: userId,
-            key: results.keyHash.hash,
-            time: new Date(),
-          };
-
-          mongoose.model('session').create(document).then(function(newSession) {
-            done(null, newSession);
+      return Bcrypt.genSalt(10)
+          .then(function(salt) {
+              return Bcrypt.hash(key, salt);
           })
-          .catch(function(err) {
-            done(err, null);
-          });
-        }],
-        clean: ['newSession', function (results, done) {
-
-          const query = {
-            user: userId,
-            key: { $ne: results.keyHash.hash }
-          };
-
-          mongoose.model('session').findOneAndRemove(query).then(function(deleted) {
-            done(null, deleted);
-          });
-        }]
-      }, (err, results) => {
-
-        if (err) {
-          return callback(err);
-        }
-
-        results.newSession.key = results.keyHash.key;
-
-        callback(null, results.newSession);
-      });
+          .then(function(hash) {
+              return { key, hash }
+          })
     },
 
-    findByCredentials: function(id, key, callback) {
+    createInstance: function(userId, Log) {
+        const self = this;
+        let keyHash = {},
+            newSession = {};
 
-      Async.auto({
-        session: function (done) {
+        return self.generateKeyHash()
+            .then(function(result) {
+                keyHash = result;
 
-          mongoose.model('session').findById(id, done);
-        },
-        keyMatch: ['session', function (results, done) {
+                const document = {
+                    user: userId,
+                    key: keyHash.hash,
+                    time: new Date(),
+                };
 
-          if (!results.session) {
-            return done(null, false);
-          }
+                return mongoose.model('session').create(document);
+            })
+            .then(function(result) {
+                newSession = result;
 
-          const source = results.session.key;
-          Bcrypt.compare(key, source, done);
-        }]
-      }, (err, results) => {
+                const query = {
+                    user: userId,
+                    key: { $ne: keyHash.hash }
+                };
 
-        if (err) {
-          return callback(err);
-        }
+                return mongoose.model('session').findOneAndRemove(query);
+            })
+            .then(function(result) {
+                newSession.key = keyHash.key;
 
-        if (results.keyMatch) {
-          return callback(null, results.session);
-        }
+                return newSession;
+            })
+    },
 
-        callback();
-      });
+    findByCredentials: function(_id, key, Log) {
+
+        let session = {};
+
+        return mongoose.model('session').findById(_id)
+            .then(function(result) {
+                session = result;
+                if (!session) {
+                    return false;
+                }
+
+                const source = session.key;
+                return Bcrypt.compare(key, source);
+            })
+            .then(function(keyMatch) {
+                if (keyMatch) {
+                    return session;
+                }
+            });
     }
   };
   

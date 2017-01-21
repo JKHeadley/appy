@@ -26,7 +26,7 @@ module.exports = function (mongoose) {
         routeOptions: {
             alias: "auth-attempt"
         },
-        createInstance: function(ip, email, callback) {
+        createInstance: function(ip, email, Log) {
 
             const document = {
                 ip,
@@ -34,47 +34,39 @@ module.exports = function (mongoose) {
                 time: new Date()
             };
 
-            mongoose.model('authAttempt').create(document, (err, docs) => {
-
-                if (err) {
-                    return callback(err);
-                }
-
-                callback(null, docs[0]);
-            });
+            return mongoose.model('authAttempt').create(document)
+                .then(function(docs) {
+                    return docs;
+                })
         },
 
-        abuseDetected: function(ip, email, callback) {
+        abuseDetected: function(ip, email, Log) {
 
             const self = this;
+            let abusiveIpCount = {},
+                abusiveIpUserCount = {};
 
-            Async.auto({
-                abusiveIpCount: function (done) {
-
-                    const query = { ip };
-                    self.count(query, done);
-                },
-                abusiveIpUserCount: function (done) {
+            const query = { ip };
+            return self.count(query)
+                .then(function(result) {
+                    abusiveIpCount = result;
 
                     const query = {
                         ip,
                         email: email.toLowerCase()
                     };
 
-                    self.count(query, done);
-                }
-            }, (err, results) => {
+                    return self.count(query);
+                })
+                .then(function(result) {
+                    abusiveIpUserCount = result;
 
-                if (err) {
-                    return callback(err);
-                }
+                    const authAttemptsConfig = Config.get('/authAttempts');
+                    const ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;
+                    const ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
 
-                const authAttemptsConfig = Config.get('/authAttempts');
-                const ipLimitReached = results.abusiveIpCount >= authAttemptsConfig.forIp;
-                const ipUserLimitReached = results.abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
-
-                callback(null, ipLimitReached || ipUserLimitReached);
-            });
+                    return (ipLimitReached || ipUserLimitReached);
+                })
         }
     };
 

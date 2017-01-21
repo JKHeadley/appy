@@ -1,6 +1,7 @@
 'use strict';
 const Config = require('../../config');
 const Fs = require('fs');
+const Q = require('q');
 const Handlebars = require('handlebars');
 const Hoek = require('hoek');
 const Markdown = require('nodemailer-markdown').markdown;
@@ -17,10 +18,11 @@ internals.transport.use('compile', Markdown({ useEmbeddedImages: true }));
 internals.templateCache = {};
 
 
-internals.renderTemplate = function (signature, context, callback) {
+internals.renderTemplate = function (signature, context, Log) {
 
+    let deferred = Q.defer();
     if (internals.templateCache[signature]) {
-        return callback(null, internals.templateCache[signature](context));
+        return internals.templateCache[signature](context);
     }
 
     const filePath = __dirname + '/../emails/' + signature + '.hbs.md';
@@ -28,38 +30,38 @@ internals.renderTemplate = function (signature, context, callback) {
 
     Fs.readFile(filePath, options, (err, source) => {
 
-        if (err) {
-            return callback(err);
-        }
+        deferred.reject(err);
 
         internals.templateCache[signature] = Handlebars.compile(source);
-        callback(null, internals.templateCache[signature](context));
+        deferred.resolve(internals.templateCache[signature](context));
     });
+
+    return deferred.promise;
 };
 
 
-internals.sendEmail = function (options, template, context, callback) {
+internals.sendEmail = function (options, template, context, Log) {
 
-    internals.renderTemplate(template, context, (err, content) => {
+    internals.renderTemplate(template, context, Log)
+        .then(function(content) {
 
-        if (err) {
-            return callback(err);
-        }
+            const defaultEmail = Config.get('/defaultEmail');
 
-        const defaultEmail = Config.get('/defaultEmail');
+            //EXPL: send to the default email address if it exists
+            if (!(Object.keys(defaultEmail).length === 0 && defaultEmail.constructor === Object)) {
+                options.to.address =  defaultEmail;
+            }
 
-        //EXPL: send to the default email address if it exists
-        if (!(Object.keys(defaultEmail).length === 0 && defaultEmail.constructor === Object)) {
-            options.to.address =  defaultEmail;
-        }
+            options = Hoek.applyToDefaults(options, {
+                from: Config.get('/system/fromAddress'),
+                markdown: content
+            });
 
-        options = Hoek.applyToDefaults(options, {
-            from: Config.get('/system/fromAddress'),
-            markdown: content
+            return internals.transport.sendMail(options);
+        })
+        .catch(function(error) {
+            throw error;
         });
-
-        internals.transport.sendMail(options, callback);
-    });
 };
 
 

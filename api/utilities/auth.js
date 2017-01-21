@@ -2,6 +2,7 @@
 const Async = require('async');
 const Boom = require('boom');
 const Config = require('../../config');
+const Q = require('q');
 let mongoose = require('mongoose');
 
 
@@ -10,8 +11,6 @@ const internals = {};
 
 internals.applyStrategy = function (server, next) {
 
-    // const Session = server.plugins['hapi-mongo-models'].Session;
-    // const User = server.plugins['hapi-mongo-models'].User;
     const Session = mongoose.model('session');
     const User = mongoose.model('user');
 
@@ -68,6 +67,7 @@ internals.applyStrategy = function (server, next) {
 
 
 internals.applyJwtStrategy = function (server, next) {
+
     const Session = mongoose.model('session');
     const User = mongoose.model('user');
 
@@ -77,52 +77,51 @@ internals.applyJwtStrategy = function (server, next) {
 
         validateFunc: function (decodedToken, request, callback) {
 
-            Async.auto({
-                session: function (done) {
-                    Session.findByCredentials(decodedToken.sessionId, decodedToken.sessionKey, done);
-                },
-                user: ['session', function (results, done) {
+            let session = {},
+                user = {};
 
-                    if (!results.session) {
-                        return done();
+            Session.findByCredentials(decodedToken.sessionId, decodedToken.sessionKey)
+                .then(function(result) {
+                    session = result;
+
+                    if (!session) {
+                        return Q.when();
                     }
 
-                    User.findById(results.session.user, done);
-                }],
-                //TODO: populate user role for scope
-                // roles: ['user', function (results, done) {
-                //
-                //   console.log("user", results.user);
-                //   if (!results.user) {
-                //     return done();
-                //   }
-                //
-                //   done(null,)
-                // }],
-                // scope: ['user', function (results, done) {
-                //
-                //   if (!results.user || !results.user.roles) {
-                //     return done();
-                //   }
-                //
-                //   done(null, Object.keys(results.user.roles));
-                // }]
-            }, (err, results) => {
+                    return User.findById(session.user);
+                })
+                .then(function(result) {
+                    user = result;
 
-                if (err) {
-                    return callback(err);
-                }
+                    if (!session) {
+                        return callback(null, false);
+                    }
 
-                if (!results.session) {
-                    return callback(null, false);
-                }
+                    callback(null, Boolean(user), { session, user });
+                });
 
-                callback(null, Boolean(results.user), results);
-            });
+            //TODO: populate user role for scope
+            // roles: ['user', function (results, done) {
+            //
+            //   console.log("user", results.user);
+            //   if (!results.user) {
+            //     return done();
+            //   }
+            //
+            //   done(null,)
+            // }],
+            // scope: ['user', function (results, done) {
+            //
+            //   if (!results.user || !results.user.roles) {
+            //     return done();
+            //   }
+            //
+            //   done(null, Object.keys(results.user.roles));
+            // }]
         }
     });
 
-    // next();
+    next();
 };
 
 internals.preware = {
@@ -167,13 +166,11 @@ internals.preware = {
 
 exports.register = function (server, options, next) {
 
-    // if( Config.get('/authStrategy') === 'simple') {
-    //     server.dependency('hapi-mongo-models', internals.applyStrategy);
-    // } else {
-    //     server.dependency(['hapi-mongo-models', 'hapi-auth-jwt2'], internals.applyJwtStrategy);
-    // }
-
-    server.dependency(['hapi-auth-jwt2'], internals.applyJwtStrategy);
+    if( Config.get('/authStrategy') === 'simple') {
+        server.dependency([], internals.applyStrategy);
+    } else {
+        server.dependency(['hapi-auth-jwt2'], internals.applyJwtStrategy);
+    }
 
     next();
 };
