@@ -1,6 +1,4 @@
-var Q = require('q');
-var Joi = require('joi');
-const Async = require('async');
+'use strict';
 
 module.exports = function (mongoose) {
   var modelName = "admin";

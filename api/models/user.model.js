@@ -1,9 +1,7 @@
 'use strict';
 
-var Q = require('q');
 var Joi = require('joi');
-const Async = require('async');
-const Bcrypt = require('bcrypt');
+const Bcrypt = require('bcryptjs');
 var Boom = require('boom');
 const chalk = require('chalk');
 const Config = require('../../config');

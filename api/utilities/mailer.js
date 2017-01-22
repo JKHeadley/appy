@@ -1,4 +1,5 @@
 'use strict';
+
 const Config = require('../../config');
 const Fs = require('fs');
 const Q = require('q');

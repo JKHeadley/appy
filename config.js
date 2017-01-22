@@ -1,4 +1,5 @@
 'use strict';
+
 const Confidence = require('confidence');
 const Dotenv = require('dotenv');
 

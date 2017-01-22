@@ -1,7 +1,6 @@
-var Q = require('q');
-var Joi = require('joi');
-const Async = require('async');
-const Bcrypt = require('bcrypt');
+'use strict';
+
+const Bcrypt = require('bcryptjs');
 const Uuid = require('node-uuid');
 
 module.exports = function (mongoose) {

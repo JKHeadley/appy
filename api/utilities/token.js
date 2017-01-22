@@ -1,4 +1,5 @@
 'use strict';
+
 const AuthPlugin = require('./auth');
 const jwt = require('jsonwebtoken');
 const Config = require('../../config');

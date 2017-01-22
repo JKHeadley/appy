@@ -1,5 +1,5 @@
 'use strict';
-const Async = require('async');
+
 const Boom = require('boom');
 const Config = require('../../config');
 const Q = require('q');
@@ -17,47 +17,47 @@ internals.applyStrategy = function (server, next) {
     server.auth.strategy('simple', 'basic', {
         validateFunc: function (request, email, password, callback) {
 
-            Async.auto({
-                session: function (done) {
-
-                    Session.findByCredentials(email, password, done);
-                },
-                user: ['session', function (results, done) {
-
-                    if (!results.session) {
-                        return done();
-                    }
-
-                    User.findById(results.session.user, done);
-                }],
-                roles: ['user', function (results, done) {
-
-                    if (!results.user) {
-                        return done();
-                    }
-
-                    results.user.hydrateRoles(done);
-                }],
-                scope: ['user', function (results, done) {
-
-                    if (!results.user || !results.user.roles) {
-                        return done();
-                    }
-
-                    done(null, Object.keys(results.user.roles));
-                }]
-            }, (err, results) => {
-
-                if (err) {
-                    return callback(err);
-                }
-
-                if (!results.session) {
-                    return callback(null, false);
-                }
-
-                callback(null, Boolean(results.user), results);
-            });
+            // Async.auto({
+            //     session: function (done) {
+            //
+            //         Session.findByCredentials(email, password, done);
+            //     },
+            //     user: ['session', function (results, done) {
+            //
+            //         if (!results.session) {
+            //             return done();
+            //         }
+            //
+            //         User.findById(results.session.user, done);
+            //     }],
+            //     roles: ['user', function (results, done) {
+            //
+            //         if (!results.user) {
+            //             return done();
+            //         }
+            //
+            //         results.user.hydrateRoles(done);
+            //     }],
+            //     scope: ['user', function (results, done) {
+            //
+            //         if (!results.user || !results.user.roles) {
+            //             return done();
+            //         }
+            //
+            //         done(null, Object.keys(results.user.roles));
+            //     }]
+            // }, (err, results) => {
+            //
+            //     if (err) {
+            //         return callback(err);
+            //     }
+            //
+            //     if (!results.session) {
+            //         return callback(null, false);
+            //     }
+            //
+            //     callback(null, Boolean(results.user), results);
+            // });
         }
     });
 
@@ -121,7 +121,7 @@ internals.applyJwtStrategy = function (server, next) {
         }
     });
 
-    next();
+    //next();
 };
 
 internals.preware = {

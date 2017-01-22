@@ -1,6 +1,5 @@
-var Q = require('q');
-var Joi = require('joi');
-const Async = require('async');
+'use strict';
+
 const Config = require('../../config');
 
 module.exports = function (mongoose) {
