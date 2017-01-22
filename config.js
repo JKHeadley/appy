@@ -23,6 +23,7 @@ const config = {
     forIp: 50,
     forIpAndUser: 7
   },
+  lockOutPeriod: 30, //in units of minutes
   cookieSecret: {
     $filter: 'env',
     production: process.env.COOKIE_SECRET,
@@ -40,7 +41,7 @@ const config = {
       port: 465,
       secure: true,
       auth: {
-        user: 'appihapi@gmail.com',
+        user: 'appyhapi@gmail.com',
         pass: process.env.SMTP_PASSWORD
       }
     },
@@ -49,7 +50,7 @@ const config = {
       port: 465,
       secure: true,
       auth: {
-        user: 'appihapi@gmail.com',
+        user: 'appyhapi@gmail.com',
         pass: process.env.SMTP_PASSWORD
       }
     }
@@ -61,18 +62,18 @@ const config = {
    */
   defaultEmail: {
     $filter: 'env',
-    local: 'appihapi@gmail.com',
-    development: 'appihapi@gmail.com',
-    production: 'appihapi@gmail.com'
+    local: 'appyhapi@gmail.com',
+    development: 'appyhapi@gmail.com',
+    production: 'appyhapi@gmail.com'
   },
   system: {
     fromAddress: {
       name: 'appy',
-      address: 'appihapi@gmail.com'
+      address: 'appyhapi@gmail.com'
     },
     toAddress: {
       name: 'appy',
-      address: 'appihapi@gmail.com'
+      address: 'appyhapi@gmail.com'
     }
   },
   clientURL: {

@@ -191,6 +191,8 @@ module.exports = function (mongoose) {
               ? 'Basic ' + new Buffer(credentials).toString('base64')
               : 'Bearer ' + token;
 
+            request.pre.user.password = "";
+
             return reply({
               user: request.pre.user,
               id_token: token,
@@ -769,6 +771,9 @@ module.exports = function (mongoose) {
 
                 User.findOne({ email: email })
                   .then(function (user) {
+                    if (!user) {
+                      return reply(Boom.notFound('User not found'));
+                    }
                     return reply(user);
                   })
                   .catch(function (error) {
@@ -1001,7 +1006,7 @@ module.exports = function (mongoose) {
       const self = this;
 
       const query = {
-        email: email
+        email: email.toLowerCase(),
       };
 
       let user = {};

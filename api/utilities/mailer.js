@@ -32,7 +32,9 @@ internals.renderTemplate = function (signature, context, Log) {
 
   Fs.readFile(filePath, options, (err, source) => {
 
-    deferred.reject(err);
+    if (err) {
+      deferred.reject(err);
+    }
 
     internals.templateCache[signature] = Handlebars.compile(source);
     deferred.resolve(internals.templateCache[signature](context));
@@ -44,7 +46,7 @@ internals.renderTemplate = function (signature, context, Log) {
 
 internals.sendEmail = function (options, template, context, Log) {
 
-  internals.renderTemplate(template, context, Log)
+  return internals.renderTemplate(template, context, Log)
     .then(function (content) {
 
       const defaultEmail = Config.get('/defaultEmail');

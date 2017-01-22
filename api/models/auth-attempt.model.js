@@ -42,10 +42,18 @@ module.exports = function (mongoose) {
     abuseDetected: function (ip, email, Log) {
       const self = this;
 
+      const lockOutPeriod = Config.get('/lockOutPeriod');
+      const expirationDate = lockOutPeriod
+      ? { $gt: Date.now() - lockOutPeriod * 60000 }
+      : { $lt: Date.now() };
+
       let abusiveIpCount = {};
       let abusiveIpUserCount = {};
 
-      const query = { ip };
+      const query = {
+        ip,
+        time: expirationDate
+      };
 
       return self.count(query)
         .then(function (result) {
@@ -53,7 +61,8 @@ module.exports = function (mongoose) {
 
           const query = {
             ip,
-            email: email.toLowerCase()
+            email: email.toLowerCase(),
+            time: expirationDate
           };
 
           return self.count(query);
