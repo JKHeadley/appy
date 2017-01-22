@@ -4,9 +4,9 @@ const Bcrypt = require('bcryptjs');
 const Uuid = require('node-uuid');
 
 module.exports = function (mongoose) {
-  var modelName = "session";
-  var Types = mongoose.Schema.Types;
-  var Schema = new mongoose.Schema({
+  const modelName = "session";
+  const Types = mongoose.Schema.Types;
+  const Schema = new mongoose.Schema({
     user: {
       type: Types.ObjectId,
       ref: "user"
@@ -20,9 +20,9 @@ module.exports = function (mongoose) {
       required: true
     }
   }, { collection: modelName });
-  
+
   Schema.statics = {
-    collectionName:modelName,
+    collectionName: modelName,
     routeOptions: {
       associations: {
         user: {
@@ -31,74 +31,76 @@ module.exports = function (mongoose) {
         }
       }
     },
-    generateKeyHash: function(Log) {
+
+    generateKeyHash: function (Log) {
 
       const key = Uuid.v4();
 
       return Bcrypt.genSalt(10)
-          .then(function(salt) {
-              return Bcrypt.hash(key, salt);
-          })
-          .then(function(hash) {
-              return { key, hash }
-          })
+        .then(function (salt) {
+          return Bcrypt.hash(key, salt);
+        })
+        .then(function (hash) {
+          return { key, hash }
+        })
     },
 
-    createInstance: function(userId, Log) {
-        const self = this;
-        let keyHash = {},
-            newSession = {};
+    createInstance: function (userId, Log) {
+      const self = this;
 
-        return self.generateKeyHash()
-            .then(function(result) {
-                keyHash = result;
+      let keyHash = {};
+      let newSession = {};
 
-                const document = {
-                    user: userId,
-                    key: keyHash.hash,
-                    time: new Date(),
-                };
+      return self.generateKeyHash()
+        .then(function (result) {
+          keyHash = result;
 
-                return mongoose.model('session').create(document);
-            })
-            .then(function(result) {
-                newSession = result;
+          const document = {
+            user: userId,
+            key: keyHash.hash,
+            time: new Date(),
+          };
 
-                const query = {
-                    user: userId,
-                    key: { $ne: keyHash.hash }
-                };
+          return mongoose.model('session').create(document);
+        })
+        .then(function (result) {
+          newSession = result;
 
-                return mongoose.model('session').findOneAndRemove(query);
-            })
-            .then(function(result) {
-                newSession.key = keyHash.key;
+          const query = {
+            user: userId,
+            key: { $ne: keyHash.hash }
+          };
 
-                return newSession;
-            })
+          return mongoose.model('session').findOneAndRemove(query);
+        })
+        .then(function (result) {
+          newSession.key = keyHash.key;
+
+          return newSession;
+        })
     },
 
-    findByCredentials: function(_id, key, Log) {
+    findByCredentials: function (_id, key, Log) {
 
-        let session = {};
+      let session = {};
 
-        return mongoose.model('session').findById(_id)
-            .then(function(result) {
-                session = result;
-                if (!session) {
-                    return false;
-                }
+      return mongoose.model('session').findById(_id)
+        .then(function (result) {
+          session = result;
+          if (!session) {
+            return false;
+          }
 
-                const source = session.key;
-                return Bcrypt.compare(key, source);
-            })
-            .then(function(keyMatch) {
-                if (keyMatch) {
-                    return session;
-                }
-            });
+          const source = session.key;
+          return Bcrypt.compare(key, source);
+        })
+        .then(function (keyMatch) {
+          if (keyMatch) {
+            return session;
+          }
+        });
     }
   };
-  
+
   return Schema;
 };

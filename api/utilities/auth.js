@@ -3,7 +3,7 @@
 const Boom = require('boom');
 const Config = require('../../config');
 const Q = require('q');
-let mongoose = require('mongoose');
+const Mongoose = require('mongoose');
 
 
 const internals = {};
@@ -11,177 +11,174 @@ const internals = {};
 
 internals.applyStrategy = function (server, next) {
 
-    const Session = mongoose.model('session');
-    const User = mongoose.model('user');
+  const Session = Mongoose.model('session');
+  const User = Mongoose.model('user');
 
-    server.auth.strategy('simple', 'basic', {
-        validateFunc: function (request, email, password, callback) {
+  server.auth.strategy('simple', 'basic', {
+    validateFunc: function (request, email, password, callback) {
 
-            // Async.auto({
-            //     session: function (done) {
-            //
-            //         Session.findByCredentials(email, password, done);
-            //     },
-            //     user: ['session', function (results, done) {
-            //
-            //         if (!results.session) {
-            //             return done();
-            //         }
-            //
-            //         User.findById(results.session.user, done);
-            //     }],
-            //     roles: ['user', function (results, done) {
-            //
-            //         if (!results.user) {
-            //             return done();
-            //         }
-            //
-            //         results.user.hydrateRoles(done);
-            //     }],
-            //     scope: ['user', function (results, done) {
-            //
-            //         if (!results.user || !results.user.roles) {
-            //             return done();
-            //         }
-            //
-            //         done(null, Object.keys(results.user.roles));
-            //     }]
-            // }, (err, results) => {
-            //
-            //     if (err) {
-            //         return callback(err);
-            //     }
-            //
-            //     if (!results.session) {
-            //         return callback(null, false);
-            //     }
-            //
-            //     callback(null, Boolean(results.user), results);
-            // });
-        }
-    });
+      // Async.auto({
+      //     session: function (done) {
+      //
+      //         Session.findByCredentials(email, password, done);
+      //     },
+      //     user: ['session', function (results, done) {
+      //
+      //         if (!results.session) {
+      //             return done();
+      //         }
+      //
+      //         User.findById(results.session.user, done);
+      //     }],
+      //     roles: ['user', function (results, done) {
+      //
+      //         if (!results.user) {
+      //             return done();
+      //         }
+      //
+      //         results.user.hydrateRoles(done);
+      //     }],
+      //     scope: ['user', function (results, done) {
+      //
+      //         if (!results.user || !results.user.roles) {
+      //             return done();
+      //         }
+      //
+      //         done(null, Object.keys(results.user.roles));
+      //     }]
+      // }, (err, results) => {
+      //
+      //     if (err) {
+      //         return callback(err);
+      //     }
+      //
+      //     if (!results.session) {
+      //         return callback(null, false);
+      //     }
+      //
+      //     callback(null, Boolean(results.user), results);
+      // });
+    }
+  });
 
 
-    next();
+  next();
 };
-
 
 internals.applyJwtStrategy = function (server, next) {
 
-    const Session = mongoose.model('session');
-    const User = mongoose.model('user');
+  const Session = Mongoose.model('session');
+  const User = Mongoose.model('user');
 
-    server.auth.strategy('jwt', 'jwt', {
-        key: Config.get('/jwtSecret'),
-        verifyOptions: { algorithms: ['HS256'] },
+  server.auth.strategy('jwt', 'jwt', {
+    key: Config.get('/jwtSecret'),
+    verifyOptions: { algorithms: ['HS256'] },
 
-        validateFunc: function (decodedToken, request, callback) {
+    validateFunc: function (decodedToken, request, callback) {
 
-            let session = {},
-                user = {};
+      let session = {};
+      let user = {};
 
-            Session.findByCredentials(decodedToken.sessionId, decodedToken.sessionKey)
-                .then(function(result) {
-                    session = result;
+      Session.findByCredentials(decodedToken.sessionId, decodedToken.sessionKey)
+        .then(function (result) {
+          session = result;
 
-                    if (!session) {
-                        return Q.when();
-                    }
+          if (!session) {
+            return Q.when();
+          }
 
-                    return User.findById(session.user);
-                })
-                .then(function(result) {
-                    user = result;
+          return User.findById(session.user);
+        })
+        .then(function (result) {
+          user = result;
 
-                    if (!session) {
-                        return callback(null, false);
-                    }
+          if (!session) {
+            return callback(null, false);
+          }
 
-                    callback(null, Boolean(user), { session, user });
-                });
+          callback(null, Boolean(user), { session, user });
+        });
 
-            //TODO: populate user role for scope
-            // roles: ['user', function (results, done) {
-            //
-            //   console.log("user", results.user);
-            //   if (!results.user) {
-            //     return done();
-            //   }
-            //
-            //   done(null,)
-            // }],
-            // scope: ['user', function (results, done) {
-            //
-            //   if (!results.user || !results.user.roles) {
-            //     return done();
-            //   }
-            //
-            //   done(null, Object.keys(results.user.roles));
-            // }]
-        }
-    });
+      //TODO: populate user role for scope
+      // roles: ['user', function (results, done) {
+      //
+      //   console.log("user", results.user);
+      //   if (!results.user) {
+      //     return done();
+      //   }
+      //
+      //   done(null,)
+      // }],
+      // scope: ['user', function (results, done) {
+      //
+      //   if (!results.user || !results.user.roles) {
+      //     return done();
+      //   }
+      //
+      //   done(null, Object.keys(results.user.roles));
+      // }]
+    }
+  });
 
-    //next();
+  //next();
 };
 
 internals.preware = {
-    ensureNotRoot: {
-        assign: 'ensureNotRoot',
-        method: function (request, reply) {
+  ensureNotRoot: {
+    assign: 'ensureNotRoot',
+    method: function (request, reply) {
 
-            if (request.auth.credentials.user.email === 'admin@scal.io') {
-                const message = 'Not permitted for root user.';
+      if (request.auth.credentials.user.email === 'admin@scal.io') {
+        const message = 'Not permitted for root user.';
 
-                return reply(Boom.badRequest(message));
-            }
+        return reply(Boom.badRequest(message));
+      }
 
-            reply();
-        }
-    },
-    ensureAdminGroup: function (groups) {
-
-        return {
-            assign: 'ensureAdminGroup',
-            method: function (request, reply) {
-
-                if (Object.prototype.toString.call(groups) !== '[object Array]') {
-                    groups = [groups];
-                }
-
-                const groupFound = groups.some((group) => {
-
-                    return request.auth.credentials.roles.admin.isMemberOf(group);
-                });
-
-                if (!groupFound) {
-                    return reply(Boom.notFound('Permission denied to this resource.'));
-                }
-
-                reply();
-            }
-        };
+      reply();
     }
+  },
+  ensureAdminGroup: function (groups) {
+
+    return {
+      assign: 'ensureAdminGroup',
+      method: function (request, reply) {
+
+        if (Object.prototype.toString.call(groups) !== '[object Array]') {
+          groups = [groups];
+        }
+
+        const groupFound = groups.some((group) => {
+
+          return request.auth.credentials.roles.admin.isMemberOf(group);
+        });
+
+        if (!groupFound) {
+          return reply(Boom.notFound('Permission denied to this resource.'));
+        }
+
+        reply();
+      }
+    };
+  }
 };
 
 
 exports.register = function (server, options, next) {
 
-    if( Config.get('/authStrategy') === 'simple') {
-        server.dependency([], internals.applyStrategy);
-    } else {
-        server.dependency(['hapi-auth-jwt2'], internals.applyJwtStrategy);
-    }
+  if (Config.get('/authStrategy') === 'simple') {
+    server.dependency([], internals.applyStrategy);
+  }
+  else {
+    server.dependency(['hapi-auth-jwt2'], internals.applyJwtStrategy);
+  }
 
-    next();
+  next();
 };
-
 
 exports.preware = internals.preware;
 
-
 exports.applyJwtStrategy = internals.applyJwtStrategy;
 
-
 exports.register.attributes = {
-    name: 'auth'
+  name: 'auth'
 };

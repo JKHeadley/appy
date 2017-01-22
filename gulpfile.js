@@ -1,8 +1,8 @@
 'use strict';
 
-var gulp = require('gulp');
+const Gulp = require('gulp');
 
-gulp.paths = {
+Gulp.paths = {
   src: './api',
   build: './build',
   tmp: './tmp',
@@ -11,6 +11,6 @@ gulp.paths = {
 
 require('require-dir')('./gulp');
 
-gulp.task('default', function () {
-  gulp.start('serve:local');
+Gulp.task('default', function () {
+  Gulp.start('serve:local');
 });

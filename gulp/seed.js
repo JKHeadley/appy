@@ -1,83 +1,85 @@
 'use strict';
 
-var gulp = require('gulp');
-var exit = require('gulp-exit');
-var Q = require('q');
-var mongoose = require('mongoose');
+const gulp = require('gulp');
+const exit = require('gulp-exit');
+const Q = require('q');
+const Mongoose = require('mongoose');
+const RestHapi = require('rest-hapi');
 const Config = require('../config');
+
+const restHapiConfig = Config.get('/restHapiConfig');
 const USER_ROLES = Config.get('/constants/USER_ROLES');
-let restHapi = require('rest-hapi');
-let restHapiConfig = Config.get('/restHapiConfig');
 
-gulp.task('seed', [], function() {
+gulp.task('seed', [], function () {
 
-    mongoose.Promise = Q.Promise;
+  Mongoose.Promise = Q.Promise;
 
-    restHapi.config = restHapiConfig;
-    restHapi.config.absoluteModelPath = true;
-    restHapi.config.modelPath = __dirname + "/../api/models";
+  RestHapi.config = restHapiConfig;
+  RestHapi.config.absoluteModelPath = true;
+  RestHapi.config.modelPath = __dirname + "/../api/models";
 
-    mongoose.connect(Config.get('/restHapiConfig/mongo/URI'));
+  Mongoose.connect(restHapiConfig.mongo.URI);
 
-    return restHapi.generateModels(mongoose).then(function (models) {
+  return RestHapi.generateModels(Mongoose)
+    .then(function (models) {
 
-        restHapi.config.loglevel = "DEBUG";
-        let Log = restHapi.getLogger("seed");
+      RestHapi.config.loglevel = "DEBUG";
+      const Log = RestHapi.getLogger("seed");
 
-        let users = [],
-            admins = [];
+      const password = "root";
 
-        var password = "root";
+      let users = [];
+      let admins = [];
 
-        return dropCollections(models)
-            .then(function (result) {
-                Log.log("seeding users");
-                users = [
-                    {
-                        firstName: 'test',
-                        lastName: 'admin',
-                        email: 'admin@appy.com',
-                        password: password,
-                        role: USER_ROLES.ADMIN
-                    }
-                ];
-                return restHapi.create(models.user, users, Log);
-            })
-            .then(function (result) {
-                users = result;
-                Log.log("seeding admin profiles");
-                admins = [
-                    {
-                        user: users[0]._id,
-                    }
-                ];
-                return restHapi.create(models.admin, admins, Log);
-            })
-            .then(function (result) {
-                admins = result;
-                return gulp.src("")
-                    .pipe(exit());
-            })
-            .catch(function (error) {
-                Log.error(error);
-            })
+      return dropCollections(models)
+        .then(function (result) {
+          Log.log("seeding users");
+          users = [
+            {
+              firstName: 'test',
+              lastName: 'admin',
+              email: 'admin@appy.com',
+              password: password,
+              role: USER_ROLES.ADMIN
+            }
+          ];
+          return RestHapi.create(models.user, users, Log);
+        })
+        .then(function (result) {
+          users = result;
+          Log.log("seeding admin profiles");
+          admins = [
+            {
+              user: users[0]._id,
+            }
+          ];
+          return RestHapi.create(models.admin, admins, Log);
+        })
+        .then(function (result) {
+          admins = result;
+          return gulp.src("")
+            .pipe(exit());
+        })
+        .catch(function (error) {
+          Log.error(error);
+        })
     })
 });
 
 
-
 function dropCollections(models) {
-    restHapi.config.loglevel = "LOG";
-    let Log = restHapi.getLogger("unseed");
-    return models.user.remove({})
-        .then(function() {
-            Log.log('users removed');
-            return models.admin.remove({});
-        })
-        .then(function() {
-            Log.log('admins removed');
-        })
-        .catch(function (error) {
-            Log.error(error);
-        });
+  RestHapi.config.loglevel = "LOG";
+  const Log = RestHapi.getLogger("unseed");
+
+  return models.user.remove({})
+    .then(function () {
+      Log.log('users removed');
+      return models.admin.remove({});
+    })
+    .then(function () {
+      Log.log('admins removed');
+    })
+    .catch(function (error) {
+      Log.error(error);
+    });
 }
