@@ -13,15 +13,6 @@ function createToken(user, session, expirationPeriod, Log) {
   scopes = 'admin';
   // }
 
-  // Sign the JWT
-  // return Jwt.sign({
-  //   id: user._id,
-  //   email: user.email,
-  //   sessionId: session._id.toString(),
-  //   sessionKey: session.key,
-  //   scope: scopes
-  // }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "4h" });
-
   let token = {};
 
   if (session) {
