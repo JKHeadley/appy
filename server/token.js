@@ -1,17 +1,10 @@
 'use strict';
 
-const AuthPlugin = require('./auth');
 const Jwt = require('jsonwebtoken');
-const Config = require('../../config');
+const Config = require('../config');
 
 function createToken(user, session, expirationPeriod, Log) {
   Log = Log.bind("token");
-  var scopes;
-
-  // scopes to admin
-  // if (AuthPlugin.preware.ensureAdminGroup('root')) {
-  scopes = 'admin';
-  // }
 
   let token = {};
 

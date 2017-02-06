@@ -9,13 +9,12 @@ const RestHapi = require('rest-hapi');
 const _ = require('lodash');
 
 const Config = require('../../config');
-const Token = require('../utilities/token');
+const Token = require('../token');
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const expirationPeriod = Config.get('/expirationPeriod');
 const auth = Config.get('/restHapiConfig/auth');
-//TODO: assign a unique text index to email field
 
 module.exports = function (mongoose) {
   const modelName = "user";

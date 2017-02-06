@@ -27,7 +27,7 @@ Gulp.task('serve:production', function () {
 
 const serve = function(env) {
   return Nodemon({
-    script: Gulp.paths.src + '/api',
+    script: Gulp.paths.src + 'server',
     ext: 'js',
     env: {'NODE_ENV': env},
   }).on('start', function () {

@@ -5,6 +5,7 @@ const exit = require('gulp-exit');
 const Q = require('q');
 const Mongoose = require('mongoose');
 const RestHapi = require('rest-hapi');
+
 const Config = require('../config');
 
 const restHapiConfig = Config.get('/restHapiConfig');
@@ -16,7 +17,7 @@ gulp.task('seed', [], function () {
 
   RestHapi.config = restHapiConfig;
   RestHapi.config.absoluteModelPath = true;
-  RestHapi.config.modelPath = __dirname + "/../api/models";
+  RestHapi.config.modelPath = __dirname + "/../server/models";
 
   Mongoose.connect(restHapiConfig.mongo.URI);
 

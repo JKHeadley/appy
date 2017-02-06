@@ -1,19 +1,21 @@
 'use strict';
 
-const Boom = require('boom');
 const Mongoose = require('mongoose');
+const RestHapi = require('rest-hapi');
 
-const Config = require('../../config');
-const Token = require('../utilities/token');
+const Config = require('../config');
+const Token = require('./token');
 
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const expirationPeriod = Config.get('/expirationPeriod');
 
+const logger = RestHapi.getLogger('appy');
+
 const internals = {};
 
 
-internals.applyTokenStrategy = function (server, Log, next) {
-  Log = Log.bind("auth/standard-jwt");
+internals.applyTokenStrategy = function (server, next) {
+  const Log = logger.bind("auth/standard-jwt");
 
   server.auth.strategy(AUTH_STRATEGIES.TOKEN, 'jwt', {
     key: Config.get('/jwtSecret'),
@@ -27,20 +29,20 @@ internals.applyTokenStrategy = function (server, Log, next) {
     }
   });
 
-  //next();
+  next();
 };
 
-internals.applySessionStrategy = function (server, Log, next) {
-  Log = Log.bind("auth/session");
-
-  const Session = Mongoose.model('session');
-  const User = Mongoose.model('user');
+internals.applySessionStrategy = function (server, next) {
+  const Log = logger.bind("auth/session");
 
   server.auth.strategy(AUTH_STRATEGIES.SESSION, 'jwt', {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'] },
 
     validateFunc: function (decodedToken, request, callback) {
+
+      const Session = Mongoose.model('session');
+      const User = Mongoose.model('user');
 
       const sessionId = decodedToken.sessionId;
       const sessionKey = decodedToken.sessionKey;
@@ -89,12 +91,11 @@ internals.applySessionStrategy = function (server, Log, next) {
     }
   });
 
-
-  // next();
+  next();
 };
 
-internals.applyRefreshStrategy = function (server, Log, next) {
-  Log = Log.bind("auth/refresh");
+internals.applyRefreshStrategy = function (server, next) {
+  const Log = logger.bind("auth/refresh");
 
   server.auth.strategy(AUTH_STRATEGIES.REFRESH, 'jwt', {
     key: Config.get('/jwtSecret'),
@@ -170,81 +171,29 @@ internals.applyRefreshStrategy = function (server, Log, next) {
     }
   });
 
-  //next();
+  next();
 };
 
-internals.preware = {
-  ensureNotRoot: {
-    assign: 'ensureNotRoot',
-    method: function (request, reply) {
 
-      if (request.auth.credentials.user.email === 'admin@scal.io') {
-        const message = 'Not permitted for root user.';
-
-        return reply(Boom.badRequest(message));
-      }
-
-      reply();
-    }
-  },
-  ensureAdminGroup: function (groups) {
-
-    return {
-      assign: 'ensureAdminGroup',
-      method: function (request, reply) {
-
-        if (Object.prototype.toString.call(groups) !== '[object Array]') {
-          groups = [groups];
-        }
-
-        const groupFound = groups.some((group) => {
-
-          return request.auth.credentials.roles.admin.isMemberOf(group);
-        });
-
-        if (!groupFound) {
-          return reply(Boom.notFound('Permission denied to this resource.'));
-        }
-
-        reply();
-      }
-    };
-  }
-};
-
-internals.getCurrentStrategy = (function() {
+exports.register = function (server, options, next) {
   const auth = Config.get('/restHapiConfig/auth');
 
   switch (auth) {
     case AUTH_STRATEGIES.TOKEN:
-      return internals.applyTokenStrategy;
+      internals.applyTokenStrategy(server, next);
+      break;
     case AUTH_STRATEGIES.SESSION:
-      return internals.applySessionStrategy;
+      internals.applySessionStrategy(server, next);
+      break;
     case AUTH_STRATEGIES.REFRESH:
-      return internals.applyRefreshStrategy;
+      internals.applyRefreshStrategy(server, next);
+      break;
     default:
-      return internals.applyTokenStrategy;
-  }
-})();
-
-
-exports.register = function (server, options, next) {
-
-  if (Config.get('/authStrategy') === 'jwt-with-session') {
-    server.dependency([], internals.applySessionStrategy);
-  }
-  else {
-    server.dependency(['hapi-auth-jwt2'], internals.applyTokenStrategy);
+      next();
+      break;
   }
 
-  next();
 };
-
-exports.preware = internals.preware;
-
-exports.applyTokenStrategy = internals.applyTokenStrategy;
-
-exports.getCurrentStrategy = internals.getCurrentStrategy;
 
 exports.register.attributes = {
   name: 'auth'

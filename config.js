@@ -18,13 +18,19 @@ const constants = {
     TOKEN: 'standard-jwt',
     SESSION: 'jwt-with-session',
     REFRESH: 'jwt-with-session-and-refresh-token'
-  }
+  },
+  PORT: 8125
 };
 
 const config = {
   $meta: 'This file configures the Appy API.',
   projectName: 'Appy API',
   websiteName: 'Appy Admin',
+  port: {
+    $filter: 'env',
+    production: process.env.PORT,
+    $default: constants.PORT
+  },
   constants: constants,
   expirationPeriod: {
     short: '1m',
@@ -85,18 +91,11 @@ const config = {
   },
   clientURL: {
     $filter: 'env',
-    local: 'http://localhost:8125',
-    production: 'http://localhost:8125',
-    $default: 'http://localhost:8125'
+    local: 'http://localhost:' + constants.PORT,
+    production: 'http://localhost:' + constants.PORT,
+    $default: 'http://localhost:' + constants.PORT
   },
   restHapiConfig: {
-    server: {
-      port: {
-        $filter: 'env',
-        production: process.env.PORT,
-        $default: 8125
-      }
-    },
     mongo: {
       URI: {
         $filter: 'env',
@@ -105,11 +104,11 @@ const config = {
       }
     },
     absoluteModelPath: true,
-    modelPath: __dirname + '/api/models',
+    modelPath: __dirname + '/server/models',
     auth: {
       $filter: 'env',
-      local: constants.AUTH_STRATEGIES.REFRESH,
-      $default: constants.AUTH_STRATEGIES.TOKEN
+      local: constants.AUTH_STRATEGIES.SESSION,
+      $default: constants.AUTH_STRATEGIES.REFRESH
     },
     enableQueryValidation: {
       $filter: 'env',
@@ -135,11 +134,6 @@ const config = {
       $filter: 'env',
       local: true,
       $default: true
-    },
-    filterDeletedEmbeds: {
-      $filter: 'env',
-      local: false,
-      $default: false
     },
     loglevel: {
       $filter: 'env',

@@ -1,6 +1,5 @@
 'use strict';
 
-const Config = require('../../config');
 const Fs = require('fs');
 const Q = require('q');
 const Handlebars = require('handlebars');
@@ -8,6 +7,7 @@ const Hoek = require('hoek');
 const Markdown = require('nodemailer-markdown').markdown;
 const Nodemailer = require('nodemailer');
 
+const Config = require('../config');
 
 const internals = {};
 

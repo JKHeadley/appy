@@ -3,10 +3,7 @@
 const Gulp = require('gulp');
 
 Gulp.paths = {
-  src: './api',
-  build: './build',
-  tmp: './tmp',
-  dev: 'dev'
+  src: './'
 };
 
 require('require-dir')('./gulp');
