@@ -214,7 +214,7 @@ module.exports = function (mongoose) {
                     reply(null);
                     break;
                   case AUTH_STRATEGIES.SESSION:
-                    reply(Token(request.pre.user, request.pre.session, expirationPeriod.long, Log));
+                    reply(Token(null, request.pre.session, expirationPeriod.long, Log));
                     break;
                   case AUTH_STRATEGIES.REFRESH:
                     reply(null);
@@ -235,7 +235,7 @@ module.exports = function (mongoose) {
                     reply(null);
                     break;
                   case AUTH_STRATEGIES.REFRESH:
-                    reply(Token(request.pre.user, request.pre.session, expirationPeriod.long, Log));
+                    reply(Token(null, request.pre.session, expirationPeriod.long, Log));
                     break;
                   default:
                     break;
@@ -672,7 +672,7 @@ module.exports = function (mongoose) {
             method: function (request, reply) {
 
               const conditions = {
-                email: request.payload.email
+                email: request.payload.user.email
               };
 
               User.findOne(conditions)
@@ -807,9 +807,9 @@ module.exports = function (mongoose) {
                     firstName: Joi.string(),
                     lastName: Joi.string(),
                     email: Joi.string().email().required(),
+                    role: Joi.any().valid(_.values(USER_ROLES)).required(),
                     password: Joi.string().required(),
                   }).required(),
-                  role: Joi.string().required(),
                   registerType: Joi.any().valid(['Register', 'Invite']).required()
                 }
               },

@@ -11,7 +11,8 @@ const criteria = {
 
 const constants = {
   USER_ROLES: {
-    ADMIN: 'Admin'
+    ADMIN: 'Admin',
+    USER: 'User'
   },
   AUTH_STRATEGIES: {
     TOKEN: 'standard-jwt',

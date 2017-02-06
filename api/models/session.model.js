@@ -71,34 +71,6 @@ module.exports = function (mongoose) {
         .then(function (result) {
           return newSession;
         });
-
-      // return self.generateKeyHash()
-      //   .then(function (result) {
-      //     keyHash = result;
-      //
-      //     const document = {
-      //       user: userId,
-      //       key: keyHash.hash,
-      //       time: new Date(),
-      //     };
-      //
-      //     return mongoose.model('session').create(document);
-      //   })
-      //   .then(function (result) {
-      //     newSession = result;
-      //
-      //     const query = {
-      //       user: userId,
-      //       key: { $ne: keyHash.hash }
-      //     };
-      //
-      //     return mongoose.model('session').findOneAndRemove(query);
-      //   })
-      //   .then(function (result) {
-      //     newSession.key = keyHash.key;
-      //
-      //     return newSession;
-      //   })
     },
 
     findByCredentials: function (_id, key, Log) {
@@ -114,22 +86,6 @@ module.exports = function (mongoose) {
 
           return session.key === key ? session : false;
         });
-
-      // return mongoose.model('session').findById(_id)
-      //   .then(function (result) {
-      //     session = result;
-      //     if (!session) {
-      //       return false;
-      //     }
-      //
-      //     const source = session.key;
-      //     return Bcrypt.compare(key, source);
-      //   })
-      //   .then(function (keyMatch) {
-      //     if (keyMatch) {
-      //       return session;
-      //     }
-      //   });
     }
   };
 

@@ -59,6 +59,9 @@ internals.applySessionStrategy = function (server, Log, next) {
           return User.findById(session.user);
         })
         .then(function(result) {
+          if (result === false) {
+            return result;
+          }
           user = result;
 
           if (!user) {
@@ -72,7 +75,7 @@ internals.applySessionStrategy = function (server, Log, next) {
           server.ext('onPreResponse', function(request, reply) {
 
             if (request.response.header) {
-              request.response.header('X-Auth-Header', "Bearer " + Token(user, session, expirationPeriod.long, Log));
+              request.response.header('X-Auth-Header', "Bearer " + Token(null, session, expirationPeriod.long, Log));
             }
 
             return reply.continue();
@@ -152,7 +155,7 @@ internals.applyRefreshStrategy = function (server, Log, next) {
 
               if (request.response.header) {
                 request.response.header('X-Auth-Header', "Bearer " + Token(user, null, expirationPeriod.short, Log));
-                request.response.header('X-Refresh-Token', Token(user, session, expirationPeriod.long, Log));
+                request.response.header('X-Refresh-Token', Token(null, session, expirationPeriod.long, Log));
               }
 
               return reply.continue();
