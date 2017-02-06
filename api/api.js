@@ -2,9 +2,10 @@
 
 const Hapi = require('hapi');
 const config = require('../config').get('/restHapiConfig');
+const Auth = require('./utilities/auth');
 const mongoose = require('mongoose');
 const restHapi = require('rest-hapi');
-const Log = restHapi.logger;
+const Log = restHapi.getLogger('appy');
 
 function apiInit() {
 
@@ -28,32 +29,39 @@ function apiInit() {
         if (err) {
           console.error('Failed to load plugin:', err);
         }
-        require('./utilities/auth').applyJwtStrategy(server);
 
-        server.register(require('./utilities/mailer'), (err) => {
-          if (err) {
-            console.error('Failed to load plugin:', err);
-          }
-        });
-
-        server.register({
-          register: restHapi,
-          options: {
-            mongoose: mongoose
-          }
-        }, function (err) {
+        server.register(require('hapi-auth-basic'), (err) => {
           if (err) {
             console.error('Failed to load plugin:', err);
           }
 
-          server.start(function (err) {
+          Auth.getCurrentStrategy(server, Log);
+
+          server.register(require('./utilities/mailer'), (err) => {
             if (err) {
-              console.error('Failed to start server:', err);
+              console.error('Failed to load plugin:', err);
+            }
+          });
+
+          server.register({
+            register: restHapi,
+            options: {
+              mongoose: mongoose
+            }
+          }, function (err) {
+            if (err) {
+              console.error('Failed to load plugin:', err);
             }
 
-            server.log('info', 'Server initialized: ' + server.info);
+            server.start(function (err) {
+              if (err) {
+                console.error('Failed to start server:', err);
+              }
 
-            restHapi.logUtil.logActionComplete(restHapi.logger, "Server Initialized", server.info);
+              server.log('info', 'Server initialized: ' + server.info);
+
+              restHapi.logUtil.logActionComplete(restHapi.logger, "Server Initialized", server.info);
+            });
           });
         });
       });

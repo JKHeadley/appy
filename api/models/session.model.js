@@ -15,14 +15,15 @@ module.exports = function (mongoose) {
       type: Types.String,
       required: true
     },
-    time: {
-      type: Types.Date,
+    passwordHash: {
+      type: Types.String,
       required: true
     }
   }, { collection: modelName });
 
   Schema.statics = {
     collectionName: modelName,
+    enableSoftDelete: false,
     routeOptions: {
       associations: {
         user: {
@@ -45,39 +46,59 @@ module.exports = function (mongoose) {
         })
     },
 
-    createInstance: function (userId, Log) {
-      const self = this;
+    createInstance: function (user, Log) {
 
-      let keyHash = {};
       let newSession = {};
 
-      return self.generateKeyHash()
-        .then(function (result) {
-          keyHash = result;
+      const document = {
+        user: user._id,
+        key: Uuid.v4(),
+        passwordHash: user.password,
+        createdAt: Date.now()
+      };
 
-          const document = {
-            user: userId,
-            key: keyHash.hash,
-            time: new Date(),
-          };
-
-          return mongoose.model('session').create(document);
-        })
+      return  mongoose.model('session').create(document)
         .then(function (result) {
           newSession = result;
 
           const query = {
-            user: userId,
-            key: { $ne: keyHash.hash }
+            user: user._id,
+            key: { $ne: document.key }
           };
 
           return mongoose.model('session').findOneAndRemove(query);
         })
         .then(function (result) {
-          newSession.key = keyHash.key;
-
           return newSession;
-        })
+        });
+
+      // return self.generateKeyHash()
+      //   .then(function (result) {
+      //     keyHash = result;
+      //
+      //     const document = {
+      //       user: userId,
+      //       key: keyHash.hash,
+      //       time: new Date(),
+      //     };
+      //
+      //     return mongoose.model('session').create(document);
+      //   })
+      //   .then(function (result) {
+      //     newSession = result;
+      //
+      //     const query = {
+      //       user: userId,
+      //       key: { $ne: keyHash.hash }
+      //     };
+      //
+      //     return mongoose.model('session').findOneAndRemove(query);
+      //   })
+      //   .then(function (result) {
+      //     newSession.key = keyHash.key;
+      //
+      //     return newSession;
+      //   })
     },
 
     findByCredentials: function (_id, key, Log) {
@@ -91,14 +112,24 @@ module.exports = function (mongoose) {
             return false;
           }
 
-          const source = session.key;
-          return Bcrypt.compare(key, source);
-        })
-        .then(function (keyMatch) {
-          if (keyMatch) {
-            return session;
-          }
+          return session.key === key ? session : false;
         });
+
+      // return mongoose.model('session').findById(_id)
+      //   .then(function (result) {
+      //     session = result;
+      //     if (!session) {
+      //       return false;
+      //     }
+      //
+      //     const source = session.key;
+      //     return Bcrypt.compare(key, source);
+      //   })
+      //   .then(function (keyMatch) {
+      //     if (keyMatch) {
+      //       return session;
+      //     }
+      //   });
     }
   };
 

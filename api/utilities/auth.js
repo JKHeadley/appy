@@ -1,122 +1,169 @@
 'use strict';
 
 const Boom = require('boom');
-const Config = require('../../config');
-const Q = require('q');
 const Mongoose = require('mongoose');
 
+const Config = require('../../config');
+const Token = require('../utilities/token');
+
+const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
+const expirationPeriod = Config.get('/expirationPeriod');
 
 const internals = {};
 
 
-internals.applyStrategy = function (server, next) {
+internals.applyTokenStrategy = function (server, Log, next) {
+  Log = Log.bind("auth/standard-jwt");
 
-  const Session = Mongoose.model('session');
-  const User = Mongoose.model('user');
-
-  server.auth.strategy('simple', 'basic', {
-    validateFunc: function (request, email, password, callback) {
-
-      // Async.auto({
-      //     session: function (done) {
-      //
-      //         Session.findByCredentials(email, password, done);
-      //     },
-      //     user: ['session', function (results, done) {
-      //
-      //         if (!results.session) {
-      //             return done();
-      //         }
-      //
-      //         User.findById(results.session.user, done);
-      //     }],
-      //     roles: ['user', function (results, done) {
-      //
-      //         if (!results.user) {
-      //             return done();
-      //         }
-      //
-      //         results.user.hydrateRoles(done);
-      //     }],
-      //     scope: ['user', function (results, done) {
-      //
-      //         if (!results.user || !results.user.roles) {
-      //             return done();
-      //         }
-      //
-      //         done(null, Object.keys(results.user.roles));
-      //     }]
-      // }, (err, results) => {
-      //
-      //     if (err) {
-      //         return callback(err);
-      //     }
-      //
-      //     if (!results.session) {
-      //         return callback(null, false);
-      //     }
-      //
-      //     callback(null, Boolean(results.user), results);
-      // });
-    }
-  });
-
-
-  next();
-};
-
-internals.applyJwtStrategy = function (server, next) {
-
-  const Session = Mongoose.model('session');
-  const User = Mongoose.model('user');
-
-  server.auth.strategy('jwt', 'jwt', {
+  server.auth.strategy(AUTH_STRATEGIES.TOKEN, 'jwt', {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'] },
 
     validateFunc: function (decodedToken, request, callback) {
 
+      let user = decodedToken.user;
+
+      callback(null, Boolean(user), { user });
+    }
+  });
+
+  //next();
+};
+
+internals.applySessionStrategy = function (server, Log, next) {
+  Log = Log.bind("auth/session");
+
+  const Session = Mongoose.model('session');
+  const User = Mongoose.model('user');
+
+  server.auth.strategy(AUTH_STRATEGIES.SESSION, 'jwt', {
+    key: Config.get('/jwtSecret'),
+    verifyOptions: { algorithms: ['HS256'] },
+
+    validateFunc: function (decodedToken, request, callback) {
+
+      const sessionId = decodedToken.sessionId;
+      const sessionKey = decodedToken.sessionKey;
+      const passwordHash = decodedToken.passwordHash;
       let session = {};
       let user = {};
 
-      Session.findByCredentials(decodedToken.sessionId, decodedToken.sessionKey)
-        .then(function (result) {
+      Session.findByCredentials(sessionId, sessionKey, Log)
+        .then(function(result) {
           session = result;
-
-          if (!session) {
-            return Q.when();
-          }
-
-          return User.findById(session.user);
-        })
-        .then(function (result) {
-          user = result;
 
           if (!session) {
             return callback(null, false);
           }
 
-          callback(null, Boolean(user), { session, user });
+          return User.findById(session.user);
+        })
+        .then(function(result) {
+          user = result;
+
+          if (!user) {
+            return callback(null, false);
+          }
+
+          if (user.password !== passwordHash) {
+            return callback(null, false);
+          }
+
+          server.ext('onPreResponse', function(request, reply) {
+
+            if (request.response.header) {
+              request.response.header('X-Auth-Header', "Bearer " + Token(user, session, expirationPeriod.long, Log));
+            }
+
+            return reply.continue();
+          });
+
+          callback(null, Boolean(user), { session, user })
+        })
+        .catch(function(error) {
+          Log.error(error);
+        });
+    }
+  });
+
+
+  // next();
+};
+
+internals.applyRefreshStrategy = function (server, Log, next) {
+  Log = Log.bind("auth/refresh");
+
+  server.auth.strategy(AUTH_STRATEGIES.REFRESH, 'jwt', {
+    key: Config.get('/jwtSecret'),
+    verifyOptions: { algorithms: ['HS256'] },
+
+    validateFunc: function (decodedToken, request, callback) {
+
+      let user = {};
+      let session = {};
+
+      //EXPL: if the token does not contain session info, then simply authenticate and continue
+      if (decodedToken.user) {
+        user = decodedToken.user;
+
+        server.ext('onPreResponse', function(request, reply) {
+
+          if (request.response.header) {
+            request.response.header('X-Auth-Header', undefined);
+            request.response.header('X-Refresh-Token', undefined);
+          }
+
+          return reply.continue();
         });
 
-      //TODO: populate user role for scope
-      // roles: ['user', function (results, done) {
-      //
-      //   console.log("user", results.user);
-      //   if (!results.user) {
-      //     return done();
-      //   }
-      //
-      //   done(null,)
-      // }],
-      // scope: ['user', function (results, done) {
-      //
-      //   if (!results.user || !results.user.roles) {
-      //     return done();
-      //   }
-      //
-      //   done(null, Object.keys(results.user.roles));
-      // }]
+        callback(null, Boolean(user), { user });
+      }
+      // EXPL: if the token does contain session info (i.e. a refresh token), then use the session to
+      // authenticate and respond with a fresh set of tokens in the header
+      else if (decodedToken.sessionId) {
+        const Session = Mongoose.model('session');
+        const User = Mongoose.model('user');
+
+        Session.findByCredentials(decodedToken.sessionId, decodedToken.sessionKey, Log)
+          .then(function(result) {
+            session = result;
+
+            if (!session) {
+              return callback(null, false);
+            }
+
+            return User.findById(session.user);
+          })
+          .then(function(result) {
+            if (result === false) {
+              return result;
+            }
+            user = result;
+
+            if (!user) {
+              return callback(null, false);
+            }
+
+            if (user.password !== decodedToken.passwordHash) {
+              return callback(null, false);
+            }
+
+            server.ext('onPreResponse', function(request, reply) {
+
+              if (request.response.header) {
+                request.response.header('X-Auth-Header', "Bearer " + Token(user, null, expirationPeriod.short, Log));
+                request.response.header('X-Refresh-Token', Token(user, session, expirationPeriod.long, Log));
+              }
+
+              return reply.continue();
+            });
+            
+            callback(null, Boolean(user), { user, session });
+          })
+          .catch(function(error) {
+            Log.error(error);
+          });
+      }
     }
   });
 
@@ -162,14 +209,29 @@ internals.preware = {
   }
 };
 
+internals.getCurrentStrategy = (function() {
+  const auth = Config.get('/restHapiConfig/auth');
+
+  switch (auth) {
+    case AUTH_STRATEGIES.TOKEN:
+      return internals.applyTokenStrategy;
+    case AUTH_STRATEGIES.SESSION:
+      return internals.applySessionStrategy;
+    case AUTH_STRATEGIES.REFRESH:
+      return internals.applyRefreshStrategy;
+    default:
+      return internals.applyTokenStrategy;
+  }
+})();
+
 
 exports.register = function (server, options, next) {
 
-  if (Config.get('/authStrategy') === 'simple') {
-    server.dependency([], internals.applyStrategy);
+  if (Config.get('/authStrategy') === 'jwt-with-session') {
+    server.dependency([], internals.applySessionStrategy);
   }
   else {
-    server.dependency(['hapi-auth-jwt2'], internals.applyJwtStrategy);
+    server.dependency(['hapi-auth-jwt2'], internals.applyTokenStrategy);
   }
 
   next();
@@ -177,7 +239,9 @@ exports.register = function (server, options, next) {
 
 exports.preware = internals.preware;
 
-exports.applyJwtStrategy = internals.applyJwtStrategy;
+exports.applyTokenStrategy = internals.applyTokenStrategy;
+
+exports.getCurrentStrategy = internals.getCurrentStrategy;
 
 exports.register.attributes = {
   name: 'auth'

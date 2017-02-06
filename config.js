@@ -9,26 +9,32 @@ const criteria = {
   env: process.env.NODE_ENV
 };
 
+const constants = {
+  USER_ROLES: {
+    ADMIN: 'Admin'
+  },
+  AUTH_STRATEGIES: {
+    TOKEN: 'standard-jwt',
+    SESSION: 'jwt-with-session',
+    REFRESH: 'jwt-with-session-and-refresh-token'
+  }
+};
 
 const config = {
   $meta: 'This file configures the Appy API.',
   projectName: 'Appy API',
   websiteName: 'Appy Admin',
-  constants: {
-    USER_ROLES: {
-      ADMIN: 'Admin'
-    }
+  constants: constants,
+  expirationPeriod: {
+    short: '1m',
+    medium: '15m',
+    long: '4h'
   },
   authAttempts: {
     forIp: 50,
     forIpAndUser: 7
   },
   lockOutPeriod: 30, //in units of minutes
-  cookieSecret: {
-    $filter: 'env',
-    production: process.env.COOKIE_SECRET,
-    $default: '!k3yb04rdK4tz~4qu4~k3yb04rdd0gz!'
-  },
   jwtSecret: {
     $filter: 'env',
     production: process.env.JWT_SECRET,
@@ -101,8 +107,8 @@ const config = {
     modelPath: __dirname + '/api/models',
     auth: {
       $filter: 'env',
-      local: 'jwt',
-      $default: 'jwt'
+      local: constants.AUTH_STRATEGIES.REFRESH,
+      $default: constants.AUTH_STRATEGIES.TOKEN
     },
     enableQueryValidation: {
       $filter: 'env',

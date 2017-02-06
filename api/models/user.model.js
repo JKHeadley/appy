@@ -12,6 +12,9 @@ const Config = require('../../config');
 const Token = require('../utilities/token');
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
+const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
+const expirationPeriod = Config.get('/expirationPeriod');
+const auth = Config.get('/restHapiConfig/auth');
 //TODO: assign a unique text index to email field
 
 module.exports = function (mongoose) {
@@ -170,35 +173,112 @@ module.exports = function (mongoose) {
             {
               assign: 'session',
               method: function (request, reply) {
-
-                Session.createInstance(request.pre.user._id)
-                  .then(function (session) {
-                    return reply(session);
-                  })
-                  .catch(function (error) {
-                    Log.error(error);
-                    return reply(Boom.gatewayTimeout('An error occurred.'))
-                  });
+                if (auth === AUTH_STRATEGIES.TOKEN) {
+                  reply(null);
+                }
+                else {
+                  Session.createInstance(request.pre.user)
+                    .then(function (session) {
+                      return reply(session);
+                    })
+                    .catch(function (error) {
+                      Log.error(error);
+                      return reply(Boom.gatewayTimeout('An error occurred.'))
+                    });
+                }
+              }
+            },
+            {
+              assign: 'standardToken',
+              method: function (request, reply) {
+                switch(auth) {
+                  case AUTH_STRATEGIES.TOKEN:
+                    reply(Token(request.pre.user, null, expirationPeriod.long, Log));
+                    break;
+                  case AUTH_STRATEGIES.SESSION:
+                    reply(null);
+                    break;
+                  case AUTH_STRATEGIES.REFRESH:
+                    reply(Token(request.pre.user, null, expirationPeriod.short, Log));
+                    break;
+                  default:
+                    break;
+                }
+              }
+            },
+            {
+              assign: 'sessionToken',
+              method: function (request, reply) {
+                switch(auth) {
+                  case AUTH_STRATEGIES.TOKEN:
+                    reply(null);
+                    break;
+                  case AUTH_STRATEGIES.SESSION:
+                    reply(Token(request.pre.user, request.pre.session, expirationPeriod.long, Log));
+                    break;
+                  case AUTH_STRATEGIES.REFRESH:
+                    reply(null);
+                    break;
+                  default:
+                    break;
+                }
+              }
+            },
+            {
+              assign: 'refreshToken',
+              method: function (request, reply) {
+                switch(auth) {
+                  case AUTH_STRATEGIES.TOKEN:
+                    reply(null);
+                    break;
+                  case AUTH_STRATEGIES.SESSION:
+                    reply(null);
+                    break;
+                  case AUTH_STRATEGIES.REFRESH:
+                    reply(Token(request.pre.user, request.pre.session, expirationPeriod.long, Log));
+                    break;
+                  default:
+                    break;
+                }
               }
             }
           ];
 
           const loginHandler = function (request, reply) {
-            const credentials = request.pre.session._id.toString() + ':' + request.pre.session.key;
-            const token = Token(request.pre.user, request.pre.session);
-
-            const authHeader = Config.get('/restHapiConfig/auth') === 'simple'
-              ? 'Basic ' + new Buffer(credentials).toString('base64')
-              : 'Bearer ' + token;
+            
+            let authHeader = "";
+            let response = {};
 
             request.pre.user.password = "";
 
-            return reply({
-              user: request.pre.user,
-              id_token: token,
-              session: request.pre.session,
-              authHeader
-            });
+            switch(auth) {
+              case AUTH_STRATEGIES.TOKEN:
+                authHeader = 'Bearer ' + request.pre.standardToken;
+                response = {
+                  user: request.pre.user,
+                  authHeader
+                };
+                break;
+              case AUTH_STRATEGIES.SESSION:
+                authHeader = 'Bearer ' + request.pre.sessionToken;
+                response = {
+                  user: request.pre.user,
+                  authHeader
+                };
+                break;
+              case AUTH_STRATEGIES.REFRESH:
+                authHeader = 'Bearer ' + request.pre.standardToken;
+                response = {
+                  user: request.pre.user,
+                  refreshToken: request.pre.refreshToken,
+                  authHeader
+                };
+                break;
+              default:
+                break;
+            }
+
+            return reply(response);
           };
 
           server.route({
@@ -246,21 +326,26 @@ module.exports = function (mongoose) {
           const logoutHandler = function (request, reply) {
 
             const credentials = request.auth.credentials || { session: {} };
-            const session = credentials.session || {};
+            const session = credentials.session;
 
-            Session.findByIdAndRemove(session._id)
-              .then(function (sessionDoc) {
+            if (session) {
+              Session.findByIdAndRemove(session._id)
+                .then(function (sessionDoc) {
 
-                if (!sessionDoc) {
-                  return reply(Boom.notFound('Session not found.'));
-                }
+                  if (!sessionDoc) {
+                    return reply(Boom.notFound('Session not found.'));
+                  }
 
-                return reply({ message: 'Success.' });
-              })
-              .catch(function (error) {
-                Log.error(error);
-                return reply(Boom.badImplementation('There was an error accessing the database.'));
-              });
+                  return reply({ message: 'Success.' });
+                })
+                .catch(function (error) {
+                  Log.error(error);
+                  return reply(Boom.badImplementation('There was an error accessing the database.'));
+                });
+            }
+            else {
+              return reply({ message: 'Success.' });
+            }
           };
 
           server.route({
@@ -268,7 +353,7 @@ module.exports = function (mongoose) {
             path: '/user/logout',
             config: {
               handler: logoutHandler,
-              auth: Config.get('/restHapiConfig/auth'),
+              auth: auth,
               description: 'User logout.',
               tags: ['api', 'User', 'Logout'],
               validate: {
@@ -657,6 +742,7 @@ module.exports = function (mongoose) {
                   mailer.sendEmail(emailOptions, template, context, Log)
                     .catch(function (error) {
                       Log.error('sending welcome email failed:', error);
+                      return reply(Boom.gatewayTimeout('Sending registration email failed.'));
                     });
                 }
                 else if (request.payload.registerType === "Invite") {
@@ -691,21 +777,11 @@ module.exports = function (mongoose) {
                   mailer.sendEmail(emailOptions, template, context, Log)
                     .catch(function (error) {
                       Log.error('sending invite email failed:', error);
+                      return reply(Boom.gatewayTimeout('Sending registration email failed.'));
                     });
                 }
 
-                return Session.createInstance(user._id.toString());
-              })
-              .then(function (session) {
-                const credentials = session._id + ':' + session.key;
-                const authHeader = 'Basic ' + new Buffer(credentials).toString('base64');
-
-                return reply({
-                  user: user,
-                  session: session,
-                  id_token: Token(user, session),
-                  authHeader
-                });
+                return reply({ message: 'Success.' });
               })
               .catch(function (error) {
                 Log.error(error);
@@ -713,16 +789,16 @@ module.exports = function (mongoose) {
               });
           };
 
-          const auth = Config.get('/restHapiConfig/auth') === false
+          const optionalAuth = auth === false
             ? false
-            : { mode: 'optional', strategy: Config.get('/restHapiConfig/auth') };
+            : { mode: 'optional', strategy: auth };
 
           server.route({
             method: 'POST',
             path: '/user/register',
             config: {
               handler: registerHandler,
-              auth: auth,
+              auth: optionalAuth,
               description: 'User registration.',
               tags: ['api', 'User', 'Registration'],
               validate: {
@@ -1011,7 +1087,7 @@ module.exports = function (mongoose) {
 
       let user = {};
 
-      return self.findOne(query)
+      return self.findOne(query).lean()
         .then(function (result) {
           user = result;
 
