@@ -14,7 +14,7 @@ const Token = require('../token');
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const expirationPeriod = Config.get('/expirationPeriod');
-const auth = Config.get('/restHapiConfig/auth');
+const authStrategy = Config.get('/restHapiConfig/authStrategy');
 
 module.exports = function (mongoose) {
   const modelName = "user";
@@ -172,7 +172,7 @@ module.exports = function (mongoose) {
             {
               assign: 'session',
               method: function (request, reply) {
-                if (auth === AUTH_STRATEGIES.TOKEN) {
+                if (authStrategy === AUTH_STRATEGIES.TOKEN) {
                   reply(null);
                 }
                 else {
@@ -190,7 +190,7 @@ module.exports = function (mongoose) {
             {
               assign: 'standardToken',
               method: function (request, reply) {
-                switch(auth) {
+                switch(authStrategy) {
                   case AUTH_STRATEGIES.TOKEN:
                     reply(Token(request.pre.user, null, expirationPeriod.long, Log));
                     break;
@@ -208,7 +208,7 @@ module.exports = function (mongoose) {
             {
               assign: 'sessionToken',
               method: function (request, reply) {
-                switch(auth) {
+                switch(authStrategy) {
                   case AUTH_STRATEGIES.TOKEN:
                     reply(null);
                     break;
@@ -226,7 +226,7 @@ module.exports = function (mongoose) {
             {
               assign: 'refreshToken',
               method: function (request, reply) {
-                switch(auth) {
+                switch(authStrategy) {
                   case AUTH_STRATEGIES.TOKEN:
                     reply(null);
                     break;
@@ -250,7 +250,7 @@ module.exports = function (mongoose) {
 
             request.pre.user.password = "";
 
-            switch(auth) {
+            switch(authStrategy) {
               case AUTH_STRATEGIES.TOKEN:
                 authHeader = 'Bearer ' + request.pre.standardToken;
                 response = {
@@ -352,7 +352,7 @@ module.exports = function (mongoose) {
             path: '/user/logout',
             config: {
               handler: logoutHandler,
-              auth: auth,
+              auth: authStrategy,
               description: 'User logout.',
               tags: ['api', 'User', 'Logout'],
               validate: {
@@ -788,9 +788,9 @@ module.exports = function (mongoose) {
               });
           };
 
-          const optionalAuth = auth === false
+          const optionalAuth = authStrategy === false
             ? false
-            : { mode: 'optional', strategy: auth };
+            : { mode: 'optional', strategy: authStrategy };
 
           server.route({
             method: 'POST',

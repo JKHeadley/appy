@@ -25,7 +25,7 @@ internals.applyTokenStrategy = function (server, next) {
 
       let user = decodedToken.user;
 
-      callback(null, Boolean(user), { user });
+      callback(null, Boolean(user), { user, scope: user.role });
     }
   });
 
@@ -83,7 +83,7 @@ internals.applySessionStrategy = function (server, next) {
             return reply.continue();
           });
 
-          callback(null, Boolean(user), { session, user })
+          callback(null, Boolean(user), { session, user, scope: user.role })
         })
         .catch(function(error) {
           Log.error(error);
@@ -162,7 +162,7 @@ internals.applyRefreshStrategy = function (server, next) {
               return reply.continue();
             });
             
-            callback(null, Boolean(user), { user, session });
+            callback(null, Boolean(user), { user, session, scope: user.role });
           })
           .catch(function(error) {
             Log.error(error);
@@ -176,9 +176,9 @@ internals.applyRefreshStrategy = function (server, next) {
 
 
 exports.register = function (server, options, next) {
-  const auth = Config.get('/restHapiConfig/auth');
+  const authStrategy = Config.get('/restHapiConfig/authStrategy');
 
-  switch (auth) {
+  switch (authStrategy) {
     case AUTH_STRATEGIES.TOKEN:
       internals.applyTokenStrategy(server, next);
       break;

@@ -105,7 +105,7 @@ const config = {
     },
     absoluteModelPath: true,
     modelPath: __dirname + '/server/models',
-    auth: {
+    authStrategy: {
       $filter: 'env',
       local: constants.AUTH_STRATEGIES.SESSION,
       $default: constants.AUTH_STRATEGIES.REFRESH
