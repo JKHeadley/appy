@@ -1,10 +1,16 @@
 'use strict';
 
 const Jwt = require('jsonwebtoken');
+const Mongoose = require('mongoose');
 const Config = require('../config');
 
 function createToken(user, session, expirationPeriod, Log) {
   Log = Log.bind("token");
+
+
+  const Permission = Mongoose.model('permission');
+
+  Permission.getEffectivePermissions(user, Log);
 
   let token = {};
 

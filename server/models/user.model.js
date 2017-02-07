@@ -43,13 +43,8 @@ module.exports = function (mongoose) {
       unique: true
     },
     role: {
-      type: Types.String,
-      enum: _.values(USER_ROLES),
-      required: true
-    },
-    admin: {
       type: Types.ObjectId,
-      ref: "admin"
+      ref: "role"
     },
     resetPassword: {
       token: {
@@ -81,9 +76,20 @@ module.exports = function (mongoose) {
     collectionName: modelName,
     routeOptions: {
       associations: {
-        admin: {
-          type: "ONE_ONE",
-          model: "admin"
+        role: {
+          type: "MANY_ONE",
+          model: "role"
+        },
+        groups: {
+          type: "MANY_MANY",
+          alias: "group",
+          model: "group"
+        },
+        permissions: {
+          type: "MANY_MANY",
+          alias: "permission",
+          model: "permission",
+          linkingModel: "user_permission"
         }
       },
       extraEndpoints: [

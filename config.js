@@ -11,8 +11,9 @@ const criteria = {
 
 const constants = {
   USER_ROLES: {
+    USER: 'User',
     ADMIN: 'Admin',
-    USER: 'User'
+    SUPER_ADMIN: 'SuperAdmin',
   },
   AUTH_STRATEGIES: {
     TOKEN: 'standard-jwt',
@@ -107,7 +108,7 @@ const config = {
     modelPath: __dirname + '/server/models',
     authStrategy: {
       $filter: 'env',
-      local: constants.AUTH_STRATEGIES.SESSION,
+      local: constants.AUTH_STRATEGIES.TOKEN,
       $default: constants.AUTH_STRATEGIES.REFRESH
     },
     enableQueryValidation: {
