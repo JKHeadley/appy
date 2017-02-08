@@ -35,8 +35,8 @@ const config = {
   },
   constants: constants,
   expirationPeriod: {
-    short: '1m',
-    medium: '15m',
+    short: '10m',
+    medium: '30m',
     long: '4h'
   },
   authAttempts: {
@@ -110,7 +110,7 @@ const config = {
     modelPath: __dirname + '/server/models',
     authStrategy: {
       $filter: 'env',
-      local: constants.AUTH_STRATEGIES.TOKEN,
+      local: constants.AUTH_STRATEGIES.REFRESH,
       $default: constants.AUTH_STRATEGIES.REFRESH
     },
     enableQueryValidation: {
