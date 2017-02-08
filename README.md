@@ -41,7 +41,7 @@ You need [Node.js](https://nodejs.org/en/) installed and you'll need [MongoDB](h
 ## Installation
 
 ```
-$ git clone git@github.com:JKHeadley/appy.git
+$ git clone https://github.com/JKHeadley/appy.git
 $ cd appy
 $ npm install
 ```
