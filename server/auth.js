@@ -2,7 +2,6 @@
 
 const Mongoose = require('mongoose');
 const RestHapi = require('rest-hapi');
-const Q = require('Q');
 
 const Config = require('../config');
 const Token = require('./token');
