@@ -197,6 +197,14 @@ function dropCollections(models) {
       Log.log("removing permissions");
       return models.permission.remove({});
     })
+    .then(function() {
+      Log.log("removing sessions");
+      return models.session.remove({});
+    })
+    .then(function() {
+      Log.log("removing authAttempts");
+      return models.authAttempt.remove({});
+    })
     .catch(function (error) {
       Log.error(error);
     });
