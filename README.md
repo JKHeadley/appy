@@ -29,7 +29,7 @@ appy implements a [hapi](https://github.com/hapijs/hapi) framework server.  appy
 - [License](#license)
 - [Questions](#questions)
 - [Contributing](#contributing)
-- [Thanks!](#thanks!)
+- [Thanks!](#thanks)
 
 
 ## Requirements
