@@ -20,7 +20,17 @@ appy implements a [hapi](https://github.com/hapijs/hapi) framework server.  appy
 ## Readme contents
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Configuration](#configuration)
 - [First time setup](#first-time-setup)
+- [Running appy](#running-appy)
+- [Swagger documentation](#swagger-documentation)
+- [Authentication](#authentication)
+- [Authorization](#authorization)
+- [License](#license)
+- [Questions](#questions)
+- [Contributing](#contributing)
+- [Thanks!](#thanks!)
+
 
 ## Requirements
 
