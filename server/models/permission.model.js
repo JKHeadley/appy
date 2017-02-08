@@ -15,7 +15,7 @@ module.exports = function (mongoose) {
     description: {
       type: Types.String
     }
-  });
+  }, { collection: modelName });
   Schema.statics = {
     collectionName:modelName,
     routeOptions: {
