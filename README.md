@@ -17,6 +17,12 @@ appy is a boilerplate user system inspired by the [frame](https://github.com/jed
 
 appy implements a [hapi](https://github.com/hapijs/hapi) framework server.  appy's RESTful API endpoints are generated through [rest-hapi](https://github.com/JKHeadley/rest-hapi), which means models are based off of [mongoose](https://github.com/Automattic/mongoose) and data is stored in [MongoDB](www.mongodb.org).
 
+## Live demo
+
+View the swagger docs for the live demo:
+
+http://ec2-35-164-131-1.us-west-2.compute.amazonaws.com:8125
+
 ## Readme contents
 - [Requirements](#requirements)
 - [Installation](#installation)
