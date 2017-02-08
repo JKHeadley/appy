@@ -113,6 +113,8 @@ There are three optional authentication strategies in appy and each make use of 
 2. Session
 3. Session with refresh token
 
+The strategy used is determined by the ``restHapiConfig.authStrategy`` config property.
+
 For a more in-depth description of these strategies, please view the wiki.
 
 [Back to top](#readme-contents)
