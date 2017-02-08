@@ -10,6 +10,8 @@ appy is a boilerplate user system inspired by the [frame](https://github.com/jed
 * Abusive login attempt detection
 * User permissions based on roles and groups
 * Three optional authentication strategies
+* Endpoint validation and query support
+* Swagger docs for easy endpoint access
 
 ## Technologies
 
@@ -37,15 +39,15 @@ $ npm install
 [Back to top](#readme-contents)
 
 ## Configuration
-appy configuration follows frame's configuration flow:
+appy configuration follows [frame's](https://github.com/jedireza/frame) configuration flow:
 
 > Simply edit ``config.js``. The configuration uses confidence which makes it easy to manage configuration settings across environments. Don't store secrets in this file or commit them to your repository.
 
-Instead, access secrets via environment variables. We use dotenv to help make setting local environment variables easy (not to be used in production).
+> Instead, access secrets via environment variables. We use dotenv to help make setting local environment variables easy (not to be used in production).
 
-Simply copy .env-sample to .env and edit as needed. Don't commit .env to your repository.
+> Simply copy .env-sample to .env and edit as needed. Don't commit .env to your repository.
 
-### First time setup/Demo
+## First time setup
 **WARNING**: This will clear all data in the following MongoDB collections (in the db defined in ``restHapiConfig.mongo.URI``, default ``mongodb://localhost/appy``) if they exist: ``user``, ``role``, ``group``, ``permission``, ``session``, and ``authAttempt``.
 
 If you would like to seed your database with some data, run:
@@ -57,5 +59,98 @@ $ gulp seed
 NOTE: The password for all seed users is ``root``.
 
 You can use these models as templates for your models or delete them later if you wish.
+
+[Back to top](#readme-contents)
+
+## Running appy
+
+To quickly run the app locally, simply run:
+
+```
+$ gulp
+```
+
+appy uses the ``NODE_ENV`` enviroment variable for configuration.  To choose an environment run one of the following:
+
+Local environment:
+```
+$ gulp serve:local
+```
+Development environment:
+```
+$ gulp serve:development
+```
+Production environment:
+```
+$ gulp serve:production
+```
+
+Once the app is running point your browser to http://localhost:8125/ to view the Swagger docs.
+
+[Back to top](#readme-contents)
+
+## Swagger documentation
+
+Swagger documentation is automatically generated for all endpoints and can be viewed by pointing a browser at the server URL. By default this will be http://localhost:8125/. The swagger docs provide quick access to testing your endpoints along with model schema descriptions and query options.
+
+[Back to top](#readme-contents)
+
+## Authentication
+
+There are three optional authentication strategies in appy and each make use of javascript web tokens (JWT) and the [hapi-auth-jwt2](https://www.npmjs.com/package/hapi-auth-jwt2) scheme.  The three strategies are:
+
+1. Standard token
+2. Session
+3. Session with refresh token
+
+For a more in-depth description of these strategies, please view the wiki.
+
+[Back to top](#readme-contents)
+
+## Authorization
+
+Authorization in appy is enforced via the hapi ``scope`` endpoint property.  Endpoints generated through [rest-hapi](https://github.com/JKHeadley/rest-hapi) come prepopulated with scope values.
+
+User scope values are populated based on appy's permission system.  User's gain permissions based on three associations:
+
+1. User defined permissions
+2. Group defined permissions
+3. Role defined permissions
+
+Users must belong to at least one role and can belong to multiple groups.  Each permission association carries with it an ``enabled`` property that can be set to true or false.  This property allows permissions to override each other based on priority.  User permissions have the highest priority, followed by Group permissions and lastly Role permissions:
+```
+User->Group->Role
+```
+This allows easy and specific configuration of user endpoint access.  In general, a user will gain the majority of it's permissions through it's role.  Those permissions will be further defined by any groups the user belongs to.  Finally a user might have a few specific permissions assigned directly to them.  A user's scope final scope is a combination of the user's role, groups, and effective permissions.  See below for an example:
+
+User: ``'test@manager.com'``
+Role: ``'Admin'``
+Role Permissions: 
+```
+[
+  { name:'readUser', enabled:true },
+  { name:'updateUser', enabled:true },
+  { name:'addUserPermissions', enabled:true },
+  { name:'removeUserPermissions', enabled:true }
+]
+```
+Groups: ``['Managers']``
+Group Permissions: 
+```
+[
+  { name:'updateUser', enabled:false },
+]
+```
+User Permissions: 
+```
+[
+  { name:'removeUserPermissions', enabled:false },
+]
+```
+
+Final Scope:
+```
+['Admin','Managers','readUser','addUserPermissions']
+```
 
 [Back to top](#readme-contents)
