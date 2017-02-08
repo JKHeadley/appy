@@ -6,6 +6,7 @@ const Bcrypt = require('bcryptjs');
 const Chalk = require('chalk');
 const Jwt = require('jsonwebtoken');
 const RestHapi = require('rest-hapi');
+const Q = require('q');
 const _ = require('lodash');
 
 const Config = require('../../config');
@@ -48,11 +49,13 @@ module.exports = function (mongoose) {
     },
     resetPassword: {
       token: {
+        allowOnCreate: false,
         allowOnUpdate: false,
         exclude: true,
         type: Types.String
       },
       expires: {
+        allowOnCreate: false,
         allowOnUpdate: false,
         exclude: true,
         type: Types.Date
@@ -60,11 +63,13 @@ module.exports = function (mongoose) {
     },
     activateAccount: {
       token: {
+        allowOnCreate: false,
         allowOnUpdate: false,
         exclude: true,
         type: Types.String
       },
       expires: {
+        allowOnCreate: false,
         allowOnUpdate: false,
         exclude: true,
         type: Types.Date
@@ -97,6 +102,7 @@ module.exports = function (mongoose) {
         function (server, model, options, Log) {
           Log = Log.bind(Chalk.magenta("Login"));
           const AuthAttempt = mongoose.model('authAttempt');
+          const Permission = mongoose.model('permission');
           const Session = mongoose.model('session');
           const User = mongoose.model('user');
 
@@ -194,17 +200,26 @@ module.exports = function (mongoose) {
               }
             },
             {
+              assign: 'scope',
+              method: function (request, reply) {
+                return Permission.getScope(request.pre.user, Log)
+                  .then(function(scope) {
+                    return reply(scope);
+                  });
+              }
+            },
+            {
               assign: 'standardToken',
               method: function (request, reply) {
                 switch(authStrategy) {
                   case AUTH_STRATEGIES.TOKEN:
-                    reply(Token(request.pre.user, null, expirationPeriod.long, Log));
+                    reply(Token(request.pre.user, null, request.pre.scope, expirationPeriod.long, Log));
                     break;
                   case AUTH_STRATEGIES.SESSION:
                     reply(null);
                     break;
                   case AUTH_STRATEGIES.REFRESH:
-                    reply(Token(request.pre.user, null, expirationPeriod.short, Log));
+                    reply(Token(request.pre.user, null, request.pre.scope, expirationPeriod.short, Log));
                     break;
                   default:
                     break;
@@ -219,7 +234,7 @@ module.exports = function (mongoose) {
                     reply(null);
                     break;
                   case AUTH_STRATEGIES.SESSION:
-                    reply(Token(null, request.pre.session, expirationPeriod.long, Log));
+                    reply(Token(null, request.pre.session, request.pre.scope, expirationPeriod.long, Log));
                     break;
                   case AUTH_STRATEGIES.REFRESH:
                     reply(null);
@@ -240,7 +255,7 @@ module.exports = function (mongoose) {
                     reply(null);
                     break;
                   case AUTH_STRATEGIES.REFRESH:
-                    reply(Token(null, request.pre.session, expirationPeriod.long, Log));
+                    reply(Token(null, request.pre.session, request.pre.scope, expirationPeriod.long, Log));
                     break;
                   default:
                     break;
@@ -261,14 +276,16 @@ module.exports = function (mongoose) {
                 authHeader = 'Bearer ' + request.pre.standardToken;
                 response = {
                   user: request.pre.user,
-                  authHeader
+                  authHeader,
+                  scope: request.pre.scope
                 };
                 break;
               case AUTH_STRATEGIES.SESSION:
                 authHeader = 'Bearer ' + request.pre.sessionToken;
                 response = {
                   user: request.pre.user,
-                  authHeader
+                  authHeader,
+                  scope: request.pre.scope
                 };
                 break;
               case AUTH_STRATEGIES.REFRESH:
@@ -276,7 +293,8 @@ module.exports = function (mongoose) {
                 response = {
                   user: request.pre.user,
                   refreshToken: request.pre.refreshToken,
-                  authHeader
+                  authHeader,
+                  scope: request.pre.scope
                 };
                 break;
               default:

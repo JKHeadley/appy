@@ -4,13 +4,8 @@ const Jwt = require('jsonwebtoken');
 const Mongoose = require('mongoose');
 const Config = require('../config');
 
-function createToken(user, session, expirationPeriod, Log) {
+function createToken(user, session, scope, expirationPeriod, Log) {
   Log = Log.bind("token");
-
-
-  const Permission = Mongoose.model('permission');
-
-  Permission.getEffectivePermissions(user, Log);
 
   let token = {};
 
@@ -18,7 +13,8 @@ function createToken(user, session, expirationPeriod, Log) {
     token = Jwt.sign({
       sessionId: session._id,
       sessionKey: session.key,
-      passwordHash: session.passwordHash
+      passwordHash: session.passwordHash,
+      scope: scope
     }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
   }
   else {
@@ -32,7 +28,8 @@ function createToken(user, session, expirationPeriod, Log) {
     };
 
     token = Jwt.sign({
-      user: tokenUser
+      user: tokenUser,
+      scope: scope
     }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
   }
 

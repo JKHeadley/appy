@@ -72,8 +72,16 @@ gulp.task('seed', [], function () {
               description: "Can read a user."
             },
             {
-              name: "editPermissions",
-              description: "Can add and remove permissions."
+              name: "addUserPermissions",
+              description: "Can add permissions to users."
+            },
+            {
+              name: "removeUserPermissions",
+              description: "Can remove permissions from users."
+            },
+            {
+              name: "nothing",
+              description: "Permission with no use."
             }
           ];
           return RestHapi.create(models.permission, permissions, Log);
@@ -104,7 +112,7 @@ gulp.task('seed', [], function () {
               isActive: true
             },
             {
-              email: 'test@user_no_read.com',
+              email: 'test@useless-user.com',
               password: password,
               role: roles[0]._id,
               isActive: true
@@ -143,13 +151,15 @@ gulp.task('seed', [], function () {
 
           promises = [];
           promises.push(RestHapi.addMany(models.role, roles[0], models.permission, "permissions", [permissions[2]._id], Log));
-          promises.push(RestHapi.addMany(models.role, roles[1], models.permission, "permissions", [permissions[1]._id, permissions[2]._id, permissions[3]._id], Log));
+          promises.push(RestHapi.addMany(models.role, roles[1], models.permission, "permissions", [permissions[1]._id, permissions[2]._id, permissions[3]._id,  permissions[4]._id], Log));
           promises.push(RestHapi.addMany(models.role, roles[2], models.permission, "permissions", [permissions[0]._id], Log));
 
           promises.push(RestHapi.addMany(models.group, groups[0], models.permission, "permissions", [{ enabled: false, childId: permissions[3]._id}], Log));
+          promises.push(RestHapi.addMany(models.group, groups[0], models.permission, "permissions", [{ enabled: false, childId: permissions[4]._id}], Log));
           promises.push(RestHapi.addMany(models.group, groups[1], models.permission, "permissions", [{ enabled: false, childId: permissions[1]._id}], Log));
 
           promises.push(RestHapi.addMany(models.user, users[1], models.permission, "permissions", [{ enabled: false, childId: permissions[2]._id}], Log));
+          promises.push(RestHapi.addMany(models.user, users[1], models.permission, "permissions", [{ enabled: true, childId: permissions[5]._id}], Log));
 
 
           promises.push(RestHapi.addMany(models.user, users[3], models.group, "groups", [groups[0]._id], Log));

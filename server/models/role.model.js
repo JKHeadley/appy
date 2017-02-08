@@ -12,7 +12,8 @@ module.exports = function (mongoose) {
     name: {
       type: Types.String,
       enum: _.values(USER_ROLES),
-      required: true
+      required: true,
+      unique: true
     },
     description: {
       type: Types.String

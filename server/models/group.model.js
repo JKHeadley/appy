@@ -6,7 +6,8 @@ module.exports = function (mongoose) {
   var Schema = new mongoose.Schema({
     name: {
       type: Types.String,
-      required: true
+      required: true,
+      unique: true
     },
     description: {
       type: Types.String

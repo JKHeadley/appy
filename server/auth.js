@@ -2,6 +2,7 @@
 
 const Mongoose = require('mongoose');
 const RestHapi = require('rest-hapi');
+const Q = require('Q');
 
 const Config = require('../config');
 const Token = require('./token');
@@ -25,7 +26,7 @@ internals.applyTokenStrategy = function (server, next) {
 
       let user = decodedToken.user;
 
-      callback(null, Boolean(user), { user, scope: user.role });
+      callback(null, Boolean(user), { user, scope: decodedToken.scope });
     }
   });
 
@@ -47,6 +48,7 @@ internals.applySessionStrategy = function (server, next) {
       const sessionId = decodedToken.sessionId;
       const sessionKey = decodedToken.sessionKey;
       const passwordHash = decodedToken.passwordHash;
+      const scope = decodedToken.scope;
       let session = {};
       let user = {};
 
@@ -77,13 +79,13 @@ internals.applySessionStrategy = function (server, next) {
           server.ext('onPreResponse', function(request, reply) {
 
             if (request.response.header) {
-              request.response.header('X-Auth-Header', "Bearer " + Token(null, session, expirationPeriod.long, Log));
+              request.response.header('X-Auth-Header', "Bearer " + Token(null, session, scope, expirationPeriod.long, Log));
             }
 
             return reply.continue();
           });
 
-          callback(null, Boolean(user), { session, user, scope: user.role })
+          callback(null, Boolean(user), { session, user, scope: scope })
         })
         .catch(function(error) {
           Log.error(error);
@@ -120,7 +122,7 @@ internals.applyRefreshStrategy = function (server, next) {
           return reply.continue();
         });
 
-        callback(null, Boolean(user), { user });
+        callback(null, Boolean(user), { user, scope: decodedToken.scope });
       }
       // EXPL: if the token does contain session info (i.e. a refresh token), then use the session to
       // authenticate and respond with a fresh set of tokens in the header
@@ -155,14 +157,14 @@ internals.applyRefreshStrategy = function (server, next) {
             server.ext('onPreResponse', function(request, reply) {
 
               if (request.response.header) {
-                request.response.header('X-Auth-Header', "Bearer " + Token(user, null, expirationPeriod.short, Log));
-                request.response.header('X-Refresh-Token', Token(null, session, expirationPeriod.long, Log));
+                request.response.header('X-Auth-Header', "Bearer " + Token(user, null, decodedToken.scope, expirationPeriod.short, Log));
+                request.response.header('X-Refresh-Token', Token(null, session, decodedToken.scope, expirationPeriod.long, Log));
               }
 
               return reply.continue();
             });
             
-            callback(null, Boolean(user), { user, session, scope: user.role });
+            callback(null, Boolean(user), { user, session, scope: decodedToken.scope });
           })
           .catch(function(error) {
             Log.error(error);
