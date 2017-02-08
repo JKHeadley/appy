@@ -8,4 +8,4 @@
 
 Love,
 
-The Appy Team
+The appy Team

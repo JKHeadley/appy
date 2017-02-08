@@ -784,7 +784,7 @@ module.exports = function (mongoose) {
                   }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "4h" });//TODO: match expiration with activateAccount expiration
 
                   const invitee = request.auth.credentials ? request.auth.credentials.user : {
-                    firstName: "Appy",
+                    firstName: "appy",
                     lastName: "Admin"
                   };
 

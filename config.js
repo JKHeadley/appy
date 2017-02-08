@@ -20,13 +20,14 @@ const constants = {
     SESSION: 'jwt-with-session',
     REFRESH: 'jwt-with-session-and-refresh-token'
   },
-  PORT: 8125
+  PORT: 8125,
+  APP_TITLE: 'appy API'
 };
 
 const config = {
-  $meta: 'This file configures the Appy API.',
-  projectName: 'Appy API',
-  websiteName: 'Appy Admin',
+  $meta: 'This file configures the appy API.',
+  projectName: constants.APP_TITLE,
+  websiteName: 'appy Admin',
   port: {
     $filter: 'env',
     production: process.env.PORT,
@@ -97,6 +98,7 @@ const config = {
     $default: 'http://localhost:' + constants.PORT
   },
   restHapiConfig: {
+    appTitle: constants.APP_TITLE,
     mongo: {
       URI: {
         $filter: 'env',
