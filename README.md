@@ -74,8 +74,6 @@ $ gulp seed
 
 NOTE: The password for all seed users is ``root``.
 
-You can use these models as templates for your models or delete them later if you wish.
-
 [Back to top](#readme-contents)
 
 ## Running appy
