@@ -142,7 +142,8 @@ This allows easy and specific configuration of user endpoint access.  In general
 User: ``'test@manager.com'``
 Role: ``'Admin'``
 Role Permissions: 
-```
+
+```javacript
 [
   { name:'readUser', enabled:true },
   { name:'updateUser', enabled:true },
@@ -150,22 +151,26 @@ Role Permissions:
   { name:'removeUserPermissions', enabled:true }
 ]
 ```
+
 Groups: ``['Managers']``
 Group Permissions: 
-```
+
+```javacript
 [
   { name:'updateUser', enabled:false },
 ]
 ```
+
 User Permissions: 
-```
+
+```javacript
 [
   { name:'removeUserPermissions', enabled:false },
 ]
 ```
 
 Final Scope:
-```
+```javacript
 ['Admin','Managers','readUser','addUserPermissions']
 ```
 
