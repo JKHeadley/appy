@@ -170,6 +170,7 @@ User Permissions:
 ```
 
 Final Scope:
+
 ```javacript
 ['Admin','Managers','readUser','addUserPermissions']
 ```
