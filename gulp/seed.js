@@ -11,6 +11,8 @@ const Config = require('../config');
 const restHapiConfig = Config.get('/restHapiConfig');
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 
+let models = null;
+
 gulp.task('seed', [], function () {
 
   Mongoose.Promise = Q.Promise;
@@ -22,7 +24,8 @@ gulp.task('seed', [], function () {
   Mongoose.connect(restHapiConfig.mongo.URI);
 
   return RestHapi.generateModels(Mongoose)
-    .then(function (models) {
+    .then(function (result) {
+      models = result;
 
       RestHapi.config.loglevel = "DEBUG";
       const Log = RestHapi.getLogger("seed");
@@ -37,6 +40,9 @@ gulp.task('seed', [], function () {
       let promises = [];
 
       return dropCollections(models)
+        .then(function (result) {
+          return updatePermissions();
+        })
         .then(function (result) {
           Log.log("seeding roles");
           roles = [
@@ -64,20 +70,24 @@ gulp.task('seed', [], function () {
               description: "Access to all endpoints"
             },
             {
-              name: "updateUser",
-              description: "Can update a user."
+              name: "create",
+              description: "Access to all create endpoints"
             },
             {
-              name: "readUser",
-              description: "Can read a user."
+              name: "read",
+              description: "Access to all read endpoints"
             },
             {
-              name: "addUserPermissions",
-              description: "Can add permissions to users."
+              name: "update",
+              description: "Access to all update endpoints"
             },
             {
-              name: "removeUserPermissions",
-              description: "Can remove permissions from users."
+              name: "delete",
+              description: "Access to all delete endpoints"
+            },
+            {
+              name: "associate",
+              description: "Access to all association endpoints"
             },
             {
               name: "nothing",
@@ -101,7 +111,7 @@ gulp.task('seed', [], function () {
           ];
           return RestHapi.create(models.group, groups, Log);
         })
-        .then(function(result) {
+        .then(function (result) {
           groups = result;
           Log.log("seeding users");
           users = [
@@ -144,31 +154,53 @@ gulp.task('seed', [], function () {
           ];
           return RestHapi.create(models.user, users, Log);
         })
-        .then(function(result) {
+        .then(function (result) {
           users = result;
 
           Log.log("setting associations");
 
-          promises = [];
-          promises.push(RestHapi.addMany(models.role, roles[0], models.permission, "permissions", [permissions[2]._id], Log));
-          promises.push(RestHapi.addMany(models.role, roles[1], models.permission, "permissions", [permissions[1]._id, permissions[2]._id, permissions[3]._id,  permissions[4]._id], Log));
-          promises.push(RestHapi.addMany(models.role, roles[2], models.permission, "permissions", [permissions[0]._id], Log));
+          return RestHapi.list(models.permission, { name: ['root', 'updateUser', 'readUser', 'addUserPermissions', 'removeUserPermissions', 'nothing'] }, Log)
+            .then(function (result) {
+              permissions = result;
 
-          promises.push(RestHapi.addMany(models.group, groups[0], models.permission, "permissions", [{ enabled: false, childId: permissions[3]._id}], Log));
-          promises.push(RestHapi.addMany(models.group, groups[0], models.permission, "permissions", [{ enabled: false, childId: permissions[4]._id}], Log));
-          promises.push(RestHapi.addMany(models.group, groups[1], models.permission, "permissions", [{ enabled: false, childId: permissions[1]._id}], Log));
+              promises = [];
 
-          promises.push(RestHapi.addMany(models.user, users[1], models.permission, "permissions", [{ enabled: false, childId: permissions[2]._id}], Log));
-          promises.push(RestHapi.addMany(models.user, users[1], models.permission, "permissions", [{ enabled: true, childId: permissions[5]._id}], Log));
+              promises.push(RestHapi.addMany(models.role, roles[0], models.permission, "permissions", [
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'readUser' })._id }
+              ], Log));
 
+              promises.push(RestHapi.addMany(models.role, roles[1], models.permission, "permissions", [
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'updateUser' })._id },
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'readUser' })._id },
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'addUserPermissions' })._id },
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions' })._id }
+              ], Log));
 
-          promises.push(RestHapi.addMany(models.user, users[3], models.group, "groups", [groups[0]._id], Log));
-          promises.push(RestHapi.addMany(models.user, users[4], models.group, "groups", [groups[1]._id], Log));
+              promises.push(RestHapi.addMany(models.role, roles[2], models.permission, "permissions", [
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'root' })._id },
+              ], Log));
 
-          return Q.all(promises);
+              promises.push(RestHapi.addMany(models.group, groups[0], models.permission, "permissions", [
+                { enabled: false, childId: permissions.find(function (p) { return p.name === 'addUserPermissions' })._id },
+                { enabled: false, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions' })._id },
+              ], Log));
+
+              promises.push(RestHapi.addMany(models.group, groups[1], models.permission, "permissions", [
+                { enabled: false, childId: permissions.find(function (p) { return p.name === 'updateUser' })._id },
+              ], Log));
+
+              promises.push(RestHapi.addMany(models.user, users[1], models.permission, "permissions", [
+                { enabled: false, childId: permissions.find(function (p) { return p.name === 'readUser' })._id },
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'nothing' })._id },
+              ], Log));
+
+              promises.push(RestHapi.addMany(models.user, users[3], models.group, "groups", [groups[0]._id], Log));
+              promises.push(RestHapi.addMany(models.user, users[4], models.group, "groups", [groups[1]._id], Log));
+
+              return Q.all(promises);
+            })
         })
         .then(function (result) {
-
           return gulp.src("")
             .pipe(exit());
         })
@@ -178,30 +210,132 @@ gulp.task('seed', [], function () {
     })
 });
 
+gulp.task('update-permissions', [], function () {
+  RestHapi.config.loglevel = "DEBUG";
+  const Log = RestHapi.getLogger("update-permissions");
 
+  return updatePermissions()
+    .then(function (result) {
+
+      return gulp.src("")
+        .pipe(exit());
+    })
+    .catch(function (error) {
+      Log.error(error);
+    })
+});
+
+/**
+ * A function that generates permissions relevant to each model.
+ * NOTE: If some permissions already exist, you might receive a "duplicate key" error, however all generated
+ * permissions that don't already exist should still be successfully added.
+ * @returns {Promise|Promise.<TResult>|*}
+ */
+function updatePermissions() {
+  RestHapi.config.loglevel = "DEBUG";
+  const Log = RestHapi.getLogger("update-permissions");
+
+  let promise = {};
+
+  if (models) {
+    promise = Q.when(models);
+  }
+  else {
+    Mongoose.Promise = Q.Promise;
+
+    RestHapi.config = restHapiConfig;
+    RestHapi.config.absoluteModelPath = true;
+    RestHapi.config.modelPath = __dirname + "/../server/models";
+
+    Mongoose.connect(restHapiConfig.mongo.URI);
+
+    promise = RestHapi.generateModels(Mongoose);
+  }
+  return promise
+    .then(function (result) {
+      models = result;
+
+      let promises = [];
+
+      for (const modelKey in models) {
+        const model = models[modelKey];
+        const modelName = model.collectionName[0].toUpperCase() + model.collectionName.slice(1);
+        const permissions = [];
+
+        permissions.push({ name: "create" + modelName, description: "Can create a " + model.collectionName });
+        permissions.push({ name: "read" + modelName, description: "Can read a " + model.collectionName });
+        permissions.push({ name: "update" + modelName, description: "Can update a " + model.collectionName });
+        permissions.push({ name: "delete" + modelName, description: "Can delete a " + model.collectionName });
+        permissions.push({
+          name: "associate" + modelName,
+          description: "Can modify associations for a " + model.collectionName
+        });
+
+        const associations = model.routeOptions.associations;
+
+        for (const key in associations) {
+
+          if (associations[key].type === "MANY_MANY" || associations[key].type === "ONE_MANY") {
+            const associationName = key[0].toUpperCase() + key.slice(1);
+
+            permissions.push({
+              name: "add" + modelName + associationName,
+              description: "Can add " + key + " to a " + model.collectionName
+            });
+            permissions.push({
+              name: "remove" + modelName + associationName,
+              description: "Can remove " + key + " from a " + model.collectionName
+            });
+            permissions.push({
+              name: "get" + modelName + associationName,
+              description: "Can get a " + model.collectionName + "'s " + key
+            });
+          }
+
+        }
+
+        promises.push(RestHapi.create(models.permission, permissions, Log));
+
+      }
+
+      return Q.allSettled(promises)
+        .then(function (result) {
+          Log.log("Permissions Updated");
+        })
+        .catch(function (error) {
+          Log.error(error);
+        })
+    })
+}
+
+/**
+ * Drops all of the base collections before seeding.
+ * @param models
+ * @returns {Promise.<TResult>|Promise}
+ */
 function dropCollections(models) {
   RestHapi.config.loglevel = "LOG";
   const Log = RestHapi.getLogger("unseed");
 
   Log.log("removing users");
   return models.user.remove({})
-    .then(function() {
+    .then(function () {
       Log.log("removing roles");
       return models.role.remove({});
     })
-    .then(function() {
+    .then(function () {
       Log.log("removing groups");
       return models.group.remove({});
     })
-    .then(function() {
+    .then(function () {
       Log.log("removing permissions");
       return models.permission.remove({});
     })
-    .then(function() {
+    .then(function () {
       Log.log("removing sessions");
       return models.session.remove({});
     })
-    .then(function() {
+    .then(function () {
       Log.log("removing authAttempts");
       return models.authAttempt.remove({});
     })

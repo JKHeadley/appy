@@ -138,6 +138,11 @@ const config = {
       local: true,
       $default: true
     },
+    generateScopes: {
+      $filter: 'env',
+      local: true,
+      $default: true
+    },
     loglevel: {
       $filter: 'env',
       local: "DEBUG",
