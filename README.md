@@ -29,6 +29,7 @@ http://ec2-35-164-131-1.us-west-2.compute.amazonaws.com:8125
 - [Configuration](#configuration)
 - [First time setup](#first-time-setup)
 - [Running appy](#running-appy)
+- [Wiki](#wiki)
 - [Swagger documentation](#swagger-documentation)
 - [Authentication](#authentication)
 - [Authorization](#authorization)
@@ -103,6 +104,13 @@ Once the app is running point your browser to http://localhost:8125/ to view the
 
 [Back to top](#readme-contents)
 
+## Wiki
+
+For detailed explanations on many of the topics covered in this readme, including authentication, authorization, and logging in and testing endpoints, please refer to the [wiki pages](https://github.com/JKHeadley/appy/wiki).
+
+
+[Back to top](#readme-contents)
+
 ## Swagger documentation
 
 Swagger documentation is automatically generated for all endpoints and can be viewed by pointing a browser at the server URL. By default this will be http://localhost:8125/. The swagger docs provide quick access to testing your endpoints along with model schema descriptions and query options.
@@ -119,7 +127,7 @@ There are three optional authentication strategies in appy and each make use of 
 
 The strategy used is determined by the ``restHapiConfig.authStrategy`` config property.
 
-For a more in-depth description of these strategies, please view the wiki.
+For a more in-depth description of these strategies, please view the [wiki](https://github.com/JKHeadley/appy/wiki/Authentication).
 
 [Back to top](#readme-contents)
 
@@ -170,12 +178,12 @@ User Permissions:
 ```
 
 Final Scope:
+
 ```javacript
 ['Admin','Managers','readUser','addUserPermissions']
 ```
 
 [Back to top](#readme-contents)
-
 
 ## License
 MIT
