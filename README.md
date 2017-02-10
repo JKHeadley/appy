@@ -29,6 +29,7 @@ http://ec2-35-164-131-1.us-west-2.compute.amazonaws.com:8125
 - [Configuration](#configuration)
 - [First time setup](#first-time-setup)
 - [Running appy](#running-appy)
+- [Wiki](#wiki)
 - [Swagger documentation](#swagger-documentation)
 - [Authentication](#authentication)
 - [Authorization](#authorization)
@@ -103,7 +104,7 @@ Once the app is running point your browser to http://localhost:8125/ to view the
 
 [Back to top](#readme-contents)
 
-## [Wiki](https://github.com/JKHeadley/appy/wiki)
+## Wiki
 
 For detailed explanations on many of the topics covered in this readme, including authentication, authorization, and logging in and testing endpoints, please refer to the [wiki pages](https://github.com/JKHeadley/appy/wiki).
 
