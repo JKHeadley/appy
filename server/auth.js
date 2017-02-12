@@ -52,7 +52,7 @@ internals.applySessionStrategy = function (server, next) {
       let user = {};
 
       Session.findByCredentials(sessionId, sessionKey, Log)
-        .then(function(result) {
+        .then(function (result) {
           session = result;
 
           if (!session) {
@@ -61,7 +61,7 @@ internals.applySessionStrategy = function (server, next) {
 
           return User.findById(session.user);
         })
-        .then(function(result) {
+        .then(function (result) {
           if (result === false) {
             return result;
           }
@@ -75,7 +75,7 @@ internals.applySessionStrategy = function (server, next) {
             return callback(null, false);
           }
 
-          server.ext('onPreResponse', function(request, reply) {
+          server.ext('onPreResponse', function (request, reply) {
 
             if (request.response.header) {
               request.response.header('X-Auth-Header', "Bearer " + Token(null, session, scope, expirationPeriod.long, Log));
@@ -86,7 +86,7 @@ internals.applySessionStrategy = function (server, next) {
 
           callback(null, Boolean(user), { session, user, scope: scope });
         })
-        .catch(function(error) {
+        .catch(function (error) {
           Log.error(error);
         });
     }
@@ -111,7 +111,7 @@ internals.applyRefreshStrategy = function (server, next) {
       if (decodedToken.user) {
         user = decodedToken.user;
 
-        server.ext('onPreResponse', function(request, reply) {
+        server.ext('onPreResponse', function (request, reply) {
 
           if (request.response.header) {
             request.response.header('X-Auth-Header', undefined);
@@ -130,7 +130,7 @@ internals.applyRefreshStrategy = function (server, next) {
         const User = Mongoose.model('user');
 
         Session.findByCredentials(decodedToken.sessionId, decodedToken.sessionKey, Log)
-          .then(function(result) {
+          .then(function (result) {
             session = result;
 
             if (!session) {
@@ -139,7 +139,7 @@ internals.applyRefreshStrategy = function (server, next) {
 
             return User.findById(session.user);
           })
-          .then(function(result) {
+          .then(function (result) {
             if (result === false) {
               return result;
             }
@@ -153,7 +153,7 @@ internals.applyRefreshStrategy = function (server, next) {
               return callback(null, false);
             }
 
-            server.ext('onPreResponse', function(request, reply) {
+            server.ext('onPreResponse', function (request, reply) {
 
               if (request.response.header) {
                 request.response.header('X-Auth-Header', "Bearer " + Token(user, null, decodedToken.scope, expirationPeriod.short, Log));
@@ -165,7 +165,7 @@ internals.applyRefreshStrategy = function (server, next) {
 
             callback(null, Boolean(user), { user, session, scope: decodedToken.scope });
           })
-          .catch(function(error) {
+          .catch(function (error) {
             Log.error(error);
           });
       }

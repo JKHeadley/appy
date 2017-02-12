@@ -198,7 +198,7 @@ gulp.task('seed', [], function () {
               promises.push(RestHapi.addMany(models.user, users[4], models.group, "groups", [groups[1]._id], Log));
 
               return Q.all(promises);
-          });
+            });
         })
         .then(function (result) {
           return gulp.src("")
@@ -206,8 +206,8 @@ gulp.task('seed', [], function () {
         })
         .catch(function (error) {
           Log.error(error);
-      });
-  });
+        });
+    });
 });
 
 gulp.task('update-permissions', [], function () {
@@ -222,7 +222,7 @@ gulp.task('update-permissions', [], function () {
     })
     .catch(function (error) {
       Log.error(error);
-  });
+    });
 });
 
 /**
@@ -304,8 +304,8 @@ function updatePermissions() {
         })
         .catch(function (error) {
           Log.error(error);
-      });
-  });
+        });
+    });
 }
 
 /**

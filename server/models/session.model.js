@@ -43,7 +43,7 @@ module.exports = function (mongoose) {
         })
         .then(function (hash) {
           return { key, hash };
-      });
+        });
     },
 
     createInstance: function (user, Log) {
@@ -57,7 +57,7 @@ module.exports = function (mongoose) {
         createdAt: Date.now()
       };
 
-      return  mongoose.model('session').create(document)
+      return mongoose.model('session').create(document)
         .then(function (result) {
           newSession = result;
 

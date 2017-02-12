@@ -36,7 +36,7 @@ module.exports = function (mongoose) {
       return mongoose.model('authAttempt').create(document)
         .then(function (docs) {
           return docs;
-      });
+        });
     },
 
     abuseDetected: function (ip, email, Log) {
@@ -73,7 +73,7 @@ module.exports = function (mongoose) {
           const ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
 
           return (ipLimitReached || ipUserLimitReached);
-      });
+        });
     }
   };
 

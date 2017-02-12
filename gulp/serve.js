@@ -25,11 +25,11 @@ Gulp.task('serve:production', function () {
   return serve('production');
 });
 
-const serve = function(env) {
+const serve = function (env) {
   return Nodemon({
     script: Gulp.paths.src + 'server',
     ext: 'js',
-    env: {'NODE_ENV': env},
+    env: { 'NODE_ENV': env },
   }).on('start', function () {
     console.log('**starting**');
   }).on('restart', function () {

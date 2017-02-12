@@ -17,7 +17,7 @@ module.exports = function (mongoose) {
     }
   }, { collection: modelName });
   Schema.statics = {
-    collectionName:modelName,
+    collectionName: modelName,
     routeOptions: {
       associations: {
         users: {
@@ -50,18 +50,18 @@ module.exports = function (mongoose) {
     getEffectivePermissions: function (user, Log) {
       const User = mongoose.model('user');
 
-      return RestHapi.find(User, user._id, { $embed: ['permissions','role.permissions','groups.permissions'] }, Log)
-        .then(function(result) {
+      return RestHapi.find(User, user._id, { $embed: ['permissions', 'role.permissions', 'groups.permissions'] }, Log)
+        .then(function (result) {
           let user = result;
 
           //EXPL: base permissions are set by the user's role
           const permissions = user.role.permissions;
 
           //EXPL: group permissions override role permissions
-          user.groups.forEach(function(group) {
-            group.group.permissions.forEach(function(group_permission) {
+          user.groups.forEach(function (group) {
+            group.group.permissions.forEach(function (group_permission) {
               let matchIndex = -1;
-              permissions.find(function(permission, index) {
+              permissions.find(function (permission, index) {
                 if (permission.permission._id.toString() === group_permission.permission._id.toString()) {
                   matchIndex = index;
                   return true;
@@ -78,9 +78,9 @@ module.exports = function (mongoose) {
           });
 
           //EXPL: user permissions override group permissions
-          user.permissions.forEach(function(user_permission) {
+          user.permissions.forEach(function (user_permission) {
             let matchIndex = -1;
-            permissions.find(function(permission, index) {
+            permissions.find(function (permission, index) {
               if (permission.permission._id.toString() === user_permission.permission._id.toString()) {
                 matchIndex = index;
                 return true;
@@ -105,18 +105,18 @@ module.exports = function (mongoose) {
      * @param Log
      * @returns {*|Promise|Promise.<TResult>}
      */
-    getScope: function(user, Log) {
+    getScope: function (user, Log) {
       const User = mongoose.model('user');
       const promises = [];
 
       promises.push(this.getEffectivePermissions(user, Log));
-      promises.push(RestHapi.find(User, user._id, { $embed: ['role','groups'] }, Log));
+      promises.push(RestHapi.find(User, user._id, { $embed: ['role', 'groups'] }, Log));
       return Q.all(promises)
-        .then(function(result) {
+        .then(function (result) {
           const permissions = result[0];
           const role = result[1].role.name;
           const groups = [];
-          result[1].groups.forEach(function(group) {
+          result[1].groups.forEach(function (group) {
             groups.push(group.group.name);
           });
 
@@ -125,7 +125,7 @@ module.exports = function (mongoose) {
           scope = scope.concat(groups);
 
           //EXPL: only add permissions that are enabled to the scope
-          scope = scope.concat(permissions.map(function(permission) {
+          scope = scope.concat(permissions.map(function (permission) {
             if (permission.enabled) {
               return permission.permission.name;
             }

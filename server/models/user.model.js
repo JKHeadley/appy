@@ -203,7 +203,7 @@ module.exports = function (mongoose) {
               assign: 'scope',
               method: function (request, reply) {
                 return Permission.getScope(request.pre.user, Log)
-                  .then(function(scope) {
+                  .then(function (scope) {
                     return reply(scope);
                   });
               }
@@ -211,7 +211,7 @@ module.exports = function (mongoose) {
             {
               assign: 'standardToken',
               method: function (request, reply) {
-                switch(authStrategy) {
+                switch (authStrategy) {
                   case AUTH_STRATEGIES.TOKEN:
                     reply(Token(request.pre.user, null, request.pre.scope, expirationPeriod.long, Log));
                     break;
@@ -229,7 +229,7 @@ module.exports = function (mongoose) {
             {
               assign: 'sessionToken',
               method: function (request, reply) {
-                switch(authStrategy) {
+                switch (authStrategy) {
                   case AUTH_STRATEGIES.TOKEN:
                     reply(null);
                     break;
@@ -247,7 +247,7 @@ module.exports = function (mongoose) {
             {
               assign: 'refreshToken',
               method: function (request, reply) {
-                switch(authStrategy) {
+                switch (authStrategy) {
                   case AUTH_STRATEGIES.TOKEN:
                     reply(null);
                     break;
@@ -271,7 +271,7 @@ module.exports = function (mongoose) {
 
             request.pre.user.password = "";
 
-            switch(authStrategy) {
+            switch (authStrategy) {
               case AUTH_STRATEGIES.TOKEN:
                 authHeader = 'Bearer ' + request.pre.standardToken;
                 response = {
@@ -1095,7 +1095,7 @@ module.exports = function (mongoose) {
         })
         .then(function (hash) {
           return { password, hash };
-      });
+        });
     },
 
     findByCredentials: function (email, password, Log) {
