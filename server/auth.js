@@ -84,7 +84,7 @@ internals.applySessionStrategy = function (server, next) {
             return reply.continue();
           });
 
-          callback(null, Boolean(user), { session, user, scope: scope })
+          callback(null, Boolean(user), { session, user, scope: scope });
         })
         .catch(function(error) {
           Log.error(error);
@@ -162,7 +162,7 @@ internals.applyRefreshStrategy = function (server, next) {
 
               return reply.continue();
             });
-            
+
             callback(null, Boolean(user), { user, session, scope: decodedToken.scope });
           })
           .catch(function(error) {

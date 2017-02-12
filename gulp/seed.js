@@ -166,39 +166,39 @@ gulp.task('seed', [], function () {
               promises = [];
 
               promises.push(RestHapi.addMany(models.role, roles[0], models.permission, "permissions", [
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'readUser' })._id }
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'readUser'; })._id }
               ], Log));
 
               promises.push(RestHapi.addMany(models.role, roles[1], models.permission, "permissions", [
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'updateUser' })._id },
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'readUser' })._id },
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'addUserPermissions' })._id },
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions' })._id }
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'updateUser'; })._id },
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'readUser'; })._id },
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'addUserPermissions'; })._id },
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions'; })._id }
               ], Log));
 
               promises.push(RestHapi.addMany(models.role, roles[2], models.permission, "permissions", [
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'root' })._id },
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'root'; })._id },
               ], Log));
 
               promises.push(RestHapi.addMany(models.group, groups[0], models.permission, "permissions", [
-                { enabled: false, childId: permissions.find(function (p) { return p.name === 'addUserPermissions' })._id },
-                { enabled: false, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions' })._id },
+                { enabled: false, childId: permissions.find(function (p) { return p.name === 'addUserPermissions'; })._id },
+                { enabled: false, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions'; })._id },
               ], Log));
 
               promises.push(RestHapi.addMany(models.group, groups[1], models.permission, "permissions", [
-                { enabled: false, childId: permissions.find(function (p) { return p.name === 'updateUser' })._id },
+                { enabled: false, childId: permissions.find(function (p) { return p.name === 'updateUser'; })._id },
               ], Log));
 
               promises.push(RestHapi.addMany(models.user, users[1], models.permission, "permissions", [
-                { enabled: false, childId: permissions.find(function (p) { return p.name === 'readUser' })._id },
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'nothing' })._id },
+                { enabled: false, childId: permissions.find(function (p) { return p.name === 'readUser'; })._id },
+                { enabled: true, childId: permissions.find(function (p) { return p.name === 'nothing'; })._id },
               ], Log));
 
               promises.push(RestHapi.addMany(models.user, users[3], models.group, "groups", [groups[0]._id], Log));
               promises.push(RestHapi.addMany(models.user, users[4], models.group, "groups", [groups[1]._id], Log));
 
               return Q.all(promises);
-            })
+          });
         })
         .then(function (result) {
           return gulp.src("")
@@ -206,8 +206,8 @@ gulp.task('seed', [], function () {
         })
         .catch(function (error) {
           Log.error(error);
-        })
-    })
+      });
+  });
 });
 
 gulp.task('update-permissions', [], function () {
@@ -222,7 +222,7 @@ gulp.task('update-permissions', [], function () {
     })
     .catch(function (error) {
       Log.error(error);
-    })
+  });
 });
 
 /**
@@ -304,8 +304,8 @@ function updatePermissions() {
         })
         .catch(function (error) {
           Log.error(error);
-        })
-    })
+      });
+  });
 }
 
 /**

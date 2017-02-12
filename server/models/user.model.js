@@ -127,7 +127,7 @@ module.exports = function (mongoose) {
                   })
                   .catch(function (error) {
                     Log.error(error);
-                    return reply(Boom.gatewayTimeout('An error occurred.'))
+                    return reply(Boom.gatewayTimeout('An error occurred.'));
                   });
               }
             },
@@ -144,7 +144,7 @@ module.exports = function (mongoose) {
                   })
                   .catch(function (error) {
                     Log.error(error);
-                    return reply(Boom.gatewayTimeout('An error occurred.'))
+                    return reply(Boom.gatewayTimeout('An error occurred.'));
                   });
               }
             },
@@ -165,7 +165,7 @@ module.exports = function (mongoose) {
                   })
                   .catch(function (error) {
                     Log.error(error);
-                    return reply(Boom.gatewayTimeout('An error occurred.'))
+                    return reply(Boom.gatewayTimeout('An error occurred.'));
                   });
               }
             },
@@ -194,7 +194,7 @@ module.exports = function (mongoose) {
                     })
                     .catch(function (error) {
                       Log.error(error);
-                      return reply(Boom.gatewayTimeout('An error occurred.'))
+                      return reply(Boom.gatewayTimeout('An error occurred.'));
                     });
                 }
               }
@@ -265,7 +265,7 @@ module.exports = function (mongoose) {
           ];
 
           const loginHandler = function (request, reply) {
-            
+
             let authHeader = "";
             let response = {};
 
@@ -483,7 +483,7 @@ module.exports = function (mongoose) {
               })
               .catch(function (error) {
                 Log.error(error);
-                return reply(Boom.gatewayTimeout('An error occurred.'))
+                return reply(Boom.gatewayTimeout('An error occurred.'));
               });
           };
 
@@ -592,7 +592,7 @@ module.exports = function (mongoose) {
               })
               .catch(function (error) {
                 Log.error(error);
-                return reply(Boom.gatewayTimeout('An error occurred.'))
+                return reply(Boom.gatewayTimeout('An error occurred.'));
               });
           };
 
@@ -808,13 +808,11 @@ module.exports = function (mongoose) {
               })
               .catch(function (error) {
                 Log.error(error);
-                return reply(Boom.gatewayTimeout('An error occurred.'))
+                return reply(Boom.gatewayTimeout('An error occurred.'));
               });
           };
 
-          const optionalAuth = authStrategy === false
-            ? false
-            : { mode: 'optional', strategy: authStrategy };
+          const optionalAuth = authStrategy === false ? false : { mode: 'optional', strategy: authStrategy };
 
           server.route({
             method: 'POST',
@@ -938,7 +936,7 @@ module.exports = function (mongoose) {
               })
               .catch(function (error) {
                 Log.error(error);
-                return reply(Boom.gatewayTimeout('An error occurred.'))
+                return reply(Boom.gatewayTimeout('An error occurred.'));
               });
           };
 
@@ -1045,7 +1043,7 @@ module.exports = function (mongoose) {
               })
               .catch(function (error) {
                 Log.error(error);
-                return reply(Boom.gatewayTimeout('An error occurred.'))
+                return reply(Boom.gatewayTimeout('An error occurred.'));
               });
           };
 
@@ -1096,8 +1094,8 @@ module.exports = function (mongoose) {
           return Bcrypt.hash(password, salt);
         })
         .then(function (hash) {
-          return { password, hash }
-        })
+          return { password, hash };
+      });
     },
 
     findByCredentials: function (email, password, Log) {

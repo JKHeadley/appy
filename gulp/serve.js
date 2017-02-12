@@ -14,7 +14,7 @@ Gulp.task('serve:local', function () {
 Gulp.task('serve:development', function () {
   Gutil.env.env = 'development';
   Gutil.log("Environment '%s'", Gutil.colors.cyan(Gutil.env.env));
-  
+
   return serve('development');
 });
 
@@ -34,5 +34,5 @@ const serve = function(env) {
     console.log('**starting**');
   }).on('restart', function () {
     console.log('**restarting**');
-  })
+  });
 };
