@@ -1,0 +1,17 @@
+.idea
+.stage
+*.iml
+npm-debug.log
+newrelic*.log
+dump.rdb
+dist
+node_modules
+test/coverage.html
+results.tap
+results.xml
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+._*
+*/._*
+*/*/._*

@@ -74,7 +74,7 @@ module.exports = function (mongoose) {
               else {
                 permissions.push(group_permission);
               }
-            })
+            });
           });
 
           //EXPL: user permissions override group permissions

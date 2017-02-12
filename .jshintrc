@@ -1,0 +1,7 @@
+{
+  "node": true,
+  "esnext": true,
+  "indent": 2,
+  "-W100": true,
+  "-W079": true
+}

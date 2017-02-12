@@ -42,8 +42,8 @@ module.exports = function (mongoose) {
           return Bcrypt.hash(key, salt);
         })
         .then(function (hash) {
-          return { key, hash }
-        })
+          return { key, hash };
+      });
     },
 
     createInstance: function (user, Log) {

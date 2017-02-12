@@ -36,16 +36,14 @@ module.exports = function (mongoose) {
       return mongoose.model('authAttempt').create(document)
         .then(function (docs) {
           return docs;
-        })
+      });
     },
 
     abuseDetected: function (ip, email, Log) {
       const self = this;
 
       const lockOutPeriod = Config.get('/lockOutPeriod');
-      const expirationDate = lockOutPeriod
-      ? { $gt: Date.now() - lockOutPeriod * 60000 }
-      : { $lt: Date.now() };
+      const expirationDate = lockOutPeriod ? { $gt: Date.now() - lockOutPeriod * 60000 } : { $lt: Date.now() };
 
       let abusiveIpCount = {};
       let abusiveIpUserCount = {};
@@ -75,7 +73,7 @@ module.exports = function (mongoose) {
           const ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
 
           return (ipLimitReached || ipUserLimitReached);
-        })
+      });
     }
   };
 
