@@ -17,13 +17,27 @@ appy is a boilerplate user system that leverages the powerful [rest-hapi](https:
 
 appy implements a [hapi](https://github.com/hapijs/hapi) framework server.  appy's RESTful API endpoints are generated through [rest-hapi](https://github.com/JKHeadley/rest-hapi), which means models are based off of [mongoose](https://github.com/Automattic/mongoose) and data is stored in [MongoDB](www.mongodb.org).
 
-## Live demo
+## Demos
 
-View the swagger docs for the live demo:
+View the swagger docs for the **live demo**:
 
 http://ec2-35-164-131-1.us-west-2.compute.amazonaws.com:8125
 
+### Starting appy
+
 ![alt tag](https://github.com/JKHeadley/appy/blob/master/gifs/appy_start.gif)
+
+### Logging in
+
+![alt tag](https://github.com/JKHeadley/appy/blob/master/gifs/appy_login.gif)
+
+### GET /users
+
+![alt tag](https://github.com/JKHeadley/appy/blob/master/gifs/appy_get_users.gif)
+
+### Filter Query and Populate Relationship
+
+![alt tag](https://github.com/JKHeadley/appy/blob/master/gifs/appy_filter_permissions.gif)
 
 ## Readme contents
 - [Requirements](#requirements)
