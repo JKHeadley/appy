@@ -23,6 +23,8 @@ View the swagger docs for the live demo:
 
 http://ec2-35-164-131-1.us-west-2.compute.amazonaws.com:8125
 
+![alt tag](http://www.giphy.com/gifs/l3q2PwXihSgxNQXYY)
+
 ## Readme contents
 - [Requirements](#requirements)
 - [Installation](#installation)
