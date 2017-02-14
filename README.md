@@ -26,7 +26,7 @@ http://ec2-35-164-131-1.us-west-2.compute.amazonaws.com:8125
 
 ### Starting appy
 
-![alt tag](https://github.com/JKHeadley/appy/blob/master/assets/appy_start.gif)
+![appy_start](https://cloud.githubusercontent.com/assets/12631935/22916596/365770d4-f234-11e6-93eb-ed1825c727df.gif)
 
 ### Logging in
 
