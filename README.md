@@ -1,4 +1,5 @@
-# appy
+![alt tag](https://github.com/JKHeadley/appy/blob/master/assets/appy.png
+
 A user system leveraging [rest-hapi](https://github.com/JKHeadley/rest-hapi) to bootstrap your app.
 
 appy is a boilerplate user system that leverages the powerful [rest-hapi](https://github.com/JKHeadley/rest-hapi) API generator.  Inspired by the [frame](https://github.com/jedireza/frame) user system, the goal of appy is to provide an easy to use user API that is also capable of supporting a wide range of applications.  appy is a great resource for starting almost any app.  Whether you're building a simple blogging site or a full blown enterprise solution, appy is the tool for you!  By leveraging [rest-hapi](https://github.com/JKHeadley/rest-hapi), adding new endpoints is as simple as defining a new model, and model associations are a snap.  Bootstrapping your app has never been easier!
@@ -25,19 +26,19 @@ http://ec2-35-164-131-1.us-west-2.compute.amazonaws.com:8125
 
 ### Starting appy
 
-![alt tag](https://github.com/JKHeadley/appy/blob/master/gifs/appy_start.gif)
+![alt tag](https://github.com/JKHeadley/appy/blob/master/assets/appy_start.gif)
 
 ### Logging in
 
-![alt tag](https://github.com/JKHeadley/appy/blob/master/gifs/appy_login.gif)
+![alt tag](https://github.com/JKHeadley/appy/blob/master/assets/appy_login.gif)
 
 ### GET /users
 
-![alt tag](https://github.com/JKHeadley/appy/blob/master/gifs/appy_get_users.gif)
+![alt tag](https://github.com/JKHeadley/appy/blob/master/assets/appy_get_users.gif)
 
 ### Filter Query and Populate Relationship
 
-![alt tag](https://github.com/JKHeadley/appy/blob/master/gifs/appy_filter_permissions.gif)
+![alt tag](https://github.com/JKHeadley/appy/blob/master/assets/appy_filter_permissions.gif)
 
 ## Readme contents
 - [Requirements](#requirements)
