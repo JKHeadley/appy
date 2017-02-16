@@ -106,6 +106,10 @@ const config = {
         $default: 'mongodb://localhost/appy'
       }
     },
+    cors: {
+      additionalHeaders: ['X-Total-Count', 'X-Auth-Header', 'X-Refresh-Token'],
+      additionalExposedHeaders: ['X-Total-Count', 'X-Auth-Header', 'X-Refresh-Token']
+    },
     absoluteModelPath: true,
     modelPath: __dirname + '/server/models',
     authStrategy: {
