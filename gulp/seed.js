@@ -116,36 +116,48 @@ gulp.task('seed', [], function () {
           Log.log("seeding users");
           users = [
             {
+              firstName: 'test',
+              lastName: 'user',
               email: 'test@user.com',
               password: password,
               role: roles[0]._id,
               isActive: true
             },
             {
+              firstName: 'test',
+              lastName: 'useless',
               email: 'test@useless-user.com',
               password: password,
               role: roles[0]._id,
               isActive: true
             },
             {
+              firstName: 'test',
+              lastName: 'admin',
               email: 'test@admin.com',
               password: password,
               role: roles[1]._id,
               isActive: true
             },
             {
+              firstName: 'test',
+              lastName: 'editor',
               email: 'test@editor.com',
               password: password,
               role: roles[1]._id,
               isActive: true
             },
             {
+              firstName: 'test',
+              lastName: 'manager',
               email: 'test@manager.com',
               password: password,
               role: roles[1]._id,
               isActive: true
             },
             {
+              firstName: 'test',
+              lastName: 'superadmin',
               email: 'test@superadmin.com',
               password: password,
               role: roles[2]._id,
