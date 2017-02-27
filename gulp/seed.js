@@ -173,7 +173,7 @@ gulp.task('seed', [], function () {
 
           return RestHapi.list(models.permission, { name: ['root', 'updateUser', 'readUser', 'addUserPermissions', 'removeUserPermissions', 'nothing'] }, Log)
             .then(function (result) {
-              permissions = result;
+              permissions = result.docs;
 
               promises = [];
 
