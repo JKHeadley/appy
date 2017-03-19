@@ -172,7 +172,7 @@ module.exports = function (server, mongoose, logger) {
 
     var headersValidation = Joi.object({
       'authorization': Joi.string()
-    }).options({allowUnknown: true});
+    }).options({allowUnknown: true}); 
 
     const optionalAuth = authStrategy === false ? false : { mode: 'try', strategy: authStrategy };
 
