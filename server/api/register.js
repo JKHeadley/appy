@@ -5,6 +5,7 @@ const Boom = require('boom');
 const Chalk = require('chalk');
 const Jwt = require('jsonwebtoken');
 const RestHapi = require('rest-hapi');
+const Bcrypt = require('bcryptjs');
 const _ = require('lodash');
 
 const Config = require('../../config');
@@ -19,6 +20,7 @@ module.exports = function (server, mongoose, logger) {
     const Log = logger.bind(Chalk.magenta("Register"));
     const User = mongoose.model('user');
     const Session = mongoose.model('session');
+    const Role = mongoose.model('role');
 
     Log.note("Generating Registration endpoint");
 
@@ -44,6 +46,28 @@ module.exports = function (server, mongoose, logger) {
             return reply(Boom.badImplementation('There was an error accessing the database.'));
           });
       }
+    }, {
+        assign: 'role',
+        method: function (request, reply) {
+
+          const conditions = {
+              name: request.payload.user.role
+          };
+
+          Role.findOne(conditions)
+            .then(function (role) {
+
+                if (!role) {
+                    return reply(Boom.conflict('Role doesn\'t exist.'));
+                }
+
+                return reply(role);
+            })
+            .catch(function (error) {
+                Log.error(error);
+                return reply(Boom.badImplementation('There was an error accessing the database.'));
+            });
+        }
     }];
 
     const registerHandler = function (request, reply) {
@@ -61,6 +85,8 @@ module.exports = function (server, mongoose, logger) {
           user = request.payload.user;
 
           originalPassword = user.password;
+
+          user.role = request.pre.role._id;
 
           user.isActive = false;
           user.activateAccount = {
@@ -144,7 +170,11 @@ module.exports = function (server, mongoose, logger) {
         });
     };
 
-    const optionalAuth = authStrategy === false ? false : { mode: 'optional', strategy: authStrategy };
+    var headersValidation = Joi.object({
+      'authorization': Joi.string()
+    }).options({allowUnknown: true});
+
+    const optionalAuth = authStrategy === false ? false : { mode: 'try', strategy: authStrategy };
 
     server.route({
       method: 'POST',
@@ -155,6 +185,7 @@ module.exports = function (server, mongoose, logger) {
         description: 'User registration.',
         tags: ['api', 'Registration'],
         validate: {
+          headers: headersValidation,
           payload: {
             user: Joi.object().keys({
               firstName: Joi.string().required(),
