@@ -24,7 +24,7 @@ internals.renderTemplate = function (signature, context, Log) {
   const deferred = Q.defer();
 
   if (internals.templateCache[signature]) {
-    return internals.templateCache[signature](context);
+    return Q.when(internals.templateCache[signature](context));
   }
 
   const filePath = __dirname + '/emails/' + signature + '.hbs.md';
