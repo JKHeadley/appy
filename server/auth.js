@@ -35,6 +35,18 @@ internals.applyTokenStrategy = function (server, next) {
 internals.applySessionStrategy = function (server, next) {
   const Log = logger.bind("auth/session");
 
+  server.ext('onPreResponse', function (request, reply) {
+
+    const creds = request.auth.credentials;
+
+    // EXPL: send a fresh token in the response
+    if (creds) {
+      request.response.header('X-Auth-Header', "Bearer " + Token(null, creds.session, creds.scope, expirationPeriod.long, Log));
+    }
+
+    return reply.continue();
+  });
+
   server.auth.strategy(AUTH_STRATEGIES.SESSION, 'jwt', {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'] },
@@ -75,15 +87,6 @@ internals.applySessionStrategy = function (server, next) {
             return callback(null, false);
           }
 
-          server.ext('onPreResponse', function (request, reply) {
-
-            if (request.response.header) {
-              request.response.header('X-Auth-Header', "Bearer " + Token(null, session, scope, expirationPeriod.long, Log));
-            }
-
-            return reply.continue();
-          });
-
           callback(null, Boolean(user), { session, user, scope: scope });
         })
         .catch(function (error) {
@@ -98,6 +101,24 @@ internals.applySessionStrategy = function (server, next) {
 internals.applyRefreshStrategy = function (server, next) {
   const Log = logger.bind("auth/refresh");
 
+  server.ext('onPreResponse', function (request, reply) {
+
+    const creds = request.auth.credentials;
+
+    // EXPL: if the auth credentials contain session info (i.e. a refresh token), respond with a fresh set of tokens in the header.
+    // Otherwise, clear the header tokens.
+    if (creds && creds.session) {
+      request.response.header('X-Auth-Header', "Bearer " + Token(creds.user, null, creds.scope, expirationPeriod.short, Log));
+      request.response.header('X-Refresh-Token', Token(null, creds.session, creds.scope, expirationPeriod.long, Log));
+    }
+    else {
+      request.response.header('X-Auth-Header', undefined);
+      request.response.header('X-Refresh-Token', undefined);
+    }
+
+    return reply.continue();
+  });
+  
   server.auth.strategy(AUTH_STRATEGIES.REFRESH, 'jwt', {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'] },
@@ -110,16 +131,6 @@ internals.applyRefreshStrategy = function (server, next) {
       //EXPL: if the token does not contain session info, then simply authenticate and continue
       if (decodedToken.user) {
         user = decodedToken.user;
-
-        server.ext('onPreResponse', function (request, reply) {
-
-          if (request.response.header) {
-            request.response.header('X-Auth-Header', undefined);
-            request.response.header('X-Refresh-Token', undefined);
-          }
-
-          return reply.continue();
-        });
 
         callback(null, Boolean(user), { user, scope: decodedToken.scope });
       }
@@ -152,16 +163,6 @@ internals.applyRefreshStrategy = function (server, next) {
             if (user.password !== decodedToken.passwordHash) {
               return callback(null, false);
             }
-
-            server.ext('onPreResponse', function (request, reply) {
-
-              if (request.response.header) {
-                request.response.header('X-Auth-Header', "Bearer " + Token(user, null, decodedToken.scope, expirationPeriod.short, Log));
-                request.response.header('X-Refresh-Token', Token(null, session, decodedToken.scope, expirationPeriod.long, Log));
-              }
-
-              return reply.continue();
-            });
 
             callback(null, Boolean(user), { user, session, scope: decodedToken.scope });
           })
