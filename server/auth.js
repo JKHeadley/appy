@@ -40,7 +40,7 @@ internals.applySessionStrategy = function (server, next) {
     const creds = request.auth.credentials;
 
     // EXPL: send a fresh token in the response
-    if (creds) {
+    if (creds && request.response.header) {
       request.response.header('X-Auth-Header', "Bearer " + Token(null, creds.session, creds.scope, expirationPeriod.long, Log));
     }
 
@@ -107,18 +107,14 @@ internals.applyRefreshStrategy = function (server, next) {
 
     // EXPL: if the auth credentials contain session info (i.e. a refresh token), respond with a fresh set of tokens in the header.
     // Otherwise, clear the header tokens.
-    if (creds && creds.session) {
+    if (creds && creds.session && request.response.header) {
       request.response.header('X-Auth-Header', "Bearer " + Token(creds.user, null, creds.scope, expirationPeriod.short, Log));
       request.response.header('X-Refresh-Token', Token(null, creds.session, creds.scope, expirationPeriod.long, Log));
-    }
-    else {
-      request.response.header('X-Auth-Header', undefined);
-      request.response.header('X-Refresh-Token', undefined);
     }
 
     return reply.continue();
   });
-  
+
   server.auth.strategy(AUTH_STRATEGIES.REFRESH, 'jwt', {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'] },
