@@ -32,7 +32,7 @@
     "nodemailer": "^2.6.4",
     "nodemailer-markdown": "^1.0.1",
     "q": "^1.4.1",
-    "require-dir": "~0.1.0",
+    "require-dir": "^0.3.2",
     "rest-hapi": "latest"
   }
 }
