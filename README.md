@@ -22,7 +22,7 @@ appy implements a [hapi](https://github.com/hapijs/hapi) framework server.  appy
 
 View the swagger docs for the **live demo**:
 
-http://ec2-35-164-131-1.us-west-2.compute.amazonaws.com:8125
+http://ec2-52-25-112-131.us-west-2.compute.amazonaws.com:8125
 
 ### Starting appy
 
