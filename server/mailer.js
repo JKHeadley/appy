@@ -24,7 +24,7 @@ internals.renderTemplate = function (signature, context, Log) {
   const deferred = Q.defer();
 
   if (internals.templateCache[signature]) {
-    return Q.when(internals.templateCache[signature](context));
+    deferred.resolve(internals.templateCache[signature](context));
   }
 
   const filePath = __dirname + '/emails/' + signature + '.hbs.md';
@@ -33,8 +33,10 @@ internals.renderTemplate = function (signature, context, Log) {
   Fs.readFile(filePath, options, (err, source) => {
 
     if (err) {
+      Log.debug("File Read Error:", err);
       deferred.reject(err);
     }
+
 
     internals.templateCache[signature] = Handlebars.compile(source);
     deferred.resolve(internals.templateCache[signature](context));
