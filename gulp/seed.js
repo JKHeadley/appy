@@ -10,6 +10,7 @@ const Config = require('../config');
 
 const restHapiConfig = Config.get('/restHapiConfig');
 const USER_ROLES = Config.get('/constants/USER_ROLES');
+const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES');
 
 let models = null;
 
@@ -107,6 +108,10 @@ gulp.task('seed', [], function () {
             {
               name: "Managers",
               description: "Admins that can only change users' permissions."
+            },
+            {
+              name: "Creator",
+              description: "Admin that can create and modify but not delete a user."
             }
           ];
           return RestHapi.create(models.group, groups, Log);
@@ -157,6 +162,14 @@ gulp.task('seed', [], function () {
             },
             {
               firstName: 'test',
+              lastName: 'manager',
+              email: 'test@creator.com',
+              password: password,
+              role: roles[1]._id,
+              isActive: true
+            },
+            {
+              firstName: 'test',
               lastName: 'superadmin',
               email: 'test@superadmin.com',
               password: password,
@@ -171,45 +184,99 @@ gulp.task('seed', [], function () {
 
           Log.log("setting associations");
 
-          return RestHapi.list(models.permission, { name: ['root', 'updateUser', 'readUser', 'addUserPermissions', 'removeUserPermissions', 'nothing'] }, Log)
+          return RestHapi.list(models.permission, { name: [
+            'root',
+            'updateUser',
+            'readUser',
+            'deleteUser',
+            'user',
+            'addUserPermissions',
+            'removeUserPermissions',
+            'nothing',
+          ] }, Log)
             .then(function (result) {
               permissions = result.docs;
 
               promises = [];
 
-              promises.push(RestHapi.addMany(models.role, roles[0], models.permission, "permissions", [
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'readUser'; })._id }
+              promises.push(RestHapi.addMany(models.role, roles[0]._id, models.permission, "permissions", [
+                { state: PERMISSION_STATES.INCLUDED, childId: permissions.find(function (p) { return p.name === 'readUser'; })._id }
               ], Log));
 
-              promises.push(RestHapi.addMany(models.role, roles[1], models.permission, "permissions", [
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'updateUser'; })._id },
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'readUser'; })._id },
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'addUserPermissions'; })._id },
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions'; })._id }
-              ], Log));
+              return Q.all(promises)
+                .then(function(result) {
+                  promises = [];
 
-              promises.push(RestHapi.addMany(models.role, roles[2], models.permission, "permissions", [
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'root'; })._id },
-              ], Log));
+                  promises.push(RestHapi.addMany(models.role, roles[1]._id, models.permission, "permissions", [
+                    { state: PERMISSION_STATES.INCLUDED, childId: permissions.find(function (p) { return p.name === 'updateUser'; })._id },
+                    { state: PERMISSION_STATES.INCLUDED, childId: permissions.find(function (p) { return p.name === 'readUser'; })._id },
+                    { state: PERMISSION_STATES.INCLUDED, childId: permissions.find(function (p) { return p.name === 'addUserPermissions'; })._id },
+                    { state: PERMISSION_STATES.INCLUDED, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions'; })._id }
+                  ], Log));
 
-              promises.push(RestHapi.addMany(models.group, groups[0], models.permission, "permissions", [
-                { enabled: false, childId: permissions.find(function (p) { return p.name === 'addUserPermissions'; })._id },
-                { enabled: false, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions'; })._id },
-              ], Log));
+                  return Q.all(promises);
+                })
+                .then(function(result) {
+                  promises = [];
 
-              promises.push(RestHapi.addMany(models.group, groups[1], models.permission, "permissions", [
-                { enabled: false, childId: permissions.find(function (p) { return p.name === 'updateUser'; })._id },
-              ], Log));
+                  promises.push(RestHapi.addMany(models.role, roles[2]._id, models.permission, "permissions", [
+                    { state: PERMISSION_STATES.INCLUDED, childId: permissions.find(function (p) { return p.name === 'root'; })._id },
+                  ], Log));
 
-              promises.push(RestHapi.addMany(models.user, users[1], models.permission, "permissions", [
-                { enabled: false, childId: permissions.find(function (p) { return p.name === 'readUser'; })._id },
-                { enabled: true, childId: permissions.find(function (p) { return p.name === 'nothing'; })._id },
-              ], Log));
+                  return Q.all(promises);
+                })
+                .then(function(result) {
+                  promises = [];
 
-              promises.push(RestHapi.addMany(models.user, users[3], models.group, "groups", [groups[0]._id], Log));
-              promises.push(RestHapi.addMany(models.user, users[4], models.group, "groups", [groups[1]._id], Log));
+                  promises.push(RestHapi.addMany(models.group, groups[0]._id, models.permission, "permissions", [
+                    { state: PERMISSION_STATES.EXCLUDED, childId: permissions.find(function (p) { return p.name === 'addUserPermissions'; })._id },
+                    { state: PERMISSION_STATES.EXCLUDED, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions'; })._id }
+                  ], Log));
 
-              return Q.all(promises);
+                  return Q.all(promises);
+                })
+                .then(function(result) {
+                  promises = [];
+
+                  promises.push(RestHapi.addMany(models.group, groups[1]._id, models.permission, "permissions", [
+                    { state: PERMISSION_STATES.EXCLUDED, childId: permissions.find(function (p) { return p.name === 'updateUser'; })._id },
+                  ], Log));
+
+                  return Q.all(promises);
+                })
+                .then(function(result) {
+                  promises = [];
+
+                  promises.push(RestHapi.addMany(models.group, groups[2]._id, models.permission, "permissions", [
+                    { state: PERMISSION_STATES.INCLUDED, childId: permissions.find(function (p) { return p.name === 'user'; })._id },
+                    { state: PERMISSION_STATES.FORBIDDEN, childId: permissions.find(function (p) { return p.name === 'deleteUser'; })._id },
+                    { state: PERMISSION_STATES.EXCLUDED, childId: permissions.find(function (p) { return p.name === 'addUserPermissions'; })._id },
+                    { state: PERMISSION_STATES.EXCLUDED, childId: permissions.find(function (p) { return p.name === 'removeUserPermissions'; })._id },
+                    { state: PERMISSION_STATES.EXCLUDED, childId: permissions.find(function (p) { return p.name === 'updateUser'; })._id },
+                    { state: PERMISSION_STATES.EXCLUDED, childId: permissions.find(function (p) { return p.name === 'readUser'; })._id }
+                  ], Log));
+
+                  return Q.all(promises);
+                })
+                .then(function(result) {
+                  promises = [];
+
+                  promises.push(RestHapi.addMany(models.user, users[1]._id, models.permission, "permissions", [
+                    { state: PERMISSION_STATES.EXCLUDED, childId: permissions.find(function (p) { return p.name === 'readUser'; })._id },
+                    { state: PERMISSION_STATES.INCLUDED, childId: permissions.find(function (p) { return p.name === 'nothing'; })._id }
+                  ], Log));
+
+                  return Q.all(promises);
+                })
+                .then(function(result) {
+                  promises = [];
+
+                  promises.push(RestHapi.addMany(models.user, users[3]._id, models.group, "groups", [groups[0]._id], Log));
+                  promises.push(RestHapi.addMany(models.user, users[4]._id, models.group, "groups", [groups[1]._id], Log));
+                  promises.push(RestHapi.addMany(models.user, users[5]._id, models.group, "groups", [groups[2]._id], Log));
+
+                  return Q.all(promises);
+                });
             });
         })
         .then(function (result) {
@@ -274,6 +341,7 @@ function updatePermissions() {
         const modelName = model.collectionName[0].toUpperCase() + model.collectionName.slice(1);
         const permissions = [];
 
+        permissions.push({ name: model.collectionName, description: "Full access to " + model.collectionName + " endpoints"});
         permissions.push({ name: "create" + modelName, description: "Can create a " + model.collectionName });
         permissions.push({ name: "read" + modelName, description: "Can read a " + model.collectionName });
         permissions.push({ name: "update" + modelName, description: "Can update a " + model.collectionName });
