@@ -15,6 +15,11 @@ const constants = {
     ADMIN: 'Admin',
     SUPER_ADMIN: 'SuperAdmin',
   },
+  PERMISSION_STATES: {
+    INCLUDED: 'Included',
+    EXCLUDED: 'Excluded',
+    FORBIDDEN: 'Forbidden',
+  },
   AUTH_STRATEGIES: {
     TOKEN: 'standard-jwt',
     SESSION: 'jwt-with-session',
@@ -107,8 +112,8 @@ const config = {
       }
     },
     cors: {
-      additionalHeaders: ['X-Total-Count', 'X-Auth-Header', 'X-Refresh-Token'],
-      additionalExposedHeaders: ['X-Total-Count', 'X-Auth-Header', 'X-Refresh-Token']
+      additionalHeaders: ['X-Auth-Header', 'X-Refresh-Token'],
+      additionalExposedHeaders: ['X-Auth-Header', 'X-Refresh-Token']
     },
     absoluteModelPath: true,
     modelPath: __dirname + '/server/models',
@@ -145,6 +150,11 @@ const config = {
       $default: true
     },
     generateScopes: {
+      $filter: 'env',
+      local: true,
+      $default: true
+    },
+    logScopes: {
       $filter: 'env',
       local: true,
       $default: true
