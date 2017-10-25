@@ -158,7 +158,7 @@ User scope values are populated based on appy's permission system.  User's gain 
 2. Group defined permissions
 3. Role defined permissions
 
-Users must belong to at least one role and can belong to multiple groups.  Each permission association carries with it an ``enabled`` property that can be set to true or false.  This property allows permissions to override each other based on priority.  User permissions have the highest priority, followed by Group permissions and lastly Role permissions:
+Users must belong to at least one role and can belong to multiple groups.  Each permission association carries with it a ``state`` property that can be set to `Included`, `Excluded`, or `Forbidden`.  This property allows permissions to override each other based on priority.  User permissions have the highest priority, followed by Group permissions and lastly Role permissions:
 ```
 User->Group->Role
 ```
@@ -168,37 +168,37 @@ User: ``'test@manager.com'``
 Role: ``'Admin'``
 Role Permissions: 
 
-```javacript
+```javascript
 [
-  { name:'readUser', enabled:true },
-  { name:'updateUser', enabled:true },
-  { name:'addUserPermissions', enabled:true },
-  { name:'removeUserPermissions', enabled:true }
+  { name:'readUser', state:'Included' },
+  { name:'updateUser', state:'Included' },
+  { name:'addUserPermissions', state:'Included' },
+  { name:'removeUserPermissions', state:'Included' }
 ]
 ```
 
-Groups: ``['Managers']``
+User's Groups: ``['Managers']``
 Group Permissions: 
 
-```javacript
+```javascript
 [
-  { name:'updateUser', enabled:false },
+  { name:'updateUser', state:'Excluded' },
 ]
 ```
 
 User Permissions: 
 
-```javacript
+```javascript
 [
-  { name:'removeUserPermissions', enabled:false },
+  { name:'removeUserPermissions', state:'Excluded' },
 ]
 ```
 
-Final Scope:
+Final User Scope:
 
-```javacript
+```javascript
 ['Admin','Managers','readUser','addUserPermissions']
-```
+``` 
 
 [Back to top](#readme-contents)
 
