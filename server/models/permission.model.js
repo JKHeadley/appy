@@ -2,6 +2,10 @@
 
 const RestHapi = require('rest-hapi');
 const Q = require('q');
+const _ = require('lodash');
+const Config = require('../../config');
+
+const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES');
 
 module.exports = function (mongoose) {
   var modelName = "permission";
@@ -124,10 +128,20 @@ module.exports = function (mongoose) {
           scope.push(role);
           scope = scope.concat(groups);
 
-          //EXPL: only add permissions that are enabled to the scope
+          /**
+           * The scope additions from permissions depends on the permission state as follows:
+           * Included: the permission is included in the scope
+           * Excluded: the permission is excluded from the scope
+           * Forbidden: the permission is included with a '-' prefix
+           */
           scope = scope.concat(permissions.map(function (permission) {
-            if (permission.enabled) {
-              return permission.permission.name;
+            switch(permission.state) {
+              case PERMISSION_STATES.INCLUDED:
+                return permission.permission.name;
+              case PERMISSION_STATES.EXCLUDED:
+                return;
+              case PERMISSION_STATES.FORBIDDEN:
+                return '-' + permission.permission.name;
             }
           }).filter(Boolean));
 
