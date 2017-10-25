@@ -200,6 +200,8 @@ Final User Scope:
 ['Admin','Managers','readUser','addUserPermissions']
 ``` 
 
+For a more in-depth description of authorization within appy, please view the [wiki](https://github.com/JKHeadley/appy/wiki/Authorization)
+
 [Back to top](#readme-contents)
 
 ## License
