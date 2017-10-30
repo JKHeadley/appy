@@ -17,10 +17,7 @@
         this.$store.commit('SET_USER', null)
         this.$store.commit('SET_TOKEN', null)
 
-//        if (window.localStorage) {
-//          window.localStorage.setItem('user', null)
-//          window.localStorage.setItem('token', null)
-//        }
+        //clear the localStorage
         this.$ls.clear()
 
         this.$router.push('/login')

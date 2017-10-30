@@ -76,10 +76,6 @@ export default {
           this.$store.commit('SET_USER', data.user)
           this.$store.commit('SET_TOKEN', token)
 
-//          if (window.localStorage) {
-//            window.localStorage.setItem('user', JSON.stringify(data.user))
-//            window.localStorage.setItem('token', token)
-//          }
           this.$ls.set('user', data.user)
           this.$ls.set('token', token)
 
