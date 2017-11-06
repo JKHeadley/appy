@@ -61,21 +61,30 @@ export default {
   },
   methods: {
     callGitHub () {
-      axios.get(this.githubUrl)
+//      axios.get(this.githubUrl)
+//        .then(response => {
+//          console.log('GitHub Response:', response)
+//
+//          if (response.status !== 200) {
+//            this.error = response.statusText
+//            return
+//          }
+//
+//          this.response = response.data.items
+//
+//
+//        })
+//        .catch(error => {
+//          // Request failed.
+//          console.log('error', error.response)
+//          this.error = error.response.statusText
+//        })
+      this.$userRepository.list()
         .then(response => {
-          console.log('GitHub Response:', response)
-
-          if (response.status !== 200) {
-            this.error = response.statusText
-            return
-          }
-
-          this.response = response.data.items
+          console.log('USERS:', response.data);
         })
         .catch(error => {
-          // Request failed.
-          console.log('error', error.response)
-          this.error = error.response.statusText
+          console.error("REPO ERROR", error);
         })
     }
   },

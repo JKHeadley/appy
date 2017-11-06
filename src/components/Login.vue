@@ -29,6 +29,7 @@
 
 <script>
 import api from '../api'
+import authService from '../services/auth.service'
 
 export default {
   name: 'Login',
@@ -50,24 +51,11 @@ export default {
       this.$store.commit('TOGGLE_LOADING')
 
       /* Making API call to authenticate a user */
-      api.request('post', '/login', {email: username, password})
+      authService.login(username, password)
       .then(response => {
         this.toggleLoading()
 
         var data = response.data
-        /* Checking if error object was returned from the server */
-        if (data.error) {
-          var errorName = data.error.name
-          if (errorName) {
-            this.response = errorName === 'InvalidCredentialsError'
-            ? 'Username/Password incorrect. Please try again.'
-            : errorName
-          } else {
-            this.response = data.error
-          }
-
-          return
-        }
 
         /* Setting user in the state and caching record to the localStorage */
         if (data.user) {

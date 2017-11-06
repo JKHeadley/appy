@@ -12,7 +12,7 @@ var runner = spawn(
   './node_modules/.bin/nightwatch',
   [
     '--config', 'test/e2e/nightwatch.conf.js',
-    '--env', 'chrome,firefox'
+    '--env', 'chrome'
   ],
   {
     stdio: 'inherit'

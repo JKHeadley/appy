@@ -17,7 +17,7 @@
         this.$store.commit('SET_USER', null)
         this.$store.commit('SET_TOKEN', null)
 
-        //clear the localStorage
+        // Clear the localStorage
         this.$ls.clear()
 
         this.$router.push('/login')
