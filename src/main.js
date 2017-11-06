@@ -29,12 +29,11 @@ Vue.filter('domain', domain)
 Vue.filter('prettyDate', prettyDate)
 Vue.filter('pluralize', pluralize)
 
-axios.defaults.baseURL = config.serverURI;
+axios.defaults.baseURL = config.serverURI
 
 Vue.use(VueRouter)
 Vue.use(VueLocalStorage, { namespace: 'appy__' })
 Vue.use(RestHapiRepository, { httpClient, resources })
-
 
 // Routing logic
 var router = new VueRouter({
@@ -74,9 +73,9 @@ if (localUser && store.state.user !== localUser) {
 // Add a response interceptor
 axios.interceptors.response.use(function (response) {
   // Do something with response error
-  console.log("BAD PLACE")
-  return Promise.resolve(response);
-}, authInterceptor.responseError);
+  console.log('BAD PLACE')
+  return Promise.resolve(response)
+}, authInterceptor.responseError)
 
 // Start out app!
 // eslint-disable-next-line no-new

@@ -1,12 +1,10 @@
 const ResourceHelper = function (httpClient, logger) {
-
   return {
     /**
      * Generate the CRUD methods for a resource.
      * @param resourceRoute: The API route for the resource.
      */
     generateCrudCallers: function (resourceRoute) {
-
       return {
         list: this.generateListCaller(resourceRoute),
         find: this.generateFindCaller(resourceRoute),
@@ -18,103 +16,102 @@ const ResourceHelper = function (httpClient, logger) {
     },
     generateListCaller: function (resourceRoute) {
       return function (params) {
-        logger.debug(resourceRoute + ".list + params: ", params);
+        logger.debug(resourceRoute + '.list + params: ', params)
 
         if (!params) {
-          params = {isDeleted: false};
-        }
-        else if (!params.isDeleted) {
-          params.isDeleted = false;
+          params = {isDeleted: false}
+        } else if (!params.isDeleted) {
+          params.isDeleted = false
         }
 
         return httpClient.get(resourceRoute, params)
           .then(function (response) {
-            logger.debug(resourceRoute + ".list response:\n", response);
-            return response;
+            logger.debug(resourceRoute + '.list response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.error(resourceRoute + ".list error:\n", error);
-            throw error;
-          });
+            logger.error(resourceRoute + '.list error:\n', error)
+            throw error
+          })
       }
     },
     generateFindCaller: function (resourceRoute) {
       return function (_id, params) {
-        logger.debug(resourceRoute + ".find + _id: ", _id, ", params: ", params);
+        logger.debug(resourceRoute + '.find + _id: ', _id, ', params: ', params)
 
-        return httpClient.get(resourceRoute + "/" + _id, params)
+        return httpClient.get(resourceRoute + '/' + _id, params)
           .then(function (response) {
-            logger.debug(resourceRoute + ".find response:\n", response);
-            return response;
+            logger.debug(resourceRoute + '.find response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.error(resourceRoute + ".find error:\n", error);
-            throw error;
-          });
+            logger.error(resourceRoute + '.find error:\n', error)
+            throw error
+          })
       }
     },
     generateUpdateCaller: function (resourceRoute) {
       return function (_id, payload) {
-        delete payload.createdAt;
-        delete payload.updatedAt;
-        delete payload.isDeleted;
-        logger.debug(resourceRoute + ".update + _id: ", _id, ", payload: ", payload);
+        delete payload.createdAt
+        delete payload.updatedAt
+        delete payload.isDeleted
+        logger.debug(resourceRoute + '.update + _id: ', _id, ', payload: ', payload)
 
-        return httpClient.put(resourceRoute + "/" + _id, payload)
+        return httpClient.put(resourceRoute + '/' + _id, payload)
           .then(function (response) {
-            logger.debug(resourceRoute + ".update response:\n", response);
-            return response;
+            logger.debug(resourceRoute + '.update response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.error(resourceRoute + ".update error:\n", error);
-            throw error;
-          });
+            logger.error(resourceRoute + '.update error:\n', error)
+            throw error
+          })
       }
     },
     generateCreateCaller: function (resourceRoute) {
       return function (payload) {
-        logger.debug(resourceRoute + ".create + payload: ", payload);
+        logger.debug(resourceRoute + '.create + payload: ', payload)
 
         return httpClient.post(resourceRoute, payload)
           .then(function (response) {
-            logger.debug(resourceRoute + ".create response:\n", response);
-            return response;
+            logger.debug(resourceRoute + '.create response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.error(resourceRoute + ".create error:\n", error);
-            throw error;
-          });
+            logger.error(resourceRoute + '.create error:\n', error)
+            throw error
+          })
       }
     },
     generateDeleteOneCaller: function (resourceRoute) {
       return function (_id, hardDelete) {
-        hardDelete = hardDelete || false;
-        logger.debug(resourceRoute + ".deleteOne + _id: ", _id, ", hardDelete: ", hardDelete);
+        hardDelete = hardDelete || false
+        logger.debug(resourceRoute + '.deleteOne + _id: ', _id, ', hardDelete: ', hardDelete)
 
-        return httpClient.delete(resourceRoute + "/" + _id, {hardDelete: hardDelete})
+        return httpClient.delete(resourceRoute + '/' + _id, {hardDelete: hardDelete})
           .then(function (response) {
-            logger.debug(resourceRoute + ".delete response:\n", response);
-            return response;
+            logger.debug(resourceRoute + '.delete response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.debug(resourceRoute + ".delete error:\n", error);
-            throw error;
-          });
+            logger.debug(resourceRoute + '.delete error:\n', error)
+            throw error
+          })
       }
     },
     generateDeleteManyCaller: function (resourceRoute) {
       return function (payload) {
-        logger.debug(resourceRoute + ".deleteMany + payload", payload);
+        logger.debug(resourceRoute + '.deleteMany + payload', payload)
 
         return httpClient.delete(resourceRoute, payload)
           .then(function (response) {
-            logger.debug(resourceRoute + ".delete response:\n", response);
-            return response;
+            logger.debug(resourceRoute + '.delete response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.debug(resourceRoute + ".delete error:\n", error);
-            throw error;
-          });
+            logger.debug(resourceRoute + '.delete error:\n', error)
+            throw error
+          })
       }
     },
     /**
@@ -134,101 +131,100 @@ const ResourceHelper = function (httpClient, logger) {
      * PUT /user/{ownerId}/cart-item/{childId}      Add a single storeItem to a user's list of shoppingCartItems
      */
     generateAssociationCallers: function (ownerRoute, associationName, associationRoute) {
-      var resourceMethodName = associationName[0].toUpperCase() + associationName.slice(1);
-      var callers = {};
-      callers["get" + resourceMethodName] = this.generateGetAssociationsAssociationCaller(ownerRoute, associationRoute, resourceMethodName);
-      callers["addOne" + resourceMethodName] = this.generateAddOneAssociationCaller(ownerRoute, associationRoute, resourceMethodName);
-      callers["removeOne" + resourceMethodName] = this.generateRemoveOneAssociationCaller(ownerRoute, associationRoute, resourceMethodName);
-      callers["addMany" + resourceMethodName] = this.generateAddManyAssociationCaller(ownerRoute, associationRoute, resourceMethodName);
-      callers["removeMany" + resourceMethodName] = this.generateRemoveManyAssociationCaller(ownerRoute, associationRoute, resourceMethodName);
+      var resourceMethodName = associationName[0].toUpperCase() + associationName.slice(1)
+      var callers = {}
+      callers['get' + resourceMethodName] = this.generateGetAssociationsAssociationCaller(ownerRoute, associationRoute, resourceMethodName)
+      callers['addOne' + resourceMethodName] = this.generateAddOneAssociationCaller(ownerRoute, associationRoute, resourceMethodName)
+      callers['removeOne' + resourceMethodName] = this.generateRemoveOneAssociationCaller(ownerRoute, associationRoute, resourceMethodName)
+      callers['addMany' + resourceMethodName] = this.generateAddManyAssociationCaller(ownerRoute, associationRoute, resourceMethodName)
+      callers['removeMany' + resourceMethodName] = this.generateRemoveManyAssociationCaller(ownerRoute, associationRoute, resourceMethodName)
 
-      return callers;
+      return callers
     },
     generateGetAssociationsAssociationCaller: function (ownerRoute, associationRoute, resourceMethodName) {
       return function (ownerId, params) {
-        var methodName = ownerRoute + ".get" + resourceMethodName;
-        logger.debug(methodName + " + ownerId: ", ownerId, ", params: ", params);
+        var methodName = ownerRoute + '.get' + resourceMethodName
+        logger.debug(methodName + ' + ownerId: ', ownerId, ', params: ', params)
 
         if (!params) {
-          params = {isDeleted: false};
-        }
-        else if (!params.isDeleted) {
-          params.isDeleted = false;
+          params = {isDeleted: false}
+        } else if (!params.isDeleted) {
+          params.isDeleted = false
         }
 
-        return httpClient.get(ownerRoute + "/" + ownerId + "/" + associationRoute, params)
+        return httpClient.get(ownerRoute + '/' + ownerId + '/' + associationRoute, params)
           .then(function (response) {
-            logger.debug(methodName + " response:\n", response);
-            return response;
+            logger.debug(methodName + ' response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.error(methodName + " error:\n", error);
-            throw error;
-          });
+            logger.error(methodName + ' error:\n', error)
+            throw error
+          })
       }
     },
     generateAddOneAssociationCaller: function (ownerRoute, associationRoute, resourceMethodName) {
       return function (ownerId, childId, payload) {
-        var methodName = ownerRoute + ".addOne" + resourceMethodName;
-        logger.debug(methodName + " + ownerId: ", ownerId, "childId: ", childId, ", payload: ", payload);
+        var methodName = ownerRoute + '.addOne' + resourceMethodName
+        logger.debug(methodName + ' + ownerId: ', ownerId, 'childId: ', childId, ', payload: ', payload)
 
-        return httpClient.put(ownerRoute + "/" + ownerId + "/" + associationRoute + "/" + childId, payload)
+        return httpClient.put(ownerRoute + '/' + ownerId + '/' + associationRoute + '/' + childId, payload)
           .then(function (response) {
-            logger.debug(methodName + " response:\n", response);
-            return response;
+            logger.debug(methodName + ' response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.error(methodName + " error:\n", error);
-            throw error;
-          });
+            logger.error(methodName + ' error:\n', error)
+            throw error
+          })
       }
     },
     generateRemoveOneAssociationCaller: function (ownerRoute, associationRoute, resourceMethodName) {
       return function (ownerId, childId) {
-        var methodName = ownerRoute + ".removeOne" + resourceMethodName;
-        logger.debug(methodName + " + ownerId: ", ownerId, "childResource: ", associationRoute, "childId: ", childId);
+        var methodName = ownerRoute + '.removeOne' + resourceMethodName
+        logger.debug(methodName + ' + ownerId: ', ownerId, 'childResource: ', associationRoute, 'childId: ', childId)
 
-        return httpClient.delete(ownerRoute + "/" + ownerId + "/" + associationRoute + "/" + childId)
+        return httpClient.delete(ownerRoute + '/' + ownerId + '/' + associationRoute + '/' + childId)
           .then(function (response) {
-            logger.debug(methodName + " response:\n", response);
-            return response;
+            logger.debug(methodName + ' response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.error(methodName + " error:\n", error);
-            throw error;
-          });
+            logger.error(methodName + ' error:\n', error)
+            throw error
+          })
       }
     },
     generateAddManyAssociationCaller: function (ownerRoute, associationRoute, resourceMethodName) {
       return function (ownerId, payload) {
-        var methodName = ownerRoute + ".addMany" + resourceMethodName;
-        logger.debug(methodName + " + ownerId: ", ownerId, ", payload: ", payload);
+        var methodName = ownerRoute + '.addMany' + resourceMethodName
+        logger.debug(methodName + ' + ownerId: ', ownerId, ', payload: ', payload)
 
-        return httpClient.post(ownerRoute + "/" + ownerId + "/" + associationRoute, payload)
+        return httpClient.post(ownerRoute + '/' + ownerId + '/' + associationRoute, payload)
           .then(function (response) {
-            logger.debug(methodName + " response:\n", response);
-            return response;
+            logger.debug(methodName + ' response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.error(methodName + " error:\n", error);
-            throw error;
-          });
+            logger.error(methodName + ' error:\n', error)
+            throw error
+          })
       }
     },
     generateRemoveManyAssociationCaller: function (ownerRoute, associationRoute, resourceMethodName) {
       return function (ownerId, payload) {
-        var methodName = ownerRoute + ".removeMany" + resourceMethodName;
-        logger.debug(methodName + " + ownerId: ", ownerId, ", payload: ", payload);
+        var methodName = ownerRoute + '.removeMany' + resourceMethodName
+        logger.debug(methodName + ' + ownerId: ', ownerId, ', payload: ', payload)
 
-        return httpClient.delete(ownerRoute + "/" + ownerId + "/" + associationRoute, payload)
+        return httpClient.delete(ownerRoute + '/' + ownerId + '/' + associationRoute, payload)
           .then(function (response) {
-            logger.debug(methodName + " response:\n", response);
-            return response;
+            logger.debug(methodName + ' response:\n', response)
+            return response
           })
           .catch(function (error) {
-            logger.error(methodName + " error:\n", error);
-            throw error;
-          });
+            logger.error(methodName + ' error:\n', error)
+            throw error
+          })
       }
     }
   }

@@ -1,7 +1,7 @@
 export default {
   serverURI: 'http://localhost:8125',
   fixedLayout: false,
-  hideLogoOnMobile: false,
+  hideLogoOnMobile: false
 }
 
 export const resources = {
@@ -12,7 +12,7 @@ export const resources = {
         alias: 'group'
       },
       permissions: {
-        alias: "permission"
+        alias: 'permission'
       }
     }
   },
@@ -20,11 +20,10 @@ export const resources = {
     alias: 'role',
     associations: {
       users: {
-        alias: "user"
-      }
-      ,
+        alias: 'user'
+      },
       permissions: {
-        alias: "permission"
+        alias: 'permission'
       }
     }
   }
@@ -32,5 +31,5 @@ export const resources = {
 
 export const RESPONSE_MESSAGES = {
   EXPIRED_ACCESS_TOKEN: 'Expired Access Token',
-  EXPIRED_REFRESH_TOKEN: 'Expired Refresh Token',
+  EXPIRED_REFRESH_TOKEN: 'Expired Refresh Token'
 }
