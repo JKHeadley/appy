@@ -1,5 +1,4 @@
 import axios from 'axios'
-import config from '../config'
 import Session from '../services/auth-session.service'
 
 const internals = {}

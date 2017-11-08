@@ -90,11 +90,13 @@
     </router-link>
   </ul>
 </template>
+
 <script>
 export default {
   name: 'SidebarName'
 }
 </script>
+
 <style>
   /* override default */
   .sidebar-menu>li>a {
