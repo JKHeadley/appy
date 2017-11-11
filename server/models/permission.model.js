@@ -104,6 +104,27 @@ module.exports = function (mongoose) {
     },
 
     /**
+     * Gets permissions specific to the user.
+     * @param user
+     * @param Log
+     * @returns {*|Promise|Promise.<TResult>}
+     */
+    getSpecificPermissions: function (user, Log) {
+        const User = mongoose.model('user');
+
+        return RestHapi.find(User, user._id, {}, Log)
+            .then(function (result) {
+                let user = result;
+
+                const permissions = [];
+
+                permissions.push('user-' + user._id);
+
+                return permissions;
+            });
+    },
+
+    /**
      * Gets the scope for a user, which consists of their role name, group names, and effective permissions
      * @param user
      * @param Log
@@ -115,6 +136,7 @@ module.exports = function (mongoose) {
 
       promises.push(this.getEffectivePermissions(user, Log));
       promises.push(RestHapi.find(User, user._id, { $embed: ['role', 'groups'] }, Log));
+      promises.push(this.getSpecificPermissions(user, Log));
       return Q.all(promises)
         .then(function (result) {
           const permissions = result[0];
@@ -144,6 +166,10 @@ module.exports = function (mongoose) {
                 return '-' + permission.permission.name;
             }
           }).filter(Boolean));
+
+          const specificPermissions = result[2];
+
+          scope = scope.concat(specificPermissions);
 
           return scope;
         });
