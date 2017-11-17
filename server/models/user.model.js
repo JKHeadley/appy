@@ -73,7 +73,10 @@ module.exports = function (mongoose) {
       associations: {
         role: {
           type: "MANY_ONE",
-          model: "role"
+          model: "role",
+          duplicate: [{
+            field: 'name'
+          }]
         },
         groups: {
           type: "MANY_MANY",
