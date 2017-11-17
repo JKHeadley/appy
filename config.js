@@ -119,6 +119,8 @@ const config = {
     modelPath: __dirname + '/server/models',
     absoluteApiPath: true,
     apiPath: __dirname + '/server/api',
+      absolutePolicyPath: true,
+      policyPath: __dirname + '/server/policies',
     authStrategy: {
       $filter: 'env',
       local: constants.AUTH_STRATEGIES.REFRESH,
@@ -148,6 +150,21 @@ const config = {
       $filter: 'env',
       local: true,
       $default: true
+    },
+    enablePolicies: {
+        $filter: 'env',
+        local: true,
+        $default: true
+    },
+    enableDuplicateFields: {
+        $filter: 'env',
+        local: true,
+        $default: true
+    },
+    trackDuplicateFields: {
+        $filter: 'env',
+        local: true,
+        $default: true
     },
     generateScopes: {
       $filter: 'env',
