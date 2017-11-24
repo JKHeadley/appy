@@ -9,7 +9,7 @@
 
               <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
-                <input class="form-control" name="username" placeholder="Username" type="text" v-model="username">
+                <input class="form-control" name="email" placeholder="Email" type="text" v-model="email">
               </div>
 
               <div class="input-group">
@@ -28,8 +28,6 @@
 </template>
 
 <script>
-import api from '../api'
-import authService from '../services/auth.service'
 
 export default {
   name: 'Login',
@@ -37,38 +35,25 @@ export default {
     return {
       section: 'Login',
       loading: '',
-      username: '',
+      email: '',
       password: '',
       response: ''
     }
   },
   methods: {
     checkCreds () {
-      const {username, password} = this
+      const { email, password } = this
 
       this.toggleLoading()
       this.resetResponse()
       this.$store.commit('TOGGLE_LOADING')
 
       /* Making API call to authenticate a user */
-      authService.login(username, password)
+      this.$store.dispatch('auth/login', { email, password })
       .then(response => {
         this.toggleLoading()
 
-        var data = response.data
-
-        /* Setting user in the state and caching record to the localStorage */
-        if (data.user) {
-          var token = 'Bearer ' + data.token
-
-          this.$store.commit('SET_USER', data.user)
-          this.$store.commit('SET_TOKEN', token)
-
-          this.$ls.set('user', data.user)
-          this.$ls.set('token', token)
-
-          this.$router.push(data.redirect ? data.redirect : '/')
-        }
+        this.$router.push('/')
       })
       .catch(error => {
         this.$store.commit('TOGGLE_LOADING')

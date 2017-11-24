@@ -1,10 +1,10 @@
 <template>
   <ul class="sidebar-menu">
-    <li class="header">TOOLS</li>
-    <router-link tag="li" class="pageLink" to="/">
+    <li class="header">SUPER ADMIN</li>
+    <router-link tag="li" class="pageLink" to="/users">
       <a>
         <i class="fa fa-desktop"></i>
-        <span class="page">Dashboard</span>
+        <span class="page">Users</span>
       </a>
     </router-link>
     <router-link tag="li" class="pageLink" to="/tables">

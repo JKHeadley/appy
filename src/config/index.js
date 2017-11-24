@@ -26,6 +26,20 @@ export const resources = {
         alias: 'permission'
       }
     }
+  },
+  permission: {
+    alias: 'permission',
+    associations: {
+      users: {
+        alias: 'user'
+      },
+      roles: {
+        alias: 'role'
+      },
+      groups: {
+        alias: 'group'
+      }
+    }
   }
 }
 

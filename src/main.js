@@ -4,17 +4,19 @@ import 'es6-promise/auto'
 // Import System requirements
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import VueLocalStorage from 'vue-ls'
+import { ServerTable, ClientTable } from 'vue-tables-2'
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
+import RestHapiRepository from './plugins/repository-plugin'
 
 import { sync } from 'vuex-router-sync'
 import routes from './routes'
 import store from './store'
 
-import RestHapiRepository from './plugins/repository-plugin'
 import httpClient from './services/http-client.service'
 import authInterceptor from './services/auth-interceptor.service'
 
 import axios from 'axios'
+import qs from 'querystring'
 import config, { resources } from './config'
 
 // Import Helpers for filters
@@ -30,10 +32,19 @@ Vue.filter('prettyDate', prettyDate)
 Vue.filter('pluralize', pluralize)
 
 axios.defaults.baseURL = config.serverURI
+// Replace default serializer with one that works with Joi validation
+axios.defaults.paramsSerializer = function (params) {
+  return qs.stringify(params)
+}
 
+// Use plugins
 Vue.use(VueRouter)
-Vue.use(VueLocalStorage, { namespace: 'appy__' })
+Vue.use(ClientTable, {}, false);
+Vue.use(ServerTable, {}, false);
 Vue.use(RestHapiRepository, { httpClient, resources })
+
+// Register global components
+Vue.component('pulse-loader', PulseLoader);
 
 // Routing logic
 var router = new VueRouter({
@@ -62,20 +73,13 @@ router.beforeEach((to, from, next) => {
 
 sync(store, router)
 
-// Check local storage to handle refreshes
-var localUser = Vue.ls.get('user')
-
-if (localUser && store.state.user !== localUser) {
-  store.commit('SET_USER', localUser)
-  store.commit('SET_TOKEN', Vue.ls.get('token'))
-}
-
 // Add a response interceptor
 axios.interceptors.response.use(function (response) {
-  // Do something with response error
-  console.log('BAD PLACE')
   return Promise.resolve(response)
 }, authInterceptor.responseError)
+
+// EXPL: Initialize auth header
+axios.defaults.headers.common.Authorization = 'Bearer ' + store.state.auth.accessToken
 
 // Start out app!
 // eslint-disable-next-line no-new
@@ -86,9 +90,6 @@ new Vue({
   render: h => h(AppView)
 })
 
-const localStorage = Vue.ls
-
 export {
-  router,
-  localStorage
+  router
 }

@@ -14,11 +14,11 @@
     },
     methods: {
       logout () {
-        this.$store.commit('SET_USER', null)
-        this.$store.commit('SET_TOKEN', null)
+//        this.$store.commit('SET_USER', null)
+//        this.$store.commit('SET_TOKEN', null)
 
-        // Clear the localStorage
-        this.$ls.clear()
+//        // Clear the localStorage
+//        this.$ls.clear()
 
         this.$router.push('/login')
       }

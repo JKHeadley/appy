@@ -1,4 +1,4 @@
-import DashView from './components/Dash.vue'
+import MainView from './components/Main.vue'
 import LoginView from './components/Login.vue'
 import NotFoundView from './components/404.vue'
 
@@ -11,6 +11,9 @@ import AccessView from './components/views/Access.vue'
 import ServerView from './components/views/Server.vue'
 import ReposView from './components/views/Repos.vue'
 
+import UsersView from './components/views/users/Users.vue'
+import UserDetailsView from './components/views/users/UserDetails.vue'
+
 // Routes
 const routes = [
   {
@@ -19,7 +22,7 @@ const routes = [
   },
   {
     path: '/',
-    component: DashView,
+    component: MainView,
     children: [
       {
         path: 'dashboard',
@@ -57,6 +60,16 @@ const routes = [
         component: ReposView,
         name: 'Repository',
         meta: {description: 'List of popular javascript repos'}
+      }, {
+        path: 'users',
+        component: UsersView,
+        name: 'Users',
+        meta: {description: 'List of Appy users'},
+      }, {
+        path: '/users/:_id',
+        component: UserDetailsView,
+        name: 'UserDetails',
+        meta: {description: 'User details'}
       }
     ]
   }, {

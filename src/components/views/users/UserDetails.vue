@@ -1,0 +1,75 @@
+<template>
+  <div v-if="loading" class="content content-centered">
+      <pulse-loader :loading=true></pulse-loader>
+  </div>
+
+  <section class="content" v-else-if="!loading">
+      <h1 class="text-center">Users</h1>
+
+      <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#home">Details</a></li>
+        <li><a data-toggle="tab" href="#menu1">Groups</a></li>
+        <li><a data-toggle="tab" href="#menu2">Permissions</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div id="home" class="tab-pane fade in active">
+          <h3>HOME</h3>
+          <p>Some content.</p>
+
+          <div class="input-group">
+            <span class="input-group-addon">
+              <i class="fa fa-fw fa-at" aria-hidden="true"></i>
+            </span>
+            <input class="form-control" placeholder="Username" type="text">
+          </div>
+
+          <div class="form-group has-success">
+            <label class="control-label" for="inputSuccess"><i class="fa fa-fw fa-check"></i> Input with success</label>
+            <input class="form-control" id="inputSuccess" placeholder="Enter ..." type="text">
+            <span class="help-block">Help block with success</span>
+          </div>
+
+        </div>
+        <div id="menu1" class="tab-pane fade">
+          <h3>Menu 1</h3>
+          <p>Some content in menu 1.</p>
+        </div>
+        <div id="menu2" class="tab-pane fade">
+          <h3>Menu 2</h3>
+          <p>Some content in menu 2.</p>
+        </div>
+      </div>
+    </section>
+</template>
+
+<script>
+  export default {
+    name: 'UserDetails',
+    data () {
+      return {
+        loading: null,
+        error: null,
+        user: null
+      }
+    },
+    methods: {
+      getUser () {
+        this.user = this.error = null
+        this.loading = true
+        const params = {
+          $embed: ['groups', 'permissions']
+        }
+
+        this.$userRepository.find(this.$route.params._id, params)
+          .then((response) => {
+            this.loading = false
+            this.user = response.data
+          })
+      }
+    },
+    created () {
+      this.getUser()
+    },
+  }
+</script>

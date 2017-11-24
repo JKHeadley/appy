@@ -18,6 +18,8 @@ const ResourceHelper = function (httpClient, logger) {
       return function (params) {
         logger.debug(resourceRoute + '.list + params: ', params)
 
+        console.log("PARAMS:", params)
+
         if (!params) {
           params = {isDeleted: false}
         } else if (!params.isDeleted) {
