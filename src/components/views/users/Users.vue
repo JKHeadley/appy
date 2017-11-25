@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <section class="content">
     <h1 class="text-center">Users</h1>
 
     <v-server-table ref="userTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick">
@@ -12,7 +12,7 @@
         <pre><code>{{props.row}}</code></pre>
       </template>
     </v-server-table>
-  </div>
+  </section>
 </template>
 
 <script>
@@ -20,6 +20,7 @@
 export default {
   data () {
     return {
+      loading: null,
       generateRandomNumbers(numbers, max, min) {
         var a = []
         for (var i = 0; i < numbers; i++) {
@@ -29,8 +30,9 @@ export default {
       },
       columns: ['firstName', 'lastName', 'email', 'roleName', 'edit'],
       options: {
+        highlightMatches: true,
         sortable: ['firstName', 'lastName', 'email', 'roleName'],
-        requestFunction: function (request) {
+        requestFunction: (request) => {
           const params = {}
           params.$page = request.page
           params.$limit = request.limit
@@ -40,9 +42,11 @@ export default {
           if (request.query) {
             params.$term = request.query
           }
+          this.loading = true
           return this.$userRepository.list(params)
         },
-        responseAdapter: function (response) {
+        responseAdapter: (response) => {
+          this.loading = false
           return { data: response.data.docs, count: response.data.items.total }
         },
         uniqueKey: '_id'

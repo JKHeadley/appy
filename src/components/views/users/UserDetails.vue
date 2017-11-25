@@ -1,10 +1,11 @@
 <template>
-  <div v-if="loading" class="content content-centered">
-      <pulse-loader :loading=true></pulse-loader>
-  </div>
+  <section>
+    <div v-if="loading" class="content content-centered">
+        <pulse-loader></pulse-loader>
+    </div>
 
-  <section class="content" v-else-if="!loading">
-      <h1 class="text-center">Users</h1>
+    <div v-else class="content">
+      <h1 class="text-center">{{user.firstName}} {{user.lastName}}</h1>
 
       <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#home">Details</a></li>
@@ -40,7 +41,8 @@
           <p>Some content in menu 2.</p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 </template>
 
 <script>

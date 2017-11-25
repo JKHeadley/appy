@@ -64,7 +64,7 @@ const routes = [
         path: 'users',
         component: UsersView,
         name: 'Users',
-        meta: {description: 'List of Appy users'},
+        meta: {description: 'List of appy users'},
       }, {
         path: '/users/:_id',
         component: UserDetailsView,
