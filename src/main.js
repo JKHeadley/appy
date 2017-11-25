@@ -8,6 +8,10 @@ import { ServerTable, ClientTable } from 'vue-tables-2'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 import RestHapiRepository from './plugins/repository-plugin'
 
+import BootstrapVue from 'bootstrap-vue/dist/bootstrap-vue.esm';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
+
 import { sync } from 'vuex-router-sync'
 import routes from './routes'
 import store from './store'
@@ -42,6 +46,8 @@ Vue.use(VueRouter)
 Vue.use(ClientTable, {}, false);
 Vue.use(ServerTable, {}, false);
 Vue.use(RestHapiRepository, { httpClient, resources })
+
+Vue.use(BootstrapVue);
 
 // Register global components
 Vue.component('pulse-loader', PulseLoader);

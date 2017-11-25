@@ -17,6 +17,8 @@
   "dependencies": {
     "axios": "^0.15.3",
     "babel-runtime": "^5.8.0",
+    "bootstrap": "^3.3.7",
+    "bootstrap-vue": "^1.2.0",
     "change-case": "^3.0.1",
     "chart.js": "2.3.0",
     "datatables.net": "^1.10.11",
