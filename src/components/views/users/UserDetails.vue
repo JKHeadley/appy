@@ -13,23 +13,43 @@
         <li><a data-toggle="tab" href="#menu2">Permissions</a></li>
       </ul>
 
-      <div class="tab-content">
+      <div class="tab-content content">
         <div id="home" class="tab-pane fade in active">
-          <h3>HOME</h3>
-          <p>Some content.</p>
 
-          <div class="input-group">
-            <span class="input-group-addon">
-              <i class="fa fa-fw fa-at" aria-hidden="true"></i>
-            </span>
-            <input class="form-control" placeholder="Username" type="text">
-          </div>
+          <vue-form :state="formstate" @submit.prevent="onSubmit">
 
-          <div class="form-group has-success">
-            <label class="control-label" for="inputSuccess"><i class="fa fa-fw fa-check"></i> Input with success</label>
-            <input class="form-control" id="inputSuccess" placeholder="Enter ..." type="text">
-            <span class="help-block">Help block with success</span>
-          </div>
+            <vue-form-input
+              v-model="user.firstName"
+              :formstate="formstate"
+              :type="'text'"
+              :label="'First Name'"
+              :name="'firstName'">
+            </vue-form-input>
+
+            <vue-form-input
+              v-model="user.lastName"
+              :formstate="formstate"
+              :type="'text'"
+              :label="'Last Name'"
+              :name="'lastName'">
+            </vue-form-input>
+
+            <vue-form-input
+              v-model="user.email"
+              :formstate="formstate"
+              :type="'email'"
+              :label="'Last Name'"
+              :name="'lastName'">
+            </vue-form-input>
+
+
+
+
+            <div class="py-2 text-center">
+              <button class="btn btn-primary" type="submit">Submit</button>
+            </div>
+          </vue-form>
+
 
         </div>
         <div id="menu1" class="tab-pane fade">
@@ -52,10 +72,14 @@
       return {
         loading: null,
         error: null,
-        user: null
+        user: null,
+        formstate: {},
       }
     },
     methods: {
+      onSubmit: function () {
+        console.log(this.formstate.$valid);
+      },
       getUser () {
         this.user = this.error = null
         this.loading = true
@@ -67,11 +91,12 @@
           .then((response) => {
             this.loading = false
             this.user = response.data
+            this.$store.dispatch('setBreadcrumbTitle', this.user.firstName + ' ' + this.user.lastName)
           })
       }
     },
     created () {
       this.getUser()
-    },
+    }
   }
 </script>

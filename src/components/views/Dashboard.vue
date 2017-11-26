@@ -1,23 +1,11 @@
 <template>
-  <div>
-    <v-server-table ref="userTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick">
-      <template slot="edit" slot-scope="props">
-        <div>
-          <a class="fa fa-edit" role="button" v-on:click.stop="edit(props.row)"></a>
-        </div>
-      </template>
-      <template slot="child_row" slot-scope="props">
-        <pre><code>{{props.row}}</code></pre>
-      </template>
-    </v-server-table>
-  </div>
-
+  <section class="content">
+    Dashboard
+  </section>
 </template>
 
 <script>
-//import Chart from 'chart.js'
 import axios from 'axios'
-import table from '../ui-tools/Table.vue'
 
 export default {
   data () {

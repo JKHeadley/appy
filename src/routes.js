@@ -29,7 +29,7 @@ const routes = [
         alias: '',
         component: DashboardView,
         name: 'Dashboard',
-        meta: {description: 'Overview of environment'}
+        meta: { description: 'Overview of environment', title: 'Dashboard' }
       }, {
         path: 'tables',
         component: TablesView,
@@ -64,12 +64,12 @@ const routes = [
         path: 'users',
         component: UsersView,
         name: 'Users',
-        meta: {description: 'List of appy users'},
+        meta: { description: 'List of appy users', title: 'Users' }
       }, {
         path: '/users/:_id',
         component: UserDetailsView,
         name: 'UserDetails',
-        meta: {description: 'User details'}
+        meta: { description: 'Details for the selected user', title: 'User Details' }
       }
     ]
   }, {

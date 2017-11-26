@@ -1,11 +1,25 @@
-/**
+/**********************************************
 custom classes
- */
+**********************************************/
+
+
+// center vertically and horizontally
 .content-centered {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: row;
+}
+
+// vue-forms
+.form-control-feedback + .has-error {
+  color: #a94442;
+}
+
+.vf-field-touched {
+  .form-control-feedback {
+    top: 25px;
+  }
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -16,9 +30,9 @@ custom classes
   opacity: 0;
 }
 
-/**
+/**********************************************
 vue-tables-2
- */
+**********************************************/
 .VueTables__child-row-toggler {
   width:16px;
   height:16px;

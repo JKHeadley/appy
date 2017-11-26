@@ -1,11 +1,15 @@
 // Import ES6 Promise
 import 'es6-promise/auto'
 
+// Import global styles
+import '../static/css/Custom.scss'
+
 // Import System requirements
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import { ServerTable, ClientTable } from 'vue-tables-2'
+import { ServerTable } from 'vue-tables-2'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
+import VueForm from 'vue-form';
 import RestHapiRepository from './plugins/repository-plugin'
 
 import { sync } from 'vuex-router-sync'
@@ -18,6 +22,10 @@ import authInterceptor from './services/auth-interceptor.service'
 import axios from 'axios'
 import qs from 'querystring'
 import config, { resources } from './config'
+
+// Import global components
+import ContentHeader from './components/ContentHeader.vue'
+import VueFormInput from './components/utilities/VueFormInput.vue'
 
 // Import Helpers for filters
 import { domain, count, prettyDate, pluralize } from './filters'
@@ -39,12 +47,19 @@ axios.defaults.paramsSerializer = function (params) {
 
 // Use plugins
 Vue.use(VueRouter)
-Vue.use(ClientTable, {}, false);
-Vue.use(ServerTable, {}, false);
+Vue.use(ServerTable, {}, false)
+Vue.use(VueForm, {
+  inputClasses: {
+    valid: 'form-control-success',
+    invalid: 'form-control-danger'
+  }
+})
 Vue.use(RestHapiRepository, { httpClient, resources })
 
 // Register global components
-Vue.component('pulse-loader', PulseLoader);
+Vue.component('pulse-loader', PulseLoader)
+Vue.component('content-header', ContentHeader)
+Vue.component('vue-form-input', VueFormInput)
 
 // Routing logic
 var router = new VueRouter({
@@ -69,6 +84,12 @@ router.beforeEach((to, from, next) => {
   } else {
     next()
   }
+})
+
+// Manage breadcrumbs
+router.beforeEach((to, from, next) => {
+  store.dispatch('setBreadcrumbs', { currentPath: to.path })
+  next()
 })
 
 sync(store, router)
