@@ -7,9 +7,6 @@ import '../static/css/Custom.scss'
 // Import System requirements
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import { ServerTable } from 'vue-tables-2'
-import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
-import VueForm from 'vue-form';
 import RestHapiRepository from './plugins/repository-plugin'
 
 import { sync } from 'vuex-router-sync'
@@ -24,6 +21,10 @@ import qs from 'querystring'
 import config, { resources } from './config'
 
 // Import global components
+import { ServerTable } from 'vue-tables-2'
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
+import VueForm from 'vue-form'
+import VueSelect from 'vue-select'
 import ContentHeader from './components/ContentHeader.vue'
 import VueFormInput from './components/utilities/VueFormInput.vue'
 
@@ -60,6 +61,7 @@ Vue.use(RestHapiRepository, { httpClient, resources })
 Vue.component('pulse-loader', PulseLoader)
 Vue.component('content-header', ContentHeader)
 Vue.component('vue-form-input', VueFormInput)
+Vue.component('vue-select', VueSelect)
 
 // Routing logic
 var router = new VueRouter({
