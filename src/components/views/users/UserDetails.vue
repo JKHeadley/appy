@@ -47,9 +47,9 @@
 
 
             <div class="py-2 text-center">
-              <button class="btn btn-primary" type="submit">Update</button>
-              <button class="btn btn-primary" type="submit">Disable</button>
-              <button class="btn btn-primary" type="submit">Delete</button>
+              <button class="btn btn-primary" @click="updateUser">Update</button>
+              <button class="btn btn-primary" >Disable</button>
+              <button class="btn btn-primary" @click="deleteUser">Delete</button>
             </div>
           </vue-form>
 
@@ -69,6 +69,8 @@
 </template>
 
 <script>
+  import userService from '../../../services/user.service'
+
   export default {
     name: 'UserDetails',
     data () {
@@ -117,6 +119,34 @@
       },
       setRole (role) {
         this.user.role = role._id
+      },
+      updateUser () {
+        this.loading = true
+        userService.updateUser(this.user)
+          .then((response) => {
+            this.loading = false
+            this.user = response.data
+            this.$snotify.success('User updated', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('UserDetails.updateUser-error:', error)
+            this.$snotify.error('Update user failed', 'Error!')
+          })
+      },
+      deleteUser () {
+        this.loading = true
+        this.$userRepository.deleteOne(this.user._id)
+          .then((response) => {
+            this.loading = false
+            this.$snotify.success('User deleted', 'Success!')
+            this.$router.push('/users')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('UserDetails.deleteUser-error:', error)
+            this.$snotify.error('Delete user failed', 'Error!')
+          })
       }
     },
     created () {

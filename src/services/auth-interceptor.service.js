@@ -1,5 +1,5 @@
 import store from '../store'
-import { router } from '../main'
+import vm from '../main'
 
 import { RESPONSE_MESSAGES } from '../config'
 
@@ -22,7 +22,7 @@ internals.responseError = function (error) {
 
     store.dispatch('auth/clearAuth')
 
-    router.push('/login')
+    vm.$router.push('/login')
   } else if (response.status === 403) { // EXPL: The user is unauthorized
     console.debug('authInterceptor.service: 403: response:', response)
 

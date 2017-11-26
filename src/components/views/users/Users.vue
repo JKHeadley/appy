@@ -55,13 +55,10 @@ export default {
   },
   methods: {
     edit (row) {
-      console.log("EDIT:", row._id)
       this.$router.push({ name: 'UserDetails', params: { _id: row._id }, props: row })
-//      this.$router.push('test')
     },
     rowClick (data) {
       this.$refs.userTable.toggleChildRow(data.row._id)
-      console.log("ROW")
     }
   }
 }

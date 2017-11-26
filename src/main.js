@@ -3,6 +3,7 @@ import 'es6-promise/auto'
 
 // Import global styles
 import '../static/css/Custom.scss'
+import 'vue-snotify/styles/material.css'
 
 // Import System requirements
 import Vue from 'vue'
@@ -27,6 +28,8 @@ import VueForm from 'vue-form'
 import VueSelect from 'vue-select'
 import ContentHeader from './components/ContentHeader.vue'
 import VueFormInput from './components/utilities/VueFormInput.vue'
+import Snotify, { SnotifyPosition } from 'vue-snotify'
+import VueNotification from 'vue-notification'
 
 // Import Helpers for filters
 import { domain, count, prettyDate, pluralize } from './filters'
@@ -55,7 +58,13 @@ Vue.use(VueForm, {
     invalid: 'form-control-danger'
   }
 })
-Vue.use(RestHapiRepository, { httpClient, resources })
+Vue.use(Snotify, {
+  toast: {
+    position: SnotifyPosition.rightTop
+  }
+})
+Vue.use(VueNotification)
+Vue.use(RestHapiRepository, { httpClient, resources, log: true })
 
 // Register global components
 Vue.component('pulse-loader', PulseLoader)
@@ -104,15 +113,13 @@ axios.interceptors.response.use(function (response) {
 // EXPL: Initialize auth header
 axios.defaults.headers.common.Authorization = 'Bearer ' + store.state.auth.accessToken
 
-// Start out app!
+// Start our app!
 // eslint-disable-next-line no-new
-new Vue({
+const vm = new Vue({
   el: '#root',
   router: router,
   store: store,
   render: h => h(AppView)
 })
 
-export {
-  router
-}
+export default vm

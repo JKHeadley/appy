@@ -1,5 +1,8 @@
 <template>
   <div :class="['wrapper', classes]">
+    <!-- Notifications -->
+    <vue-snotify></vue-snotify>
+
     <!-- Left side column. contains the logo and sidebar -->
     <main-header :display-name="demo.displayName" :picture-url="demo.avatar" />
 
