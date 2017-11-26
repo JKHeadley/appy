@@ -42,11 +42,14 @@
               :name="'lastName'">
             </vue-form-input>
 
-
+            <label>Role</label>
+            <vue-select label="name" :value="currentRole" :options="roles" :on-change="setRole"></vue-select>
 
 
             <div class="py-2 text-center">
-              <button class="btn btn-primary" type="submit">Submit</button>
+              <button class="btn btn-primary" type="submit">Update</button>
+              <button class="btn btn-primary" type="submit">Disable</button>
+              <button class="btn btn-primary" type="submit">Delete</button>
             </div>
           </vue-form>
 
@@ -73,12 +76,18 @@
         loading: null,
         error: null,
         user: null,
-        formstate: {},
+        roles: null,
+        formstate: {}
+      }
+    },
+    computed: {
+      currentRole () {
+        return this.roles.find(role => { return this.user.role === role._id })
       }
     },
     methods: {
       onSubmit: function () {
-        console.log(this.formstate.$valid);
+        console.log(this.formstate.$valid)
       },
       getUser () {
         this.user = this.error = null
@@ -86,13 +95,28 @@
         const params = {
           $embed: ['groups', 'permissions']
         }
+        const promises = []
+        let promise = {}
 
-        this.$userRepository.find(this.$route.params._id, params)
+        promise = this.$userRepository.find(this.$route.params._id, params)
           .then((response) => {
-            this.loading = false
             this.user = response.data
             this.$store.dispatch('setBreadcrumbTitle', this.user.firstName + ' ' + this.user.lastName)
           })
+        promises.push(promise)
+
+        promise = this.$roleRepository.list()
+          .then((response) => {
+            this.roles = response.data.docs
+          })
+        promises.push(promise)
+        Promise.all(promises)
+          .then(() => {
+            this.loading = false
+          })
+      },
+      setRole (role) {
+        this.user.role = role._id
       }
     },
     created () {
