@@ -1,7 +1,7 @@
 <template>
   <section>
     <div v-if="loading" class="content content-centered">
-        <pulse-loader></pulse-loader>
+      <pulse-loader></pulse-loader>
     </div>
 
     <div v-else class="content">
@@ -16,42 +16,65 @@
       <div class="tab-content content">
         <div id="home" class="tab-pane fade in active">
 
-          <vue-form :state="formstate" @submit.prevent="onSubmit">
+          <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
 
-            <vue-form-input
-              v-model="user.firstName"
-              :formstate="formstate"
-              :type="'text'"
-              :label="'First Name'"
-              :name="'firstName'">
-            </vue-form-input>
+            <div class="col-sm-6">
 
-            <vue-form-input
-              v-model="user.lastName"
-              :formstate="formstate"
-              :type="'text'"
-              :label="'Last Name'"
-              :name="'lastName'">
-            </vue-form-input>
+              <vue-form-input
+                v-model="user.firstName"
+                :formstate="formstate"
+                :type="'text'"
+                :label="'First Name:'"
+                :name="'firstName'">
+              </vue-form-input>
 
-            <vue-form-input
-              v-model="user.email"
-              :formstate="formstate"
-              :type="'email'"
-              :label="'Last Name'"
-              :name="'lastName'">
-            </vue-form-input>
+              <vue-form-input
+                v-model="user.lastName"
+                :formstate="formstate"
+                :type="'text'"
+                :label="'Last Name:'"
+                :name="'lastName'">
+              </vue-form-input>
 
-            <label>Role</label>
-            <vue-select label="name" :value="currentRole" :options="roles" :on-change="setRole"></vue-select>
+              <vue-form-input
+                v-model="user.email"
+                :formstate="formstate"
+                :type="'email'"
+                :label="'Email:'"
+                :name="'email'">
+              </vue-form-input>
 
-
-            <div class="py-2 text-center">
-              <button class="btn btn-primary" @click="updateUser">Update</button>
-              <button class="btn btn-primary" >Disable</button>
-              <button class="btn btn-primary" @click="deleteUser">Delete</button>
             </div>
+
+            <div class="col-sm-6">
+
+              <div class="form-group">
+                <label>Role:</label>
+                <vue-select label="name" :value="currentRole" :options="roles" :on-change="setRole"></vue-select>
+              </div>
+
+              <div class="form-group">
+                <label>Active Status:</label>
+                <input class="form-control" :disabled="true" :placeholder="user.isActive ? 'Activated' : 'Deactivated'"/>
+              </div>
+
+              <div class="form-group">
+                <label>Enabled Status:</label>
+                <input class="form-control" :disabled="true" :placeholder="user.isEnabled ? 'Enabled' : 'Disabled'"/>
+              </div>
+
+            </div>
+
           </vue-form>
+
+          <div class="py-2 text-center row">
+            <button class="btn btn-primary" @click="updateUser">Update</button>
+            <button class="btn btn-primary" v-if="user.isActive" @click="deactivateUser">Deactivate</button>
+            <button class="btn btn-primary" v-else @click="activateUser">Activate</button>
+            <button class="btn btn-primary" v-if="user.isEnabled" @click="disableUser">Disable</button>
+            <button class="btn btn-primary" v-else @click="enableUser">Enable</button>
+            <button class="btn btn-primary" @click="deleteUser">Delete</button>
+          </div>
 
 
         </div>
@@ -146,6 +169,62 @@
             this.loading = false
             console.error('UserDetails.deleteUser-error:', error)
             this.$snotify.error('Delete user failed', 'Error!')
+          })
+      },
+      disableUser () {
+        this.loading = true
+        userService.disableUser(this.user)
+          .then((response) => {
+            this.loading = false
+            this.user = response.data
+            this.$snotify.success('User disabled', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('UserDetails.disableUser-error:', error)
+            this.$snotify.error('Disable user failed', 'Error!')
+          })
+      },
+      enableUser () {
+        this.loading = true
+        userService.enableUser(this.user)
+          .then((response) => {
+            this.loading = false
+            this.user = response.data
+            this.$snotify.success('User enabled', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('UserDetails.enableUser-error:', error)
+            this.$snotify.error('Enable user failed', 'Error!')
+          })
+      },
+      deactivateUser () {
+        this.loading = true
+        userService.deactivateUser(this.user)
+          .then((response) => {
+            this.loading = false
+            this.user = response.data
+            this.$snotify.success('User deactivated', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('UserDetails.deactivateUser-error:', error)
+            this.$snotify.error('Deactivate user failed', 'Error!')
+          })
+      },
+      activateUser () {
+        this.loading = true
+        userService.activateUser(this.user)
+          .then((response) => {
+            this.loading = false
+            this.user = response.data
+            this.$snotify.success('User activated', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('UserDetails.activateUser-error:', error)
+            this.$snotify.error('Activate user failed', 'Error!')
           })
       }
     },

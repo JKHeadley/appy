@@ -30,6 +30,7 @@ import ContentHeader from './components/ContentHeader.vue'
 import VueFormInput from './components/utilities/VueFormInput.vue'
 import Snotify, { SnotifyPosition } from 'vue-snotify'
 import VueNotification from 'vue-notification'
+import ToggleButton from 'vue-js-toggle-button'
 
 // Import Helpers for filters
 import { domain, count, prettyDate, pluralize } from './filters'
@@ -64,6 +65,7 @@ Vue.use(Snotify, {
   }
 })
 Vue.use(VueNotification)
+Vue.use(ToggleButton)
 Vue.use(RestHapiRepository, { httpClient, resources, log: true })
 
 // Register global components

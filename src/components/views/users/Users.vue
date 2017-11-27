@@ -21,13 +21,6 @@ export default {
   data () {
     return {
       loading: null,
-      generateRandomNumbers(numbers, max, min) {
-        var a = []
-        for (var i = 0; i < numbers; i++) {
-          a.push(Math.floor(Math.random() * (max - min + 1)) + max)
-        }
-        return a
-      },
       columns: ['firstName', 'lastName', 'email', 'roleName', 'edit'],
       options: {
         highlightMatches: true,
@@ -63,17 +56,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.info-box {
-  cursor: pointer;
-}
-.info-box-content {
-  text-align: center;
-  vertical-align: middle;
-  display: inherit;
-}
-.fullCanvas {
-  width: 100%;
-}
-</style>

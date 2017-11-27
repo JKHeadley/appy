@@ -43,6 +43,10 @@ export const resources = {
   }
 }
 
+export const API = {
+  USER: resources.user.alias || 'user'
+}
+
 export const RESPONSE_MESSAGES = {
   EXPIRED_ACCESS_TOKEN: 'Expired Access Token',
   EXPIRED_REFRESH_TOKEN: 'Expired Refresh Token'
