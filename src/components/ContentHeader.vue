@@ -5,7 +5,7 @@
       {{ $route.meta.title }}
       <small>{{ $route.meta.description }}</small>
     </h1>
-    <ol class="breadcrumb">
+    <ol class="breadcrumb breadcrumb-below">
       <li>
           <router-link to="/"><i class="fa fa-home"></i>Home</router-link>
       </li>

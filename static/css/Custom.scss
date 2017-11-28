@@ -30,6 +30,17 @@ custom classes
   opacity: 0;
 }
 
+// breadcrumbs
+.breadcrumb.breadcrumb-below {
+  position: relative;
+  margin-top: 5px;
+  top: 0;
+  right: 0;
+  float: none;
+  background: #d2d6de;
+  padding-left: 10px;
+}
+
 /**********************************************
 vue-tables-2
 **********************************************/

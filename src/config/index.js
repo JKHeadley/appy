@@ -27,6 +27,17 @@ export const resources = {
       }
     }
   },
+  group: {
+    alias: 'group',
+    associations: {
+      users: {
+        alias: 'user'
+      },
+      permissions: {
+        alias: 'permission'
+      }
+    }
+  },
   permission: {
     alias: 'permission',
     associations: {

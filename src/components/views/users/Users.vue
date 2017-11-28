@@ -3,6 +3,11 @@
     <h1 class="text-center">Users</h1>
 
     <v-server-table ref="userTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick">
+      <template slot="beforeBody">
+        <tr v-if="loading" class="VueTables__no-results">
+          <td class="text-center" colspan="6"><pulse-loader></pulse-loader></td>
+        </tr>
+      </template>
       <template slot="edit" slot-scope="props">
         <div>
           <a class="fa fa-edit" role="button" v-on:click.stop="edit(props.row)"></a>
@@ -12,6 +17,7 @@
         <pre><code>{{props.row}}</code></pre>
       </template>
     </v-server-table>
+
   </section>
 </template>
 
@@ -25,6 +31,9 @@ export default {
       options: {
         highlightMatches: true,
         sortable: ['firstName', 'lastName', 'email', 'roleName'],
+        texts: {
+          loading: 'DUH...'
+        },
         requestFunction: (request) => {
           const params = {}
           params.$page = request.page
@@ -56,3 +65,15 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+  .VueTables.loading {
+    tr {
+      &.VueTables__no-results {
+      }
+    }
+  }
+
+  .table-overlay {
+  }
+</style>
