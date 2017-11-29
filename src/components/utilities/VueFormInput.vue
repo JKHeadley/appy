@@ -1,7 +1,7 @@
 <template>
   <div>
     <label>{{ label }}</label>
-    <input v-bind:value="value" v-on:input="$emit('input', $event.target.value)" :name="name" class="form-control" />
+    <input :value="value" @input="$emit('input', $event.target.value)" :type="type" :name="name" class="form-control" />
 
     <field-messages :state="formstate" :name="name" show="$touched || $submitted">
       <template>
