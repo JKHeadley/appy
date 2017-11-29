@@ -60,10 +60,14 @@
 
             <div class="col-sm-6">
 
-              <div class="form-group">
+              <validate auto-label class="form-group" :class="fieldClassName(formstate.role)">
                 <label>Role:</label>
-                <vue-select label="name" :value="currentRole" :options="roles" :on-change="setRole"></vue-select>
-              </div>
+                <select name="role" class="form-control" v-model="user.role">
+                  <option v-for="role in roles" :selected="user.role == role._id" :value="role._id">
+                    {{ role.name }}
+                  </option>
+                </select>
+              </validate>
 
               <div class="form-group">
                 <label>Active Status:</label>
@@ -81,7 +85,7 @@
           </vue-form>
 
           <div class="py-2 text-center row">
-            <button class="btn btn-primary" @click="updateUser">Update</button>
+            <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="formstate.$pristine || formstate.$invalid">Update</button>
             <button class="btn btn-primary" v-if="user.isActive" @click="deactivateUser">Deactivate</button>
             <button class="btn btn-primary" v-else @click="activateUser">Activate</button>
             <button class="btn btn-primary" v-if="user.isEnabled" @click="disableUser">Disable</button>
@@ -146,7 +150,7 @@
           <!--</table>-->
 
         <!--</div>-->
-        <!--<div id="permissions" class="tab-pane fade">-->
+        <div id="permissions" class="tab-pane fade">
           <h3>Menu 2</h3>
           <p>Some content in menu 2.</p>
         </div>
@@ -174,11 +178,6 @@
         selectedUserGroups: [],
         permissions: [],
         formstate: {}
-      }
-    },
-    computed: {
-      currentRole () {
-        return this.roles.find(role => { return this.user.role === role._id })
       }
     },
     methods: {
