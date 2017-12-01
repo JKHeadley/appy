@@ -1,10 +1,10 @@
 <template>
-  <section>
+  <section class="container">
     <div v-if="loading" class="content content-centered">
       <pulse-loader></pulse-loader>
     </div>
 
-    <div v-else class="content">
+    <div v-show="!loading" v-if="ready" class="content">
       <h1 class="text-center">{{user.firstName}} {{user.lastName}}</h1>
 
       <ul class="nav nav-tabs">
@@ -95,61 +95,9 @@
 
 
         </div>
-        <!--<div id="groups" class="tab-pane fade">-->
-          <!--<h3 class="text-center">Add/Remove Groups</h3>-->
-
-          <!--<div>-->
-            <!--&lt;!&ndash;<input type="text" class="form-control input-lg" :change="getGroups()" placeholder="Search for groups to add" v-model="groupSearchText">&ndash;&gt;-->
-          <!--</div>-->
-
-          <!--<table>-->
-            <!--<tr style="height:35px;margin-bottom:10px;">-->
-            <!--<tr>-->
-              <!--<td style="background-color:#202020">-->
-                <!--<span style="margin-left:5px;color:white;background-color:#202020;width:250px;">Available</span>-->
-              <!--</td>-->
-              <!--<td>-->
-
-              <!--</td>-->
-              <!--<td style="background-color:#202020">-->
-                <!--<span style="margin-left:5px;color:white;background-color:#202020;width:250px;">Current</span>-->
-              <!--</td>-->
-            <!--<tr>-->
-            <!--<tr>-->
-              <!--<td>-->
-                <!--<div>-->
-                  <!--<select multiple id="availablelist" size="10" style="width:275px" v-model="selectedAvailableGroups">-->
-                    <!--<option v-for="obj in availableGroups" v-bind:value="obj">-->
-                      <!--{{ obj.group.name }}-->
-                    <!--</option>-->
-                  <!--</select>-->
-                <!--</div>-->
-              <!--</td>-->
-              <!--<td>-->
-                <!--<div style="float:left; padding-left: 4px;">-->
-                  <!--<button style="width:50px; text-align: center" :click="addGroups()">-->
-                  <!--<i class="material-icons">arrow_forward</i>-->
-                  <!--</button>-->
-                  <!--<br/>-->
-                  <!--<br/>-->
-                  <!--<button style="width:50px; text-align: center" :click="removeGroups()">-->
-                  <!--<i class="material-icons">arrow_back</i>-->
-                  <!--</button>-->
-                <!--</div>-->
-              <!--</td>-->
-              <!--<td>-->
-                <!--<div>-->
-                  <!--<select multiple id="userlist" size="10" style="width:275px" v-model="selectedUserGroups">-->
-                    <!--<option v-for="obj in userGroups" v-bind:value="obj">-->
-                      <!--{{ obj.group.name }}-->
-                    <!--</option>-->
-                  <!--</select>-->
-                <!--</div>-->
-              <!--</td>-->
-            <!--<tr></tr>-->
-          <!--</table>-->
-
-        <!--</div>-->
+        <div id="groups" class="tab-pane fade">
+          <user-groups :user="user" v-if="!loading"></user-groups>
+        </div>
         <div id="permissions" class="tab-pane fade">
           <h3>Menu 2</h3>
           <p>Some content in menu 2.</p>
@@ -160,22 +108,22 @@
 </template>
 
 <script>
+  import UserGroups from './UserGroups.vue'
   import userService from '../../../services/user.service'
   import formService from '../../../services/form.service'
 
   export default {
     name: 'UserDetails',
+    components: {
+      UserGroups
+    },
     data () {
       return {
-        loading: null,
+        ready: false,
+        loading: false,
         error: null,
         user: null,
         roles: [],
-        groupSearchText: null,
-        availableGroups: [],
-        selectedAvailableGroups: [],
-        userGroups: [],
-        selectedUserGroups: [],
         permissions: [],
         formstate: {}
       }
@@ -183,7 +131,7 @@
     methods: {
       emailValidator: formService.emailValidator,
       fieldClassName: formService.fieldClassName,
-      onSubmit: function () {
+      onSubmit () {
         console.log(this.formstate.$valid)
       },
       getUser () {
@@ -198,10 +146,7 @@
         promise = this.$userRepository.find(this.$route.params._id, params)
           .then((response) => {
             this.user = response.data
-            this.userGroups = this.user.groups
             this.$store.dispatch('setBreadcrumbTitle', this.user.firstName + ' ' + this.user.lastName)
-            console.log('USER')
-            this.getGroups()
           })
         promises.push(promise)
 
@@ -210,6 +155,7 @@
         Promise.all(promises)
           .then(() => {
             this.loading = false
+            this.ready = true
           })
       },
       getRoles () {
@@ -218,72 +164,16 @@
             this.roles = response.data.docs
           })
       },
-      getGroups () {
-//        this.groupSearchText = this.groupSearchText === '' ? null : this.groupSearchText;
-        const userGroupIds = this.userGroups.map((object) => { return object.group._id })
-        const params = {}
-        if (this.groupSearchText) {
-          params.$term = this.groupSearchText
-        }
-        if (!_.isEmpty(userGroupIds)) {
-          params.$exclude = userGroupIds
-        }
-        console.log('EXCLUDE:', params)
-        return this.$groupRepository.list(params)
-          .then((response) => {
-            this.availableGroups = response.data.docs.map((group) => { return {group} })
-//            this.availableGroups = response.data.docs
-//            this.sortLists();
-          })
-          .catch((error) => {
-            console.error('UserDetails.getGroups-error:\n', error)
-            this.$snotify.error('There was an error loading the groups', 'Error!')
-          })
-      },
-      addGroups () {
-        this.userGroups = this.userGroups.concat(this.selectedAvailableGroups)
-
-        this.availableGroups = this.availableGroups.filter((object) => {
-          const found = this.selectedAvailableGroups.find((selectedObject) => {
-            return selectedObject.group._id === object.group._id
-          })
-          return !found
-        })
-
-        console.log("ADD")
-
-//        sortLists()
-//        this.userDetailsForm.$dirty = true
-      },
-      removeGroups () {
-        this.availableGroups = this.availableGroups.concat(this.selectedUserGroups)
-
-        this.userGroups = this.userGroups.filter((object) => {
-          const found = this.selectedUserGroups.find((selectedObject) => {
-            return selectedObject.group._id === object.group._id
-          })
-          return !found
-        })
-
-        console.log("REMOVE")
-
-//        this.sortLists()
-//        this.userDetailsForm.$dirty = true
-      },
       sortLists () {
         this.userPermissions.sort((a, b) => { return a.permission.name.localeCompare(b.permission.name) })
 
         this.availablePermissions.sort((a, b) => { return a.permission.name.localeCompare(b.permission.name) })
-      },
-      setRole (role) {
-        this.user.role = role._id
       },
       updateUser () {
         this.loading = true
         userService.updateUser(this.user)
           .then((response) => {
             this.loading = false
-            this.user = response.data
             this.$snotify.success('User updated', 'Success!')
           })
           .catch((error) => {
@@ -311,7 +201,6 @@
         userService.disableUser(this.user)
           .then((response) => {
             this.loading = false
-            this.user = response.data
             this.$snotify.success('User disabled', 'Success!')
           })
           .catch((error) => {
@@ -325,7 +214,6 @@
         userService.enableUser(this.user)
           .then((response) => {
             this.loading = false
-            this.user = response.data
             this.$snotify.success('User enabled', 'Success!')
           })
           .catch((error) => {
@@ -339,7 +227,6 @@
         userService.deactivateUser(this.user)
           .then((response) => {
             this.loading = false
-            this.user = response.data
             this.$snotify.success('User deactivated', 'Success!')
           })
           .catch((error) => {
@@ -353,7 +240,6 @@
         userService.activateUser(this.user)
           .then((response) => {
             this.loading = false
-            this.user = response.data
             this.$snotify.success('User activated', 'Success!')
           })
           .catch((error) => {
