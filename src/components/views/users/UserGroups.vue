@@ -1,5 +1,5 @@
 <template>
-  <section class="container">
+  <section>
 
     <h3 class="text-center">Add/Remove Groups</h3>
 
@@ -23,7 +23,7 @@
       <pulse-loader></pulse-loader>
     </div>
 
-    <div v-else>
+    <div v-show="!loading">
       <div class="row content-centered">
 
         <div class="col-sm-5">
@@ -63,8 +63,21 @@
         <input class="form-control" style="margin-top: 15px" :disabled="true" :placeholder="groupDescription"/>
       </div>
 
+      <h3 class="text-center">Computed User Scope</h3>
+
+      <div class="row content-centered">
+        <div class="col-sm-4">
+          <select multiple ref="computedScope" size="10" style="width: 100%;"
+                  disabled="true">
+            <option v-for="scope in computedUserScope">
+              {{ scope }}
+            </option>
+          </select>
+        </div>
+      </div>
+
       <div class="py-2 text-center content row">
-        <button class="btn btn-primary" ref="updateUserGroups" :disabled="true" @click="updateUserGroups">Update</button>
+        <button class="btn btn-primary" ref="updateUserGroups" :disabled="true" @click="updateUserGroups">Update User</button>
       </div>
     </div>
 
@@ -72,11 +85,12 @@
 </template>
 
 <script>
-  import userService from '../../../services/user.service'
+  import { userService, eventBus } from '../../../services'
+  import { EVENTS } from '../../../config'
 
   export default {
     name: 'UserGroups',
-    props: ['user'],
+    props: ['user', 'userScope'],
     data () {
       return {
         loading: null,
@@ -95,6 +109,13 @@
         }
 
         return 'Select a group to see its description.'
+      },
+      computedUserScope () {
+//        let permissions = this.userGroups.reduce((permissions, group) => {
+//          return permissions.concat(group.group.permissions)
+//        }, [])
+
+        return userService.computeUserScope(this.user, this.user.role, this.userGroups, this.user.permissions)
       }
     },
     methods: {
@@ -109,6 +130,7 @@
         if (!_.isEmpty(userGroupIds)) {
           params.$exclude = userGroupIds
         }
+        params.$embed = ['permissions']
         return this.$groupRepository.list(params)
           .then((response) => {
             this.loading = false
@@ -116,7 +138,7 @@
             this.sortLists()
           })
           .catch((error) => {
-            console.error('UserDetails.getAvailableGroups-error:\n', error)
+            console.error('UserGroups.getAvailableGroups-error:\n', error)
             this.$snotify.error('There was an error loading the groups', 'Error!')
           })
       },
@@ -154,6 +176,7 @@
         userService.updateUserGroups(this.user, this.userGroups)
           .then((response) => {
             this.loading = false
+            eventBus.$emit(EVENTS.USER_UPDATED)
             this.$refs.updateUserGroups.disabled = true
             this.user.groups = this.userGroups
             this.$snotify.success('User updated', 'Success!')

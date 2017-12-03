@@ -58,6 +58,16 @@ export const API = {
   USER: resources.user.alias || 'user'
 }
 
+export const EVENTS = {
+  USER_UPDATED: 'user-updated'
+}
+
+export const PERMISSION_STATES = {
+  INCLUDED: 'Included',
+  EXCLUDED: 'Excluded',
+  FORBIDDEN: 'Forbidden'
+}
+
 export const RESPONSE_MESSAGES = {
   EXPIRED_ACCESS_TOKEN: 'Expired Access Token',
   EXPIRED_REFRESH_TOKEN: 'Expired Refresh Token'

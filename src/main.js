@@ -14,8 +14,7 @@ import { sync } from 'vuex-router-sync'
 import routes from './routes'
 import store from './store'
 
-import httpClient from './services/http-client.service'
-import authInterceptor from './services/auth-interceptor.service'
+import { httpClient, authInterceptor } from './services'
 
 import axios from 'axios'
 import qs from 'querystring'
@@ -100,10 +99,10 @@ router.beforeEach((to, from, next) => {
 })
 
 // Manage breadcrumbs
-router.beforeEach((to, from, next) => {
-  store.dispatch('setBreadcrumbs', { currentPath: to.path })
-  next()
-})
+// router.beforeEach((to, from, next) => {
+//   store.dispatch('setBreadcrumbs', { currentPath: to.path })
+//   next()
+// })
 
 sync(store, router)
 
