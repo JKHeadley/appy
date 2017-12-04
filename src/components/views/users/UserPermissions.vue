@@ -51,7 +51,7 @@
         <div class="col-sm-5">
           <select multiple ref="userlist" size="10" style="width: 100%;"
                   v-model="selectedUserPermissions" @change="selectedAvailablePermissions = []">
-            <option v-for="obj in userPermissions" v-bind:value="obj">
+            <option v-for="obj in newUser.permissions" v-bind:value="obj">
               {{ obj.permission.name }}
             </option>
           </select>
@@ -173,23 +173,6 @@
         </div>
 
       </div>
-
-      <h3 class="text-center">Computed User Scope</h3>
-
-      <div class="row content-centered">
-        <div class="col-sm-4">
-          <select multiple ref="computedScope" size="10" style="width: 100%;"
-                  disabled="true">
-            <option v-for="scope in computedUserScope">
-              {{ scope }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div class="py-2 text-center content row">
-        <button class="btn btn-primary" ref="updateUserPermissions" :disabled="true" @click="updateUserPermissions">Update User</button>
-      </div>
     </div>
 
   </section>
@@ -197,16 +180,17 @@
 
 <script>
   import _ from 'lodash'
-  import { userService, eventBus } from '../../../services'
+  import { eventBus } from '../../../services'
   import { PERMISSION_STATES, EVENTS } from '../../../config'
 
   export default {
     name: 'UserPermissions',
-    props: ['user', 'userScope'],
+    props: ['user'],
     data () {
       return {
         lodash: _,
         loading: null,
+        newUser: _.cloneDeep(this.user),
         PERMISSION_STATES: PERMISSION_STATES,
         permissionSearchText: null,
         availablePermissions: [],
@@ -217,8 +201,7 @@
         selectedForbiddenPermissions: [],
         includedToState: PERMISSION_STATES.INCLUDED,
         excludedToState: PERMISSION_STATES.EXCLUDED,
-        forbiddenToState: PERMISSION_STATES.FORBIDDEN,
-        userPermissions: this.user.permissions
+        forbiddenToState: PERMISSION_STATES.FORBIDDEN
       }
     },
     watch: {
@@ -242,22 +225,19 @@
         return 'Select a permission to see its description.'
       },
       includedPermissions () {
-        return this.userPermissions.filter((permission) => { return permission.state === PERMISSION_STATES.INCLUDED })
+        return this.newUser.permissions.filter((permission) => { return permission.state === PERMISSION_STATES.INCLUDED })
       },
       excludedPermissions () {
-        return this.userPermissions.filter((permission) => { return permission.state === PERMISSION_STATES.EXCLUDED })
+        return this.newUser.permissions.filter((permission) => { return permission.state === PERMISSION_STATES.EXCLUDED })
       },
       forbiddenPermissions () {
-        return this.userPermissions.filter((permission) => { return permission.state === PERMISSION_STATES.FORBIDDEN })
-      },
-      computedUserScope () {
-        return userService.computeUserScope(this.user, this.user.role, this.user.groups, this.userPermissions)
+        return this.newUser.permissions.filter((permission) => { return permission.state === PERMISSION_STATES.FORBIDDEN })
       }
     },
     methods: {
       getAvailablePermissions () {
         this.loading = true
-        const userPermissionIds = this.userPermissions.map((object) => { return object.permission._id })
+        const userPermissionIds = this.newUser.permissions.map((object) => { return object.permission._id })
         const params = {}
         if (this.permissionSearchText) {
           params.$term = this.permissionSearchText
@@ -281,8 +261,7 @@
           })
       },
       addPermissions () {
-        this.$refs.updateUserPermissions.disabled = false
-        this.userPermissions = this.userPermissions.concat(this.selectedAvailablePermissions)
+        this.newUser.permissions = this.newUser.permissions.concat(this.selectedAvailablePermissions)
 
         this.availablePermissions = this.availablePermissions.filter((object) => {
           return !this.selectedAvailablePermissions.find((selectedObject) => {
@@ -291,60 +270,49 @@
         })
 
         this.sortLists()
+        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newUser.permissions)
       },
       removePermissions () {
-        this.$refs.updateUserPermissions.disabled = false
         this.availablePermissions = this.availablePermissions.concat(this.selectedUserPermissions)
 
-        this.userPermissions = this.userPermissions.filter((object) => {
+        this.newUser.permissions = this.newUser.permissions.filter((object) => {
           return !this.selectedUserPermissions.find((selectedObject) => {
             return selectedObject.permission._id === object.permission._id
           })
         })
 
         this.sortLists()
+        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newUser.permissions)
       },
       sortLists () {
-        this.userPermissions.sort((a, b) => { return a.permission.name.localeCompare(b.permission.name) })
+        this.newUser.permissions.sort((a, b) => { return a.permission.name.localeCompare(b.permission.name) })
 
         this.availablePermissions.sort((a, b) => { return a.permission.name.localeCompare(b.permission.name) })
-      },
-      updateUserPermissions () {
-        this.loading = true
-        userService.updateUserPermissions(this.user, this.userPermissions)
-          .then((response) => {
-            this.loading = false
-            eventBus.$emit(EVENTS.USER_UPDATED)
-            this.$refs.updateUserPermissions.disabled = true
-            this.user.permissions = this.userPermissions
-            this.$snotify.success('User updated', 'Success!')
-          })
-          .catch((error) => {
-            this.loading = false
-            console.error('UserPermissions.updateUserPermissions-error:', error)
-            this.$snotify.error('Update user failed', 'Error!')
-          })
       },
       applyStateToIncluded () {
         for (let permission of this.selectedIncludedPermissions) {
           permission.state = this.includedToState
         }
         this.selectedIncludedPermissions = []
+        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newUser.permissions)
       },
       applyStateToExcluded () {
         for (let permission of this.selectedExcludedPermissions) {
           permission.state = this.excludedToState
         }
         this.selectedExcludedPermissions = []
+        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newUser.permissions)
       },
       applyStateToForbidden () {
         for (let permission of this.selectedForbiddenPermissions) {
           permission.state = this.forbiddenToState
         }
         this.selectedForbiddenPermissions = []
+        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newUser.permissions)
       }
     },
     created () {
+      this.newUser.permissions = this.newUser.permissions || []
       this.getAvailablePermissions()
     }
   }

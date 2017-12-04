@@ -58,8 +58,15 @@ export const API = {
   USER: resources.user.alias || 'user'
 }
 
+export const USER_ROLES = {
+  USER: 'User',
+  ADMIN: 'Admin',
+  SUPER_ADMIN: 'SuperAdmin'
+}
+
 export const EVENTS = {
-  USER_UPDATED: 'user-updated'
+  GROUPS_UPDATED: 'groups-updated',
+  PERMISSIONS_UPDATED: 'permissions-updated'
 }
 
 export const PERMISSION_STATES = {

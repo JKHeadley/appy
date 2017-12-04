@@ -2,6 +2,12 @@
   <section class="content">
     <h1 class="text-center">Users</h1>
 
+    <div class="add-user">
+      <router-link :to="{ name: 'UserCreate' }">
+        <button class="btn btn-primary">Add User</button>
+      </router-link>
+    </div>
+
     <v-server-table ref="userTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick">
       <template slot="beforeBody">
         <tr v-if="loading" class="VueTables__no-results">
@@ -74,6 +80,8 @@ export default {
     }
   }
 
-  .table-overlay {
+  .add-user {
+    position: absolute;
+    right: 15px;
   }
 </style>

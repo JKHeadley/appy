@@ -99,10 +99,10 @@ router.beforeEach((to, from, next) => {
 })
 
 // Manage breadcrumbs
-// router.beforeEach((to, from, next) => {
-//   store.dispatch('setBreadcrumbs', { currentPath: to.path })
-//   next()
-// })
+router.beforeEach((to, from, next) => {
+  store.dispatch('setBreadcrumbs', { currentPath: to.path })
+  next()
+})
 
 sync(store, router)
 

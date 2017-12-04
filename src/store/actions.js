@@ -18,24 +18,26 @@ export default {
     }
   },
   setBreadcrumbs ({ state, commit }, { currentPath }) {
-    const parts = currentPath.split('/').slice(1)
-    const breadcrumbs = []
-    for (const [index] of parts.entries()) {
-      let subPath = ''
-      for (let i = 0; i <= index; i++) {
-        subPath += '/' + parts[i]
-      }
-      // Use the current breadcrumb if it exists, else add the default breadcrumb
-      let breadcrumb = state.breadcrumbs.find(breadcrumb => { return breadcrumb.path === subPath })
-      if (!breadcrumb) {
-        let { route } = vm.$router.resolve(subPath)
-        breadcrumb = {
-          path: subPath,
-          title: route.meta.title
+    if (vm) {
+      const parts = currentPath.split('/').slice(1)
+      const breadcrumbs = []
+      for (const [index] of parts.entries()) {
+        let subPath = ''
+        for (let i = 0; i <= index; i++) {
+          subPath += '/' + parts[i]
         }
+        // Use the current breadcrumb if it exists, else add the default breadcrumb
+        let breadcrumb = state.breadcrumbs.find(breadcrumb => { return breadcrumb.path === subPath })
+        if (!breadcrumb) {
+          let { route } = vm.$router.resolve(subPath)
+          breadcrumb = {
+            path: subPath,
+            title: route.meta.title
+          }
+        }
+        breadcrumbs.push(breadcrumb)
       }
-      breadcrumbs.push(breadcrumb)
+      commit('SET_BREADCRUMBS', breadcrumbs)
     }
-    commit('SET_BREADCRUMBS', breadcrumbs)
   }
 }

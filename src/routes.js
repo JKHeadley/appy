@@ -13,6 +13,7 @@ import ReposView from './components/views/Repos.vue'
 
 import UsersView from './components/views/users/Users.vue'
 import UserDetailsView from './components/views/users/UserDetails.vue'
+import UserCreateView from './components/views/users/UserCreate.vue'
 
 // Routes
 const routes = [
@@ -67,9 +68,17 @@ const routes = [
         meta: { description: 'List of appy users', title: 'Users' }
       }, {
         path: '/users/:_id',
+        beforeEnter: (to, from, next) => {
+          to.params._id === 'create' ? next({ name: 'UserCreate' }) : next()
+        },
         component: UserDetailsView,
         name: 'UserDetails',
         meta: { description: 'Details for the selected user', title: 'User Details' }
+      }, {
+        path: '/users/create',
+        component: UserCreateView,
+        name: 'UserCreate',
+        meta: { description: 'Create a new user', title: 'User Create' }
       }
     ]
   }, {

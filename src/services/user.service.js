@@ -6,51 +6,97 @@ import { httpClient as http } from '../services'
 
 const internals = {}
 
-internals.updateUser = function (user) {
+internals.createUser = function (user) {
   user = Object.assign({}, user)
+  user.role = user.role._id
   delete user.roleName
   delete user.isActive
   delete user.isEnabled
+
+  const groups = (user.groups || []).concat([])
+  const permissions = (user.permissions || []).concat([])
+
   delete user.permissions
   delete user.groups
-  return vm.$userRepository.update(user._id, user)
-}
 
-internals.updateUserGroups = function (user, newGroups) {
-  const oldGroups = user.groups
+  user.password = 'root'
 
-  let groupsToAdd = newGroups.filter((newGroup) => {
-    return !oldGroups.find((oldGroup) => { return oldGroup.group._id === newGroup.group._id })
-  }).map((object) => { return object.group._id })
+  const promises = []
+  return vm.$userRepository.create(user)
+    .then((result) => {
+      user = result
+      if (!_.isEmpty(groups)) {
+        promises.push(vm.$userRepository.addManyGroups(user._id, groups))
+      }
+      if (!_.isEmpty(permissions)) {
+        promises.push(vm.$userRepository.addManyPermissions(user._id, permissions))
+      }
 
-  let groupsToRemove = oldGroups.filter((oldGroup) => {
-    return !newGroups.find((newGroup) => { return oldGroup.group._id === newGroup.group._id })
-  }).map((object) => { return object.group._id })
-
-  let promise = _.isEmpty(groupsToAdd) ? Promise.resolve() : vm.$userRepository.addManyGroups(user._id, groupsToAdd)
-
-  return promise
-    .then(() => {
-      return _.isEmpty(groupsToRemove) ? Promise.resolve() : vm.$userRepository.removeManyGroups(user._id, groupsToRemove)
+      return Promise.all(promises)
     })
 }
 
-internals.updateUserPermissions = function (user, newPermissions) {
-  const oldPermissions = user.permissions
+internals.updateUser = function (newUser, oldUser) {
+  newUser = Object.assign({}, newUser)
+  oldUser = Object.assign({}, oldUser)
+  newUser.role = newUser.role._id
+  delete newUser.roleName
+  delete newUser.isActive
+  delete newUser.isEnabled
 
-  let permissionsToAdd = newPermissions.filter((newPermission) => {
-    return !oldPermissions.find((oldPermission) => { return oldPermission.permission._id === newPermission.permission._id })
-  }).map((object) => { return object.permission._id })
+  const newGroups = (newUser.groups || []).concat([])
+  const oldGroups = (oldUser.groups || []).concat([])
+  const newPermissions = (newUser.permissions || []).concat([])
+  const oldPermissions = (oldUser.permissions || []).concat([])
 
-  let permissionsToRemove = oldPermissions.filter((oldPermission) => {
-    return !newPermissions.find((newPermission) => { return oldPermission.permission._id === newPermission.permission._id })
-  }).map((object) => { return object.permission._id })
+  delete newUser.permissions
+  delete newUser.groups
 
-  let promise = _.isEmpty(permissionsToAdd) ? Promise.resolve() : vm.$userRepository.addManyPermissions(user._id, permissionsToAdd)
+  const promises = []
+  promises.push(vm.$userRepository.update(newUser._id, newUser))
+  promises.push(internals.updateUserGroups(newUser._id, newGroups, oldGroups))
+  promises.push(internals.updateUserPermissions(newUser._id, newPermissions, oldPermissions))
+
+  return Promise.all(promises)
+}
+
+internals.updateUserGroups = function (userId, newGroups, oldGroups) {
+
+  let groupsToAdd = newGroups.filter((newGroup) => {
+    return !oldGroups.find((oldGroup) => { return oldGroup.group._id === newGroup.group._id })
+  }).map((group) => { return group.group._id })
+
+  let groupsToRemove = oldGroups.filter((oldGroup) => {
+    return !newGroups.find((newGroup) => { return oldGroup.group._id === newGroup.group._id })
+  }).map((group) => { return group.group._id })
+
+  let promise = _.isEmpty(groupsToAdd) ? Promise.resolve() : vm.$userRepository.addManyGroups(userId, groupsToAdd)
 
   return promise
     .then(() => {
-      return _.isEmpty(permissionsToRemove) ? Promise.resolve() : vm.$userRepository.removeManyPermissions(user._id, permissionsToRemove)
+      return _.isEmpty(groupsToRemove) ? Promise.resolve() : vm.$userRepository.removeManyGroups(userId, groupsToRemove)
+    })
+}
+
+internals.updateUserPermissions = function (userId, newPermissions, oldPermissions) {
+  // EXPL: Add any new permissions or updated permissions who's state has changed.
+  let permissionsToAdd = newPermissions.filter((newPermission) => {
+    return !oldPermissions.find((oldPermission) => {
+      return oldPermission.permission._id === newPermission.permission._id && oldPermission.state === newPermission.state
+    })
+  }).map((permission) => { return { childId: permission.permission._id, state: permission.state } })
+
+  let permissionsToRemove = oldPermissions.filter((oldPermission) => {
+    return !newPermissions.find((newPermission) => {
+      return oldPermission.permission._id === newPermission.permission._id && oldPermission.state === newPermission.state
+    })
+  }).map((permission) => { return permission.permission._id })
+
+  let promise = _.isEmpty(permissionsToAdd) ? Promise.resolve() : vm.$userRepository.addManyPermissions(userId, permissionsToAdd)
+
+  return promise
+    .then(() => {
+      return _.isEmpty(permissionsToRemove) ? Promise.resolve() : vm.$userRepository.removeManyPermissions(userId, permissionsToRemove)
     })
 }
 
@@ -145,12 +191,12 @@ internals.getSpecificScope = (user) => {
  * @param permissions
  * @returns {Array}
  */
-internals.computeUserScope = (user, role, groups, permissions) => {
-  const effectivePermissions = internals.getEffectivePermissions(role, groups, permissions)
+internals.computeUserScope = (user) => {
+  const effectivePermissions = internals.getEffectivePermissions(user.role, user.groups, user.permissions)
 
   let computedScope = []
-  computedScope.push(role.name)
-  computedScope = computedScope.concat(groups.map((group) => { return group.group.name }))
+  computedScope.push(user.role.name)
+  computedScope = computedScope.concat(user.groups.map((group) => { return group.group.name }))
 
   /**
    * The scope additions from permissions depends on the permission state as follows:

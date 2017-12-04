@@ -5,7 +5,20 @@
     </div>
 
     <div v-show="!loading" v-if="ready" class="content">
-      <h1 class="text-center">{{user.firstName}} {{user.lastName}}</h1>
+      <h1 class="text-center">{{newUser.firstName}} {{newUser.lastName}}</h1>
+
+      <h3 class="text-center">User Scope</h3>
+
+      <div class="row content-centered">
+        <div class="col-sm-4">
+          <select multiple ref="computedScope" size="10" style="width: 100%;"
+                  disabled="true">
+            <option v-for="scope in computedUserScope">
+              {{ scope }}
+            </option>
+          </select>
+        </div>
+      </div>
 
       <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
@@ -23,7 +36,7 @@
               <validate auto-label class="form-group" :class="fieldClassName(formstate.firstName)">
                 <vue-form-input
                   required
-                  v-model="user.firstName"
+                  v-model="newUser.firstName"
                   :formstate="formstate"
                   :type="'text'"
                   :label="'First Name:'"
@@ -35,7 +48,7 @@
               <validate auto-label class="form-group" :class="fieldClassName(formstate.lastName)">
                 <vue-form-input
                   required
-                  v-model="user.lastName"
+                  v-model="newUser.lastName"
                   :formstate="formstate"
                   :type="'text'"
                   :label="'Last Name:'"
@@ -47,7 +60,7 @@
               <validate auto-label class="form-group" :class="fieldClassName(formstate.email)" :custom="{ email: emailValidator }">
                 <vue-form-input
                   required
-                  v-model="user.email"
+                  v-model="newUser.email"
                   :formstate="formstate"
                   :type="'email'"
                   :label="'Email:'"
@@ -62,8 +75,8 @@
 
               <validate auto-label class="form-group" :class="fieldClassName(formstate.role)">
                 <label>Role:</label>
-                <select name="role" class="form-control" v-model="selectedRole">
-                  <option v-for="role in roles" :selected="role._id === selectedRole._id" :value="role">
+                <select name="role" class="form-control" v-model="newUser.role">
+                  <option v-for="role in roles" :selected="role._id === newUser.role._id" :value="role">
                     {{ role.name }}
                   </option>
                 </select>
@@ -72,47 +85,38 @@
               <div class="form-group">
                 <label>Active Status:</label>
                 <input class="form-control" :disabled="true"
-                       :placeholder="user.isActive ? 'Activated' : 'Deactivated'"/>
+                       :placeholder="newUser.isActive ? 'Activated' : 'Deactivated'"/>
               </div>
 
               <div class="form-group">
                 <label>Enabled Status:</label>
-                <input class="form-control" :disabled="true" :placeholder="user.isEnabled ? 'Enabled' : 'Disabled'"/>
+                <input class="form-control" :disabled="true" :placeholder="newUser.isEnabled ? 'Enabled' : 'Disabled'"/>
               </div>
 
             </div>
 
           </vue-form>
 
-          <h3 class="text-center">Computed User Scope</h3>
-
-          <div class="row content-centered">
-            <div class="col-sm-4">
-              <select multiple ref="computedScope" size="10" style="width: 100%;"
-                      disabled="true">
-                <option v-for="scope in computedUserScope">
-                  {{ scope }}
-                </option>
-              </select>
-            </div>
+          <div class="py-2 text-center row" style="margin-top: 10px">
+            <button class="btn btn-primary" v-if="newUser.isActive" @click="deactivateUser">Deactivate User</button>
+            <button class="btn btn-primary" v-else @click="activateUser">Activate User</button>
+            <button class="btn btn-primary" v-if="newUser.isEnabled" @click="disableUser">Disable User</button>
+            <button class="btn btn-primary" v-else @click="enableUser">Enable User</button>
+            <button class="btn btn-primary" @click="deleteUser">Delete User</button>
           </div>
 
-          <div class="py-2 text-center row">
-            <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="formstate.$pristine || formstate.$invalid">Update</button>
-            <button class="btn btn-primary" v-if="user.isActive" @click="deactivateUser">Deactivate</button>
-            <button class="btn btn-primary" v-else @click="activateUser">Activate</button>
-            <button class="btn btn-primary" v-if="user.isEnabled" @click="disableUser">Disable</button>
-            <button class="btn btn-primary" v-else @click="enableUser">Enable</button>
-            <button class="btn btn-primary" @click="deleteUser">Delete</button>
+          <div class="py-2 text-center row" style="margin-top: 10px">
+            <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="!((userUpdated || formstate.$dirty) && formstate.$valid)">Update User</button>
+            <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="!((userUpdated || formstate.$dirty) && formstate.$valid)">Clear Changes</button>
           </div>
 
 
         </div>
         <div id="groups" class="tab-pane fade">
-          <user-groups :user="user" :userScope="userScope" v-if="!loading"></user-groups>
+          <user-groups :user="newUser" v-if="!loading"></user-groups>
         </div>
         <div id="permissions" class="tab-pane fade">
-          <user-permissions :user="user" :userScope="userScope" v-if="!loading"></user-permissions>
+          <user-permissions :user="newUser" v-if="!loading"></user-permissions>
         </div>
       </div>
     </div>
@@ -138,28 +142,22 @@
         ready: false,
         loading: false,
         EVENTS: EVENTS,
-        user: {},
-        selectedRole: {},
-        userScope: [],
+        newUser: {},
+        oldUser: {},
+        userUpdated: false,
         roles: [],
         permissions: [],
         formstate: {}
       }
     },
     computed: {
-      computedUserScope: {
-        cache: false,
-        get () {
-          return userService.computeUserScope(this.user, this.selectedRole, this.user.groups, this.user.permissions)
-        }
+      computedUserScope () {
+        return userService.computeUserScope(this.newUser)
       }
     },
     methods: {
       emailValidator: formService.emailValidator,
       fieldClassName: formService.fieldClassName,
-      onSubmit () {
-        console.log(this.formstate.$valid)
-      },
       getUser () {
         this.loading = true
         const params = {
@@ -170,24 +168,14 @@
 
         promise = this.$userRepository.find(this.$route.params._id, params)
           .then((response) => {
-            this.user = response.data
-            this.$store.dispatch('setBreadcrumbTitle', this.user.firstName + ' ' + this.user.lastName)
+            this.newUser = response.data
+            this.oldUser = _.cloneDeep(this.newUser)
+            this.$store.dispatch('setBreadcrumbTitle', this.newUser.firstName + ' ' + this.newUser.lastName)
           })
         promises.push(promise)
-        promises.push(this.getUserScope())
         return Promise.all(promises)
           .then(() => {
             this.loading = false
-          })
-      },
-      getUserScope () {
-        return userService.getUserScope(this.$route.params._id)
-          .then((response) => {
-            this.userScope = response.data
-          })
-          .catch((error) => {
-            console.error('UserPermissions.getUserScope-error:\n', error)
-            this.$snotify.error('There was an error loading the user scope', 'Error!')
           })
       },
       getRoles () {
@@ -196,13 +184,17 @@
             this.roles = response.data.docs
           })
       },
+      clearChanges () {
+        this.newUser = _.cloneDeep(this.oldUser)
+        this.userUpdated = false
+      },
       updateUser () {
         this.loading = true
-        const userData = _.clone(this.user)
-        userData.role = this.selectedRole._id
-        return userService.updateUser(userData)
+        return userService.updateUser(this.newUser, this.oldUser)
           .then((response) => {
             this.loading = false
+            this.userUpdated = false
+            this.oldUser = _.cloneDeep(this.newUser)
             this.$snotify.success('User updated', 'Success!')
           })
           .catch((error) => {
@@ -213,7 +205,7 @@
       },
       deleteUser () {
         this.loading = true
-        return this.$userRepository.deleteOne(this.user._id)
+        return this.$userRepository.deleteOne(this.newUser._id)
           .then((response) => {
             this.loading = false
             this.$snotify.success('User deleted', 'Success!')
@@ -227,8 +219,9 @@
       },
       disableUser () {
         this.loading = true
-        return userService.disableUser(this.user)
+        return userService.disableUser(this.newUser)
           .then((response) => {
+            this.newUser.isEnabled = false
             this.loading = false
             this.$snotify.success('User disabled', 'Success!')
           })
@@ -240,8 +233,9 @@
       },
       enableUser () {
         this.loading = true
-        return userService.enableUser(this.user)
+        return userService.enableUser(this.newUser)
           .then((response) => {
+            this.newUser.isEnabled = true
             this.loading = false
             this.$snotify.success('User enabled', 'Success!')
           })
@@ -253,8 +247,9 @@
       },
       deactivateUser () {
         this.loading = true
-        return userService.deactivateUser(this.user)
+        return userService.deactivateUser(this.newUser)
           .then((response) => {
+            this.newUser.isActive = false
             this.loading = false
             this.$snotify.success('User deactivated', 'Success!')
           })
@@ -266,8 +261,9 @@
       },
       activateUser () {
         this.loading = true
-        return userService.activateUser(this.user)
+        return userService.activateUser(this.newUser)
           .then((response) => {
+            this.newUser.isActive = true
             this.loading = false
             this.$snotify.success('User activated', 'Success!')
           })
@@ -286,9 +282,15 @@
         .then(() => {
           this.loading = false
           this.ready = true
-          this.selectedRole = this.roles.find((role) => { return role._id === this.user.role._id })
         })
-      eventBus.$on(EVENTS.USER_UPDATED, this.getUser)
+      eventBus.$on(EVENTS.GROUPS_UPDATED, (newGroups) => {
+        this.newUser.groups = newGroups
+        this.userUpdated = true
+      })
+      eventBus.$on(EVENTS.PERMISSIONS_UPDATED, (newPermissions) => {
+        this.newUser.permissions = newPermissions
+        this.userUpdated = true
+      })
     }
   }
 </script>
