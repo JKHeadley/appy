@@ -57,7 +57,7 @@
                 </vue-form-input>
               </validate>
 
-              <validate auto-label class="form-group" :class="fieldClassName(formstate.email)" :custom="{ email: emailValidator }">
+              <validate auto-label class="form-group" :class="fieldClassName(formstate.email)" :debounce="250" :custom="{ email: emailValidator, notUnique: emailUniqueValidator }">
                 <vue-form-input
                   required
                   v-model="newUser.email"
@@ -65,7 +65,7 @@
                   :type="'email'"
                   :label="'Email:'"
                   :name="'email'"
-                  :messages="{ email: 'Please input a valid email', required: 'This field is required' }">
+                  :messages="{ email: 'Please input a valid email', required: 'This field is required', notUnique: 'That email is already in use.' }">
                 </vue-form-input>
               </validate>
 
@@ -95,6 +95,9 @@
 
             </div>
 
+            <!--This is a dummy field to facilitate updating the formstate programmatically-->
+            <validate class="hide"><input type="text" v-model="userUpdated" name="userUpdated" /></validate>
+
           </vue-form>
 
           <div class="py-2 text-center row" style="margin-top: 10px">
@@ -106,8 +109,8 @@
           </div>
 
           <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="!((userUpdated || formstate.$dirty) && formstate.$valid)">Update User</button>
-            <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="!((userUpdated || formstate.$dirty) && formstate.$valid)">Clear Changes</button>
+            <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="formstate.$pristine || formstate.$invalid">Update User</button>
+            <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
           </div>
 
 
@@ -141,10 +144,10 @@
       return {
         ready: false,
         loading: false,
+        userUpdated: null,
         EVENTS: EVENTS,
         newUser: {},
         oldUser: {},
-        userUpdated: false,
         roles: [],
         permissions: [],
         formstate: {}
@@ -156,8 +159,11 @@
       }
     },
     methods: {
-      emailValidator: formService.emailValidator,
       fieldClassName: formService.fieldClassName,
+      emailValidator: formService.emailValidator,
+      emailUniqueValidator (email) {
+        return formService.emailUniqueValidator(email, this.oldUser.email)
+      },
       getUser () {
         this.loading = true
         const params = {
@@ -186,14 +192,14 @@
       },
       clearChanges () {
         this.newUser = _.cloneDeep(this.oldUser)
-        this.userUpdated = false
+        this.formstate._reset()
       },
       updateUser () {
         this.loading = true
         return userService.updateUser(this.newUser, this.oldUser)
           .then((response) => {
             this.loading = false
-            this.userUpdated = false
+            this.formstate._reset()
             this.oldUser = _.cloneDeep(this.newUser)
             this.$snotify.success('User updated', 'Success!')
           })
@@ -285,11 +291,11 @@
         })
       eventBus.$on(EVENTS.GROUPS_UPDATED, (newGroups) => {
         this.newUser.groups = newGroups
-        this.userUpdated = true
+        this.formstate.userUpdated._setDirty()
       })
       eventBus.$on(EVENTS.PERMISSIONS_UPDATED, (newPermissions) => {
         this.newUser.permissions = newPermissions
-        this.userUpdated = true
+        this.formstate.userUpdated._setDirty()
       })
     }
   }
