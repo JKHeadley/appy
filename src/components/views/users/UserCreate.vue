@@ -101,6 +101,10 @@
             <button class="btn btn-primary" type="submit" @click="createUser" :disabled="!(formstate.$dirty && formstate.$valid)">Create User</button>
           </div>
 
+          <div class="text-center row" style="margin-top: 10px">
+            <span><strong>Note</strong>: An invitation will be sent to the user's email address.</span>
+          </div>
+
 
         </div>
         <div id="groups" class="tab-pane fade">
@@ -117,7 +121,7 @@
 <script>
   import UserGroups from './UserGroups.vue'
   import UserPermissions from './UserPermissions.vue'
-  import { userService, formService, eventBus } from '../../../services'
+  import { userService, authService, formService, eventBus } from '../../../services'
   import { EVENTS, USER_ROLES } from '../../../config'
 
   import _ from 'lodash'
@@ -156,14 +160,15 @@
       },
       createUser () {
         this.loading = true
-        return userService.createUser(this.user)
+        return authService.inviteUser(this.user)
           .then((response) => {
             this.loading = false
             this.$snotify.success('User created', 'Success!')
+            this.$router.push('/users')
           })
           .catch((error) => {
             this.loading = false
-            console.error('UserCreate.updateUser-error:', error)
+            console.error('UserCreate.createUser-error:', error)
             this.$snotify.error('Create user failed', 'Error!')
           })
       }

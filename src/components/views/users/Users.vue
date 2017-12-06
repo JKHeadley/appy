@@ -37,9 +37,6 @@ export default {
       options: {
         highlightMatches: true,
         sortable: ['firstName', 'lastName', 'email', 'roleName'],
-        texts: {
-          loading: 'DUH...'
-        },
         requestFunction: (request) => {
           const params = {}
           params.$page = request.page
