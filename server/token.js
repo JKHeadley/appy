@@ -25,6 +25,7 @@ function createToken(user, session, scope, expirationPeriod, Log) {
       role: user.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      _id: user._id
     };
 
     token = Jwt.sign({

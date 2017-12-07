@@ -42,7 +42,7 @@ const config = {
   expirationPeriod: {
     short: '10m',
     medium: '30m',
-    long: '4h'
+    long: '730h'
   },
   authAttempts: {
     forIp: 50,
@@ -98,9 +98,9 @@ const config = {
   },
   clientURL: {
     $filter: 'env',
-    local: 'http://localhost:' + constants.PORT,
+    local: 'http://localhost:8080',
     production: 'http://localhost:' + constants.PORT,
-    $default: 'http://localhost:' + constants.PORT
+    $default: 'http://localhost:8080'
   },
   restHapiConfig: {
     appTitle: constants.APP_TITLE,
@@ -112,8 +112,8 @@ const config = {
       }
     },
     cors: {
-      additionalHeaders: ['X-Auth-Header', 'X-Refresh-Token'],
-      additionalExposedHeaders: ['X-Auth-Header', 'X-Refresh-Token']
+      additionalHeaders: ['X-Access-Token', 'X-Refresh-Token'],
+      additionalExposedHeaders: ['X-Access-Token', 'X-Refresh-Token']
     },
     absoluteModelPath: true,
     modelPath: __dirname + '/server/models',
