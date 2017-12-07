@@ -41,12 +41,12 @@ const config = {
   constants: constants,
   expirationPeriod: {
     short: '10m',
-    medium: '30m',
+    medium: '4h',
     long: '730h'
   },
   authAttempts: {
     forIp: 50,
-    forIpAndUser: 7
+    forIpAndUser: 5
   },
   lockOutPeriod: 30, //in units of minutes
   jwtSecret: {

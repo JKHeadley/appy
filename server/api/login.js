@@ -99,6 +99,30 @@ module.exports = function (server, mongoose, logger) {
         }
       },
       {
+        assign: 'isEnabled',
+        method: function (request, reply) {
+
+          if (request.pre.user.isEnabled) {
+            return reply();
+          }
+          else {
+            return reply(Boom.badRequest('Account is disabled.'));
+          }
+        }
+      },
+      {
+        assign: 'isDeleted',
+        method: function (request, reply) {
+          const user = request.pre.user;
+
+          if (user.isDeleted) {
+            return reply(Boom.badRequest('Account is deleted.'));
+          }
+
+          return reply();
+        }
+      },
+      {
         assign: 'session',
         method: function (request, reply) {
           if (authStrategy === AUTH_STRATEGIES.TOKEN) {

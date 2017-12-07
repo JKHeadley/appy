@@ -13,6 +13,7 @@ const Config = require('../../config');
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 const authStrategy = Config.get('/restHapiConfig/authStrategy');
+const expirationPeriod = Config.get('/expirationPeriod');
 
 module.exports = function (server, mongoose, logger) {
 
@@ -30,7 +31,8 @@ module.exports = function (server, mongoose, logger) {
       method: function (request, reply) {
 
         const conditions = {
-          email: request.payload.user.email
+          email: request.payload.user.email,
+          isDeleted: false
         };
 
         User.findOne(conditions)
@@ -93,12 +95,10 @@ module.exports = function (server, mongoose, logger) {
           }
 
           user.role = request.pre.role._id;
+          user.roleName = request.pre.role.name;
 
           user.isActive = false;
-          user.activateAccount = {
-            token: keyHash.hash,
-            expires: Date.now() + 10000000 //TODO: set token expiration in config
-          };
+          user.activateAccountHash =  keyHash.hash;
 
           return RestHapi.create(User, user, Log);
         })
@@ -118,7 +118,7 @@ module.exports = function (server, mongoose, logger) {
             const token = Jwt.sign({
               email: user.email,
               key: keyHash.key
-            }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "4h" });//TODO: match expiration with activateAccount expiration
+            }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod.medium });
 
             const context = {
               clientURL: Config.get('/clientURL'),
@@ -145,7 +145,7 @@ module.exports = function (server, mongoose, logger) {
             const token = Jwt.sign({
               email: user.email,
               key: keyHash.key
-            }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "4h" });//TODO: match expiration with activateAccount expiration
+            }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod.medium });
 
             const invitee = request.auth.credentials ? request.auth.credentials.user : {
               firstName: "appy",
@@ -261,10 +261,7 @@ module.exports = function (server, mongoose, logger) {
           keyHash = result;
 
           const document = {
-            activateAccount: {
-              token: keyHash.hash,
-              expires: Date.now() + 10000000 //TODO: set token expiration in config
-            }
+            activateAccountHash: keyHash.hash
           };
 
           return RestHapi.update(User, request.pre.user._id, document);
@@ -287,7 +284,7 @@ module.exports = function (server, mongoose, logger) {
           const token = Jwt.sign({
             email: request.payload.email,
             key: keyHash.key
-          }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "4h" });//TODO: match expiration with activateAccount expiration
+          }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod.medium });
 
 
           const context = {
@@ -348,11 +345,9 @@ module.exports = function (server, mongoose, logger) {
       {
         assign: 'decoded',
         method: function (request, reply) {
-
-          Log.debug('token:', request.payload.token)
-
           Jwt.verify(request.payload.token, Config.get('/jwtSecret'), function (err, decoded) {
             if (err) {
+              Log.error(err)
               return reply(Boom.badRequest('Invalid token.'));
             }
 
@@ -366,7 +361,7 @@ module.exports = function (server, mongoose, logger) {
 
           const conditions = {
             email: request.pre.decoded.email,
-            'activateAccount.expires': { $gt: Date.now() }
+            isDeleted: false
           };
 
           User.findOne(conditions)
@@ -387,9 +382,9 @@ module.exports = function (server, mongoose, logger) {
     const accountActivationHandler = function (request, reply) {
 
       const key = request.pre.decoded.key;
-      const token = request.pre.user.activateAccount.token;
+      const hash = request.pre.user.activateAccountHash;
 
-      Bcrypt.compare(key, token)
+      Bcrypt.compare(key, hash)
         .then(function (keyMatch) {
           if (!keyMatch) {
             return reply(Boom.badRequest('Invalid email or key.'));
@@ -401,7 +396,7 @@ module.exports = function (server, mongoose, logger) {
               isActive: true
             },
             $unset: {
-              activateAccount: undefined
+              activateAccountHash: undefined
             }
           };
 
