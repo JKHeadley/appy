@@ -5,7 +5,7 @@ import { httpClient as http } from '../services'
 
 const internals = {}
 
-internals.inviteUser = function (user) {
+internals.inviteUser = (user) => {
   user = Object.assign({}, user)
   user.role = user.role.name
   delete user.isActive
@@ -31,6 +31,26 @@ internals.inviteUser = function (user) {
       }
 
       return Promise.all(promises)
+    })
+    .catch((error) => {
+      console.error('authService.inviteUser-error:\n', error)
+      throw error
+    })
+}
+
+internals.sendActivationEmail = (email) => {
+  return http.post('/register/send-activation-email', { email })
+    .catch((error) => {
+      console.error('authService.sendActivationEmail-error:\n', error)
+      throw error
+    })
+}
+
+internals.activateAccount = (token) => {
+  return http.post('/register/activate', { token })
+    .catch((error) => {
+      console.error('authService.activateAccount-error:\n', error)
+      throw error
     })
 }
 

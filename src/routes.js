@@ -11,6 +11,8 @@ import AccessView from './components/views/Access.vue'
 import ServerView from './components/views/Server.vue'
 import ReposView from './components/views/Repos.vue'
 
+import ActivateAccountView from './components/views/register/ActivateAccount.vue'
+
 import UsersView from './components/views/users/Users.vue'
 import UserDetailsView from './components/views/users/UserDetails.vue'
 import UserCreateView from './components/views/users/UserCreate.vue'
@@ -20,6 +22,10 @@ const routes = [
   {
     path: '/login',
     component: LoginView
+  },
+  {
+    path: '/activate',
+    component: ActivateAccountView
   },
   {
     path: '/',

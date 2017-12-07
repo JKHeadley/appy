@@ -19,6 +19,16 @@ custom classes
 .vf-field-touched {
   .form-control-feedback {
     top: 25px;
+    //top: 15%;
+  }
+}
+
+.vf-field-touched {
+  .input-group {
+    .form-control-feedback {
+      //top: 25px;
+      top: 15%;
+    }
   }
 }
 
@@ -39,6 +49,48 @@ custom classes
   float: none;
   background: #d2d6de;
   padding-left: 10px;
+}
+
+
+// flash/bootstrap alerts
+// Basic Colors
+$base-primary:          #3498db;    // Base primary color
+$color-primary:         #2196f3;    // Primary color
+$color-secondary:       #eeeeee;    // secondary color
+$color-default:         #eeeeee;    // Default color
+$color-success:         #5cb85c;    // Success color
+$color-info:            #5bc0de;    // Info color
+$color-yellow:          #f0ad4e;    // Warning color
+$color-red:             #d9534f;    // Danger color
+
+.flash-message .alert {
+  padding: 12px;
+  border:0;
+  border-radius: 0px;
+}
+
+.flash-message .alert-warning {
+  background-color: $color-yellow;
+  border:0;
+  color: white;
+}
+
+.flash-message .alert-success {
+  background-color: $color-success;
+  border:0;
+  color: white;
+}
+
+.flash-message .alert-danger {
+  background-color: $color-red;
+  border:0;
+  color: white;
+}
+
+.flash-message .alert-info {
+  background-color: $color-info;
+  border:0;
+  color: white;
 }
 
 /**********************************************

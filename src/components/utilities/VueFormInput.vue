@@ -1,7 +1,8 @@
 <template>
-  <div>
-    <label>{{ label }}</label>
-    <input :value="value" @input="$emit('input', $event.target.value)" :type="type" :name="name" class="form-control" />
+  <div :class="label ? 'vf-labeled' : ''">
+    <slot></slot>
+    <label v-if="label">{{ label }}</label>
+    <input :value="value" @input="$emit('input', $event.target.value)" :type="type" :name="name" :placeholder="placeholder" class="form-control" />
 
     <field-messages :state="formstate" :name="name" show="$touched || $submitted">
       <template>
@@ -17,6 +18,6 @@
 
 <script>
   export default {
-    props: ['value', 'formstate', 'type', 'name', 'label', 'messages']
+    props: ['value', 'formstate', 'type', 'name', 'placeholder', 'label', 'messages']
   }
 </script>
