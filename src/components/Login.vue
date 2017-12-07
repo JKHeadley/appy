@@ -9,11 +9,13 @@
       <div class="container">
         <img src="/static/img/logo.png" class="center-block logo">
 
-        <div class="flash-message" style="text-align: center;" v-if="flash">
-          <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+        <div class="row">
+          <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
+            <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+          </div>
         </div>
 
-        <div v-if="accountActive" class="text-center col-md-4 col-sm-offset-4">
+        <div v-if="accountActive" class="text-center col-md-4 col-md-offset-4">
           <!-- login form -->
           <form class="ui form loginForm"  @submit.prevent="login">
 
@@ -31,7 +33,7 @@
         </div>
 
 
-        <div v-if="!accountActive && !emailSent">
+        <div v-if="!accountActive && !emailSent" class="text-center col-md-4 col-md-offset-4">
           <vue-form class="ui form" :state="formstate" @submit.prevent="sendActivationEmail">
             <validate auto-label :class="fieldClassName(formstate.email)">
               <vue-form-input
@@ -51,6 +53,14 @@
               <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 15px;">Send Activation Email</button>
             </div>
           </vue-form>
+        </div>
+
+        <div v-if="!accountActive && emailSent" class="content-centered">
+          <router-link to="/login">
+            <button class="btn btn-primary" style="margin-top: 15px;">
+              Proceed to Login
+            </button>
+          </router-link>
         </div>
       </div>
     </div>
@@ -101,6 +111,11 @@
               this.flashType = 'info'
               this.flashMessage = 'You need to activate your account. Please enter your email address and ' +
                 'click the link below to resend an activation email.'
+            } else if (error.data.message === 'Account is disabled.') {
+              this.flashMessage = 'Your account has been disabled. Please contact the SuperAdmin ' +
+                'to enable your account.'
+            } else if (error.data.message === 'Account is deleted.') {
+              this.flashMessage = 'This account has been deleted'
             } else if (error.data.message === 'Maximum number of auth attempts reached. Please try again later.') {
               this.flashMessage = error.data.message
             } else {

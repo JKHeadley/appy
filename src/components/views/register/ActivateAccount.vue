@@ -8,8 +8,10 @@
             <h1 style="text-align: center;">Account Activation</h1>
           </div>
 
-          <div class="flash-message" style="text-align: center;" v-if="flash">
-            <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+          <div class="row">
+            <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
+              <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+            </div>
           </div>
 
 
