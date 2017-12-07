@@ -40,33 +40,17 @@ module.exports = function (mongoose) {
       type: Types.ObjectId,
       ref: "role"
     },
-    resetPassword: {
-      token: {
-        allowOnCreate: false,
-        allowOnUpdate: false,
-        exclude: true,
-        type: Types.String
-      },
-      expires: {
-        allowOnCreate: false,
-        allowOnUpdate: false,
-        exclude: true,
-        type: Types.Date
-      }
+    resetPasswordHash: {
+      allowOnCreate: false,
+      allowOnUpdate: false,
+      exclude: true,
+      type: Types.String
     },
-    activateAccount: {
-      token: {
-        allowOnCreate: false,
-        allowOnUpdate: false,
-        exclude: true,
-        type: Types.String
-      },
-      expires: {
-        allowOnCreate: false,
-        allowOnUpdate: false,
-        exclude: true,
-        type: Types.Date
-      }
+    activateAccountHash: {
+      allowOnCreate: false,
+      allowOnUpdate: false,
+      exclude: true,
+      type: Types.String
     }
   }, { collection: modelName });
 
