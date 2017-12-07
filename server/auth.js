@@ -1,6 +1,7 @@
 'use strict';
 
 const Mongoose = require('mongoose');
+const Boom = require('boom');
 const RestHapi = require('rest-hapi');
 
 const Config = require('../config');
@@ -35,13 +36,13 @@ internals.applyTokenStrategy = function (server, next) {
 internals.applySessionStrategy = function (server, next) {
   const Log = logger.bind("auth/session");
 
-  server.ext('onPreResponse', function (request, reply) {
+  server.ext('onPostHandler', function (request, reply) {
 
     const creds = request.auth.credentials;
 
     // EXPL: send a fresh token in the response
     if (creds && request.response.header) {
-      request.response.header('X-Auth-Header', "Bearer " + Token(null, creds.session, creds.scope, expirationPeriod.long, Log));
+      request.response.header('X-Access-Token', Token(null, creds.session, creds.scope, expirationPeriod.long, Log));
     }
 
     return reply.continue();
@@ -101,14 +102,13 @@ internals.applySessionStrategy = function (server, next) {
 internals.applyRefreshStrategy = function (server, next) {
   const Log = logger.bind("auth/refresh");
 
-  server.ext('onPreResponse', function (request, reply) {
+  server.ext('onPostHandler', function (request, reply) {
 
     const creds = request.auth.credentials;
 
     // EXPL: if the auth credentials contain session info (i.e. a refresh token), respond with a fresh set of tokens in the header.
-    // Otherwise, clear the header tokens.
     if (creds && creds.session && request.response.header) {
-      request.response.header('X-Auth-Header', "Bearer " + Token(creds.user, null, creds.scope, expirationPeriod.short, Log));
+      request.response.header('X-Access-Token', Token(creds.user, null, creds.scope, expirationPeriod.short, Log));
       request.response.header('X-Refresh-Token', Token(null, creds.session, creds.scope, expirationPeriod.long, Log));
     }
 
@@ -117,9 +117,18 @@ internals.applyRefreshStrategy = function (server, next) {
 
   server.auth.strategy(AUTH_STRATEGIES.REFRESH, 'jwt', {
     key: Config.get('/jwtSecret'),
-    verifyOptions: { algorithms: ['HS256'] },
-
+    verifyOptions: { algorithms: ['HS256'], ignoreExpiration: true },
     validateFunc: function (decodedToken, request, callback) {
+
+      //EXPL: if the token is expired, respond with token type so the client can switch to refresh token if necessary
+      if (decodedToken.exp < Math.floor(Date.now() / 1000)) {
+        if (decodedToken.user){
+          return callback(Boom.unauthorized("Expired Access Token", "Token", null), false);
+        }
+        else {
+          return callback(Boom.unauthorized("Expired Refresh Token", "Token", null), false);
+        }
+      }
 
       let user = {};
       let session = {};

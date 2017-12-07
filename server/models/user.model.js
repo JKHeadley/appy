@@ -1,9 +1,8 @@
 'use strict';
 
-const Joi = require('joi');
-const Boom = require('boom');
 const Bcrypt = require('bcryptjs');
 const Chalk = require('chalk');
+const GeneratePassword = require('password-generator');
 
 module.exports = function (mongoose) {
   const modelName = "user";
@@ -14,9 +13,13 @@ module.exports = function (mongoose) {
       allowOnUpdate: false,
       default: false
     },
+    isEnabled: {
+      type: Types.Boolean,
+      allowOnUpdate: false,
+      default: true
+    },
     password: {
       type: Types.String,
-      required: true,
       exclude: true,
       allowOnUpdate: false
     },
@@ -90,64 +93,13 @@ module.exports = function (mongoose) {
           linkingModel: "user_permission"
         }
       },
-      extraEndpoints: [
-        // Check Email Endpoint
-        function (server, model, options, Log) {
-          Log = Log.bind(Chalk.magenta("Check Email"));
-          const User = model;
-
-          const collectionName = model.collectionDisplayName || model.modelName;
-
-          Log.note("Generating Check Email endpoint for " + collectionName);
-
-          const checkEmailHandler = function (request, reply) {
-
-            User.findOne({ email: request.payload.email })
-              .then(function (result) {
-                if (result) {
-                  Log.log("Email already exists.");
-                  return reply(true);
-                }
-                else {
-                  Log.log("Email doesn't exist.");
-                  return reply(false);
-                }
-              })
-              .catch(function (error) {
-                Log.error(error);
-                return reply(Boom.badImplementation('There was an error accessing the database.'));
-              });
-          };
-
-          server.route({
-            method: 'POST',
-            path: '/user/check-email',
-            config: {
-              handler: checkEmailHandler,
-              auth: null,
-              description: 'User check email.',
-              tags: ['api', 'User', 'Check Email'],
-              validate: {
-                payload: {
-                  email: Joi.string().email().required()
-                }
-              },
-              plugins: {
-                'hapi-swagger': {
-                  responseMessages: [
-                    { code: 200, message: 'Success' },
-                    { code: 400, message: 'Bad Request' },
-                    { code: 404, message: 'Not Found' },
-                    { code: 500, message: 'Internal Server Error' }
-                  ]
-                }
-              }
-            }
-          });
-        },
-      ],
+      allowCreate: false,
       create: {
         pre: function (payload, request, Log) {
+
+          if (!payload.password) {
+            payload.password = GeneratePassword(10, false);
+          }
 
           return mongoose.model('user').generatePasswordHash(payload.password, Log)
             .then(function (hashedPassword) {

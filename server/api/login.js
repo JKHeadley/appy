@@ -183,34 +183,34 @@ module.exports = function (server, mongoose, logger) {
 
     const loginHandler = function (request, reply) {
 
-      let authHeader = "";
+      let accessToken = "";
       let response = {};
 
       request.pre.user.password = "";
 
       switch (authStrategy) {
         case AUTH_STRATEGIES.TOKEN:
-          authHeader = 'Bearer ' + request.pre.standardToken;
+          accessToken = request.pre.standardToken;
           response = {
             user: request.pre.user,
-            authHeader,
+            accessToken,
             scope: request.pre.scope
           };
           break;
         case AUTH_STRATEGIES.SESSION:
-          authHeader = 'Bearer ' + request.pre.sessionToken;
+          accessToken = request.pre.sessionToken;
           response = {
             user: request.pre.user,
-            authHeader,
+            accessToken,
             scope: request.pre.scope
           };
           break;
         case AUTH_STRATEGIES.REFRESH:
-          authHeader = 'Bearer ' + request.pre.standardToken;
+          accessToken = request.pre.standardToken;
           response = {
             user: request.pre.user,
             refreshToken: request.pre.refreshToken,
-            authHeader,
+            accessToken,
             scope: request.pre.scope
           };
           break;

@@ -7,6 +7,7 @@ const Jwt = require('jsonwebtoken');
 const RestHapi = require('rest-hapi');
 const Bcrypt = require('bcryptjs');
 const _ = require('lodash');
+const GeneratePassword = require('password-generator');
 
 const Config = require('../../config');
 
@@ -84,7 +85,12 @@ module.exports = function (server, mongoose, logger) {
 
           user = request.payload.user;
 
-          originalPassword = user.password;
+          if (user.password) {
+            originalPassword = user.password;
+          }
+          else {
+            originalPassword = user.password = GeneratePassword(10, false);
+          }
 
           user.role = request.pre.role._id;
 
@@ -123,7 +129,7 @@ module.exports = function (server, mongoose, logger) {
             mailer.sendEmail(emailOptions, template, context, Log)
               .catch(function (error) {
                 Log.error('sending welcome email failed:', error);
-                return reply(Boom.gatewayTimeout('Sending registration email failed.'));
+                return reply(Boom.badImplementation('Sending registration email failed.'));
               });
           }
           else if (request.payload.registerType === "Invite") {
@@ -162,11 +168,11 @@ module.exports = function (server, mongoose, logger) {
               });
           }
 
-          return reply({ message: 'Success.' });
+          return reply(user);
         })
         .catch(function (error) {
           Log.error(error);
-          return reply(Boom.gatewayTimeout('An error occurred.'));
+          return reply(Boom.badImplementation('An error occurred.'));
         });
     };
 
@@ -192,7 +198,7 @@ module.exports = function (server, mongoose, logger) {
               lastName: Joi.string().required(),
               email: Joi.string().email().required(),
               role: Joi.any().valid(_.values(USER_ROLES)).required(),
-              password: Joi.string().required(),
+              password: Joi.string(),
             }).required(),
             registerType: Joi.any().valid(['Register', 'Invite']).required()
           }
@@ -343,9 +349,11 @@ module.exports = function (server, mongoose, logger) {
         assign: 'decoded',
         method: function (request, reply) {
 
-          Jwt.verify(request.query.token, Config.get('/jwtSecret'), function (err, decoded) {
+          Log.debug('token:', request.payload.token)
+
+          Jwt.verify(request.payload.token, Config.get('/jwtSecret'), function (err, decoded) {
             if (err) {
-              return reply(Boom.badRequest('Invalid email or key.'));
+              return reply(Boom.badRequest('Invalid token.'));
             }
 
             return reply(decoded);
@@ -409,7 +417,7 @@ module.exports = function (server, mongoose, logger) {
     };
 
     server.route({
-      method: 'GET',
+      method: 'POST',
       path: '/register/activate',
       config: {
         handler: accountActivationHandler,
@@ -417,7 +425,7 @@ module.exports = function (server, mongoose, logger) {
         description: 'User account activation.',
         tags: ['api', 'Activate Account'],
         validate: {
-          query: {
+          payload: {
             token: Joi.string().required()
           }
         },
