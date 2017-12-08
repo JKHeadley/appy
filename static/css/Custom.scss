@@ -19,16 +19,20 @@ custom classes
 .vf-field-touched {
   .form-control-feedback {
     top: 25px;
-    //top: 15%;
   }
 }
 
 .vf-field-touched {
   .input-group {
     .form-control-feedback {
-      //top: 25px;
       top: 15%;
     }
+  }
+}
+
+.VuePassword + div {
+  .glyphicon {
+    right: 25px;
   }
 }
 

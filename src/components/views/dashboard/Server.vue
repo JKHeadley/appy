@@ -20,7 +20,7 @@
   </div>
 </template>
 <script>
-  import {servers} from '../../demo'
+  import {servers} from '../../../demo'
 
   export default {
     name: 'Servers',

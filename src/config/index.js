@@ -58,6 +58,8 @@ export const API = {
   USER: resources.user.alias || 'user'
 }
 
+export const REQUIRED_PASSWORD_STRENGTH = 3
+
 export const USER_ROLES = {
   USER: 'User',
   ADMIN: 'Admin',
@@ -66,7 +68,9 @@ export const USER_ROLES = {
 
 export const EVENTS = {
   GROUPS_UPDATED: 'groups-updated',
-  PERMISSIONS_UPDATED: 'permissions-updated'
+  PERMISSIONS_UPDATED: 'permissions-updated',
+  PASSWORD_SCORE_UPDATED: 'password-score-updated',
+  UPDATING_PASSWORD_SCORE: 'updating-password-score'
 }
 
 export const PERMISSION_STATES = {

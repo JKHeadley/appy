@@ -2,22 +2,60 @@
   <div :class="label ? 'vf-labeled' : ''">
     <slot></slot>
     <label v-if="label">{{ label }}</label>
-    <input :value="value" @input="$emit('input', $event.target.value)" :type="type" :name="name" :placeholder="placeholder" class="form-control" />
+    <input v-if="type === 'text' || type === 'email'" :value="value" @input="$emit('input', $event.target.value)" :type="type" :name="name" :placeholder="placeholder" class="form-control" />
+    <vue-password v-if="type === 'password'" v-model="password" :placeholder="placeholder" :score="passwordScore" @input="updateScore"/>
 
     <field-messages :state="formstate" :name="name" show="$touched || $submitted">
       <template>
         <span class="glyphicon glyphicon-ok form-control-feedback"></span>
       </template>
+
       <template v-for="(message, key) in messages" :slot="key">
         <span class="glyphicon glyphicon-remove form-control-feedback"></span>
         <span class="has-error">{{ message }}</span>
+      </template>
+
+      <!--The template below is for password validation suggestions-->
+      <template :slot="'notStrong'">
+        <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+        <div v-for="suggestion in suggestions">
+          <span class="glyphicon glyphicon-remove form-control-feedback"></span>
+          <span class="has-error">{{ suggestion }}</span>
+        </div>
       </template>
     </field-messages>
   </div>
 </template>
 
 <script>
+  import { userService, eventBus } from '../../services'
+  import { EVENTS } from '../../config'
+
+  import _ from 'lodash'
+
   export default {
-    props: ['value', 'formstate', 'type', 'name', 'placeholder', 'label', 'messages']
+    props: ['value', 'formstate', 'type', 'name', 'placeholder', 'label', 'messages'],
+    data () {
+      return {
+        password: '',
+        passwordScore: 0,
+        suggestions: []
+      }
+    },
+    methods: {
+      updateScore (password, userInputs) {
+        // EXPL: Make sure to debounce the password score update
+        _.debounce(() => {
+          this.$emit('input', password)
+          eventBus.$emit(EVENTS.UPDATING_PASSWORD_SCORE)
+          userService.checkPassword(password, userInputs)
+            .then((result) => {
+              this.passwordScore = result.data.score
+              this.suggestions = result.data.suggestions
+              eventBus.$emit(EVENTS.PASSWORD_SCORE_UPDATED, this.passwordScore)
+            })
+        }, 250)()
+      }
+    }
   }
 </script>

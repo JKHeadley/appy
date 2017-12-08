@@ -28,15 +28,17 @@
 <script>
 import faker from 'faker'
 import { mapState } from 'vuex'
-import config from '../config'
-import MainHeader from './MainHeader'
-import Sidebar from './Sidebar'
+import config from '../../../config'
+import MainHeader from './MainHeader.vue'
+import ContentHeader from './ContentHeader.vue'
+import Sidebar from './Sidebar.vue'
 import 'hideseek'
 
 export default {
   name: 'Main',
   components: {
     MainHeader,
+    ContentHeader,
     Sidebar
   },
   data: function () {

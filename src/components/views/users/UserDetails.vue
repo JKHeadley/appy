@@ -24,6 +24,7 @@
         <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
         <li><a data-toggle="tab" href="#groups">Groups</a></li>
         <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
+        <li><a data-toggle="tab" href="#password">Password</a></li>
       </ul>
 
       <div class="tab-content content">
@@ -121,6 +122,9 @@
         <div id="permissions" class="tab-pane fade">
           <user-permissions :user="newUser" v-if="!loading"></user-permissions>
         </div>
+        <div id="password" class="tab-pane fade">
+          <user-password :user="newUser" v-if="!loading"></user-password>
+        </div>
       </div>
     </div>
   </section>
@@ -129,6 +133,7 @@
 <script>
   import UserGroups from './UserGroups.vue'
   import UserPermissions from './UserPermissions.vue'
+  import UserPassword from './UserPassword.vue'
   import { userService, formService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
 
@@ -138,7 +143,8 @@
     name: 'UserDetails',
     components: {
       UserGroups,
-      UserPermissions
+      UserPermissions,
+      UserPassword
     },
     data () {
       return {

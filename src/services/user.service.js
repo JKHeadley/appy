@@ -70,6 +70,14 @@ internals.updateUserPermissions = function (userId, newPermissions, oldPermissio
     })
 }
 
+internals.updateUserPassword = (userId, password) => {
+  return http.put(API.USER + '/' + userId + '/password', { password })
+}
+
+internals.checkPassword = (password, userInputs) => {
+  return http.post(API.USER + '/check-password', { password })
+}
+
 internals.getUserScope = function (userId) {
   return http.get(API.USER + '/' + userId + '/scope')
 }

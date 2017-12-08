@@ -28,10 +28,15 @@
               <span class="input-group-addon"><i class="fa fa-lock"></i></span>
               <input class="form-control" name="password" placeholder="Password" type="password" v-model="password">
             </div>
-            <button type="submit" v-bind:class="'btn btn-primary btn-lg ' + loading">Submit</button>
+
+            <div class="form-actions">
+              <button type="submit" v-bind:class="'btn btn-primary btn-lg ' + loading">Login</button>
+              <div>
+                <a>Forgot password?</a>
+              </div>
+            </div>
           </form>
         </div>
-
 
         <div v-if="!accountActive && !emailSent" class="text-center col-md-4 col-md-offset-4">
           <vue-form class="ui form" :state="formstate" @submit.prevent="sendActivationEmail">
@@ -68,7 +73,7 @@
 </template>
 
 <script>
-  import { authService, formService } from '../services'
+  import { authService, formService } from '../../../services'
 
   export default {
     name: 'Login',

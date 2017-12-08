@@ -28,7 +28,7 @@
 </template>
 <script>
   import moment from 'moment'
-  import {timeline} from '../../demo'
+  import {timeline} from '../../../demo'
 
   export default {
     name: 'Tasks',

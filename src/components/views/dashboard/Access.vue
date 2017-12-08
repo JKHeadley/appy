@@ -45,7 +45,7 @@
   </section>
 </template>
 <script>
-import {stats} from '../../demo'
+import {stats} from '../../../demo'
 
 const pluginURL = '/static/js/plugins/jvectormap/jquery-jvectormap-2.0.3.min.js'
 const mapURL = '/static/js/plugins/jvectormap/jquery-jvectormap-world-mill.js'

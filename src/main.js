@@ -25,11 +25,11 @@ import { ServerTable } from 'vue-tables-2'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 import VueForm from 'vue-form'
 import VueSelect from 'vue-select'
-import ContentHeader from './components/ContentHeader.vue'
 import VueFormInput from './components/utilities/VueFormInput.vue'
 import Snotify, { SnotifyPosition } from 'vue-snotify'
 import VueNotification from 'vue-notification'
 import ToggleButton from 'vue-js-toggle-button'
+import VuePassword from 'vue-password/dist/custom'
 
 // Import Helpers for filters
 import { domain, count, prettyDate, pluralize } from './filters'
@@ -69,9 +69,9 @@ Vue.use(RestHapiRepository, { httpClient, resources, log: true })
 
 // Register global components
 Vue.component('pulse-loader', PulseLoader)
-Vue.component('content-header', ContentHeader)
 Vue.component('vue-form-input', VueFormInput)
 Vue.component('vue-select', VueSelect)
+Vue.component('vue-password', VuePassword)
 
 // Routing logic
 var router = new VueRouter({

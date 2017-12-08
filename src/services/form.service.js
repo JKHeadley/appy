@@ -1,6 +1,6 @@
 import validator from 'validator'
 import { httpClient as http } from './index'
-import { API } from '../config/index'
+import { API, REQUIRED_PASSWORD_STRENGTH } from '../config/index'
 
 const internals = {}
 
@@ -23,6 +23,14 @@ internals.emailUniqueValidator = (email, originalEmail) => {
         })
     }
   })
+}
+
+internals.passwordScoreValidator = (passwordScore) => {
+  return passwordScore >= REQUIRED_PASSWORD_STRENGTH
+}
+
+internals.passwordConfirmValidator = (newPassword, confirmPassword) => {
+  return newPassword === confirmPassword
 }
 
 internals.fieldClassName = (field) => {
