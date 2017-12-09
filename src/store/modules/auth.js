@@ -1,5 +1,6 @@
 import generateMutations from '../utilities/generate-mutations'
 import axios from 'axios'
+import { authService } from '../../services'
 
 const state = {
   user: {},
@@ -11,18 +12,17 @@ const state = {
 const mutations = generateMutations(state)
 
 const actions = {
+  //TODO: Look at moving dispatch responsibility to authService login/logout
   login ({ dispatch }, credentials) {
-    return axios({
-      method: 'POST',
-      url: 'login',
-      data: credentials
-    })
-      .then(function (response) {
+    return authService.login(credentials)
+      .then((response) => {
         dispatch('setAuth', response.data)
       })
-      .catch(function (error) {
-        console.error('authAction.login-error:\n', error)
-        throw error
+  },
+  logout ({ dispatch }) {
+    return authService.logout()
+      .then((response) => {
+        dispatch('clearAuth')
       })
   },
   updateTokens ({ commit }, { accessToken, refreshToken }) {

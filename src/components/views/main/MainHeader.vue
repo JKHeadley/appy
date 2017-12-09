@@ -119,6 +119,9 @@
               <!-- hidden-xs hides the username on small devices so only the image appears. -->
               <span class="hidden-xs">{{ displayName }}</span>
             </a>
+            <ul class="dropdown-menu">
+              <li class="content-centered"><a href="#" @click="logout">Log Out <span class="glyphicon glyphicon-log-out"></span></a></li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -137,6 +140,22 @@
       ...mapState([
         'userInfo'
       ])
+    },
+    methods: {
+      logout () {
+        this.loading = true
+        this.$store.dispatch('auth/logout')
+          .then(response => {
+            this.loading = false
+            this.$snotify.success('Log Out successful', 'Success!')
+            this.$router.push('/login')
+          })
+          .catch(error => {
+            this.loading = false
+            console.error('MainHeader.logout-error:', error)
+            this.$snotify.error('Log Out failed', 'Error!')
+          })
+      },
     },
     mounted: function () {
     }

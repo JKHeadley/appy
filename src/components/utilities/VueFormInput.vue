@@ -43,19 +43,17 @@
       }
     },
     methods: {
-      updateScore (password, userInputs) {
-        // EXPL: Make sure to debounce the password score update
-        _.debounce(() => {
-          this.$emit('input', password)
-          eventBus.$emit(EVENTS.UPDATING_PASSWORD_SCORE)
-          userService.checkPassword(password, userInputs)
-            .then((result) => {
-              this.passwordScore = result.data.score
-              this.suggestions = result.data.suggestions
-              eventBus.$emit(EVENTS.PASSWORD_SCORE_UPDATED, this.passwordScore)
-            })
-        }, 250)()
-      }
+      // EXPL: Make sure to debounce the password score update
+      updateScore: _.debounce(function (password, userInputs) {
+        this.$emit('input', password)
+        eventBus.$emit(EVENTS.UPDATING_PASSWORD_SCORE)
+        userService.checkPassword(password, userInputs)
+          .then((result) => {
+            this.passwordScore = result.data.score
+            this.suggestions = result.data.suggestions
+            eventBus.$emit(EVENTS.PASSWORD_SCORE_UPDATED, this.passwordScore)
+          })
+      }, 250)
     }
   }
 </script>

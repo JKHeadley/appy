@@ -5,6 +5,22 @@ import { httpClient as http } from '../services'
 
 const internals = {}
 
+internals.login = (credentials) => {
+  return http.post('/login', credentials)
+    .catch((error) => {
+      console.error('authService.login-error:\n', error)
+      throw error
+    })
+}
+
+internals.logout = () => {
+  return http.delete('/logout')
+    .catch((error) => {
+      console.error('authService.logout-error:\n', error)
+      throw error
+    })
+}
+
 internals.inviteUser = (user) => {
   user = Object.assign({}, user)
   user.role = user.role.name
@@ -42,6 +58,22 @@ internals.sendActivationEmail = (email) => {
   return http.post('/register/send-activation-email', { email })
     .catch((error) => {
       console.error('authService.sendActivationEmail-error:\n', error)
+      throw error
+    })
+}
+
+internals.sendResetLink = (email) => {
+  return http.post('/login/forgot', { email })
+    .catch((error) => {
+      console.error('authService.sendResetLink-error:\n', error)
+      throw error
+    })
+}
+
+internals.resetPassword = (token, password, pin) => {
+  return http.post('/login/reset', { token, password, pin })
+    .catch((error) => {
+      console.error('authService.resetPassword-error:\n', error)
       throw error
     })
 }

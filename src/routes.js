@@ -1,75 +1,86 @@
-import MainView from './components/views/main/Main.vue'
-import LoginView from './components/views/login/Login.vue'
-import NotFoundView from './components/404.vue'
+import Main from './components/views/main/Main.vue'
+import NotFound from './components/404.vue'
 
-// Import Views - Dash
-import DashboardView from './components/views/dashboard/Dashboard.vue'
-import TablesView from './components/views/dashboard/Tables.vue'
-import TasksView from './components/views/dashboard/Tasks.vue'
-import SettingView from './components/views/dashboard/Setting.vue'
-import AccessView from './components/views/dashboard/Access.vue'
-import ServerView from './components/views/dashboard/Server.vue'
-import ReposView from './components/views/dashboard/Repos.vue'
+import Login from './components/views/login/Login.vue'
+import ForgotPassword from './components/views/login/ForgotPassword.vue'
+import ResetPassword from './components/views/login/ResetPassword.vue'
 
-import ActivateAccountView from './components/views/register/ActivateAccount.vue'
+// Import s - Dash
+import Dashboard from './components/views/dashboard/Dashboard.vue'
+import Tables from './components/views/dashboard/Tables.vue'
+import Tasks from './components/views/dashboard/Tasks.vue'
+import Setting from './components/views/dashboard/Setting.vue'
+import Access from './components/views/dashboard/Access.vue'
+import Server from './components/views/dashboard/Server.vue'
+import Repos from './components/views/dashboard/Repos.vue'
 
-import UsersView from './components/views/users/Users.vue'
-import UserDetailsView from './components/views/users/UserDetails.vue'
-import UserCreateView from './components/views/users/UserCreate.vue'
+import ActivateAccount from './components/views/register/ActivateAccount.vue'
+
+import Users from './components/views/users/Users.vue'
+import UserDetails from './components/views/users/UserDetails.vue'
+import UserCreate from './components/views/users/UserCreate.vue'
 
 // Routes
 const routes = [
   {
     path: '/login',
-    component: LoginView
-  },
-  {
+    component: Login,
+    name: 'Login'
+  }, {
+    path: '/login/forgot',
+    component: ForgotPassword,
+    name: 'ForgotPassword'
+  }, {
+    path: '/login/reset',
+    component: ResetPassword,
+    name: 'ResetPassword'
+  }, {
     path: '/activate',
-    component: ActivateAccountView
-  },
-  {
+    component: ActivateAccount,
+    name: 'ActivateAccount'
+  }, {
     path: '/',
-    component: MainView,
+    component: Main,
     children: [
       {
         path: 'dashboard',
         alias: '',
-        component: DashboardView,
+        component: Dashboard,
         name: 'Dashboard',
         meta: { description: 'Overview of environment', title: 'Dashboard' }
       }, {
         path: 'tables',
-        component: TablesView,
+        component: Tables,
         name: 'Tables',
         meta: {description: 'Simple and advance table in CoPilot'}
       }, {
         path: 'tasks',
-        component: TasksView,
+        component: Tasks,
         name: 'Tasks',
         meta: {description: 'Tasks page in the form of a timeline'}
       }, {
         path: 'setting',
-        component: SettingView,
+        component: Setting,
         name: 'Settings',
         meta: {description: 'User settings page'}
       }, {
         path: 'access',
-        component: AccessView,
+        component: Access,
         name: 'Access',
         meta: {description: 'Example of using maps'}
       }, {
         path: 'server',
-        component: ServerView,
+        component: Server,
         name: 'Servers',
         meta: {description: 'List of our servers', requiresAuth: true}
       }, {
         path: 'repos',
-        component: ReposView,
+        component: Repos,
         name: 'Repository',
         meta: {description: 'List of popular javascript repos'}
       }, {
         path: 'users',
-        component: UsersView,
+        component: Users,
         name: 'Users',
         meta: { description: 'List of appy users', title: 'Users' }
       }, {
@@ -77,12 +88,12 @@ const routes = [
         beforeEnter: (to, from, next) => {
           to.params._id === 'create' ? next({ name: 'UserCreate' }) : next()
         },
-        component: UserDetailsView,
+        component: UserDetails,
         name: 'UserDetails',
         meta: { description: 'Details for the selected user', title: 'User Details' }
       }, {
         path: '/users/create',
-        component: UserCreateView,
+        component: UserCreate,
         name: 'UserCreate',
         meta: { description: 'Create a new user', title: 'User Create' }
       }
@@ -90,7 +101,7 @@ const routes = [
   }, {
     // not found handler
     path: '*',
-    component: NotFoundView
+    component: NotFound
   }
 ]
 
