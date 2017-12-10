@@ -6,7 +6,7 @@
         <img src="/static/img/logo.png" class="center-block logo">
 
         <div class="page-header">
-          <h1 style="text-align: center;">Reset Password</h1>
+          <h1 style="text-align: center;">Create an account</h1>
         </div>
 
         <div v-if="loading" class="content content-centered">
@@ -20,18 +20,58 @@
             </div>
           </div>
 
-          <div v-if="!passwordReset" class="col-md-4 col-md-offset-4">
-            <vue-form :state="formstate" @submit.prevent="resetPassword" class="row">
+          <div v-if="!registerSuccess" class="col-md-4 col-md-offset-4">
+            <vue-form :state="formstate" @submit.prevent="registerUser" class="row">
+
+              <validate auto-label class="form-group" :class="fieldClassName(formstate.firstName)">
+                <vue-form-input
+                  required
+                  v-model="user.firstName"
+                  :formstate="formstate"
+                  :type="'text'"
+                  :label="'First Name:'"
+                  :name="'firstName'"
+                  :placeholder="'Please enter your first name.'"
+                  :messages="{ required: 'This field is required' }">
+                </vue-form-input>
+              </validate>
+
+              <validate auto-label class="form-group" :class="fieldClassName(formstate.lastName)">
+                <vue-form-input
+                  required
+                  v-model="user.lastName"
+                  :formstate="formstate"
+                  :type="'text'"
+                  :label="'Last Name:'"
+                  :name="'lastName'"
+                  :placeholder="'Please enter your last name.'"
+                  :messages="{ required: 'This field is required' }">
+                </vue-form-input>
+              </validate>
+
+              <validate auto-label class="form-group" :class="fieldClassName(formstate.email)" :debounce="250" :custom="{ email: emailValidator, notUnique: emailUniqueValidator }">
+                <vue-form-input
+                  required
+                  v-model="user.email"
+                  :formstate="formstate"
+                  :type="'email'"
+                  :label="'Email:'"
+                  :name="'email'"
+                  :placeholder="'Please enter your email address.'"
+                  :messages="{ email: 'Please input a valid email', required: 'This field is required', notUnique: 'That email is already in use.' }">
+                </vue-form-input>
+              </validate>
 
               <validate auto-label class="form-group" :class="fieldClassName(formstate.newPassword)" :debounce="250" :custom="{ notStrong: passwordScoreValidator }">
                 <vue-form-input
                   required
                   @input="validateConfirm"
-                  v-model="newPassword"
+                  v-model="user.password"
                   :formstate="formstate"
                   :type="'password'"
-                  :label="'New Password:'"
-                  :name="'newPassword'"
+                  :label="'Password:'"
+                  :name="'Password'"
+                  :placeholder="'Please enter your password.'"
                   :messages="{ required: 'This field is required', notStrong: 'Password not strong enough' }">
                 </vue-form-input>
               </validate>
@@ -44,36 +84,39 @@
                   :type="'password'"
                   :label="'Confirm Password:'"
                   :name="'confirmPassword'"
+                  :placeholder="'Please confirm your password.'"
                   :messages="{ required: 'This field is required', notMatch: 'Passwords do not match' }">
                 </vue-form-input>
               </validate>
 
-              <validate auto-label class="form-group" :class="fieldClassName(formstate.pin)">
+              <div class="flash-message">
+                <div class="alert" :class="'alert-info'">NOTE: Your 4 digit PIN will be required if you need to reset your
+                password in the future. Please keep it somewhere safe.</div>
+              </div>
+
+              <validate auto-label class="form-group" :class="fieldClassName(formstate.pin)" :custom="{ minlength: minlengthValidator(4) }">
                 <vue-form-input
                   required
-                  v-model="pin"
+                  v-model="user.pin"
                   :formstate="formstate"
                   :type="'text'"
-                  :label="'Enter PIN:'"
+                  :label="'PIN:'"
                   :name="'pin'"
-                  :messages="{ required: 'This field is required' }">
+                  :mask="'1111'"
+                  :minlength="'4'"
+                  :placeholder="'Please enter your 4 digit PIN.'"
+                  :messages="{ required: 'This field is required', minlength: 'PIN must be 4 digits.' }">
                 </vue-form-input>
               </validate>
 
               <div class="content-centered">
                 <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 15px;"
-                        :disabled="formstate.$pristine || formstate.$invalid || passwordScoreUpdating">Reset Password</button>
-
-                <router-link to="/login" v-if="error">
-                  <button class="btn btn-primary btn-lg" style="margin-top: 15px;">
-                    Proceed to Login
-                  </button>
-                </router-link>
+                        :disabled="formstate.$pristine || formstate.$invalid || passwordScoreUpdating">Register Account</button>
               </div>
             </vue-form>
           </div>
 
-          <div v-if="passwordReset" class="content-centered">
+          <div v-if="registerSuccess" class="content-centered">
             <router-link to="/login">
               <button class="btn btn-primary btn-lg" style="margin-top: 15px;">
                 Proceed to Login
@@ -88,10 +131,10 @@
 
 <script>
   import { authService, formService, eventBus } from '../../../services'
-  import { EVENTS } from '../../../config'
+  import { EVENTS, USER_ROLES } from '../../../config'
 
   export default {
-    name: 'ResetPassword',
+    name: 'Register',
     data () {
       return {
         loading: false,
@@ -100,10 +143,9 @@
         flash: false,
         flashType: null,
         flashMessage: '',
-        passwordReset: false,
-        newPassword: '',
+        registerSuccess: false,
+        user: {},
         confirmPassword: '',
-        pin: '',
         passwordScore: 0,
         passwordScoreUpdating: false
       }
@@ -111,27 +153,30 @@
     methods: {
       fieldClassName: formService.fieldClassName,
       emailValidator: formService.emailValidator,
+      emailUniqueValidator: formService.emailUniqueValidator,
+      minlengthValidator (minlength) {
+        // EXPL: the masked input comes with '_' chars, so we need to remove those before checking the length
+        return (input) => { return formService.minlengthValidator(input.split('_')[0], minlength) }
+      },
       passwordScoreValidator () {
         return formService.passwordScoreValidator(this.passwordScore)
       },
       passwordConfirmValidator (confirmPassword) {
-        return formService.passwordConfirmValidator(this.newPassword, confirmPassword)
+        return formService.passwordConfirmValidator(this.user.password, confirmPassword)
       },
       validateConfirm () {
         this.formstate.confirmPassword._validate()
       },
-      resetPassword () {
+      registerUser () {
         this.loading = true
-        authService.resetPassword(this.$route.query.token, this.newPassword, this.pin)
+        authService.registerUser(this.user)
           .then((response) => {
             this.loading = false
-            this.passwordReset = true
+            this.registerSuccess = true
 
             this.flash = true
             this.flashType = 'success'
-            console.log('ResetPassword.sendResetLink-success:\n', response)
-            this.flashMessage = 'Your password has been updated. ' +
-              'Please proceed to the login page to sign in.'
+            this.flashMessage = 'Thank you for registering! Please check your email for an account activation link.'
           })
           .catch((error) => {
             this.loading = false
@@ -139,26 +184,15 @@
 
             this.flash = true
             this.flashType = 'error'
-            console.error('ResetPassword.sendResetLink-error:\n', error)
-
-            if (error.data.message === 'Invalid PIN.') {
-              this.flashMessage = 'The PIN you provided is invalid. If you continue to have problems resetting your' +
-                ' password please contact your administrator.'
-            } else {
-              this.flashMessage = 'There was an error resetting your password. The token in your email link may be expired. ' +
-                'You can repeat the forgot password process to receive a new link.'
-            }
+            console.error('Register.registerUser-error:\n', error)
+            this.flashMessage = 'There was an error during the registration process. ' +
+              'Please try again or contact us if you continue to have trouble creating an account.'
           })
       }
     },
     created () {
-      // EXPL: If the user was directed here via a link with a key, then activate their account
-      if (!this.$route.query.token) {
-        console.error('ResetPassword.init-error:', 'no token')
-        this.flash = true
-        this.flashType = 'error'
-        this.flashMessage = 'The link you used did not contain a token. Please click on the reset password link in your email ' +
-          'or proceed to the login page to request a new email.'
+      this.user = {
+        role: USER_ROLES.USER
       }
       eventBus.$on(EVENTS.PASSWORD_SCORE_UPDATED, (passwordScore) => {
         this.passwordScoreUpdating = false

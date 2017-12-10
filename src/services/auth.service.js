@@ -28,6 +28,14 @@ internals.logout = () => {
     })
 }
 
+internals.registerUser = (user) => {
+  return http.post('/register', { user, registerType: 'Register' })
+    .catch((error) => {
+      console.error('authService.registerUser-error:\n', error)
+      throw error
+    })
+}
+
 internals.inviteUser = (user) => {
   user = Object.assign({}, user)
   user.role = user.role.name

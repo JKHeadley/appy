@@ -4,10 +4,18 @@ import { API, REQUIRED_PASSWORD_STRENGTH } from '../config/index'
 
 const internals = {}
 
+internals.minlengthValidator = (input, minlength) => {
+  return input.length >= minlength
+}
+
 internals.emailValidator = (email) => {
   return validator.isEmail(email)
 }
 
+// NOTE: For more secure applications, the user should never be notified if an email exists in the system.
+// For more information, refer to the links below:
+// https://postmarkapp.com/guides/password-reset-email-best-practices
+// https://security.stackexchange.com/questions/40694/disclose-to-user-if-account-exists
 internals.emailUniqueValidator = (email, originalEmail) => {
   return new Promise((resolve, reject) => {
     if (email === originalEmail) {

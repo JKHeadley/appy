@@ -1,9 +1,23 @@
 <template>
   <div class="container container-table">
+    <div>
+      <router-link to="/register">
+        <a class="btn btn-default btn-w-sm btn-upper btn-outline hidden-xs pull-right">
+          Get Started
+        </a>
+        <a class="btn btn-link pull-right">
+          Need an account?
+        </a>
+      </router-link>
+    </div>
 
     <div class="row vertical-10p">
       <div class="container">
         <img src="/static/img/logo.png" class="center-block logo">
+
+        <div class="page-header">
+          <h1 style="text-align: center;">Login to appy</h1>
+        </div>
 
         <div v-if="loading" class="content content-centered">
           <pulse-loader></pulse-loader>
@@ -166,34 +180,38 @@
 </script>
 
 <style lang="scss">
-html, body, .container-table {
-  height: 100%;
-  background-color: #282B30 !important;
-}
-.container-table {
-    display: table;
-    color: white;
-}
-.vertical-center-row {
-    display: table-cell;
-    vertical-align: middle;
-}
-.vertical-20p {
-  padding-top: 20%;
-}
-.vertical-10p {
-  padding-top: 10%;
-}
-.logo {
-  width: 15em;
-  padding: 3em;
-}
-.loginForm .input-group {
-  padding-bottom: 1em;
-  height: 4em;
-}
-.input-group input {
-  height: 4em;
-}
+  html, body, .container-table {
+    height: 100%;
+    background-color: #282B30 !important;
+  }
+  .container-table {
+      display: table;
+      color: white;
+  }
+  .vertical-center-row {
+      display: table-cell;
+      vertical-align: middle;
+  }
+  .vertical-20p {
+    padding-top: 20%;
+  }
+  .vertical-10p {
+    padding-top: 10%;
+  }
+  .logo {
+    width: 15em;
+    padding: 3em;
+  }
+  .loginForm .input-group {
+    padding-bottom: 1em;
+    height: 4em;
+  }
+  .input-group input {
+    height: 4em;
+  }
+  .btn-outline:hover {
+    color: #333333;
+  }
+
 
 </style>

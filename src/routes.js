@@ -14,6 +14,7 @@ import Access from './components/views/dashboard/Access.vue'
 import Server from './components/views/dashboard/Server.vue'
 import Repos from './components/views/dashboard/Repos.vue'
 
+import Register from './components/views/register/Register.vue'
 import ActivateAccount from './components/views/register/ActivateAccount.vue'
 
 import Users from './components/views/users/Users.vue'
@@ -38,6 +39,10 @@ const routes = [
     path: '/activate',
     component: ActivateAccount,
     name: 'ActivateAccount'
+  }, {
+    path: '/register',
+    component: Register,
+    name: 'Register'
   }, {
     path: '/',
     component: Main,

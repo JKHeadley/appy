@@ -30,6 +30,7 @@ import Snotify, { SnotifyPosition } from 'vue-snotify'
 import VueNotification from 'vue-notification'
 import ToggleButton from 'vue-js-toggle-button'
 import VuePassword from 'vue-password/dist/custom'
+import VueMaskedInput from 'vue-masked-input'
 
 // Import Helpers for filters
 import { domain, count, prettyDate, pluralize } from './filters'
@@ -72,6 +73,7 @@ Vue.component('pulse-loader', PulseLoader)
 Vue.component('vue-form-input', VueFormInput)
 Vue.component('vue-select', VueSelect)
 Vue.component('vue-password', VuePassword)
+Vue.component('vue-masked-input', VueMaskedInput)
 
 // Routing logic
 var router = new VueRouter({

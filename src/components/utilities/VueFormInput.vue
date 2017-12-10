@@ -2,8 +2,32 @@
   <div :class="label ? 'vf-labeled' : ''">
     <slot></slot>
     <label v-if="label">{{ label }}</label>
-    <input v-if="type === 'text' || type === 'email'" :value="value" @input="$emit('input', $event.target.value)" :type="type" :name="name" :placeholder="placeholder" class="form-control" />
-    <vue-password v-if="type === 'password'" v-model="password" :placeholder="placeholder" :score="passwordScore" @input="updateScore"/>
+    <div v-if="type === 'text' || type === 'email'">
+      <vue-masked-input
+        v-if="mask"
+        :mask="mask"
+        v-model="maskedInput"
+        @input="$emit('input', maskedInput)"
+        :type="type"
+        :name="name"
+        :placeholder="placeholder"
+        class="form-control" />
+      <input
+        v-else
+        :value="value"
+        @input="$emit('input', $event.target.value)"
+        :type="type"
+        :name="name"
+        :placeholder="placeholder"
+        class="form-control" />
+    </div>
+
+    <vue-password
+      v-if="type === 'password'"
+      v-model="password"
+      :placeholder="placeholder"
+      :score="passwordScore"
+      @input="updateScore"/>
 
     <field-messages :state="formstate" :name="name" show="$touched || $submitted">
       <template>
@@ -34,12 +58,13 @@
   import _ from 'lodash'
 
   export default {
-    props: ['value', 'formstate', 'type', 'name', 'placeholder', 'label', 'messages'],
+    props: ['value', 'mask', 'formstate', 'type', 'name', 'placeholder', 'label', 'messages'],
     data () {
       return {
         password: '',
         passwordScore: 0,
-        suggestions: []
+        suggestions: [],
+        maskedInput: ''
       }
     },
     methods: {
