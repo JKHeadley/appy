@@ -112,15 +112,32 @@
 
           <!-- User Account Menu -->
           <li class="dropdown user user-menu">
-            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+            <!-- Menu Toggle Button -->
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <!-- The user image in the navbar-->
-              <!--<img v-bind:src="demo.avatar" class="user-image" alt="User Image">-->
-              <img :src="pictureUrl" class="user-image" alt="User Image"/>
+              <img :src="pictureUrl" class="user-image" alt="User Image">
               <!-- hidden-xs hides the username on small devices so only the image appears. -->
-              <span class="hidden-xs">{{ displayName }}</span>
+              <span class="hidden-xs">{{user.firstName}} {{user.lastName}}</span>
             </a>
             <ul class="dropdown-menu">
-              <li class="content-centered"><a href="#" @click="logout">Log Out <span class="glyphicon glyphicon-log-out"></span></a></li>
+              <!-- The user image in the menu -->
+              <li class="user-header">
+                <img :src="pictureUrl" class="img-circle" alt="User Image">
+
+                <p>
+                  {{user.firstName}} {{user.lastName}} - {{user.roleName}}
+                  <small>Member since {{user.createdAt | moment("MMMM, YYYY")}}</small>
+                </p>
+              </li>
+              <!-- Menu Footer-->
+              <li class="user-footer">
+                <div class="pull-left">
+                  <a href="#" class="btn btn-default btn-flat">Profile</a>
+                </div>
+                <div class="pull-right">
+                  <a href="#" @click="logout" class="btn btn-default btn-flat">Log out</a>
+                </div>
+              </li>
             </ul>
           </li>
         </ul>
@@ -138,9 +155,10 @@
     props: ['displayName', 'pictureUrl'],
     components: { },
     computed: {
-      ...mapState([
-        'userInfo'
-      ])
+      ...mapState({
+        user: (state) => state.auth.user,
+        userInfo: (state) => state.userInfo
+      })
     },
     methods: {
       logout () {

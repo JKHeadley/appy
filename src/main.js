@@ -7,8 +7,6 @@ import 'vue-snotify/styles/material.css'
 
 // Import System requirements
 import Vue from 'vue'
-import VueRouter from 'vue-router'
-import RestHapiRepository from './plugins/repository-plugin'
 
 import { sync } from 'vuex-router-sync'
 import routes from './routes'
@@ -20,14 +18,18 @@ import axios from 'axios'
 import qs from 'querystring'
 import config, { resources } from './config'
 
+// Import plugins
+import VueRouter from 'vue-router'
+import RestHapiRepository from './plugins/repository-plugin'
+import Snotify, { SnotifyPosition } from 'vue-snotify'
+import VueMoment from 'vue-moment'
+
 // Import global components
 import { ServerTable } from 'vue-tables-2'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 import VueForm from 'vue-form'
 import VueSelect from 'vue-select'
 import VueFormInput from './components/utilities/VueFormInput.vue'
-import Snotify, { SnotifyPosition } from 'vue-snotify'
-import VueNotification from 'vue-notification'
 import ToggleButton from 'vue-js-toggle-button'
 import VuePassword from 'vue-password/dist/custom'
 import VueMaskedInput from 'vue-masked-input'
@@ -52,6 +54,7 @@ axios.defaults.paramsSerializer = function (params) {
 
 // Use plugins
 Vue.use(VueRouter)
+Vue.use(RestHapiRepository, { httpClient, resources, log: true })
 Vue.use(ServerTable, {}, false)
 Vue.use(VueForm, {
   inputClasses: {
@@ -64,9 +67,8 @@ Vue.use(Snotify, {
     position: SnotifyPosition.rightTop
   }
 })
-Vue.use(VueNotification)
 Vue.use(ToggleButton)
-Vue.use(RestHapiRepository, { httpClient, resources, log: true })
+Vue.use(VueMoment)
 
 // Register global components
 Vue.component('pulse-loader', PulseLoader)
