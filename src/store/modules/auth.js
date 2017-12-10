@@ -12,19 +12,6 @@ const state = {
 const mutations = generateMutations(state)
 
 const actions = {
-  //TODO: Look at moving dispatch responsibility to authService login/logout
-  login ({ dispatch }, credentials) {
-    return authService.login(credentials)
-      .then((response) => {
-        dispatch('setAuth', response.data)
-      })
-  },
-  logout ({ dispatch }) {
-    return authService.logout()
-      .then((response) => {
-        dispatch('clearAuth')
-      })
-  },
   updateTokens ({ commit }, { accessToken, refreshToken }) {
     axios.defaults.headers.common.Authorization = 'Bearer ' + accessToken
 

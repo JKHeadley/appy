@@ -1,3 +1,4 @@
+import store from '../store'
 import _ from 'lodash'
 
 import vm from '../main'
@@ -7,6 +8,9 @@ const internals = {}
 
 internals.login = (credentials) => {
   return http.post('/login', credentials)
+    .then((response) => {
+      store.dispatch('auth/setAuth', response.data)
+    })
     .catch((error) => {
       console.error('authService.login-error:\n', error)
       throw error
@@ -15,6 +19,9 @@ internals.login = (credentials) => {
 
 internals.logout = () => {
   return http.delete('/logout')
+    .then((response) => {
+      store.dispatch('auth/clearAuth')
+    })
     .catch((error) => {
       console.error('authService.logout-error:\n', error)
       throw error

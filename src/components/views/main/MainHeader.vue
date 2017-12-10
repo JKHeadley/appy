@@ -131,6 +131,7 @@
 
 <script>
   import { mapState } from 'vuex'
+  import { authService } from '../../../services'
 
   export default {
     name: 'MainHeader',
@@ -144,7 +145,7 @@
     methods: {
       logout () {
         this.loading = true
-        this.$store.dispatch('auth/logout')
+        authService.logout()
           .then(response => {
             this.loading = false
             this.$snotify.success('Log Out successful', 'Success!')
