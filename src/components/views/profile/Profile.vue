@@ -75,6 +75,7 @@
 
 <script>
   import { userService, authService, formService } from '../../../services'
+  import swal from 'sweetalert2'
 
   import _ from 'lodash'
 
