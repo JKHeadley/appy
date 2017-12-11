@@ -3,6 +3,7 @@
 const Bcrypt = require('bcryptjs');
 const Chalk = require('chalk');
 const GeneratePassword = require('password-generator');
+const Q = require('q');
 
 module.exports = function (mongoose) {
   const modelName = "user";
@@ -19,6 +20,11 @@ module.exports = function (mongoose) {
       default: true
     },
     password: {
+      type: Types.String,
+      exclude: true,
+      allowOnUpdate: false
+    },
+    pin: {
       type: Types.String,
       exclude: true,
       allowOnUpdate: false
@@ -40,11 +46,17 @@ module.exports = function (mongoose) {
       type: Types.ObjectId,
       ref: "role"
     },
-    resetPasswordHash: {
+    resetPassword: {
+      hash: {
+        type: Types.String
+      },
+      pinRequired: {
+        type: Types.Boolean
+      },
       allowOnCreate: false,
       allowOnUpdate: false,
       exclude: true,
-      type: Types.String
+      type: Types.Object
     },
     activateAccountHash: {
       allowOnCreate: false,
@@ -57,6 +69,7 @@ module.exports = function (mongoose) {
   Schema.statics = {
     collectionName: modelName,
     routeOptions: {
+      authorizeDocumentCreator: false,
       associations: {
         role: {
           type: "MANY_ONE",
@@ -77,31 +90,38 @@ module.exports = function (mongoose) {
           linkingModel: "user_permission"
         }
       },
-      allowCreate: false,
       create: {
         pre: function (payload, request, Log) {
 
           if (!payload.password) {
             payload.password = GeneratePassword(10, false);
           }
+          if (!payload.pin) {
+            payload.pin = GeneratePassword(4, false, /\d/);
+          }
 
-          return mongoose.model('user').generatePasswordHash(payload.password, Log)
-            .then(function (hashedPassword) {
-              payload.password = hashedPassword.hash;
+          const promises = []
+
+          promises.push(mongoose.model('user').generateHash(payload.password, Log));
+          promises.push(mongoose.model('user').generateHash(payload.pin, Log));
+          return Q.all(promises)
+            .then(function (result) {
+              payload.password = result[0].hash;
+              payload.pin = result[1].hash;
               return payload;
             });
         }
       }
     },
 
-    generatePasswordHash: function (password, Log) {
+    generateHash: function (key, Log) {
 
       return Bcrypt.genSalt(10)
         .then(function (salt) {
-          return Bcrypt.hash(password, salt);
+          return Bcrypt.hash(key, salt);
         })
         .then(function (hash) {
-          return { password, hash };
+          return { key, hash };
         });
     },
 

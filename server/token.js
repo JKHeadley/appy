@@ -23,6 +23,7 @@ function createToken(user, session, scope, expirationPeriod, Log) {
       lastName: user.lastName,
       email: user.email,
       role: user.role,
+      roleName: user.roleName,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       _id: user._id

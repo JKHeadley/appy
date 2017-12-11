@@ -171,9 +171,12 @@ module.exports = function (server, mongoose, logger) {
           return reply(user);
         })
         .catch(function (error) {
+          if (error.isBoom) {
+            return reply(error);
+          }
           Log.error(error);
-          return reply(Boom.badImplementation('An error occurred.'));
-        });
+          return reply(Boom.gatewayTimeout('An error occurred.'));
+        })
     };
 
     var headersValidation = Joi.object({
@@ -199,6 +202,7 @@ module.exports = function (server, mongoose, logger) {
               email: Joi.string().email().required(),
               role: Joi.any().valid(_.values(USER_ROLES)).required(),
               password: Joi.string(),
+              pin: Joi.string()
             }).required(),
             registerType: Joi.any().valid(['Register', 'Invite']).required()
           }
@@ -237,7 +241,7 @@ module.exports = function (server, mongoose, logger) {
           User.findOne({ email: email })
             .then(function (user) {
               if (!user) {
-                return reply(Boom.notFound('User not found'));
+                return reply(Boom.notFound('User not found.'));
               }
               return reply(user);
             })
@@ -260,11 +264,11 @@ module.exports = function (server, mongoose, logger) {
         .then(function (result) {
           keyHash = result;
 
-          const document = {
+          const update = {
             activateAccountHash: keyHash.hash
           };
 
-          return RestHapi.update(User, request.pre.user._id, document);
+          return RestHapi.update(User, request.pre.user._id, update);
         })
         .then(function (result) {
           user = result;
@@ -300,9 +304,12 @@ module.exports = function (server, mongoose, logger) {
           return reply("Activation email sent.");
         })
         .catch(function (error) {
+          if (error.isBoom) {
+            return reply(error);
+          }
           Log.error(error);
           return reply(Boom.gatewayTimeout('An error occurred.'));
-        });
+        })
     };
 
     server.route({
@@ -387,7 +394,7 @@ module.exports = function (server, mongoose, logger) {
       Bcrypt.compare(key, hash)
         .then(function (keyMatch) {
           if (!keyMatch) {
-            return reply(Boom.badRequest('Invalid email or key.'));
+            throw Boom.badRequest('Invalid email or key.');
           }
 
           const _id = request.pre.user._id.toString();
@@ -406,9 +413,12 @@ module.exports = function (server, mongoose, logger) {
           return reply({ message: 'Success.' });
         })
         .catch(function (error) {
+          if (error.isBoom) {
+            return reply(error);
+          }
           Log.error(error);
           return reply(Boom.gatewayTimeout('An error occurred.'));
-        });
+        })
     };
 
     server.route({

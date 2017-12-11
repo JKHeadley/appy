@@ -293,8 +293,12 @@ module.exports = function (server, mongoose, logger) {
 
         User.findOne(conditions)
           .then(function (user) {
+            // NOTE: For more secure applications, the server should respond with a success even if the user isn't found
+            // since this reveals the existence of an account. For more information, refer to the links below:
+            // https://postmarkapp.com/guides/password-reset-email-best-practices
+            // https://security.stackexchange.com/questions/40694/disclose-to-user-if-account-exists
             if (!user) {
-              return reply({ message: 'Success.' }).takeover();
+              return reply(Boom.notFound('User not found.'));
             }
             return reply(user);
           })
@@ -311,6 +315,7 @@ module.exports = function (server, mongoose, logger) {
 
       let keyHash = {};
       let user = {};
+      const pinRequired = request.auth.credentials ? !request.auth.credentials.scope.includes(USER_ROLES.SUPER_ADMIN) : true;
 
       Session.generateKeyHash(Log)
         .then(function (result) {
@@ -319,9 +324,9 @@ module.exports = function (server, mongoose, logger) {
           const _id = request.pre.user._id.toString();
           const update = {
             resetPassword: {
-              token: keyHash.hash,
-              expires: Date.now() + 10000000
-            }
+              hash: keyHash.hash,
+              pinRequired
+            },
           };
 
           return RestHapi.update(User, _id, update);
@@ -345,12 +350,13 @@ module.exports = function (server, mongoose, logger) {
           const token = Jwt.sign({
             email: request.payload.email,
             key: keyHash.key
-          }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "4h" });//TODO: match expiration with activateAccount expiration
+          }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod.medium });
 
           const context = {
             clientURL: Config.get('/clientURL'),
             websiteName: Config.get('/websiteName'),
-            key: token
+            key: token,
+            pinRequired
           };
 
           return mailer.sendEmail(emailOptions, template, context, Log);
@@ -359,9 +365,12 @@ module.exports = function (server, mongoose, logger) {
           return reply({ message: 'Success.' });
         })
         .catch(function (error) {
+          if (error.isBoom) {
+            return reply(error);
+          }
           Log.error(error);
           return reply(Boom.gatewayTimeout('An error occurred.'));
-        });
+        })
     };
 
     server.route({
@@ -369,7 +378,10 @@ module.exports = function (server, mongoose, logger) {
       path: '/login/forgot',
       config: {
         handler: forgotPasswordHandler,
-        auth: null,
+        auth: {
+          strategy: AUTH_STRATEGIES.REFRESH,
+          mode: 'optional'
+        },
         description: 'Forgot password.',
         tags: ['api', 'Login', 'Forgot Password'],
         validate: {
@@ -407,7 +419,8 @@ module.exports = function (server, mongoose, logger) {
 
           Jwt.verify(request.payload.token, Config.get('/jwtSecret'), function (err, decoded) {
             if (err) {
-              return reply(Boom.badRequest('Invalid email or key.'));
+              Log.error(err)
+              return reply(Boom.badRequest('Invalid token.'));
             }
 
             return reply(decoded);
@@ -420,12 +433,12 @@ module.exports = function (server, mongoose, logger) {
 
           const conditions = {
             email: request.pre.decoded.email,
-            'resetPassword.expires': { $gt: Date.now() }
+            isDeleted: false
           };
 
           User.findOne(conditions)
             .then(function (user) {
-              if (!user) {
+              if (!user || !user.resetPassword) {
                 return reply(Boom.badRequest('Invalid email or key.'));
               }
               return reply(user);
@@ -435,19 +448,47 @@ module.exports = function (server, mongoose, logger) {
               return reply(Boom.badImplementation('There was an error accessing the database.'));
             });
         }
+      },
+      {
+        assign: 'checkPIN',
+        method: function (request, reply) {
+
+          // EXPL: A PIN is not required if the SuperAdmin initiated the password reset
+          if (request.pre.user.resetPassword.pinRequired) {
+            if (!request.payload.pin) {
+              return reply(Boom.badRequest('PIN required.'));
+            }
+            const key = request.payload.pin;
+            const hash = request.pre.user.pin;
+            Bcrypt.compare(key, hash)
+              .then(function (keyMatch) {
+                if (!keyMatch) {
+                  return reply(Boom.badRequest('Invalid PIN.'));
+                }
+                return reply(keyMatch);
+              })
+              .catch(function (error) {
+                Log.error(error);
+                return reply(Boom.badImplementation('There was an error checking the PIN.'));
+              });
+          }
+          else {
+            return reply(true);
+          }
+        }
       }];
 
     const resetPasswordHandler = function (request, reply) {
 
       const key = request.pre.decoded.key;
-      const token = request.pre.user.resetPassword.token;
-      Bcrypt.compare(key, token)
+      const resetPassword = request.pre.user.resetPassword;
+      Bcrypt.compare(key, resetPassword.hash)
         .then(function (keyMatch) {
           if (!keyMatch) {
-            return reply(Boom.badRequest('Invalid email or key.'));
+            throw Boom.badRequest('Invalid email or key.');
           }
 
-          return User.generatePasswordHash(request.payload.password, Log);
+          return User.generateHash(request.payload.password, Log);
         })
         .then(function (passwordHash) {
 
@@ -467,9 +508,12 @@ module.exports = function (server, mongoose, logger) {
           return reply({ message: 'Success.' });
         })
         .catch(function (error) {
+          if (error.isBoom) {
+            return reply(error);
+          }
           Log.error(error);
           return reply(Boom.gatewayTimeout('An error occurred.'));
-        });
+        })
     };
 
     server.route({
@@ -483,7 +527,8 @@ module.exports = function (server, mongoose, logger) {
         validate: {
           payload: {
             token: Joi.string().required(),
-            password: Joi.string().required()
+            password: Joi.string().required(),
+            pin: Joi.string().allow(null).required()
           }
         },
         pre: resetPasswordPre,
