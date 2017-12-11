@@ -32,6 +32,7 @@
                   :type="'password'"
                   :label="'New Password:'"
                   :name="'newPassword'"
+                  :placeholder="'Please enter your new password.'"
                   :messages="{ required: 'This field is required', notStrong: 'Password not strong enough' }">
                 </vue-form-input>
               </validate>
@@ -44,19 +45,23 @@
                   :type="'password'"
                   :label="'Confirm Password:'"
                   :name="'confirmPassword'"
+                  :placeholder="'Please confirm your password.'"
                   :messages="{ required: 'This field is required', notMatch: 'Passwords do not match' }">
                 </vue-form-input>
               </validate>
 
-              <validate auto-label class="form-group" :class="fieldClassName(formstate.pin)">
+              <validate v-if="pinRequired" auto-label class="form-group" :class="fieldClassName(formstate.pin)" :custom="{ minlength: minlengthValidator(4) }">
                 <vue-form-input
                   required
                   v-model="pin"
                   :formstate="formstate"
                   :type="'text'"
-                  :label="'Enter PIN:'"
+                  :label="'PIN:'"
                   :name="'pin'"
-                  :messages="{ required: 'This field is required' }">
+                  :mask="'1111'"
+                  :minlength="'4'"
+                  :placeholder="'Please enter your 4 digit PIN.'"
+                  :messages="{ required: 'This field is required', minlength: 'PIN must be 4 digits.' }">
                 </vue-form-input>
               </validate>
 
@@ -103,7 +108,8 @@
         passwordReset: false,
         newPassword: '',
         confirmPassword: '',
-        pin: '',
+        pin: null,
+        pinRequired: true,
         passwordScore: 0,
         passwordScoreUpdating: false
       }
@@ -111,6 +117,10 @@
     methods: {
       fieldClassName: formService.fieldClassName,
       emailValidator: formService.emailValidator,
+      minlengthValidator (minlength) {
+        // EXPL: the masked input comes with '_' chars, so we need to remove those before checking the length
+        return (input) => { return formService.minlengthValidator(input.split('_')[0], minlength) }
+      },
       passwordScoreValidator () {
         return formService.passwordScoreValidator(this.passwordScore)
       },
@@ -144,6 +154,8 @@
             if (error.data.message === 'Invalid PIN.') {
               this.flashMessage = 'The PIN you provided is invalid. If you continue to have problems resetting your' +
                 ' password please contact your administrator.'
+            } else if (error.data.message === 'PIN required.') {
+              this.flashMessage = error.data.message
             } else {
               this.flashMessage = 'There was an error resetting your password. The token in your email link may be expired. ' +
                 'You can repeat the forgot password process to receive a new link.'
@@ -153,6 +165,7 @@
     },
     created () {
       // EXPL: If the user was directed here via a link with a key, then activate their account
+      this.pinRequired = this.$route.query.pinRequired === 'true'
       if (!this.$route.query.token) {
         console.error('ResetPassword.init-error:', 'no token')
         this.flash = true
