@@ -100,6 +100,13 @@ module.exports = function (server, mongoose, logger) {
           user.isActive = false;
           user.activateAccountHash =  keyHash.hash;
 
+
+          // EXPL: Invited users are forced to update their PIN and password when they first login
+          if (request.payload.registerType === "Invite") {
+            user.passwordUpdateRequired = true
+            user.pinUpdateRequired = true
+          }
+
           return RestHapi.create(User, user, Log);
         })
         .then(function (result) {
@@ -118,7 +125,7 @@ module.exports = function (server, mongoose, logger) {
             const token = Jwt.sign({
               email: user.email,
               key: keyHash.key
-            }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod.medium });
+            }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: '24h' });
 
             const context = {
               clientURL: Config.get('/clientURL'),
@@ -145,7 +152,7 @@ module.exports = function (server, mongoose, logger) {
             const token = Jwt.sign({
               email: user.email,
               key: keyHash.key
-            }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod.medium });
+            }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: '24h' });
 
             const invitee = request.auth.credentials ? request.auth.credentials.user : {
               firstName: "appy",

@@ -134,97 +134,6 @@ module.exports = function (server, mongoose, logger) {
     }());
 
 
-    // Update User Password Endpoint
-    (function () {
-        const Log = logger.bind(Chalk.magenta("Update User Password"));
-        const User = mongoose.model('user');
-
-        const collectionName = User.collectionDisplayName || User.modelName;
-
-        Log.note("Generating Update User Password endpoint for " + collectionName);
-
-        const updateUserPasswordPre = [{
-            assign: 'passwordCheck',
-            method: function (request, reply) {
-
-                if (request.auth.credentials.user.roleName === USER_ROLES.SUPER_ADMIN) {
-                  return reply(true);
-                }
-
-                const results = zxcvbn(request.payload.password);
-
-                if (results.score >= REQUIRED_PASSWORD_STRENGTH) {
-                  return reply();
-                }
-                else {
-                  return reply(Boom.badRequest('Stronger password required.'));
-                }
-            }
-        }, {
-            assign: 'password',
-            method: function (request, reply) {
-                return User.generateHash(request.payload.password, Log)
-                    .then(function (hashedPassword) {
-                        return reply(hashedPassword);
-                    });
-            }
-        }];
-
-        const updateUserPasswordHandler = function (request, reply) {
-
-            const _id = request.params._id;
-
-            return RestHapi.update(User, _id, { password: request.pre.password.hash }, Log)
-                .then(function (user) {
-
-                    if (!user) {
-                        return reply(Boom.notFound('Document not found. That is strange.'));
-                    }
-
-                    return reply(user);
-                })
-              .catch(function (error) {
-                Log.error(error);
-                return reply(Boom.badImplementation('There was an error handling the request.'));
-              })
-        };
-
-        server.route({
-            method: 'PUT',
-            path: '/user/{_id}/password',
-            config: {
-                handler: updateUserPasswordHandler,
-                auth: {
-                    strategy: authStrategy,
-                    scope: ['root', 'updateUserPassword']
-                },
-                description: 'Update user password.',
-                tags: ['api', 'User', 'Update User Password'],
-                validate: {
-                    headers: headersValidation,
-                    params: {
-                        _id: Joi.string()
-                    },
-                    payload: {
-                        password: Joi.string().required()
-                    }
-                },
-                pre: updateUserPasswordPre,
-                plugins: {
-                    'hapi-swagger': {
-                        responseMessages: [
-                            { code: 200, message: 'Success' },
-                            { code: 400, message: 'Bad Request' },
-                            { code: 404, message: 'Not Found' },
-                            { code: 500, message: 'Internal Server Error' }
-                        ]
-                    }
-                }
-            }
-        });
-    }());
-
-
     // Check Password Strength Endpoint
     (function () {
     const Log = logger.bind(Chalk.magenta("Check Password Strength"));
@@ -267,90 +176,308 @@ module.exports = function (server, mongoose, logger) {
     });
   }());
 
-    
+
     // Update Current User Password Endpoint
     (function () {
-        const Log = logger.bind(Chalk.magenta("Update Current User Password"));
-        const User = mongoose.model('user');
+      const Log = logger.bind(Chalk.magenta("Update Current User Password"));
+      const User = mongoose.model('user');
 
-        const collectionName = User.collectionDisplayName || User.modelName;
+      const collectionName = User.collectionDisplayName || User.modelName;
 
-        Log.note("Generating Update Current User Password endpoint for " + collectionName);
+      Log.note("Generating Update Current User Password endpoint for " + collectionName);
 
-        const updateCurrentUserPasswordPre = [{
-            assign: 'passwordCheck',
-            method: function (request, reply) {
+      const updateCurrentUserPasswordPre = [{
+        assign: 'passwordCheck',
+        method: function (request, reply) {
 
-                Owasp.config(Config.get('/passwordRequirements'));
+          const results = zxcvbn(request.payload.password);
 
-                var result = Owasp.test(request.payload.password);
+          let requiredPasswordStrength = 4;
 
-                if (result.strong) {
-                    return reply(true);
-                }
-                else {
-                    Log.error(result.errors);
-                    return reply(Boom.badRequest(result.errors));
-                }
+          switch (request.auth.credentials.user.roleName) {
+            case USER_ROLES.USER:
+              requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.USER;
+              break;
+            case USER_ROLES.ADMIN:
+              requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.ADMIN;
+              break;
+            case USER_ROLES.SUPER_ADMIN:
+              requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.SUPER_ADMIN;
+              break;
+          }
+
+          if (results.score >= requiredPasswordStrength) {
+            return reply();
+          }
+          else {
+            return reply(Boom.badRequest('Stronger password required.'));
+          }
+        }
+      }, {
+        assign: 'password',
+        method: function (request, reply) {
+          return User.generateHash(request.payload.password, Log)
+            .then(function (hashedPassword) {
+              return reply(hashedPassword);
+            });
+        }
+      }];
+
+      const updateCurrentUserPasswordHandler = function (request, reply) {
+
+        const _id = request.auth.credentials.user._id;
+
+        return RestHapi.update(User, _id, { password: request.pre.password.hash, passwordUpdateRequired: false }, Log)
+          .then(function (user) {
+            return reply(user);
+          })
+          .catch(function (error) {
+            Log.error(error);
+            return reply(error);
+          });
+      };
+
+      server.route({
+        method: 'PUT',
+        path: '/user/my/password',
+        config: {
+          handler: updateCurrentUserPasswordHandler,
+          auth: {
+            strategy: authStrategy,
+            scope: _.values(USER_ROLES)
+          },
+          description: 'Update current user password.',
+          tags: ['api', 'User', 'Update Current User Password'],
+          validate: {
+            headers: headersValidation,
+            payload: {
+              password: Joi.string().required()
             }
-        }, {
-            assign: 'password',
-            method: function (request, reply) {
-                return User.generateHash(request.payload.password, Log)
-                    .then(function (hashedPassword) {
-                        return reply(hashedPassword);
-                    });
+          },
+          pre: updateCurrentUserPasswordPre,
+          plugins: {
+            'hapi-swagger': {
+              responseMessages: [
+                { code: 200, message: 'Success' },
+                { code: 400, message: 'Bad Request' },
+                { code: 404, message: 'Not Found' },
+                { code: 500, message: 'Internal Server Error' }
+              ]
             }
-        }];
-
-        const updateCurrentUserHandler = function (request, reply) {
-
-            const _id = request.auth.credentials.user._id;
-
-            return RestHapi.update(User, _id, { password: request.pre.password.hash }, Log)
-                .then(function (user) {
-                    return reply(user);
-                })
-                .catch(function (error) {
-                    Log.error(error);
-                    return reply(error);
-                });
-        };
-
-        server.route({
-            method: 'PUT',
-            path: '/user/my/password',
-            config: {
-                handler: updateCurrentUserHandler,
-                auth: {
-                    strategy: authStrategy,
-                    scope: _.values(USER_ROLES)
-                },
-                description: 'Update current user password.',
-                tags: ['api', 'User', 'Update Current User Password'],
-                validate: {
-                    headers: headersValidation,
-                    payload: {
-                        password: Joi.string().required()
-                    }
-                },
-                pre: updateCurrentUserPasswordPre,
-                plugins: {
-                    'hapi-swagger': {
-                        responseMessages: [
-                            { code: 200, message: 'Success' },
-                            { code: 400, message: 'Bad Request' },
-                            { code: 404, message: 'Not Found' },
-                            { code: 500, message: 'Internal Server Error' }
-                        ]
-                    }
-                }
-            }
-        });
+          }
+        }
+      });
     }());
 
 
-    // Enable Account Endpoint
+    // Update Current User PIN Endpoint
+    (function () {
+    const Log = logger.bind(Chalk.magenta("Update Current User PIN"));
+    const User = mongoose.model('user');
+
+    const collectionName = User.collectionDisplayName || User.modelName;
+
+    Log.note("Generating Update Current User PIN endpoint for " + collectionName);
+
+    const updateCurrentUserPINPre = [{
+      assign: 'pin',
+      method: function (request, reply) {
+        return User.generateHash(request.payload.pin, Log)
+          .then(function (hashedPassword) {
+            return reply(hashedPassword);
+          });
+      }
+    }];
+
+    const updateCurrentUserPINHandler = function (request, reply) {
+
+      const _id = request.auth.credentials.user._id;
+
+      return RestHapi.update(User, _id, { pin: request.pre.pin.hash, pinUpdateRequired: false }, Log)
+        .then(function (user) {
+          return reply(user);
+        })
+        .catch(function (error) {
+          Log.error(error);
+          return reply(error);
+        });
+    };
+
+    server.route({
+      method: 'PUT',
+      path: '/user/my/pin',
+      config: {
+        handler: updateCurrentUserPINHandler,
+        auth: {
+          strategy: authStrategy,
+          scope: _.values(USER_ROLES)
+        },
+        description: 'Update current user PIN.',
+        tags: ['api', 'User', 'Update Current User PIN'],
+        validate: {
+          headers: headersValidation,
+          payload: {
+            pin: Joi.string().required()
+          }
+        },
+        pre: updateCurrentUserPINPre,
+        plugins: {
+          'hapi-swagger': {
+            responseMessages: [
+              { code: 200, message: 'Success' },
+              { code: 400, message: 'Bad Request' },
+              { code: 404, message: 'Not Found' },
+              { code: 500, message: 'Internal Server Error' }
+            ]
+          }
+        }
+      }
+    });
+  }());
+
+
+    // Update Current User Profile Endpoint
+    (function () {
+    const Log = logger.bind(Chalk.magenta("Update Current User Profile"));
+    const User = mongoose.model('user');
+
+    const collectionName = User.collectionDisplayName || User.modelName;
+
+    Log.note("Generating Update Current User Profile endpoint for " + collectionName);
+
+    const updateCurrentUserProfilePre =[{
+      assign: 'emailCheck',
+      method: function (request, reply) {
+
+        if (!request.payload.profile.email || request.payload.profile.email === request.auth.credentials.user.email) {
+          return reply(true);
+        }
+
+        const conditions = {
+          email: request.payload.profile.email,
+          isDeleted: false
+        };
+
+        User.findOne(conditions)
+          .then(function (user) {
+
+            if (user) {
+              return reply(Boom.conflict('Email already in use.'));
+            }
+
+            return reply(true);
+          })
+          .catch(function (error) {
+            Log.error(error);
+            return reply(Boom.badImplementation('There was an error accessing the database.'));
+          });
+      }
+    }];
+
+    const updateCurrentUserProfileHandler = function (request, reply) {
+
+      const _id = request.auth.credentials.user._id;
+
+      return RestHapi.update(User, _id, request.payload.profile, Log)
+        .then(function (user) {
+          return reply(user);
+        })
+        .catch(function (error) {
+          Log.error(error);
+          return reply(error);
+        });
+    };
+
+    server.route({
+      method: 'PUT',
+      path: '/user/my/profile',
+      config: {
+        handler: updateCurrentUserProfileHandler,
+        auth: {
+          strategy: authStrategy,
+          scope: _.values(USER_ROLES)
+        },
+        description: 'Update current user profile.',
+        tags: ['api', 'User', 'Update Current User Profile'],
+        validate: {
+          headers: headersValidation,
+          payload: {
+            profile: {
+              firstName: Joi.string(),
+              lastName: Joi.string(),
+              email: Joi.string()
+            }
+          }
+        },
+        pre: updateCurrentUserProfilePre,
+        plugins: {
+          'hapi-swagger': {
+            responseMessages: [
+              { code: 200, message: 'Success' },
+              { code: 400, message: 'Bad Request' },
+              { code: 404, message: 'Not Found' },
+              { code: 500, message: 'Internal Server Error' }
+            ]
+          }
+        }
+      }
+    });
+  }());
+
+
+    // Delete Current User Endpoint
+    (function () {
+    const Log = logger.bind(Chalk.magenta("Delete Current User"));
+    const User = mongoose.model('user');
+
+    const collectionName = User.collectionDisplayName || User.modelName;
+
+    Log.note("Generating Delete Current User endpoint for " + collectionName);
+
+    const deleteCurrentUserHandler = function (request, reply) {
+
+      const _id = request.auth.credentials.user._id;
+
+      return RestHapi.deleteOne(User, _id, {}, Log)
+        .then(function (user) {
+          return reply(user);
+        })
+        .catch(function (error) {
+          Log.error(error);
+          return reply(error);
+        });
+    };
+
+    server.route({
+      method: 'DELETE',
+      path: '/user/my',
+      config: {
+        handler: deleteCurrentUserHandler,
+        auth: {
+          strategy: authStrategy,
+          scope: _.values(USER_ROLES)
+        },
+        description: 'Delete current user.',
+        tags: ['api', 'User', 'Delete Current User'],
+        validate: {
+          headers: headersValidation,
+        },
+        plugins: {
+          'hapi-swagger': {
+            responseMessages: [
+              { code: 200, message: 'Success' },
+              { code: 400, message: 'Bad Request' },
+              { code: 404, message: 'Not Found' },
+              { code: 500, message: 'Internal Server Error' }
+            ]
+          }
+        }
+      }
+    });
+  }());
+
+
+  // Enable Account Endpoint
     (function () {
         const Log = logger.bind(Chalk.magenta("Enable Account"));
         const User = mongoose.model('user');

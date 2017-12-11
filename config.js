@@ -25,7 +25,11 @@ const constants = {
     SESSION: 'jwt-with-session',
     REFRESH: 'jwt-with-session-and-refresh-token'
   },
-  REQUIRED_PASSWORD_STRENGTH: 3,
+  REQUIRED_PASSWORD_STRENGTH: {
+    USER: 3,
+    ADMIN: 4,
+    SUPER_ADMIN: 4,
+  },
   PORT: 8125,
   APP_TITLE: 'appy API'
 };
