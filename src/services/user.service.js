@@ -78,8 +78,12 @@ internals.deleteCurrentAccount = (userId) => {
   return http.delete(API.USER + '/my')
 }
 
-internals.updateUserPassword = (userId, password) => {
-  return http.put(API.USER + '/' + userId + '/password', { password })
+internals.updateUserPassword = (password) => {
+  return http.put(API.USER + '/my/password', { password })
+}
+
+internals.updateUserPIN = (pin) => {
+  return http.put(API.USER + '/my/pin', { pin })
 }
 
 internals.checkPassword = (password, userInputs) => {

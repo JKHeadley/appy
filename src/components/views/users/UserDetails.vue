@@ -106,11 +106,11 @@
             <button class="btn btn-primary" v-else @click="activateUser">Activate User</button>
             <button class="btn btn-primary" v-if="newUser.isEnabled" @click="disableUser">Disable User</button>
             <button class="btn btn-primary" v-else @click="enableUser">Enable User</button>
-            <button class="btn btn-primary" @click="deleteUser">Delete User</button>
+            <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="formstate.$pristine || formstate.$invalid">Update User</button>
           </div>
 
           <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="formstate.$pristine || formstate.$invalid">Update User</button>
+            <button class="btn btn-danger" @click="deleteUserModal">Delete User</button>
             <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
           </div>
 
@@ -138,6 +138,7 @@
   import { EVENTS } from '../../../config'
 
   import _ from 'lodash'
+  import swal from 'sweetalert2'
 
   export default {
     name: 'UserDetails',
@@ -215,12 +216,34 @@
             this.$snotify.error('Update user failed', 'Error!')
           })
       },
+      deleteUserModal () {
+        swal({
+          title: 'Are you sure?',
+          text: 'This will permanently delete this account!',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+          if (result.value) {
+            this.deleteUser()
+          }
+        })
+      },
       deleteUser () {
         this.loading = true
         return this.$userRepository.deleteOne(this.newUser._id)
           .then((response) => {
             this.loading = false
-            this.$snotify.success('User deleted', 'Success!')
+            return swal(
+              'Deleted!',
+              'User account has been deleted.',
+              'success'
+            )
+          })
+          .then((response) => {
+            this.loading = false
             this.$router.push('/users')
           })
           .catch((error) => {

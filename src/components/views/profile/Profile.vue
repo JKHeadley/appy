@@ -7,13 +7,18 @@
     <div v-show="!loading" class="content">
       <h1 class="text-center">Profile</h1>
 
+      <div class="flash-message text-center" v-if="updateRequiredMessage">
+        <div class="alert" :class="'alert-info'">{{updateRequiredMessage}}</div>
+      </div>
+
       <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
-        <li><a data-toggle="tab" href="#groups">Picture</a></li>
+        <li :class="detailsActive"><a data-toggle="tab" href="#details">Details</a></li>
+        <li :class="pictureActive"><a data-toggle="tab" href="#picture">Picture</a></li>
+        <li :class="settingsActive"><a data-toggle="tab" href="#settings">Settings</a></li>
       </ul>
 
       <div class="tab-content content">
-        <div id="details" class="tab-pane fade in active">
+        <div id="details" class="tab-pane fade in" :class="detailsActive" >
 
           <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
 
@@ -65,8 +70,77 @@
           </div>
 
         </div>
-        <div id="picture" class="tab-pane fade">
-          <!--<user-groups :user="newProfile" v-if="!loading"></user-groups>-->
+        <div id="picture" class="tab-pane fade in" :class="pictureActive">
+        </div>
+        <div id="settings" class="tab-pane fade in" :class="settingsActive">
+
+          <div class="col-md-4 col-md-offset-4">
+            <vue-form :state="passwordFormstate" @submit.prevent="updatePassword" class="row">
+
+              <validate auto-label class="form-group" :class="fieldClassName(passwordFormstate.newPassword)" :debounce="250" :custom="{ notStrong: passwordScoreValidator }">
+                <vue-form-input
+                  required
+                  @input="validateConfirm"
+                  v-model="newPassword"
+                  :passwordFormstate="passwordFormstate"
+                  :type="'password'"
+                  :label="'New Password:'"
+                  :name="'newPassword'"
+                  :placeholder="'Please enter your new password.'"
+                  :messages="{ required: 'This field is required', notStrong: 'Password not strong enough' }">
+                </vue-form-input>
+              </validate>
+
+              <validate auto-label class="form-group" :class="fieldClassName(passwordFormstate.confirmPassword)" :debounce="250" :custom="{ notMatch: passwordConfirmValidator }">
+                <vue-form-input
+                  required
+                  v-model="confirmPassword"
+                  :passwordFormstate="passwordFormstate"
+                  :type="'password'"
+                  :label="'Confirm Password:'"
+                  :name="'confirmPassword'"
+                  :placeholder="'Please confirm your password.'"
+                  :messages="{ required: 'This field is required', notMatch: 'Passwords do not match' }">
+                </vue-form-input>
+              </validate>
+
+              <div class="content-centered">
+                <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 15px;"
+                        :disabled="passwordFormstate.$pristine || passwordFormstate.$invalid || passwordScoreUpdating">Update Password</button>
+
+              </div>
+            </vue-form>
+
+            <div class="flash-message" style="margin-top: 15px;">
+              <div class="alert" :class="'alert-info'">NOTE: Your 4 digit PIN will be required if you need to reset your
+                password in the future. Please keep it somewhere safe.</div>
+            </div>
+
+            <vue-form :state="pinFormstate" @submit.prevent="updatePIN" class="row">
+
+              <validate auto-label class="form-group" :class="fieldClassName(pinFormstate.pin)" :custom="{ minlength: minlengthValidator(4) }">
+                <vue-form-input
+                  required
+                  v-model="pin"
+                  :pinFormstate="pinFormstate"
+                  :type="'text'"
+                  :label="'PIN:'"
+                  :name="'pin'"
+                  :mask="'1111'"
+                  :minlength="'4'"
+                  :placeholder="'Please enter your 4 digit PIN.'"
+                  :messages="{ required: 'This field is required', minlength: 'PIN must be 4 digits.' }">
+                </vue-form-input>
+              </validate>
+
+              <div class="content-centered">
+                <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 15px;"
+                        :disabled="pinFormstate.$pristine || pinFormstate.$invalid || passwordScoreUpdating">Update PIN</button>
+
+              </div>
+            </vue-form>
+          </div>
+
         </div>
       </div>
     </div>
@@ -74,10 +148,9 @@
 </template>
 
 <script>
-  import { userService, authService, formService } from '../../../services'
+  import { userService, authService, formService, eventBus } from '../../../services'
+  import { EVENTS } from '../../../config'
   import swal from 'sweetalert2'
-
-  import _ from 'lodash'
 
   export default {
     name: 'UserProfile',
@@ -85,12 +158,20 @@
       return {
         ready: false,
         loading: false,
-        userUpdated: null,
+        detailsActive: '',
+        pictureActive: '',
+        settingsActive: '',
+        updateRequiredMessage: '',
         newProfile: {},
         oldProfile: {},
-        roles: [],
-        permissions: [],
-        formstate: {}
+        passwordFormstate: {},
+        formstate: {},
+        pinFormstate: {},
+        newPassword: '',
+        confirmPassword: '',
+        pin: null,
+        passwordScore: 0,
+        passwordScoreUpdating: false
       }
     },
     methods: {
@@ -98,6 +179,19 @@
       emailValidator: formService.emailValidator,
       emailUniqueValidator (email) {
         return formService.emailUniqueValidator(email, this.oldProfile.email)
+      },
+      minlengthValidator (minlength) {
+        // EXPL: the masked input comes with '_' chars, so we need to remove those before checking the length
+        return (input) => { return formService.minlengthValidator(input.split('_')[0], minlength) }
+      },
+      passwordScoreValidator () {
+        return formService.passwordScoreValidator(this.passwordScore)
+      },
+      passwordConfirmValidator (confirmPassword) {
+        return formService.passwordConfirmValidator(this.newPassword, confirmPassword)
+      },
+      validateConfirm () {
+        this.passwordFormstate.confirmPassword._validate()
       },
       clearChanges () {
         this.newProfile = _.cloneDeep(this.oldProfile)
@@ -119,6 +213,42 @@
             this.loading = false
             console.error('UserProfile.updateProfile-error:', error)
             this.$snotify.error('Update profile failed', 'Error!')
+          })
+      },
+      updatePassword () {
+        this.loading = true
+        userService.updateUserPassword(this.newPassword)
+          .then((response) => {
+            this.loading = false
+            this.newPassword = ''
+            this.confirmPassword = ''
+            this.passwordFormstate._reset()
+            // EXPL: Update the global user object
+            const user = Object.assign(this.$store.state.auth.user, { passwordUpdateRequired: false })
+            this.$store.commit('auth/SET_USER', user)
+            this.$snotify.success('Password updated', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('UserProfile.updatePassword-error:', error)
+            this.$snotify.error('Update password failed', 'Error!')
+          })
+      },
+      updatePIN () {
+        this.loading = true
+        userService.updateUserPIN(this.pin)
+          .then((response) => {
+            this.loading = false
+            this.pinFormstate._reset()
+            // EXPL: Update the global user object
+            const user = Object.assign(this.$store.state.auth.user, { pinUpdateRequired: false })
+            this.$store.commit('auth/SET_USER', user)
+            this.$snotify.success('PIN updated', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('UserProfile.updatePIN-error:', error)
+            this.$snotify.error('Update pin failed', 'Error!')
           })
       },
       deleteUserModal () {
@@ -157,27 +287,39 @@
             this.$snotify.error('Delete account failed', 'Error!')
           })
       },
-      deactivateUser () {
-        this.loading = true
-        return userService.deactivateUser(this.newProfile)
-          .then((response) => {
-            this.newProfile.isActive = false
-            this.loading = false
-            this.$snotify.success('User deactivated', 'Success!')
-          })
-          .catch((error) => {
-            this.loading = false
-            console.error('UserDetails.deactivateUser-error:', error)
-            this.$snotify.error('Deactivate user failed', 'Error!')
-          })
-      },
     },
     created () {
-      // EXPL: filter out unneeded user properties for the profile
+      // EXPL: Filter out unneeded user properties for the profile
       this.newProfile = (({ email, firstName, lastName }) => {
         return { email, firstName, lastName }
       })(this.$store.state.auth.user)
+
       this.oldProfile = _.cloneDeep(this.newProfile)
+
+      // EXPL: Set the active tab
+      if (this.$route.query.picture) {
+        this.pictureActive = 'active'
+      } else if (this.$route.query.settings) {
+        this.settingsActive = 'active'
+      } else {
+        this.detailsActive = 'active'
+      }
+      // EXPL: Notify the user of any required updates
+      if (this.$store.state.auth.user.passwordUpdateRequired && this.$store.state.auth.user.pinUpdateRequired) {
+        this.updateRequiredMessage = 'You must update your password and PIN to continue.'
+      } else if (this.$store.state.auth.user.passwordUpdateRequired) {
+        this.updateRequiredMessage = 'You must update your password to continue.'
+      } else if (this.$store.state.auth.user.pinUpdateRequired) {
+        this.updateRequiredMessage = 'You must update your PIN to continue.'
+      }
+
+      eventBus.$on(EVENTS.PASSWORD_SCORE_UPDATED, (passwordScore) => {
+        this.passwordScoreUpdating = false
+        this.passwordScore = passwordScore
+      })
+      eventBus.$on(EVENTS.UPDATING_PASSWORD_SCORE, () => {
+        this.passwordScoreUpdating = true
+      })
     }
   }
 </script>

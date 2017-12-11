@@ -1,11 +1,11 @@
-// Import ES6 Promise
+// EXPL: Import ES6 Promise
 import 'es6-promise/auto'
 
-// Import global styles
+// EXPL: Import global styles
 import '../static/css/Custom.scss'
 import 'vue-snotify/styles/material.css'
 
-// Import System requirements
+// EXPL: Import System requirements
 import Vue from 'vue'
 
 import { sync } from 'vuex-router-sync'
@@ -18,13 +18,13 @@ import axios from 'axios'
 import qs from 'querystring'
 import config, { resources } from './config'
 
-// Import plugins
+// EXPL: Import plugins
 import VueRouter from 'vue-router'
 import RestHapiRepository from './plugins/repository-plugin'
 import Snotify, { SnotifyPosition } from 'vue-snotify'
 import VueMoment from 'vue-moment'
 
-// Import global components
+// EXPL: Import global components
 import { ServerTable } from 'vue-tables-2'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 import VueForm from 'vue-form'
@@ -34,25 +34,31 @@ import ToggleButton from 'vue-js-toggle-button'
 import VuePassword from 'vue-password/dist/custom'
 import VueMaskedInput from 'vue-masked-input'
 
-// Import Helpers for filters
+// EXPL: Import Helpers for filters
 import { domain, count, prettyDate, pluralize } from './filters'
 
-// Import Views - Top level
+// EXPL: Import Views - Top level
 import AppView from './components/App.vue'
 
-// Import Install and register helper items
+// EXPL: Import Install and register helper items
 Vue.filter('count', count)
 Vue.filter('domain', domain)
 Vue.filter('prettyDate', prettyDate)
 Vue.filter('pluralize', pluralize)
 
 axios.defaults.baseURL = config.serverURI
-// Replace default serializer with one that works with Joi validation
+
+// EXPL: Replace default serializer with one that works with Joi validation
 axios.defaults.paramsSerializer = function (params) {
   return qs.stringify(params)
 }
 
-// Use plugins
+// EXPL: Register global components and plugins
+Vue.component('pulse-loader', PulseLoader)
+Vue.component('vue-form-input', VueFormInput)
+Vue.component('vue-select', VueSelect)
+Vue.component('vue-password', VuePassword)
+Vue.component('vue-masked-input', VueMaskedInput)
 Vue.use(VueRouter)
 Vue.use(RestHapiRepository, { httpClient, resources, log: true })
 Vue.use(ServerTable, {}, false)
@@ -70,14 +76,7 @@ Vue.use(Snotify, {
 Vue.use(ToggleButton)
 Vue.use(VueMoment)
 
-// Register global components
-Vue.component('pulse-loader', PulseLoader)
-Vue.component('vue-form-input', VueFormInput)
-Vue.component('vue-select', VueSelect)
-Vue.component('vue-password', VuePassword)
-Vue.component('vue-masked-input', VueMaskedInput)
-
-// Routing logic
+// EXPL: Routing logic
 var router = new VueRouter({
   routes: routes,
   mode: 'history',
@@ -87,10 +86,10 @@ var router = new VueRouter({
   }
 })
 
-// Some middleware to help us ensure the user is authenticated.
+// EXPL: Some middleware to help us ensure the user is authenticated.
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth) && (!router.app.$store.state.token || router.app.$store.state.token === 'null')) {
-    // this route requires auth, check if logged in
+    // EXPL: This route requires auth, check if logged in
     // if not, redirect to login page.
     window.console.log('Not authenticated')
     next({
@@ -102,7 +101,21 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-// Manage breadcrumbs
+// EXPL: Force users to update their password or PIN if needed.
+// This mainly applies to users that have been invited to the system.
+router.beforeEach((to, from, next) => {
+  if ((store.state.auth.user.passwordUpdateRequired || store.state.auth.user.pinUpdateRequired) &&
+    to.fullPath !== '/profile?settings=true') {
+    next({
+      path: '/profile',
+      query: { settings: true }
+    })
+  } else {
+    next()
+  }
+})
+
+// EXPL: Manage breadcrumbs
 router.beforeEach((to, from, next) => {
   store.dispatch('setBreadcrumbs', { currentPath: to.path })
   next()
@@ -110,7 +123,7 @@ router.beforeEach((to, from, next) => {
 
 sync(store, router)
 
-// Add a response interceptor
+// EXPL: Add a response interceptor
 axios.interceptors.response.use(function (response) {
   return Promise.resolve(response)
 }, authInterceptor.responseError)
