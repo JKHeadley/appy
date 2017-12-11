@@ -1,8 +1,8 @@
 ### Forgot your password?
 
-We received a request to reset the password for your account, you will need the token below.
+We received a request to reset the password for your account, please click the link below to continue.
 
-{{key}}
+{{clientURL}}/login/reset?token={{key}}&pinRequired={{pinRequired}}
 
 Love,
 

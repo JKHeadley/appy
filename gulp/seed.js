@@ -36,6 +36,7 @@ gulp.task('seed', [], function () {
                 const Log = RestHapi.getLogger("seed");
 
                 const password = "root";
+                const pin = '1234';
 
                 let roles = [];
                 let users = [];
@@ -131,6 +132,7 @@ gulp.task('seed', [], function () {
                                 lastName: 'user',
                                 email: 'test@user.com',
                                 password: password,
+                                pin: pin,
                                 role: roles[0]._id,
                                 isActive: true
                             },
@@ -139,6 +141,7 @@ gulp.task('seed', [], function () {
                                 lastName: 'useless',
                                 email: 'test@useless-user.com',
                                 password: password,
+                                pin: pin,
                                 role: roles[0]._id,
                                 isActive: true
                             },
@@ -147,6 +150,7 @@ gulp.task('seed', [], function () {
                                 lastName: 'admin',
                                 email: 'test@admin.com',
                                 password: password,
+                                pin: pin,
                                 role: roles[1]._id,
                                 isActive: true
                             },
@@ -155,6 +159,7 @@ gulp.task('seed', [], function () {
                                 lastName: 'editor',
                                 email: 'test@editor.com',
                                 password: password,
+                                pin: pin,
                                 role: roles[1]._id,
                                 isActive: true
                             },
@@ -163,6 +168,7 @@ gulp.task('seed', [], function () {
                                 lastName: 'manager',
                                 email: 'test@manager.com',
                                 password: password,
+                                pin: pin,
                                 role: roles[1]._id,
                                 isActive: true
                             },
@@ -171,6 +177,7 @@ gulp.task('seed', [], function () {
                                 lastName: 'manager',
                                 email: 'test@creator.com',
                                 password: password,
+                                pin: pin,
                                 role: roles[1]._id,
                                 isActive: true
                             },
@@ -179,6 +186,7 @@ gulp.task('seed', [], function () {
                                 lastName: 'superadmin',
                                 email: 'test@superadmin.com',
                                 password: password,
+                                pin: pin,
                                 role: roles[2]._id,
                                 isActive: true
                             }
