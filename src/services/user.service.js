@@ -70,6 +70,14 @@ internals.updateUserPermissions = function (userId, newPermissions, oldPermissio
     })
 }
 
+internals.updateUserProfile = (profile) => {
+  return http.put(API.USER + '/my/profile', { profile })
+}
+
+internals.deleteCurrentAccount = (userId) => {
+  return http.delete(API.USER + '/my')
+}
+
 internals.updateUserPassword = (userId, password) => {
   return http.put(API.USER + '/' + userId + '/password', { password })
 }

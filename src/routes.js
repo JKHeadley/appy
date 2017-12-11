@@ -5,7 +5,7 @@ import Login from './components/views/login/Login.vue'
 import ForgotPassword from './components/views/login/ForgotPassword.vue'
 import ResetPassword from './components/views/login/ResetPassword.vue'
 
-// Import s - Dash
+// Imports - Dash
 import Dashboard from './components/views/dashboard/Dashboard.vue'
 import Tables from './components/views/dashboard/Tables.vue'
 import Tasks from './components/views/dashboard/Tasks.vue'
@@ -13,6 +13,8 @@ import Setting from './components/views/dashboard/Setting.vue'
 import Access from './components/views/dashboard/Access.vue'
 import Server from './components/views/dashboard/Server.vue'
 import Repos from './components/views/dashboard/Repos.vue'
+
+import Profile from './components/views/profile/Profile.vue'
 
 import Register from './components/views/register/Register.vue'
 import ActivateAccount from './components/views/register/ActivateAccount.vue'
@@ -83,6 +85,11 @@ const routes = [
         component: Repos,
         name: 'Repository',
         meta: {description: 'List of popular javascript repos'}
+      }, {
+        path: 'profile',
+        component: Profile,
+        name: 'Profile',
+        meta: { description: 'Profile details', title: 'Profile' }
       }, {
         path: 'users',
         component: Users,

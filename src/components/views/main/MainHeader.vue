@@ -132,7 +132,9 @@
               <!-- Menu Footer-->
               <li class="user-footer">
                 <div class="pull-left">
-                  <a href="#" class="btn btn-default btn-flat">Profile</a>
+                  <router-link to="/profile">
+                    <a href="#" class="btn btn-default btn-flat">Profile</a>
+                  </router-link>
                 </div>
                 <div class="pull-right">
                   <a href="#" @click="logout" class="btn btn-default btn-flat">Log out</a>
