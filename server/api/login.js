@@ -211,6 +211,7 @@ module.exports = function (server, mongoose, logger) {
       let response = {};
 
       request.pre.user.password = "";
+      request.pre.user.pin = "";
 
       switch (authStrategy) {
         case AUTH_STRATEGIES.TOKEN:
@@ -379,8 +380,8 @@ module.exports = function (server, mongoose, logger) {
       config: {
         handler: forgotPasswordHandler,
         auth: {
-          strategy: AUTH_STRATEGIES.REFRESH,
-          mode: 'optional'
+          strategy: authStrategy,
+          mode: 'try'
         },
         description: 'Forgot password.',
         tags: ['api', 'Login', 'Forgot Password'],

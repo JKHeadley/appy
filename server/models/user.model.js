@@ -39,8 +39,7 @@ module.exports = function (mongoose) {
     },
     email: {
       type: Types.String,
-      required: true,
-      unique: true
+      required: true
     },
     role: {
       type: Types.ObjectId,
@@ -63,6 +62,18 @@ module.exports = function (mongoose) {
       allowOnUpdate: false,
       exclude: true,
       type: Types.String
+    },
+    passwordUpdateRequired: {
+      type: Types.Boolean,
+      allowOnCreate: false,
+      allowOnUpdate: false,
+      default: false
+    },
+    pinUpdateRequired: {
+      type: Types.Boolean,
+      allowOnCreate: false,
+      allowOnUpdate: false,
+      default: false
     }
   }, { collection: modelName });
 
@@ -70,6 +81,7 @@ module.exports = function (mongoose) {
     collectionName: modelName,
     routeOptions: {
       authorizeDocumentCreator: false,
+      // policies: ['authorizePromotion'],
       associations: {
         role: {
           type: "MANY_ONE",
@@ -131,6 +143,7 @@ module.exports = function (mongoose) {
 
       const query = {
         email: email.toLowerCase(),
+        isDeleted: false
       };
 
       let user = {};
