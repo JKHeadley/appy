@@ -8,6 +8,7 @@ const zxcvbn = require('zxcvbn');
 const RestHapi = require('rest-hapi');
 
 const Config = require('../../config');
+const auditLog = require('../policies/audit-log');
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 const REQUIRED_PASSWORD_STRENGTH = Config.get('/constants/REQUIRED_PASSWORD_STRENGTH');
@@ -41,8 +42,8 @@ module.exports = function (server, mongoose, logger) {
                     }
                 })
                 .catch(function (error) {
-                    Log.error(error);
-                    return reply(Boom.badImplementation('There was an error accessing the database.'));
+                  Log.error(error);
+                  return reply(RestHapi.errorHelper.formatResponse(error));
                 });
         };
 
@@ -101,8 +102,8 @@ module.exports = function (server, mongoose, logger) {
                     }
                 })
                 .catch(function (error) {
-                    Log.error(error);
-                    return reply(Boom.badImplementation('There was an error accessing the database.'));
+                  Log.error(error);
+                  return reply(RestHapi.errorHelper.formatResponse(error));
                 });
         };
 
@@ -233,7 +234,7 @@ module.exports = function (server, mongoose, logger) {
           })
           .catch(function (error) {
             Log.error(error);
-            return reply(error);
+            return reply(RestHapi.errorHelper.formatResponse(error));
           });
       };
 
@@ -263,7 +264,8 @@ module.exports = function (server, mongoose, logger) {
                 { code: 404, message: 'Not Found' },
                 { code: 500, message: 'Internal Server Error' }
               ]
-            }
+            },
+            'policies': [auditLog(mongoose, { payloadFilter: [] }, Log)]
           }
         }
       });
@@ -299,7 +301,7 @@ module.exports = function (server, mongoose, logger) {
         })
         .catch(function (error) {
           Log.error(error);
-          return reply(error);
+          return reply(RestHapi.errorHelper.formatResponse(error));
         });
     };
 
@@ -329,7 +331,8 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          }
+          },
+          'policies': [auditLog(mongoose, { payloadFilter: [] }, Log)]
         }
       }
     });
@@ -369,7 +372,7 @@ module.exports = function (server, mongoose, logger) {
           })
           .catch(function (error) {
             Log.error(error);
-            return reply(Boom.badImplementation('There was an error accessing the database.'));
+            return reply(RestHapi.errorHelper.formatResponse(error));
           });
       }
     }];
@@ -418,7 +421,8 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          }
+          },
+          'policies': [auditLog(mongoose, {}, Log)]
         }
       }
     });
@@ -444,7 +448,7 @@ module.exports = function (server, mongoose, logger) {
         })
         .catch(function (error) {
           Log.error(error);
-          return reply(error);
+          return reply(RestHapi.errorHelper.formatResponse(error));
         });
     };
 
@@ -470,7 +474,8 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          }
+          },
+          'policies': [auditLog(mongoose, {}, Log)]
         }
       }
     });
@@ -500,8 +505,8 @@ module.exports = function (server, mongoose, logger) {
                     return reply(user);
                 })
                 .catch(function (error) {
-                    Log.error(error);
-                    return reply(error);
+                  Log.error(error);
+                  return reply(RestHapi.errorHelper.formatResponse(error));
                 });
         };
 
@@ -519,7 +524,7 @@ module.exports = function (server, mongoose, logger) {
                 validate: {
                     headers: headersValidation,
                     params: {
-                        _id: Joi.string().required()
+                        _id: RestHapi.joiHelper.joiObjectId()
                     }
                 },
                 plugins: {
@@ -530,7 +535,8 @@ module.exports = function (server, mongoose, logger) {
                             { code: 404, message: 'Not Found' },
                             { code: 500, message: 'Internal Server Error' }
                         ]
-                    }
+                    },
+                  'policies': [auditLog(mongoose, {}, Log)]
                 }
             }
         });
@@ -560,8 +566,8 @@ module.exports = function (server, mongoose, logger) {
                     return reply(user);
                 })
                 .catch(function (error) {
-                    Log.error(error);
-                    return reply(error);
+                  Log.error(error);
+                  return reply(RestHapi.errorHelper.formatResponse(error));
                 });
         };
 
@@ -579,7 +585,7 @@ module.exports = function (server, mongoose, logger) {
                 validate: {
                     headers: headersValidation,
                     params: {
-                        _id: Joi.string().required()
+                      _id: RestHapi.joiHelper.joiObjectId()
                     }
                 },
                 plugins: {
@@ -590,7 +596,8 @@ module.exports = function (server, mongoose, logger) {
                             { code: 404, message: 'Not Found' },
                             { code: 500, message: 'Internal Server Error' }
                         ]
-                    }
+                    },
+                  'policies': [auditLog(mongoose, {}, Log)]
                 }
             }
         });
@@ -621,7 +628,7 @@ module.exports = function (server, mongoose, logger) {
           })
           .catch(function (error) {
             Log.error(error);
-            return reply(error);
+            return reply(RestHapi.errorHelper.formatResponse(error));
           });
       };
 
@@ -639,7 +646,7 @@ module.exports = function (server, mongoose, logger) {
           validate: {
             headers: headersValidation,
             params: {
-              _id: Joi.string().required()
+              _id: RestHapi.joiHelper.joiObjectId()
             }
           },
           plugins: {
@@ -650,7 +657,8 @@ module.exports = function (server, mongoose, logger) {
                 { code: 404, message: 'Not Found' },
                 { code: 500, message: 'Internal Server Error' }
               ]
-            }
+            },
+            'policies': [auditLog(mongoose, {}, Log)]
           }
         }
       });
@@ -681,7 +689,7 @@ module.exports = function (server, mongoose, logger) {
           })
           .catch(function (error) {
             Log.error(error);
-            return reply(error);
+            return reply(RestHapi.errorHelper.formatResponse(error));
           });
       };
 
@@ -699,7 +707,7 @@ module.exports = function (server, mongoose, logger) {
           validate: {
             headers: headersValidation,
             params: {
-              _id: Joi.string().required()
+              _id: RestHapi.joiHelper.joiObjectId()
             }
           },
           plugins: {
@@ -710,7 +718,8 @@ module.exports = function (server, mongoose, logger) {
                 { code: 404, message: 'Not Found' },
                 { code: 500, message: 'Internal Server Error' }
               ]
-            }
+            },
+            'policies': [auditLog(mongoose, {}, Log)]
           }
         }
       });
@@ -735,7 +744,7 @@ module.exports = function (server, mongoose, logger) {
         })
         .catch(function (error) {
           Log.error(error);
-          return reply(error);
+          return reply(RestHapi.errorHelper.formatResponse(error));
         });
     };
 
@@ -752,7 +761,7 @@ module.exports = function (server, mongoose, logger) {
         tags: ['api', 'User', 'Get User Scope'],
         validate: {
           params: {
-            _id: Joi.string()
+            _id: RestHapi.joiHelper.joiObjectId()
           }
         },
         plugins: {

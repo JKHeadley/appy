@@ -9,6 +9,7 @@ const RestHapi = require('rest-hapi');
 
 const Config = require('../../config');
 const Token = require('../token');
+const auditLog = require('../policies/audit-log')
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
@@ -44,7 +45,7 @@ module.exports = function (server, mongoose, logger) {
             })
             .catch(function (error) {
               Log.error(error);
-              return reply(Boom.gatewayTimeout('An error occurred.'));
+              return reply(RestHapi.errorHelper.formatResponse(error));
             });
         }
       },
@@ -61,7 +62,7 @@ module.exports = function (server, mongoose, logger) {
             })
             .catch(function (error) {
               Log.error(error);
-              return reply(Boom.gatewayTimeout('An error occurred.'));
+              return reply(RestHapi.errorHelper.formatResponse(error));
             });
         }
       },
@@ -82,7 +83,7 @@ module.exports = function (server, mongoose, logger) {
             })
             .catch(function (error) {
               Log.error(error);
-              return reply(Boom.gatewayTimeout('An error occurred.'));
+              return reply(RestHapi.errorHelper.formatResponse(error));
             });
         }
       },
@@ -135,7 +136,7 @@ module.exports = function (server, mongoose, logger) {
               })
               .catch(function (error) {
                 Log.error(error);
-                return reply(Boom.gatewayTimeout('An error occurred.'));
+                return reply(RestHapi.errorHelper.formatResponse(error));
               });
           }
         }
@@ -269,7 +270,8 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          }
+          },
+          'policies': [auditLog(mongoose, { payloadFilter: ['email'] }, Log)]
         }
       },
     });
@@ -366,11 +368,8 @@ module.exports = function (server, mongoose, logger) {
           return reply({ message: 'Success.' });
         })
         .catch(function (error) {
-          if (error.isBoom) {
-            return reply(error);
-          }
           Log.error(error);
-          return reply(Boom.gatewayTimeout('An error occurred.'));
+          return reply(RestHapi.errorHelper.formatResponse(error));
         })
     };
 
@@ -399,7 +398,8 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          }
+          },
+          'policies': [auditLog(mongoose, {}, Log)]
         }
       }
     });
@@ -509,11 +509,8 @@ module.exports = function (server, mongoose, logger) {
           return reply({ message: 'Success.' });
         })
         .catch(function (error) {
-          if (error.isBoom) {
-            return reply(error);
-          }
           Log.error(error);
-          return reply(Boom.gatewayTimeout('An error occurred.'));
+          return reply(RestHapi.errorHelper.formatResponse(error));
         })
     };
 
@@ -541,7 +538,8 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          }
+          },
+          'policies': [auditLog(mongoose, { payloadFilter: ['token'] }, Log)]
         }
       }
     });
