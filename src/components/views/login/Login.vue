@@ -54,6 +54,23 @@
                 </router-link>
               </div>
             </form>
+
+
+            <div>
+                <hr>
+                <h3>Or</h3>
+              <div>
+                <a class="btn btn-block btn-social btn-facebook">
+                  <span class="fa fa-facebook"></span> Sign in with Facebook
+                </a>
+                <a class="btn btn-block btn-social btn-google">
+                  <span class="fa fa-google"></span> Sign in with Google
+                </a>
+                <a class="btn btn-block btn-social btn-github">
+                  <span class="fa fa-github"></span> Sign in with GitHub
+                </a>
+              </div>
+            </div>
           </div>
 
           <div v-if="!accountActive && !emailSent" class="text-center col-md-4 col-md-offset-4">

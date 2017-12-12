@@ -27,7 +27,6 @@ internals.responseError = function (error) {
     console.debug('authInterceptor.service: 403: response:', response)
 
     vm.$snotify.warning('You are not authorized for that action', 'Warning')
-    // Notification.warning('You are not authorized for that action.')
   }
   // EXPL: If not a 401 or 403, do nothing with this error. This is necessary to make a `responseError`
   // interceptor a no-op. */
