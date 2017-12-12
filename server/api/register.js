@@ -10,6 +10,7 @@ const _ = require('lodash');
 const GeneratePassword = require('password-generator');
 
 const Config = require('../../config');
+const auditLog = require('../policies/audit-log')
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 const authStrategy = Config.get('/restHapiConfig/authStrategy');
@@ -61,7 +62,7 @@ module.exports = function (server, mongoose, logger) {
             .then(function (role) {
 
                 if (!role) {
-                    return reply(Boom.conflict('Role doesn\'t exist.'));
+                    return reply(Boom.badRequest('Role doesn\'t exist.'));
                 }
 
                 return reply(role);
@@ -178,11 +179,8 @@ module.exports = function (server, mongoose, logger) {
           return reply(user);
         })
         .catch(function (error) {
-          if (error.isBoom) {
-            return reply(error);
-          }
           Log.error(error);
-          return reply(Boom.gatewayTimeout('An error occurred.'));
+          return reply(RestHapi.errorHelper.formatResponse(error));
         })
     };
 
@@ -223,7 +221,10 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          }
+          },
+          'policies': [auditLog(mongoose, {
+            payloadFilter: ['user.firstName', 'user.lastName', 'user.email', 'user.role', 'registerType']
+          }, Log)]
         }
       }
     });
@@ -341,7 +342,8 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          }
+          },
+          'policies': [auditLog(mongoose, {}, Log)]
         }
       }
     });
@@ -450,7 +452,8 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          }
+          },
+          'policies': [auditLog(mongoose, {}, Log)]
         }
       }
     });

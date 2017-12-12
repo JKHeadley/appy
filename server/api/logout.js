@@ -5,6 +5,7 @@ const Boom = require('boom');
 const Chalk = require('chalk');
 
 const Config = require('../../config');
+const auditLog = require('../policies/audit-log');
 
 const authStrategy = Config.get('/restHapiConfig/authStrategy');
 
@@ -38,7 +39,7 @@ module.exports = function (server, mongoose, logger) {
           })
           .catch(function (error) {
             Log.error(error);
-            return reply(Boom.badImplementation('There was an error accessing the database.'));
+            return reply(RestHapi.errorHelper.formatResponse(error));
           });
       }
       else {
@@ -65,7 +66,8 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          }
+          },
+          'policies': [auditLog(mongoose, {}, Log)]
         }
       }
     });

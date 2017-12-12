@@ -10,7 +10,7 @@ const authStrategy = Config.get('/restHapiConfig/authStrategy');
 
 module.exports = function (server, mongoose, logger) {
 
-  // Logout Endpoint
+  // Contact Endpoint
   (function() {
     const Log = logger.bind(Chalk.magenta("Contact"));
 
