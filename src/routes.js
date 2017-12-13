@@ -24,6 +24,14 @@ import Users from './components/views/users/Users.vue'
 import UserDetails from './components/views/users/UserDetails.vue'
 import UserCreate from './components/views/users/UserCreate.vue'
 
+import Roles from './components/views/roles/Roles.vue'
+import RoleDetails from './components/views/roles/RoleDetails.vue'
+import RoleCreate from './components/views/roles/RoleCreate.vue'
+
+import Groups from './components/views/groups/Groups.vue'
+import GroupDetails from './components/views/groups/GroupDetails.vue'
+import GroupCreate from './components/views/groups/GroupCreate.vue'
+
 // Routes
 const routes = [
   {
@@ -113,6 +121,42 @@ const routes = [
         component: UserCreate,
         name: 'UserCreate',
         meta: { description: 'Create a new user', title: 'User Create' }
+      }, {
+        path: 'roles',
+        component: Roles,
+        name: 'Roles',
+        meta: { description: 'List of appy roles', title: 'Roles' }
+      }, {
+        path: '/roles/:_id',
+        beforeEnter: (to, from, next) => {
+          to.params._id === 'create' ? next({ name: 'RoleCreate' }) : next()
+        },
+        component: RoleDetails,
+        name: 'RoleDetails',
+        meta: { description: 'Details for the selected role', title: 'Role Details' }
+      }, {
+        path: '/role/create',
+        component: RoleCreate,
+        name: 'RoleCreate',
+        meta: { description: 'Create a new role', title: 'Role Create' }
+      }, {
+        path: 'groups',
+        component: Groups,
+        name: 'Groups',
+        meta: { description: 'List of appy groups', title: 'Groups' }
+      }, {
+        path: '/groups/:_id',
+        beforeEnter: (to, from, next) => {
+          to.params._id === 'create' ? next({ name: 'GroupCreate' }) : next()
+        },
+        component: GroupDetails,
+        name: 'GroupDetails',
+        meta: { description: 'Details for the selected group', title: 'Group Details' }
+      }, {
+        path: '/group/create',
+        component: GroupCreate,
+        name: 'GroupCreate',
+        meta: { description: 'Create a new group', title: 'Group Create' }
       }
     ]
   }, {

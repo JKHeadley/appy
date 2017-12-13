@@ -307,6 +307,16 @@
             console.error('UserDetails.activateUser-error:', error)
             this.$snotify.error('Activate user failed', 'Error!')
           })
+      },
+      updateGroups (newGroups) {
+        this.newUser.groups = newGroups
+        if (this.formstate.userUpdated) {
+          this.formstate.userUpdated._setDirty()
+        }
+      },
+      updatePermissions (newPermissions) {
+        this.newUser.permissions = newPermissions
+        this.formstate.userUpdated._setDirty()
       }
     },
     created () {
@@ -318,14 +328,12 @@
           this.loading = false
           this.ready = true
         })
-      eventBus.$on(EVENTS.GROUPS_UPDATED, (newGroups) => {
-        this.newUser.groups = newGroups
-        this.formstate.userUpdated._setDirty()
-      })
-      eventBus.$on(EVENTS.PERMISSIONS_UPDATED, (newPermissions) => {
-        this.newUser.permissions = newPermissions
-        this.formstate.userUpdated._setDirty()
-      })
+      eventBus.$on(EVENTS.GROUPS_UPDATED, this.updateGroups)
+      eventBus.$on(EVENTS.PERMISSIONS_UPDATED, this.updatePermissions)
+    },
+    beforeDestroy () {
+      eventBus.$off(EVENTS.GROUPS_UPDATED, this.updateGroups)
+      eventBus.$off(EVENTS.PERMISSIONS_UPDATED, this.updatePermissions)
     }
   }
 </script>

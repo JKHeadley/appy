@@ -1,14 +1,14 @@
 <template>
   <section class="content">
-    <h1 class="text-center">Users</h1>
+    <h1 class="text-center">Groups</h1>
 
-    <div class="add-user">
-      <router-link :to="{ name: 'UserCreate' }">
-        <button class="btn btn-primary">Add User</button>
+    <div class="add-group">
+      <router-link :to="{ name: 'GroupCreate' }">
+        <button class="btn btn-primary">Add Group</button>
       </router-link>
     </div>
 
-    <v-server-table ref="userTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick">
+    <v-server-table ref="groupTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick">
       <template slot="beforeBody">
         <tr v-if="loading" class="VueTables__no-results">
           <td class="text-center" colspan="6"><pulse-loader></pulse-loader></td>
@@ -16,7 +16,7 @@
       </template>
       <template slot="edit" slot-scope="props">
         <div>
-          <a class="fa fa-edit" role="button" v-on:click.stop="edit(props.row)"></a>
+          <a class="fa fa-edit" group="button" v-on:click.stop="edit(props.row)"></a>
         </div>
       </template>
       <template slot="child_row" slot-scope="props">
@@ -30,13 +30,14 @@
 <script>
 
 export default {
+  name: 'Groups',
   data () {
     return {
       loading: null,
-      columns: ['firstName', 'lastName', 'email', 'roleName', 'edit'],
+      columns: ['name', 'description', 'edit'],
       options: {
         highlightMatches: true,
-        sortable: ['firstName', 'lastName', 'email', 'roleName'],
+        sortable: ['name', 'description'],
         requestFunction: (request) => {
           const params = {}
           params.$page = request.page
@@ -48,7 +49,7 @@ export default {
             params.$term = request.query
           }
           this.loading = true
-          return this.$userRepository.list(params)
+          return this.$groupRepository.list(params)
         },
         responseAdapter: (response) => {
           this.loading = false
@@ -60,17 +61,17 @@ export default {
   },
   methods: {
     edit (row) {
-      this.$router.push({ name: 'UserDetails', params: { _id: row._id }, props: row })
+      this.$router.push({ name: 'GroupDetails', params: { _id: row._id }, props: row })
     },
     rowClick (data) {
-      this.$refs.userTable.toggleChildRow(data.row._id)
+      this.$refs.groupTable.toggleChildRow(data.row._id)
     }
   }
 }
 </script>
 
 <style lang="scss">
-  .add-user {
+  .add-group {
     position: absolute;
     right: 15px;
   }

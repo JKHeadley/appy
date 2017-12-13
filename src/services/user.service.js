@@ -10,9 +10,11 @@ internals.updateUser = function (newUser, oldUser) {
   newUser = Object.assign({}, newUser)
   oldUser = Object.assign({}, oldUser)
   newUser.role = newUser.role._id
-  delete newUser.roleName
-  delete newUser.isActive
-  delete newUser.isEnabled
+
+  // EXPL: Filter out properties not needed
+  newUser = (({ email, firstName, lastName, role, groups, permissions }) => {
+    return { email, firstName, lastName, role, groups, permissions }
+  })(newUser)
 
   const newGroups = (newUser.groups || []).concat([])
   const oldGroups = (oldUser.groups || []).concat([])
@@ -23,9 +25,9 @@ internals.updateUser = function (newUser, oldUser) {
   delete newUser.groups
 
   const promises = []
-  promises.push(vm.$userRepository.update(newUser._id, newUser))
-  promises.push(internals.updateUserGroups(newUser._id, newGroups, oldGroups))
-  promises.push(internals.updateUserPermissions(newUser._id, newPermissions, oldPermissions))
+  promises.push(vm.$userRepository.update(oldUser._id, newUser))
+  promises.push(internals.updateUserGroups(oldUser._id, newGroups, oldGroups))
+  promises.push(internals.updateUserPermissions(oldUser._id, newPermissions, oldPermissions))
 
   return Promise.all(promises)
 }

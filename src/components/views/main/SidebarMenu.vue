@@ -3,8 +3,20 @@
     <li class="header">SUPER ADMIN</li>
     <router-link tag="li" class="pageLink" to="/users">
       <a>
-        <i class="fa fa-desktop"></i>
+        <i class="fa fa-user"></i>
         <span class="page">Users</span>
+      </a>
+    </router-link>
+    <router-link tag="li" class="pageLink" to="/roles">
+      <a>
+        <i class="fa fa-id-card"></i>
+        <span class="page">Roles</span>
+      </a>
+    </router-link>
+    <router-link tag="li" class="pageLink" to="/groups">
+      <a>
+        <i class="fa fa-users"></i>
+        <span class="page">Groups</span>
       </a>
     </router-link>
     <router-link tag="li" class="pageLink" to="/tables">
