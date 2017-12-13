@@ -18,15 +18,15 @@ const authStrategy = Config.get('/restHapiConfig/authStrategy');
 
 module.exports = function (server, mongoose, logger) {
 
-  // Login Endpoint
-  (function() {
+  ////////////////////////
+  //region LOGIN ENDPOINTS
+  ////////////////////////
+  (function () {
     const Log = logger.bind(Chalk.magenta("Login"));
     const AuthAttempt = mongoose.model('authAttempt');
     const Permission = mongoose.model('permission');
     const Session = mongoose.model('session');
     const User = mongoose.model('user');
-
-    Log.note("Generating Login endpoint");
 
     const loginPre = [
       {
@@ -247,36 +247,291 @@ module.exports = function (server, mongoose, logger) {
       return reply(response);
     };
 
-    server.route({
-      method: 'POST',
-      path: '/login',
-      config: {
-        handler: loginHandler,
-        auth: null,
-        description: 'User login.',
-        tags: ['api', 'Login'],
-        validate: {
-          payload: {
-            email: Joi.string().email().lowercase().required(),
-            password: Joi.string().required()
+    // Login Endpoint
+    (function () {
+
+      Log.note("Generating Login endpoint");
+
+      server.route({
+        method: 'POST',
+        path: '/login',
+        config: {
+          handler: loginHandler,
+          auth: null,
+          description: 'User login.',
+          tags: ['api', 'Login'],
+          validate: {
+            payload: {
+              email: Joi.string().email().lowercase().required(),
+              password: Joi.string().required()
+            }
+          },
+          pre: loginPre,
+          plugins: {
+            'hapi-swagger': {
+              responseMessages: [
+                { code: 200, message: 'Success' },
+                { code: 400, message: 'Bad Request' },
+                { code: 404, message: 'Not Found' },
+                { code: 500, message: 'Internal Server Error' }
+              ]
+            },
+            'policies': [auditLog(mongoose, { payloadFilter: ['email'] }, Log)]
           }
         },
-        pre: loginPre,
-        plugins: {
-          'hapi-swagger': {
-            responseMessages: [
-              { code: 200, message: 'Success' },
-              { code: 400, message: 'Bad Request' },
-              { code: 404, message: 'Not Found' },
-              { code: 500, message: 'Internal Server Error' }
-            ]
-          },
-          'policies': [auditLog(mongoose, { payloadFilter: ['email'] }, Log)]
-        }
-      },
-    });
-  }());
+      });
+    }());
 
+    // Social Login Endpoint (for web)
+    (function () {
+
+      Log.note("Generating Social Login endpoint");
+
+      const socialLoginPre = [
+        {
+          assign: 'decoded',
+          method: function (request, reply) {
+
+            Jwt.verify(request.payload.token, Config.get('/jwtSecret'), function (err, decoded) {
+              if (err) {
+                return reply(Boom.badRequest('Invalid email or key.'));
+              }
+
+              return reply(decoded);
+            });
+          }
+        },
+        {
+          assign: 'user',
+          method: function (request, reply) {
+
+            const conditions = {};
+
+            if (request.pre.decoded.email) {
+              conditions.email = request.pre.decoded.email;
+            }
+            else if (request.pre.decoded.facebookId) {
+              conditions.facebookId = request.pre.decoded.facebookId;
+            }
+
+            conditions.isDeleted = false
+
+            User.findOne(conditions)
+              .then(function (user) {
+                if (!user) {
+                  return reply(Boom.badRequest('Invalid email or key.'));
+                }
+                return reply(user);
+              })
+              .catch(function (error) {
+                Log.error(error);
+                return reply(Boom.badImplementation('There was an error accessing the database.'));
+              });
+          }
+        },
+        {
+          assign: 'isActive',
+          method: function (request, reply) {
+
+            if (request.pre.user.isActive) {
+              return reply();
+            }
+            else {
+              return reply(Boom.badRequest('Account is inactive.'));
+            }
+          }
+        },
+        {
+          assign: 'isEnabled',
+          method: function (request, reply) {
+
+            if (request.pre.user.isEnabled) {
+              return reply();
+            }
+            else {
+              return reply(Boom.badRequest('Account is disabled.'));
+            }
+          }
+        },
+        {
+          assign: 'session',
+          method: function (request, reply) {
+            if (authStrategy === AUTH_STRATEGIES.TOKEN) {
+              reply(null);
+            }
+            else {
+              Session.createInstance(request.pre.user, Log)
+                .then(function (session) {
+                  return reply(session);
+                })
+                .catch(function (error) {
+                  Log.error(error);
+                  return reply(Boom.gatewayTimeout('An error occurred.'));
+                });
+            }
+          }
+        },
+        {
+          assign: 'scope',
+          method: function (request, reply) {
+            return Permission.getScope(request.pre.user, Log)
+              .then(function (scope) {
+                return reply(scope);
+              });
+          }
+        },
+        {
+          assign: 'standardToken',
+          method: function (request, reply) {
+            switch (authStrategy) {
+              case AUTH_STRATEGIES.TOKEN:
+                reply(Token(request.pre.user, null, request.pre.scope, expirationPeriod.long, Log));
+                break;
+              case AUTH_STRATEGIES.SESSION:
+                reply(null);
+                break;
+              case AUTH_STRATEGIES.REFRESH:
+                reply(Token(request.pre.user, null, request.pre.scope, expirationPeriod.short, Log));
+                break;
+              default:
+                break;
+            }
+          }
+        },
+        {
+          assign: 'sessionToken',
+          method: function (request, reply) {
+            switch (authStrategy) {
+              case AUTH_STRATEGIES.TOKEN:
+                reply(null);
+                break;
+              case AUTH_STRATEGIES.SESSION:
+                reply(Token(null, request.pre.session, request.pre.scope, expirationPeriod.long, Log));
+                break;
+              case AUTH_STRATEGIES.REFRESH:
+                reply(null);
+                break;
+              default:
+                break;
+            }
+          }
+        },
+        {
+          assign: 'refreshToken',
+          method: function (request, reply) {
+            switch (authStrategy) {
+              case AUTH_STRATEGIES.TOKEN:
+                reply(null);
+                break;
+              case AUTH_STRATEGIES.SESSION:
+                reply(null);
+                break;
+              case AUTH_STRATEGIES.REFRESH:
+                reply(Token(null, request.pre.session, request.pre.scope, expirationPeriod.long, Log));
+                break;
+              default:
+                break;
+            }
+          }
+        }];
+
+      const socialLoginHandler = function (request, reply) {
+
+        const key = request.pre.decoded.key;
+        const hash = request.pre.user.socialLoginHash;
+
+        return Bcrypt.compare(key, hash)
+          .then(function (keyMatch) {
+            if (!keyMatch) {
+              reply(Boom.badRequest('Invalid email or key.'));
+              throw 'Invalid email or key.'
+            }
+
+            const _id = request.pre.user._id;
+            const update = {
+              $unset: {
+                socialLoginHash: undefined
+              }
+            };
+
+            return RestHapi.update(User, _id, update, Log);
+          })
+          .then(function (user) {
+
+            let authHeader = "";
+            let response = {};
+
+            switch (authStrategy) {
+              case AUTH_STRATEGIES.TOKEN:
+                authHeader = 'Bearer ' + request.pre.standardToken;
+                response = {
+                  user: user,
+                  authHeader,
+                  scope: request.pre.scope
+                };
+                break;
+              case AUTH_STRATEGIES.SESSION:
+                authHeader = 'Bearer ' + request.pre.sessionToken;
+                response = {
+                  user: user,
+                  authHeader,
+                  scope: request.pre.scope
+                };
+                break;
+              case AUTH_STRATEGIES.REFRESH:
+                authHeader = 'Bearer ' + request.pre.standardToken;
+                response = {
+                  user: user,
+                  refreshToken: request.pre.refreshToken,
+                  authHeader,
+                  scope: request.pre.scope
+                };
+                break;
+              default:
+                break;
+            }
+
+            return reply(response);
+
+          })
+          .catch(function (error) {
+            Log.error(error);
+            return reply(RestHapi.errorHelper.formatResponse(error));
+          });
+      };
+
+      server.route({
+        method: 'POST',
+        path: '/login/social',
+        config: {
+          handler: socialLoginHandler,
+          auth: false,
+          description: 'Social login.',
+          tags: ['api', 'Login', 'Social Login'],
+          validate: {
+            payload: {
+              token: Joi.string().required()
+            }
+          },
+          pre: socialLoginPre,
+          plugins: {
+            'hapi-swagger': {
+              responseMessages: [
+                { code: 200, message: 'Success' },
+                { code: 400, message: 'Bad Request' },
+                { code: 404, message: 'Not Found' },
+                { code: 500, message: 'Internal Server Error' }
+              ]
+            }
+          }
+        }
+      });
+    }());
+  })
+
+  ////////////////////////
+  //endregion
+  ////////////////////////
 
   // Forgot Password Endpoint
   (function() {
