@@ -59,6 +59,29 @@ const config = {
     production: process.env.JWT_SECRET,
     $default: 'aStrongJwtSecret-#mgtfYK@QuRV8VMM7T>WfN4;^fMVr)y'
   },
+  socialPassword: {
+    $filter: 'env',
+    production: process.env.SOCIAL_PASSWORD,
+    $default: 'aStrongJwtSecret-#mgtfYK@QuRV8VMM7T>WfN4;^fMVr)y'
+  },
+  socialIds: {
+    $filter: 'env',
+    production: {
+      facebook: process.env.FACEBOOK_ID,
+    },
+    $default: {
+      facebook: process.env.FACEBOOK_ID,
+    }
+  },
+  socialSecrets: {
+    $filter: 'env',
+    production: {
+      facebook: process.env.FACEBOOK_SECRET,
+    },
+    $default: {
+      facebook: process.env.FACEBOOK_SECRET,
+    }
+  },
   nodemailer: {
     $filter: 'env',
     local: {
@@ -104,7 +127,7 @@ const config = {
   clientURL: {
     $filter: 'env',
     local: 'http://localhost:8080',
-    production: 'http://localhost:' + constants.PORT,
+    production: process.env.CLIENT_URI,
     $default: 'http://localhost:8080'
   },
   restHapiConfig: {
@@ -112,8 +135,9 @@ const config = {
     mongo: {
       URI: {
         $filter: 'env',
-        local: 'mongodb://localhost/appy',
-        $default: 'mongodb://localhost/appy'
+        local: 'mongodb://localhost:27017/appy',
+        production: process.env.MONGODB_URI,
+        $default: 'mongodb://localhost:27017/appy',
       }
     },
     cors: {
@@ -182,6 +206,11 @@ const config = {
         $default: true
     },
     generateScopes: {
+      $filter: 'env',
+      local: true,
+      $default: true
+    },
+    logRoutes: {
       $filter: 'env',
       local: true,
       $default: true

@@ -29,6 +29,10 @@ module.exports = function (mongoose) {
       exclude: true,
       allowOnUpdate: false
     },
+    facebookId: {
+      type: Types.String,
+      allowOnUpdate: false
+    },
     firstName: {
       type: Types.String,
       required: true
@@ -74,6 +78,12 @@ module.exports = function (mongoose) {
       allowOnCreate: false,
       allowOnUpdate: false,
       default: false
+    },
+    socialLoginHash: {
+      allowOnCreate: false,
+      allowOnUpdate: false,
+      exclude: true,
+      type: Types.String
     }
   }, { collection: modelName });
 

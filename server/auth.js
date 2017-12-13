@@ -8,6 +8,9 @@ const Config = require('../config');
 const Token = require('./token');
 
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
+const socialPassword = Config.get('/socialPassword');
+const socialIds = Config.get('/socialIds');
+const socialSecrets = Config.get('/socialSecrets');
 const expirationPeriod = Config.get('/expirationPeriod');
 
 const logger = RestHapi.getLogger('appy');
@@ -181,9 +184,47 @@ internals.applyRefreshStrategy = function (server, next) {
   next();
 };
 
+internals.applyFacebookStrategy = function (server, next) {
+  const facebookOptions = {
+    provider: 'facebook',
+    password: socialPassword,
+    clientId: socialIds.facebook,
+    clientSecret: socialSecrets.facebook,
+    isSecure: false //Should be set to true (which is the default) in production
+  };
+
+  //Setup the social Facebook login strategy
+  server.auth.strategy('facebook', 'bell', facebookOptions);
+
+  // const verifyFacebookToken = function(token, next) {
+  //   let uri = 'https://graph.facebook.com/v2.3/me';
+  //
+  //   uri += "?fields=email,name";
+  //
+  //   let options = {
+  //     uri: uri,
+  //     headers: {
+  //       Authorization: "Bearer " + token
+  //     },
+  //   };
+  //
+  //   rp(options)
+  //     .then(function (response) {
+  //       next(null, JSON.parse(response));
+  //     })
+  //     .catch(function (err) {
+  //       next(err, null);
+  //     });
+  // };
+  //
+  // server.method('verifyFacebookToken', verifyFacebookToken, {});
+
+};
 
 exports.register = function (server, options, next) {
   const authStrategy = Config.get('/restHapiConfig/authStrategy');
+
+  internals.applyFacebookStrategy(server, next);
 
   switch (authStrategy) {
     case AUTH_STRATEGIES.TOKEN:
