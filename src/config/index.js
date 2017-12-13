@@ -70,6 +70,7 @@ export const USER_ROLES = {
 export const EVENTS = {
   GROUPS_UPDATED: 'groups-updated',
   PERMISSIONS_UPDATED: 'permissions-updated',
+  GROUP_USERS_UPDATED: 'group-users-updated',
   PASSWORD_SCORE_UPDATED: 'password-score-updated',
   UPDATING_PASSWORD_SCORE: 'updating-password-score'
 }

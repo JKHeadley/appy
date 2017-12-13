@@ -15,6 +15,7 @@
 
       <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
+        <li><a data-toggle="tab" href="#users">Users</a></li>
         <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
       </ul>
 
@@ -65,6 +66,9 @@
 
 
         </div>
+        <div id="users" class="tab-pane fade">
+          <group-users :group="newGroup" v-if="!loading"></group-users>
+        </div>
         <div id="permissions" class="tab-pane fade">
           <group-permissions :group="newGroup" v-if="!loading"></group-permissions>
         </div>
@@ -75,6 +79,7 @@
 
 <script>
   import GroupPermissions from './GroupPermissions.vue'
+  import GroupUsers from './GroupUsers.vue'
   import { groupService, formService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
 
@@ -84,6 +89,7 @@
   export default {
     name: 'GroupDetails',
     components: {
+      GroupUsers,
       GroupPermissions
     },
     data () {
@@ -107,7 +113,7 @@
       getGroup () {
         this.loading = true
         const params = {
-          $embed: ['permissions']
+          $embed: ['permissions', 'users']
         }
         const promises = []
         let promise = {}
@@ -180,6 +186,10 @@
             this.$snotify.error('Delete group failed', 'Error!')
           })
       },
+      updateGroupUsers (newUsers) {
+        this.newGroup.users = newUsers
+        this.formstate.groupUpdated._setDirty()
+      },
       updatePermissions (newPermissions) {
         this.newGroup.permissions = newPermissions
         this.formstate.groupUpdated._setDirty()
@@ -193,9 +203,11 @@
           this.loading = false
           this.ready = true
         })
+      eventBus.$on(EVENTS.GROUP_USERS_UPDATED, this.updateGroupUsers)
       eventBus.$on(EVENTS.PERMISSIONS_UPDATED, this.updatePermissions)
     },
     beforeDestroy () {
+      eventBus.$off(EVENTS.GROUP_USERS_UPDATED, this.updateGroupUsers)
       eventBus.$off(EVENTS.PERMISSIONS_UPDATED, this.updatePermissions)
     }
   }
