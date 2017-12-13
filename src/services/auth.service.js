@@ -17,6 +17,17 @@ internals.login = (credentials) => {
     })
 }
 
+internals.loginSocial = (token) => {
+  return http.post('login/social', { token })
+    .then((response) => {
+      store.dispatch('auth/setAuth', response.data)
+    })
+    .catch((error) => {
+      console.error('authService.loginSocial-error:\n', error)
+      throw error
+    })
+}
+
 internals.logout = () => {
   return http.delete('/logout')
     .then((response) => {

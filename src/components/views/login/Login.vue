@@ -60,7 +60,7 @@
                 <hr>
                 <h3>Or</h3>
               <div>
-                <a class="btn btn-block btn-social btn-facebook">
+                <a class="btn btn-block btn-social btn-facebook" :href="loginFacebookURI">
                   <span class="fa fa-facebook"></span> Sign in with Facebook
                 </a>
                 <a class="btn btn-block btn-social btn-google">
@@ -111,6 +111,7 @@
 
 <script>
   import { authService, formService } from '../../../services'
+  import config from '../../../config'
 
   export default {
     name: 'Login',
@@ -125,6 +126,13 @@
         emailSent: false,
         email: '',
         password: ''
+      }
+    },
+    computed: {
+      loginFacebookURI () {
+        // EXPL: The '/auth/{social}/{redirectURL}' endpoint will first authenticate the user using the third party
+        // social authentication, then the appy server will redirect us to the '/login/social/' view
+        return config.serverURI + '/auth/facebook/' + btoa(config.appURI + '/login/social')
       }
     },
     methods: {

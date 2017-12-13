@@ -2,6 +2,7 @@ import Main from './components/views/main/Main.vue'
 import NotFound from './components/404.vue'
 
 import Login from './components/views/login/Login.vue'
+import LoginSocial from './components/views/login/LoginSocial.vue'
 import ForgotPassword from './components/views/login/ForgotPassword.vue'
 import ResetPassword from './components/views/login/ResetPassword.vue'
 
@@ -29,6 +30,10 @@ const routes = [
     path: '/login',
     component: Login,
     name: 'Login'
+  }, {
+    path: '/login/social',
+    component: LoginSocial,
+    name: 'LoginSocial'
   }, {
     path: '/login/forgot',
     component: ForgotPassword,
