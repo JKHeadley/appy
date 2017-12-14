@@ -190,7 +190,7 @@ const config = {
         local: true,
         $default: true
     },
-    trackDuplicateFields: {
+    trackDuplicatedFields: {
         $filter: 'env',
         local: true,
         $default: true
