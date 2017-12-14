@@ -114,9 +114,9 @@
 
         <div class="col-sm-4" style="margin-top: 15px">
           <div class="row content-centered">
-            <div class="col-sm-6 text-right content-centered">
+            <div class="col-sm-6 text-right pull-right">
               <button class="btn btn-primary" @click="applyStateToIncluded"
-                      :disabled="lodash.isEmpty(selectedIncludedPermissions)">Apply State</button>
+                      :disabled="lodash.isEmpty(selectedIncludedPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
               <input type="radio" id="includedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="includedToState">
@@ -134,9 +134,9 @@
 
         <div class="col-sm-4" style="margin-top: 15px">
           <div class="row content-centered">
-            <div class="col-sm-6 text-right content-centered">
+            <div class="col-sm-6 text-right pull-right">
               <button class="btn btn-primary" @click="applyStateToExcluded"
-                      :disabled="lodash.isEmpty(selectedExcludedPermissions)">Apply State</button>
+                      :disabled="lodash.isEmpty(selectedExcludedPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
               <input type="radio" id="excludedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="excludedToState">
@@ -154,9 +154,9 @@
 
         <div class="col-sm-4" style="margin-top: 15px">
           <div class="row content-centered">
-            <div class="col-sm-6 text-right content-centered">
+            <div class="col-sm-6 text-right pull-right">
               <button class="btn btn-primary" @click="applyStateToForbidden"
-                      :disabled="lodash.isEmpty(selectedForbiddenPermissions)">Apply State</button>
+                      :disabled="lodash.isEmpty(selectedForbiddenPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
               <input type="radio" id="forbiddenToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="forbiddenToState">
@@ -173,6 +173,10 @@
         </div>
 
       </div>
+
+      <div v-show="newGroup._id" class="py-2 text-center row" style="margin-top: 10px">
+        <button class="btn btn-primary" type="submit" @click="updateGroupPermissions" :disabled="!dirty">Update Group Permissions</button>
+      </div>
     </div>
 
   </section>
@@ -180,7 +184,7 @@
 
 <script>
   import _ from 'lodash'
-  import { eventBus } from '../../../services'
+  import { eventBus, groupService } from '../../../services'
   import { PERMISSION_STATES, EVENTS } from '../../../config'
 
   export default {
@@ -190,7 +194,9 @@
       return {
         lodash: _,
         loading: null,
+        dirty: false,
         newGroup: _.cloneDeep(this.group),
+        oldGroup: null,
         PERMISSION_STATES: PERMISSION_STATES,
         permissionSearchText: null,
         availablePermissions: [],
@@ -213,6 +219,12 @@
       },
       selectedForbiddenPermissions (val) {
         this.selectedGroupPermissions = [].concat(val, this.selectedExcludedPermissions, this.selectedIncludedPermissions)
+      },
+      group (val) {
+        this.newGroup = _.cloneDeep(val)
+        this.newGroup.permissions = this.newGroup.permissions || []
+        this.getAvailablePermissions()
+        this.dirty = false
       }
     },
     computed: {
@@ -261,6 +273,7 @@
           })
       },
       addPermissions () {
+        this.dirty = true
         this.newGroup.permissions = this.newGroup.permissions.concat(this.selectedAvailablePermissions)
 
         this.availablePermissions = this.availablePermissions.filter((object) => {
@@ -270,9 +283,10 @@
         })
 
         this.sortLists()
-        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newGroup.permissions)
+        eventBus.$emit(EVENTS.GROUP_PERMISSIONS_UPDATED, this.newGroup.permissions)
       },
       removePermissions () {
+        this.dirty = true
         this.availablePermissions = this.availablePermissions.concat(this.selectedGroupPermissions)
 
         this.newGroup.permissions = this.newGroup.permissions.filter((object) => {
@@ -282,7 +296,7 @@
         })
 
         this.sortLists()
-        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newGroup.permissions)
+        eventBus.$emit(EVENTS.GROUP_PERMISSIONS_UPDATED, this.newGroup.permissions)
       },
       sortLists () {
         this.newGroup.permissions.sort((a, b) => { return a.permission.name.localeCompare(b.permission.name) })
@@ -290,29 +304,48 @@
         this.availablePermissions.sort((a, b) => { return a.permission.name.localeCompare(b.permission.name) })
       },
       applyStateToIncluded () {
+        this.dirty = true
         for (let permission of this.selectedIncludedPermissions) {
           permission.state = this.includedToState
         }
         this.selectedIncludedPermissions = []
-        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newGroup.permissions)
+        eventBus.$emit(EVENTS.GROUP_PERMISSIONS_UPDATED, this.newGroup.permissions)
       },
       applyStateToExcluded () {
+        this.dirty = true
         for (let permission of this.selectedExcludedPermissions) {
           permission.state = this.excludedToState
         }
         this.selectedExcludedPermissions = []
-        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newGroup.permissions)
+        eventBus.$emit(EVENTS.GROUP_PERMISSIONS_UPDATED, this.newGroup.permissions)
       },
       applyStateToForbidden () {
+        this.dirty = true
         for (let permission of this.selectedForbiddenPermissions) {
           permission.state = this.forbiddenToState
         }
         this.selectedForbiddenPermissions = []
-        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newGroup.permissions)
+        eventBus.$emit(EVENTS.GROUP_PERMISSIONS_UPDATED, this.newGroup.permissions)
+      },
+      updateGroupPermissions () {
+        groupService.updateGroupPermissions(this.newGroup._id, this.newGroup.permissions, this.oldGroup.permissions)
+          .then((response) => {
+            this.loading = false
+            this.dirty = false
+            this.oldGroup = _.cloneDeep(this.newGroup)
+            eventBus.$emit(EVENTS.GROUP_PERMISSIONS_SAVED)
+            this.$snotify.success('Group permissions updated', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('GroupPermissions.updateGroupPermissions-error:', error)
+            this.$snotify.error('Update group permissions failed', 'Error!')
+          })
       }
     },
     created () {
       this.newGroup.permissions = this.newGroup.permissions || []
+      this.oldGroup = _.cloneDeep(this.newGroup)
       this.getAvailablePermissions()
     }
   }

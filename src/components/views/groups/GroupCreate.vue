@@ -15,6 +15,7 @@
 
       <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
+        <li><a data-toggle="tab" href="#users">Users</a></li>
         <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
       </ul>
 
@@ -56,6 +57,9 @@
           </div>
 
         </div>
+        <div id="users" class="tab-pane fade">
+          <group-users :group="group" v-if="!loading"></group-users>
+        </div>
         <div id="permissions" class="tab-pane fade">
           <group-permissions :group="group" v-if="!loading"></group-permissions>
         </div>
@@ -65,6 +69,7 @@
 </template>
 
 <script>
+  import GroupUsers from './GroupUsers.vue'
   import GroupPermissions from './GroupPermissions.vue'
   import { groupService, formService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
@@ -74,6 +79,7 @@
   export default {
     name: 'GroupCreate',
     components: {
+      GroupUsers,
       GroupPermissions
     },
     data () {
@@ -83,7 +89,7 @@
         flashType: null,
         flashMessage: '',
         EVENTS: EVENTS,
-        group: {},
+        group: null,
         groups: [],
         permissions: [],
         formstate: {}
@@ -105,12 +111,25 @@
             console.error('GroupCreate.createGroup-error:', error)
             this.$snotify.error('Create group failed', 'Error!')
           })
+      },
+      updateUsers (users) {
+        this.group.users = users
+      },
+      updatePermissions (permissions) {
+        this.group.permissions = permissions
       }
     },
     created () {
-      eventBus.$on(EVENTS.PERMISSIONS_UPDATED, (newPermissions) => {
-        this.group.permissions = newPermissions
-      })
+      this.group = {
+        users: [],
+        permissions: []
+      }
+      eventBus.$on(EVENTS.GROUP_USERS_UPDATED, this.updateUsers)
+      eventBus.$on(EVENTS.GROUP_PERMISSIONS_UPDATED, this.updatePermissions)
+    },
+    beforeDestroy () {
+      eventBus.$off(EVENTS.GROUP_USERS_UPDATED, this.updateUsers)
+      eventBus.$off(EVENTS.GROUP_PERMISSIONS_UPDATED, this.updatePermissions)
     }
   }
 </script>

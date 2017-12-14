@@ -51,7 +51,8 @@
             </div>
 
             <!--This is a dummy field to facilitate updating the formstate programmatically-->
-            <validate class="hide"><input type="text" v-model="groupUpdated" name="groupUpdated" /></validate>
+            <validate class="hide"><input type="text" v-model="groupUsersUpdated" name="groupUsersUpdated" /></validate>
+            <validate class="hide"><input type="text" v-model="groupPermissionsUpdated" name="groupPermissionsUpdated" /></validate>
 
           </vue-form>
 
@@ -99,7 +100,8 @@
         flash: false,
         flashType: null,
         flashMessage: '',
-        groupUpdated: null,
+        groupUsersUpdated: null,
+        groupPermissionsUpdated: null,
         EVENTS: EVENTS,
         newGroup: {},
         oldGroup: {},
@@ -186,14 +188,20 @@
             this.$snotify.error('Delete group failed', 'Error!')
           })
       },
-      updateGroupUsers (newUsers) {
+      updateUsers (newUsers) {
         this.newGroup.users = newUsers
-        this.formstate.groupUpdated._setDirty()
+        this.formstate.groupUsersUpdated._setDirty()
+      },
+      clearUsers () {
+        this.formstate.groupUsersUpdated._setPristine()
       },
       updatePermissions (newPermissions) {
         this.newGroup.permissions = newPermissions
-        this.formstate.groupUpdated._setDirty()
-      }
+        this.formstate.groupPermissionsUpdated._setDirty()
+      },
+      clearPermissions () {
+        this.formstate.groupPermissionsUpdated._setPristine()
+      },
     },
     created () {
       const promises = []
@@ -203,12 +211,16 @@
           this.loading = false
           this.ready = true
         })
-      eventBus.$on(EVENTS.GROUP_USERS_UPDATED, this.updateGroupUsers)
-      eventBus.$on(EVENTS.PERMISSIONS_UPDATED, this.updatePermissions)
+      eventBus.$on(EVENTS.GROUP_USERS_UPDATED, this.updateUsers)
+      eventBus.$on(EVENTS.GROUP_USERS_SAVED, this.clearUsers)
+      eventBus.$on(EVENTS.GROUP_PERMISSIONS_UPDATED, this.updatePermissions)
+      eventBus.$on(EVENTS.GROUP_PERMISSIONS_SAVED, this.clearPermissions)
     },
     beforeDestroy () {
-      eventBus.$off(EVENTS.GROUP_USERS_UPDATED, this.updateGroupUsers)
-      eventBus.$off(EVENTS.PERMISSIONS_UPDATED, this.updatePermissions)
+      eventBus.$off(EVENTS.GROUP_USERS_UPDATED, this.updateUsers)
+      eventBus.$off(EVENTS.GROUP_USERS_SAVED, this.clearUsers)
+      eventBus.$off(EVENTS.GROUP_PERMISSIONS_UPDATED, this.updatePermissions)
+      eventBus.$off(EVENTS.GROUP_PERMISSIONS_SAVED, this.clearPermissions)
     }
   }
 </script>

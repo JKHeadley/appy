@@ -68,9 +68,14 @@ export const USER_ROLES = {
 }
 
 export const EVENTS = {
-  GROUPS_UPDATED: 'groups-updated',
-  PERMISSIONS_UPDATED: 'permissions-updated',
+  USER_PERMISSIONS_UPDATED: 'user-permissions-updated',
+  USER_PERMISSIONS_SAVED: 'user-permissions-saved',
+  USER_GROUPS_UPDATED: 'user-groups-updated',
+  USER_GROUPS_SAVED: 'user-groups-saved',
   GROUP_USERS_UPDATED: 'group-users-updated',
+  GROUP_USERS_SAVED: 'group-users-saved',
+  GROUP_PERMISSIONS_UPDATED: 'group-permissions-updated',
+  GROUP_PERMISSIONS_SAVED: 'group-permissions-saved',
   PASSWORD_SCORE_UPDATED: 'password-score-updated',
   UPDATING_PASSWORD_SCORE: 'updating-password-score'
 }

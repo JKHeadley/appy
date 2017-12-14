@@ -114,9 +114,9 @@
 
         <div class="col-sm-4" style="margin-top: 15px">
           <div class="row content-centered">
-            <div class="col-sm-6 text-right content-centered">
+            <div class="col-sm-6 text-right pull-right">
               <button class="btn btn-primary" @click="applyStateToIncluded"
-                      :disabled="lodash.isEmpty(selectedIncludedPermissions)">Apply State</button>
+                      :disabled="lodash.isEmpty(selectedIncludedPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
               <input type="radio" id="includedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="includedToState">
@@ -134,9 +134,9 @@
 
         <div class="col-sm-4" style="margin-top: 15px">
           <div class="row content-centered">
-            <div class="col-sm-6 text-right content-centered">
+            <div class="col-sm-6 text-right pull-right">
               <button class="btn btn-primary" @click="applyStateToExcluded"
-                      :disabled="lodash.isEmpty(selectedExcludedPermissions)">Apply State</button>
+                      :disabled="lodash.isEmpty(selectedExcludedPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
               <input type="radio" id="excludedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="excludedToState">
@@ -154,9 +154,9 @@
 
         <div class="col-sm-4" style="margin-top: 15px">
           <div class="row content-centered">
-            <div class="col-sm-6 text-right content-centered">
+            <div class="col-sm-6 text-right pull-right">
               <button class="btn btn-primary" @click="applyStateToForbidden"
-                      :disabled="lodash.isEmpty(selectedForbiddenPermissions)">Apply State</button>
+                      :disabled="lodash.isEmpty(selectedForbiddenPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
               <input type="radio" id="forbiddenToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="forbiddenToState">
@@ -173,6 +173,10 @@
         </div>
 
       </div>
+
+      <div v-show="newUser._id" class="py-2 text-center row" style="margin-top: 10px">
+        <button class="btn btn-primary" type="submit" @click="updateUserPermissions" :disabled="!dirty">Update User Permissions</button>
+      </div>
     </div>
 
   </section>
@@ -180,7 +184,7 @@
 
 <script>
   import _ from 'lodash'
-  import { eventBus } from '../../../services'
+  import { eventBus, userService } from '../../../services'
   import { PERMISSION_STATES, EVENTS } from '../../../config'
 
   export default {
@@ -190,7 +194,9 @@
       return {
         lodash: _,
         loading: null,
+        dirty: false,
         newUser: _.cloneDeep(this.user),
+        oldUser: null,
         PERMISSION_STATES: PERMISSION_STATES,
         permissionSearchText: null,
         availablePermissions: [],
@@ -213,6 +219,12 @@
       },
       selectedForbiddenPermissions (val) {
         this.selectedUserPermissions = [].concat(val, this.selectedExcludedPermissions, this.selectedIncludedPermissions)
+      },
+      user (val) {
+        this.newUser = _.cloneDeep(val)
+        this.newUser.permissions = this.newUser.permissions || []
+        this.getAvailablePermissions()
+        this.dirty = false
       }
     },
     computed: {
@@ -261,6 +273,7 @@
           })
       },
       addPermissions () {
+        this.dirty = true
         this.newUser.permissions = this.newUser.permissions.concat(this.selectedAvailablePermissions)
 
         this.availablePermissions = this.availablePermissions.filter((object) => {
@@ -270,9 +283,10 @@
         })
 
         this.sortLists()
-        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newUser.permissions)
+        eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newUser.permissions)
       },
       removePermissions () {
+        this.dirty = true
         this.availablePermissions = this.availablePermissions.concat(this.selectedUserPermissions)
 
         this.newUser.permissions = this.newUser.permissions.filter((object) => {
@@ -282,7 +296,7 @@
         })
 
         this.sortLists()
-        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newUser.permissions)
+        eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newUser.permissions)
       },
       sortLists () {
         this.newUser.permissions.sort((a, b) => { return a.permission.name.localeCompare(b.permission.name) })
@@ -294,25 +308,41 @@
           permission.state = this.includedToState
         }
         this.selectedIncludedPermissions = []
-        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newUser.permissions)
+        eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newUser.permissions)
       },
       applyStateToExcluded () {
         for (let permission of this.selectedExcludedPermissions) {
           permission.state = this.excludedToState
         }
         this.selectedExcludedPermissions = []
-        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newUser.permissions)
+        eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newUser.permissions)
       },
       applyStateToForbidden () {
         for (let permission of this.selectedForbiddenPermissions) {
           permission.state = this.forbiddenToState
         }
         this.selectedForbiddenPermissions = []
-        eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newUser.permissions)
+        eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newUser.permissions)
+      },
+      updateUserPermissions () {
+        userService.updateUserPermissions(this.newUser._id, this.newUser.permissions, this.oldUser.permissions)
+          .then((response) => {
+            this.loading = false
+            this.dirty = false
+            this.oldUser = _.cloneDeep(this.newUser)
+            eventBus.$emit(EVENTS.USER_PERMISSIONS_SAVED)
+            this.$snotify.success('User permissions updated', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('UserPermissions.updateUserPermissions-error:', error)
+            this.$snotify.error('Update user permissions failed', 'Error!')
+          })
       }
     },
     created () {
       this.newUser.permissions = this.newUser.permissions || []
+      this.oldUser = _.cloneDeep(this.newUser)
       this.getAvailablePermissions()
     }
   }

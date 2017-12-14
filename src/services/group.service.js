@@ -7,16 +7,21 @@ const internals = {}
 internals.createGroup = function (group) {
   group = Object.assign({}, group)
 
+  const users = (group.users || []).concat([]).map((user) => { return user.user._id })
   const permissions = (group.permissions || []).concat([]).map((permission) => {
     return { childId: permission.permission._id, state: permission.state }
   })
 
   delete group.permissions
+  delete group.users
 
   const promises = []
   return vm.$groupRepository.create(group)
     .then((result) => {
       group = result.data
+      if (!_.isEmpty(users)) {
+        promises.push(vm.$groupRepository.addManyUsers(group._id, users))
+      }
       if (!_.isEmpty(permissions)) {
         promises.push(vm.$groupRepository.addManyPermissions(group._id, permissions))
       }

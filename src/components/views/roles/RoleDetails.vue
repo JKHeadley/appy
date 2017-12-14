@@ -146,7 +146,7 @@
               this.flash = true
               this.flashType = 'error'
               this.flashMessage = 'That role name is not allowed. You must first update the list of allowed role names' +
-                ' in the appy server config.'
+                ' in the appy client and server config.'
             }
           })
       },

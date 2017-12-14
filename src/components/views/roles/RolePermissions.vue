@@ -114,9 +114,9 @@
 
         <div class="col-sm-4" style="margin-top: 15px">
           <div class="row content-centered">
-            <div class="col-sm-6 text-right content-centered">
+            <div class="col-sm-6 text-right pull-right">
               <button class="btn btn-primary" @click="applyStateToIncluded"
-                      :disabled="lodash.isEmpty(selectedIncludedPermissions)">Apply State</button>
+                      :disabled="lodash.isEmpty(selectedIncludedPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
               <input type="radio" id="includedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="includedToState">
@@ -134,9 +134,9 @@
 
         <div class="col-sm-4" style="margin-top: 15px">
           <div class="row content-centered">
-            <div class="col-sm-6 text-right content-centered">
+            <div class="col-sm-6 text-right pull-right">
               <button class="btn btn-primary" @click="applyStateToExcluded"
-                      :disabled="lodash.isEmpty(selectedExcludedPermissions)">Apply State</button>
+                      :disabled="lodash.isEmpty(selectedExcludedPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
               <input type="radio" id="excludedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="excludedToState">
@@ -154,9 +154,9 @@
 
         <div class="col-sm-4" style="margin-top: 15px">
           <div class="row content-centered">
-            <div class="col-sm-6 text-right content-centered">
+            <div class="col-sm-6 text-right pull-right">
               <button class="btn btn-primary" @click="applyStateToForbidden"
-                      :disabled="lodash.isEmpty(selectedForbiddenPermissions)">Apply State</button>
+                      :disabled="lodash.isEmpty(selectedForbiddenPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
               <input type="radio" id="forbiddenToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="forbiddenToState">

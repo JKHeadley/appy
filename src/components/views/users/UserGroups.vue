@@ -56,11 +56,14 @@
             </option>
           </select>
         </div>
-
       </div>
 
       <div>
         <input class="form-control" style="margin-top: 15px" :disabled="true" :placeholder="groupDescription"/>
+      </div>
+
+      <div v-show="newUser._id" class="py-2 text-center row" style="margin-top: 10px">
+        <button class="btn btn-primary" type="submit" @click="updateUserGroups" :disabled="!dirty">Update User Groups</button>
       </div>
     </div>
 
@@ -68,7 +71,7 @@
 </template>
 
 <script>
-  import { eventBus } from '../../../services'
+  import { userService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
 
   import _ from 'lodash'
@@ -79,11 +82,21 @@
     data () {
       return {
         loading: null,
+        dirty: false,
         newUser: _.cloneDeep(this.user),
+        oldUser: null,
         groupSearchText: null,
         availableGroups: [],
         selectedAvailableGroups: [],
         selectedUserGroups: []
+      }
+    },
+    watch: {
+      user (val) {
+        this.newUser = _.cloneDeep(val)
+        this.newUser.groups = this.newUser.groups || []
+        this.getAvailableGroups()
+        this.dirty = false
       }
     },
     computed: {
@@ -121,6 +134,7 @@
           })
       },
       addGroups () {
+        this.dirty = true
         this.newUser.groups = this.newUser.groups.concat(this.selectedAvailableGroups)
 
         this.availableGroups = this.availableGroups.filter((object) => {
@@ -130,9 +144,10 @@
         })
 
         this.sortLists()
-        eventBus.$emit(EVENTS.GROUPS_UPDATED, this.newUser.groups)
+        eventBus.$emit(EVENTS.USER_GROUPS_UPDATED, this.newUser.groups)
       },
       removeGroups () {
+        this.dirty = true
         this.availableGroups = this.availableGroups.concat(this.selectedUserGroups)
 
         this.newUser.groups = this.newUser.groups.filter((object) => {
@@ -142,16 +157,32 @@
         })
 
         this.sortLists()
-        eventBus.$emit(EVENTS.GROUPS_UPDATED, this.newUser.groups)
+        eventBus.$emit(EVENTS.USER_GROUPS_UPDATED, this.newUser.groups)
       },
       sortLists () {
         this.newUser.groups.sort((a, b) => { return a.group.name.localeCompare(b.group.name) })
 
         this.availableGroups.sort((a, b) => { return a.group.name.localeCompare(b.group.name) })
+      },
+      updateUserGroups () {
+        userService.updateUserGroups(this.newUser._id, this.newUser.groups, this.oldUser.groups)
+          .then((response) => {
+            this.loading = false
+            this.dirty = false
+            this.oldUser = _.cloneDeep(this.newUser)
+            eventBus.$emit(EVENTS.USER_GROUPS_SAVED)
+            this.$snotify.success('User groups updated', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('UserGroups.updateUserGroups-error:', error)
+            this.$snotify.error('Update user groups failed', 'Error!')
+          })
       }
     },
     created () {
       this.newUser.groups = this.newUser.groups || []
+      this.oldUser = _.cloneDeep(this.newUser)
       this.getAvailableGroups()
     }
   }

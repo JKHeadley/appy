@@ -62,6 +62,10 @@
       <div>
         <input class="form-control" style="margin-top: 15px" :disabled="true" :placeholder="userDescription"/>
       </div>
+
+      <div v-show="newGroup._id" class="py-2 text-center row" style="margin-top: 10px">
+        <button class="btn btn-primary" type="submit" @click="updateGroupUsers" :disabled="!dirty">Update Group Users</button>
+      </div>
     </div>
 
   </section>
@@ -69,7 +73,7 @@
 
 <script>
   import _ from 'lodash'
-  import { eventBus } from '../../../services'
+  import { eventBus, groupService } from '../../../services'
   import { EVENTS } from '../../../config'
 
   export default {
@@ -79,11 +83,21 @@
       return {
         lodash: _,
         loading: null,
+        dirty: false,
         newGroup: _.cloneDeep(this.group),
+        oldGroup: null,
         userSearchText: null,
         availableUsers: [],
         selectedAvailableUsers: [],
         selectedGroupUsers: []
+      }
+    },
+    watch: {
+      group (val) {
+        this.newGroup = _.cloneDeep(val)
+        this.newGroup.users = this.newGroup.users || []
+        this.getAvailableUsers()
+        this.dirty = false
       }
     },
     computed: {
@@ -123,6 +137,7 @@
           })
       },
       addUsers () {
+        this.dirty = true
         this.newGroup.users = this.newGroup.users.concat(this.selectedAvailableUsers)
 
         this.availableUsers = this.availableUsers.filter((object) => {
@@ -135,6 +150,7 @@
         eventBus.$emit(EVENTS.GROUP_USERS_UPDATED, this.newGroup.users)
       },
       removeUsers () {
+        this.dirty = true
         this.availableUsers = this.availableUsers.concat(this.selectedGroupUsers)
 
         this.newGroup.users = this.newGroup.users.filter((object) => {
@@ -150,10 +166,26 @@
         this.newGroup.users.sort((a, b) => { return a.user.lastName.localeCompare(b.user.lastName) })
 
         this.availableUsers.sort((a, b) => { return a.user.lastName.localeCompare(b.user.lastName) })
+      },
+      updateGroupUsers () {
+        groupService.updateGroupUsers(this.newGroup._id, this.newGroup.users, this.oldGroup.users)
+          .then((response) => {
+            this.loading = false
+            this.dirty = false
+            this.oldGroup = _.cloneDeep(this.newGroup)
+            eventBus.$emit(EVENTS.GROUP_USERS_SAVED)
+            this.$snotify.success('Group users updated', 'Success!')
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('GroupUsers.updateGroupUsers-error:', error)
+            this.$snotify.error('Update group users failed', 'Error!')
+          })
       }
     },
     created () {
       this.newGroup.users = this.newGroup.users || []
+      this.oldGroup = _.cloneDeep(this.newGroup)
       this.getAvailableUsers()
     }
   }

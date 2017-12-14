@@ -7,6 +7,12 @@
     <div v-show="!loading" v-if="ready" class="content">
       <h1 class="text-center">Create User</h1>
 
+      <div class="row">
+        <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
+          <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+        </div>
+      </div>
+
       <h3 class="text-center">User Scope</h3>
 
       <div class="row content-centered">
@@ -136,9 +142,12 @@
       return {
         ready: false,
         loading: false,
+        flash: false,
+        flashType: null,
+        flashMessage: '',
         EVENTS: EVENTS,
         USER_ROLES: USER_ROLES,
-        user: {},
+        user: null,
         roles: [],
         permissions: [],
         formstate: {}
@@ -171,6 +180,12 @@
             console.error('UserCreate.createUser-error:', error)
             this.$snotify.error('Create user failed', 'Error!')
           })
+      },
+      updateGroups (groups) {
+        this.user.groups = groups
+      },
+      updatePermissions (permissions) {
+        this.user.permissions = permissions
       }
     },
     created () {
@@ -187,13 +202,20 @@
             groups: [],
             permissions: []
           }
+          if (!this.user.role) {
+            this.flash = true
+            this.flashType = 'error'
+            this.flashMessage = 'User role not found, please make sure the role values in the client and ' +
+              'server configs are the same.'
+            this.user.role = { permissions: [] }
+          }
         })
-      eventBus.$on(EVENTS.GROUPS_UPDATED, (newGroups) => {
-        this.user.groups = newGroups
-      })
-      eventBus.$on(EVENTS.PERMISSIONS_UPDATED, (newPermissions) => {
-        this.user.permissions = newPermissions
-      })
+      eventBus.$on(EVENTS.USER_GROUPS_UPDATED, this.updateGroups)
+      eventBus.$on(EVENTS.USER_PERMISSIONS_UPDATED, this.updatePermissions)
+    },
+    beforeDestroy () {
+      eventBus.$off(EVENTS.USER_GROUPS_UPDATED, this.updateGroups)
+      eventBus.$off(EVENTS.USER_PERMISSIONS_UPDATED, this.updatePermissions)
     }
   }
 </script>
