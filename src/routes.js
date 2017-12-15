@@ -32,6 +32,10 @@ import Groups from './components/views/groups/Groups.vue'
 import GroupDetails from './components/views/groups/GroupDetails.vue'
 import GroupCreate from './components/views/groups/GroupCreate.vue'
 
+import Permissions from './components/views/permissions/Permissions.vue'
+import PermissionDetails from './components/views/permissions/PermissionDetails.vue'
+import PermissionCreate from './components/views/permissions/PermissionCreate.vue'
+
 // Routes
 const routes = [
   {
@@ -157,6 +161,24 @@ const routes = [
         component: GroupCreate,
         name: 'GroupCreate',
         meta: { description: 'Create a new group', title: 'Group Create' }
+      }, {
+        path: 'permissions',
+        component: Permissions,
+        name: 'Permissions',
+        meta: { description: 'List of appy permissions', title: 'Permissions' }
+      }, {
+        path: '/permissions/:_id',
+        beforeEnter: (to, from, next) => {
+          to.params._id === 'create' ? next({ name: 'PermissionCreate' }) : next()
+        },
+        component: PermissionDetails,
+        name: 'PermissionDetails',
+        meta: { description: 'Details for the selected permission', title: 'Permission Details' }
+      }, {
+        path: '/permission/create',
+        component: PermissionCreate,
+        name: 'PermissionCreate',
+        meta: { description: 'Create a new permission', title: 'Permission Create' }
       }
     ]
   }, {

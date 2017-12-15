@@ -76,6 +76,10 @@ export const EVENTS = {
   GROUP_USERS_SAVED: 'group-users-saved',
   GROUP_PERMISSIONS_UPDATED: 'group-permissions-updated',
   GROUP_PERMISSIONS_SAVED: 'group-permissions-saved',
+  PERMISSION_USERS_UPDATED: 'permission-users-updated',
+  PERMISSION_USERS_SAVED: 'permission-users-saved',
+  PERMISSION_GROUPS_UPDATED: 'permission-groups-updated',
+  PERMISSION_GROUPS_SAVED: 'permission-groups-saved',
   PASSWORD_SCORE_UPDATED: 'password-score-updated',
   UPDATING_PASSWORD_SCORE: 'updating-password-score'
 }

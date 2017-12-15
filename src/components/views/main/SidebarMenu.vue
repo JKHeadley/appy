@@ -19,6 +19,12 @@
         <span class="page">Groups</span>
       </a>
     </router-link>
+    <router-link tag="li" class="pageLink" to="/permissions">
+      <a>
+        <i class="fa fa-key"></i>
+        <span class="page">Permissions</span>
+      </a>
+    </router-link>
     <router-link tag="li" class="pageLink" to="/tables">
       <a>
         <i class="fa fa-table"></i>
