@@ -163,14 +163,14 @@
       addContact () {
         this.loading = true
         const params = {
-          primaryUser: this.$store.state.auth.user._id,
-          connectedUser: this.user._id,
           isContact: true
         }
         let promise = {}
         if (this.connection && this.connection._id) {
           promise = this.$connectionRepository.update(this.connection._id, params)
         } else {
+          params.primaryUser = this.$store.state.auth.user._id
+          params.connectedUser = this.user._id
           promise = this.$connectionRepository.create(params)
         }
         return promise
@@ -207,14 +207,14 @@
       followUser () {
         this.loading = true
         const params = {
-          primaryUser: this.$store.state.auth.user._id,
-          connectedUser: this.user._id,
           isFollowing: true
         }
         let promise = {}
         if (this.connection && this.connection._id) {
           promise = this.$connectionRepository.update(this.connection._id, params)
         } else {
+          params.primaryUser = this.$store.state.auth.user._id
+          params.connectedUser = this.user._id
           promise = this.$connectionRepository.create(params)
         }
         return promise
@@ -233,22 +233,14 @@
       unfollowUser () {
         this.loading = true
         const params = {
-          primaryUser: this.$store.state.auth.user._id,
-          connectedUser: this.user._id,
           isFollowing: false
         }
-        let promise = {}
-        if (this.connection && this.connection._id) {
-          promise = this.$connectionRepository.update(this.connection._id, params)
-        } else {
-          promise = this.$connectionRepository.create(params)
-        }
-        return promise
+        return this.$connectionRepository.update(this.connection._id, params)
           .then((response) => {
             this.connection = response.data
             this.connectionStats.followers -= 1
             this.loading = false
-            this.$snotify.success('Unfollowing member', 'Success!')
+            this.$snotify.success('Contact removed', 'Success!')
           })
           .catch((error) => {
             this.loading = false
