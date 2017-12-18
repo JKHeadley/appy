@@ -76,7 +76,7 @@ internals.updateUserProfile = (profile) => {
   return http.put(API.USER + '/my/profile', { profile })
 }
 
-internals.deleteCurrentAccount = (userId) => {
+internals.deleteCurrentAccount = () => {
   return http.delete(API.USER + '/my')
 }
 
@@ -96,20 +96,24 @@ internals.getUserScope = function (userId) {
   return http.get(API.USER + '/' + userId + '/scope')
 }
 
-internals.disableUser = function (user) {
-  return http.put(API.USER + '/disable/' + user._id)
+internals.disableUser = function (userId) {
+  return http.put(API.USER + '/' + userId + '/disable')
 }
 
-internals.enableUser = function (user) {
-  return http.put(API.USER + '/enable/' + user._id)
+internals.enableUser = function (userId) {
+  return http.put(API.USER + '/' + userId + '/enable')
 }
 
-internals.activateUser = function (user) {
-  return http.put(API.USER + '/activate/' + user._id)
+internals.activateUser = function (userId) {
+  return http.put(API.USER + '/' + userId + '/activate')
 }
 
-internals.deactivateUser = function (user) {
-  return http.put(API.USER + '/deactivate/' + user._id)
+internals.deactivateUser = function (userId) {
+  return http.put(API.USER + '/' + userId + '/deactivate')
+}
+
+internals.getConnectionStats = function (userId) {
+  return http.get(API.USER + '/' + userId + '/connection-stats')
 }
 
 /**

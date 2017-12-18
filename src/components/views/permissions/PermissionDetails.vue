@@ -117,19 +117,16 @@
         const params = {
           $embed: ['groups', 'users']
         }
-        const promises = []
-        let promise = {}
 
-        promise = this.$permissionRepository.find(this.$route.params._id, params)
+        return this.$permissionRepository.find(this.$route.params._id, params)
           .then((response) => {
             this.newPermission = response.data
             this.oldPermission = _.cloneDeep(this.newPermission)
             this.$store.dispatch('setBreadcrumbTitle', this.newPermission.name)
           })
-        promises.push(promise)
-        return Promise.all(promises)
-          .then(() => {
-            this.loading = false
+          .catch((error) => {
+            console.error('PermissionDetails.getPermission-error:', error)
+            this.$snotify.error('Get permission failed', 'Error!')
           })
       },
       clearChanges () {
@@ -205,11 +202,15 @@
     },
     created () {
       const promises = []
+      this.loading = true
       promises.push(this.getPermission())
       Promise.all(promises)
         .then(() => {
           this.loading = false
           this.ready = true
+        })
+        .catch(() => {
+          this.loading = false
         })
       eventBus.$on(EVENTS.PERMISSION_USERS_UPDATED, this.updateUsers)
       eventBus.$on(EVENTS.PERMISSION_USERS_SAVED, this.clearUsers)

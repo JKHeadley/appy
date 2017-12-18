@@ -50,6 +50,10 @@ export default {
           }
           this.loading = true
           return this.$permissionRepository.list(params)
+            .catch((error) => {
+              console.error('Permissions.requestFunction-error:', error)
+              this.$snotify.error('Get permissions failed', 'Error!')
+            })
         },
         responseAdapter: (response) => {
           this.loading = false

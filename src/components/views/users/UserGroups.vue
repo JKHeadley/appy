@@ -129,6 +129,7 @@
             this.sortLists()
           })
           .catch((error) => {
+            this.loading = false
             console.error('UserGroups.getAvailableGroups-error:\n', error)
             this.$snotify.error('There was an error loading the groups', 'Error!')
           })

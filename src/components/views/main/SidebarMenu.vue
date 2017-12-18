@@ -1,34 +1,50 @@
 <template>
   <ul class="sidebar-menu">
-    <li class="header">SUPER ADMIN</li>
-    <router-link tag="li" class="pageLink" to="/users">
-      <a>
-        <i class="fa fa-user"></i>
-        <span class="page">Users</span>
-      </a>
-    </router-link>
-    <router-link tag="li" class="pageLink" to="/roles">
-      <a>
-        <i class="fa fa-id-card"></i>
-        <span class="page">Roles</span>
-      </a>
-    </router-link>
-    <router-link tag="li" class="pageLink" to="/groups">
+    <li class="header">{{role}}</li>
+    <div class="sidebar-menu" v-show="user.roleName === USER_ROLES.ADMIN || user.roleName === USER_ROLES.SUPER_ADMIN">
+      <router-link tag="li" class="pageLink" to="/users">
+        <a>
+          <i class="fa fa-user"></i>
+          <span class="page">Users</span>
+        </a>
+      </router-link>
+      <router-link tag="li" class="pageLink" to="/roles">
+        <a>
+          <i class="fa fa-id-card"></i>
+          <span class="page">Roles</span>
+        </a>
+      </router-link>
+      <router-link tag="li" class="pageLink" to="/groups">
+        <a>
+          <i class="fa fa-users"></i>
+          <span class="page">Groups</span>
+        </a>
+      </router-link>
+      <router-link tag="li" class="pageLink" to="/permissions">
+        <a>
+          <i class="fa fa-key"></i>
+          <span class="page">Permissions</span>
+        </a>
+      </router-link>
+      <router-link tag="li" class="pageLink" to="/tables">
+        <a>
+          <i class="fa fa-table"></i>
+          <span class="page">Tables</span>
+        </a>
+      </router-link>
+    </div>
+
+    <li class="header">PEOPLE</li>
+    <router-link tag="li" class="pageLink" to="/contacts">
       <a>
         <i class="fa fa-users"></i>
-        <span class="page">Groups</span>
+        <span class="page">Contacts</span>
       </a>
     </router-link>
-    <router-link tag="li" class="pageLink" to="/permissions">
+    <router-link tag="li" class="pageLink" to="/members">
       <a>
-        <i class="fa fa-key"></i>
-        <span class="page">Permissions</span>
-      </a>
-    </router-link>
-    <router-link tag="li" class="pageLink" to="/tables">
-      <a>
-        <i class="fa fa-table"></i>
-        <span class="page">Tables</span>
+        <i class="fa fa-users"></i>
+        <span class="page">Members</span>
       </a>
     </router-link>
 
@@ -110,16 +126,37 @@
 </template>
 
 <script>
-export default {
-  name: 'SidebarName'
-}
+  import { USER_ROLES } from '../../../config'
+  export default {
+    name: 'SidebarName',
+    data () {
+      return {
+        role: '',
+        USER_ROLES: USER_ROLES
+      }
+    },
+    created () {
+      this.user = this.$store.state.auth.user
+      this.role = this.$store.state.auth.user.roleName.toUpperCase()
+    }
+  }
 </script>
 
-<style>
+<style lang="scss">
   /* override default */
   .sidebar-menu>li>a {
     padding: 12px 15px 12px 15px;
   }
+
+  /*.sidebar-menu {*/
+    /*div {*/
+      /*li {*/
+        /*a {*/
+          /*padding: 12px 15px 12px 15px;*/
+        /*}*/
+      /*}*/
+    /*}*/
+  /*}*/
 
   .sidebar-menu li.active>a>.fa-angle-left, .sidebar-menu li.active>a>.pull-right-container>.fa-angle-left {
     animation-name: rotate;

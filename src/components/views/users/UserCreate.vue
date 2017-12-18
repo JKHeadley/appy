@@ -166,6 +166,10 @@
           .then((response) => {
             this.roles = response.data.docs
           })
+          .catch((error) => {
+            console.error('UserCreate.getRoles-error:', error)
+            this.$snotify.error('Get roles failed', 'Error!')
+          })
       },
       createUser () {
         this.loading = true
@@ -190,6 +194,7 @@
     },
     created () {
       const promises = []
+      this.loading = true
       promises.push(this.getRoles())
       Promise.all(promises)
         .then(() => {
@@ -209,6 +214,9 @@
               'server configs are the same.'
             this.user.role = { permissions: [] }
           }
+        })
+        .catch(() => {
+          this.loading = false
         })
       eventBus.$on(EVENTS.USER_GROUPS_UPDATED, this.updateGroups)
       eventBus.$on(EVENTS.USER_PERMISSIONS_UPDATED, this.updatePermissions)

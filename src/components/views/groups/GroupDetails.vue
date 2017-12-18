@@ -113,23 +113,19 @@
     methods: {
       fieldClassName: formService.fieldClassName,
       getGroup () {
-        this.loading = true
         const params = {
           $embed: ['permissions', 'users']
         }
-        const promises = []
-        let promise = {}
 
-        promise = this.$groupRepository.find(this.$route.params._id, params)
+        return this.$groupRepository.find(this.$route.params._id, params)
           .then((response) => {
             this.newGroup = response.data
             this.oldGroup = _.cloneDeep(this.newGroup)
             this.$store.dispatch('setBreadcrumbTitle', this.newGroup.name)
           })
-        promises.push(promise)
-        return Promise.all(promises)
-          .then(() => {
-            this.loading = false
+          .catch((error) => {
+            console.error('GroupDetails.getGroup-error:', error)
+            this.$snotify.error('Get group failed', 'Error!')
           })
       },
       clearChanges () {
@@ -205,11 +201,15 @@
     },
     created () {
       const promises = []
+      this.loading = true
       promises.push(this.getGroup())
       Promise.all(promises)
         .then(() => {
           this.loading = false
           this.ready = true
+        })
+        .catch(() => {
+          this.loading = false
         })
       eventBus.$on(EVENTS.GROUP_USERS_UPDATED, this.updateUsers)
       eventBus.$on(EVENTS.GROUP_USERS_SAVED, this.clearUsers)

@@ -50,6 +50,10 @@ export default {
           }
           this.loading = true
           return this.$roleRepository.list(params)
+            .catch((error) => {
+              console.error('Roles.requestFunction-error:', error)
+              this.$snotify.error('Get roles failed', 'Error!')
+            })
         },
         responseAdapter: (response) => {
           this.loading = false
@@ -73,6 +77,6 @@ export default {
 <style lang="scss">
   .add-role {
     position: absolute;
-    right: 15px;
+    right: 125px;
   }
 </style>

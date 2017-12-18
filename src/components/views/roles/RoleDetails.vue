@@ -105,23 +105,19 @@
     methods: {
       fieldClassName: formService.fieldClassName,
       getRole () {
-        this.loading = true
         const params = {
           $embed: ['permissions']
         }
-        const promises = []
-        let promise = {}
 
-        promise = this.$roleRepository.find(this.$route.params._id, params)
+        return this.$roleRepository.find(this.$route.params._id, params)
           .then((response) => {
             this.newRole = response.data
             this.oldRole = _.cloneDeep(this.newRole)
             this.$store.dispatch('setBreadcrumbTitle', this.newRole.name)
           })
-        promises.push(promise)
-        return Promise.all(promises)
-          .then(() => {
-            this.loading = false
+          .catch((error) => {
+            console.error('RoleDetails.getRole-error:', error)
+            this.$snotify.error('Get role failed', 'Error!')
           })
       },
       clearChanges () {
@@ -193,11 +189,15 @@
     },
     created () {
       const promises = []
+      this.loading = true
       promises.push(this.getRole())
       Promise.all(promises)
         .then(() => {
           this.loading = false
           this.ready = true
+        })
+        .catch(() => {
+          this.loading = false
         })
       eventBus.$on(EVENTS.PERMISSIONS_UPDATED, this.updatePermissions)
     },

@@ -74,6 +74,13 @@
         </div>
         <div id="settings" class="tab-pane fade in" :class="settingsActive">
 
+          <div class="callout callout-info">
+            <h4>Tip!</h4>
+
+            <p>Your 4 digit PIN will be required if you need to reset your
+              password in the future. Please keep it somewhere safe.</p>
+          </div>
+
           <div class="col-md-4 col-md-offset-4">
             <vue-form :state="passwordFormstate" @submit.prevent="updatePassword" class="row">
 
@@ -111,11 +118,6 @@
               </div>
             </vue-form>
 
-            <div class="flash-message" style="margin-top: 15px;">
-              <div class="alert" :class="'alert-info'">NOTE: Your 4 digit PIN will be required if you need to reset your
-                password in the future. Please keep it somewhere safe.</div>
-            </div>
-
             <vue-form :state="pinFormstate" @submit.prevent="updatePIN" class="row">
 
               <validate auto-label class="form-group" :class="fieldClassName(pinFormstate.pin)" :custom="{ minlength: minlengthValidator(4) }">
@@ -140,7 +142,6 @@
               </div>
             </vue-form>
           </div>
-
         </div>
       </div>
     </div>

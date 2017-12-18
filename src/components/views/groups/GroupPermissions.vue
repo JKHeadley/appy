@@ -268,6 +268,7 @@
             this.sortLists()
           })
           .catch((error) => {
+            this.loading = false
             console.error('GroupPermissions.getAvailablePermissions-error:\n', error)
             this.$snotify.error('There was an error loading the permissions', 'Error!')
           })

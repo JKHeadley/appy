@@ -50,6 +50,10 @@ export default {
           }
           this.loading = true
           return this.$groupRepository.list(params)
+            .catch((error) => {
+              console.error('Groups.requestFunction-error:', error)
+              this.$snotify.error('Get groups failed', 'Error!')
+            })
         },
         responseAdapter: (response) => {
           this.loading = false
@@ -73,6 +77,6 @@ export default {
 <style lang="scss">
   .add-group {
     position: absolute;
-    right: 15px;
+    right: 125px;
   }
 </style>

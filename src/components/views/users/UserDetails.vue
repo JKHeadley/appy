@@ -174,29 +174,29 @@
         return formService.emailUniqueValidator(email, this.oldUser.email)
       },
       getUser () {
-        this.loading = true
         const params = {
           $embed: ['role.permissions', 'groups.permissions', 'permissions']
         }
-        const promises = []
-        let promise = {}
 
-        promise = this.$userRepository.find(this.$route.params._id, params)
+        return this.$userRepository.find(this.$route.params._id, params)
           .then((response) => {
             this.newUser = response.data
             this.oldUser = _.cloneDeep(this.newUser)
             this.$store.dispatch('setBreadcrumbTitle', this.newUser.firstName + ' ' + this.newUser.lastName)
           })
-        promises.push(promise)
-        return Promise.all(promises)
-          .then(() => {
-            this.loading = false
+          .catch((error) => {
+            console.error('UserDetails.getUser-error:', error)
+            this.$snotify.error('Get user failed', 'Error!')
           })
       },
       getRoles () {
         return this.$roleRepository.list({ $embed: ['permissions'] })
           .then((response) => {
             this.roles = response.data.docs
+          })
+          .catch((error) => {
+            console.error('UserDetails.getRoles-error:', error)
+            this.$snotify.error('Get roles failed', 'Error!')
           })
       },
       clearChanges () {
@@ -256,7 +256,7 @@
       },
       disableUser () {
         this.loading = true
-        return userService.disableUser(this.newUser)
+        return userService.disableUser(this.newUser._id)
           .then((response) => {
             this.newUser.isEnabled = false
             this.loading = false
@@ -270,7 +270,7 @@
       },
       enableUser () {
         this.loading = true
-        return userService.enableUser(this.newUser)
+        return userService.enableUser(this.newUser._id)
           .then((response) => {
             this.newUser.isEnabled = true
             this.loading = false
@@ -284,7 +284,7 @@
       },
       deactivateUser () {
         this.loading = true
-        return userService.deactivateUser(this.newUser)
+        return userService.deactivateUser(this.newUser._id)
           .then((response) => {
             this.newUser.isActive = false
             this.loading = false
@@ -298,7 +298,7 @@
       },
       activateUser () {
         this.loading = true
-        return userService.activateUser(this.newUser)
+        return userService.activateUser(this.newUser._id)
           .then((response) => {
             this.newUser.isActive = true
             this.loading = false
@@ -327,12 +327,16 @@
     },
     created () {
       const promises = []
+      this.loading = true
       promises.push(this.getUser())
       promises.push(this.getRoles())
       Promise.all(promises)
         .then(() => {
           this.loading = false
           this.ready = true
+        })
+        .catch(() => {
+          this.loading = false
         })
       eventBus.$on(EVENTS.USER_GROUPS_UPDATED, this.updateGroups)
       eventBus.$on(EVENTS.USER_GROUPS_SAVED, this.clearGroups)

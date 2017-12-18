@@ -14,8 +14,14 @@ export const resources = {
       },
       permissions: {
         alias: 'permission'
+      },
+      connections: {
+        alias: 'connection'
       }
     }
+  },
+  connection: {
+    alias: 'connection'
   },
   role: {
     alias: 'role',
@@ -64,7 +70,7 @@ export const REQUIRED_PASSWORD_STRENGTH = 3
 export const USER_ROLES = {
   USER: 'User',
   ADMIN: 'Admin',
-  SUPER_ADMIN: 'SuperAdmin'
+  SUPER_ADMIN: 'Super Admin'
 }
 
 export const EVENTS = {

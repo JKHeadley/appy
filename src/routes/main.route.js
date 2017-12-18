@@ -15,6 +15,8 @@ import roleRoutes from './roles.route'
 import groupRoutes from './groups.route'
 import permissionRoutes from './permissions.route'
 
+import memberRoutes from './members.route'
+
 const routes = [
   {
     path: '/',
@@ -65,7 +67,8 @@ const routes = [
       ...userRoutes,
       ...roleRoutes,
       ...groupRoutes,
-      ...permissionRoutes
+      ...permissionRoutes,
+      ...memberRoutes
     ]
   }
 ]
