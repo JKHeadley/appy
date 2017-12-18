@@ -1,27 +1,21 @@
 <template>
   <section class="content">
-    <h1 class="text-center">Members</h1>
-
-    <div class="add-user">
-      <router-link :to="{ name: 'UserCreate' }">
-        <button class="btn btn-primary">Add User</button>
-      </router-link>
+    <div class="box box-primary">
+      <div class="box-body">
+        <v-server-table ref="userTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick">
+          <template slot="beforeBody">
+            <tr v-if="loading" class="VueTables__no-results">
+              <td class="text-center" colspan="6"><pulse-loader></pulse-loader></td>
+            </tr>
+          </template>
+          <template slot="avatar" slot-scope="props">
+            <div>
+              <img :src="avatar()" class="user-image" alt="User Image">
+            </div>
+          </template>
+        </v-server-table>
+      </div>
     </div>
-
-    <v-server-table ref="userTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick">
-      <template slot="beforeBody">
-        <tr v-if="loading" class="VueTables__no-results">
-          <td class="text-center" colspan="6"><pulse-loader></pulse-loader></td>
-        </tr>
-      </template>
-      <template slot="avatar" slot-scope="props">
-        <div>
-          <!--<a class="fa fa-edit" role="button" v-on:click.stop="edit(props.row)"></a>-->
-          <img :src="avatar()" class="user-image" alt="User Image">
-        </div>
-      </template>
-    </v-server-table>
-
   </section>
 </template>
 

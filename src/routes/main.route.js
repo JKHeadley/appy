@@ -16,6 +16,7 @@ import groupRoutes from './groups.route'
 import permissionRoutes from './permissions.route'
 
 import memberRoutes from './members.route'
+import connectionRoutes from './connections.route'
 
 const routes = [
   {
@@ -68,7 +69,8 @@ const routes = [
       ...roleRoutes,
       ...groupRoutes,
       ...permissionRoutes,
-      ...memberRoutes
+      ...memberRoutes,
+      ...connectionRoutes
     ]
   }
 ]

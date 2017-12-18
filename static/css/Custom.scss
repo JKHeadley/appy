@@ -134,3 +134,9 @@ vue-tables-2
 .VueTables__child-row-toggler--open::before  {
   content: "-";
 }
+
+.VueTables__search {
+  input {
+    margin-left: 10px;
+  }
+}

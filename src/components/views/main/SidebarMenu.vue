@@ -35,10 +35,10 @@
     </div>
 
     <li class="header">PEOPLE</li>
-    <router-link tag="li" class="pageLink" to="/contacts">
+    <router-link tag="li" class="pageLink" to="/connections">
       <a>
         <i class="fa fa-users"></i>
-        <span class="page">Contacts</span>
+        <span class="page">Connections</span>
       </a>
     </router-link>
     <router-link tag="li" class="pageLink" to="/members">
