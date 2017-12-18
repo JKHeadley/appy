@@ -509,6 +509,7 @@ function updatePermissions() {
  * @returns {Promise.<TResult>|Promise}
  */
 function dropCollections(models) {
+  const mongoose = require('mongoose');
   RestHapi.config.loglevel = "LOG";
   const Log = RestHapi.getLogger("unseed");
 
@@ -533,6 +534,26 @@ function dropCollections(models) {
     .then(function () {
       Log.log("removing authAttempts");
       return models.authAttempt.remove({});
+    })
+    .then(function () {
+      Log.log("removing connections");
+      return models.connection.remove({});
+    })
+    .then(function () {
+      Log.log("removing group_permission");
+      return mongoose.model('group_permission').remove({});
+    })
+    .then(function () {
+      Log.log("removing group_user");
+      return mongoose.model('group_user').remove({});
+    })
+    .then(function () {
+      Log.log("removing role_permission");
+      return mongoose.model('role_permission').remove({});
+    })
+    .then(function () {
+      Log.log("removing user_permission");
+      return mongoose.model('user_permission').remove({});
     })
     .catch(function (error) {
       Log.error(error);
