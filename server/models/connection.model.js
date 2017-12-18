@@ -1,24 +1,24 @@
 'use strict';
 
-const _ = require('lodash');
 const RestHapi = require('rest-hapi');
 
-const Config = require('../../config');
+const connectionUpdateAuth = require('../policies/connectionAuth').connectionUpdateAuth;
 
-const USER_ROLES = Config.get('/constants/USER_ROLES');
-
-// TODO: only primary user should be able to access this
 module.exports = function (mongoose) {
   var modelName = "connection";
   var Types = mongoose.Schema.Types;
   var Schema = new mongoose.Schema({
     primaryUser: {
       type: Types.ObjectId,
-      ref: "user"
+      ref: "user",
+      allowOnUpdate: false,
+      required: true
     },
     connectedUser: {
       type: Types.ObjectId,
-      ref: "user"
+      ref: "user",
+      allowOnUpdate: false,
+      required: true
     },
     isFollowing: {
       type: Types.Boolean,
@@ -37,8 +37,9 @@ module.exports = function (mongoose) {
   Schema.statics = {
     collectionName:modelName,
     routeOptions: {
-      routeScope: {
-        rootScope: _.values(USER_ROLES)
+      policies: {
+        // EXPL: only the primaryUser can update a connection
+        updatePolicies: [connectionUpdateAuth(mongoose)]
       },
       associations: {
         primaryUser: {
@@ -53,6 +54,7 @@ module.exports = function (mongoose) {
       create: {
         pre: function (payload, request, Log) {
           const Connection = mongoose.model('connection');
+          // EXPL: Connections must be made both ways
           if (!payload.isSecondary) {
             const secondaryPayload = {
               isSecondary: true
@@ -78,6 +80,7 @@ module.exports = function (mongoose) {
       update: {
         pre: function (_id, payload, request, Log) {
           const Connection = mongoose.model('connection');
+          // EXPL: Connections must be updated both ways
           if (!payload.isSecondary) {
             const secondaryPayload = {
               isSecondary: true
