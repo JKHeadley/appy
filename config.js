@@ -200,11 +200,11 @@ const config = {
         local: true,
         $default: true
     },
-    authorizeDocumentCreator: {
-        $filter: 'env',
-        local: true,
-        $default: true
-    },
+    // authorizeDocumentCreator: {
+    //     $filter: 'env',
+    //     local: true,
+    //     $default: true
+    // },
     generateScopes: {
       $filter: 'env',
       local: true,
