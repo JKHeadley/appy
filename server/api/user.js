@@ -5,6 +5,7 @@ const Boom = require('boom');
 const Chalk = require('chalk');
 const _ = require('lodash');
 const zxcvbn = require('zxcvbn');
+const Q = require('q');
 const RestHapi = require('rest-hapi');
 
 const Config = require('../../config');
@@ -512,7 +513,7 @@ module.exports = function (server, mongoose, logger) {
 
         server.route({
             method: 'PUT',
-            path: '/user/enable/{_id}',
+            path: '/user/{_id}/enable',
             config: {
                 handler: enableAccountHandler,
                 auth: {
@@ -573,7 +574,7 @@ module.exports = function (server, mongoose, logger) {
 
         server.route({
             method: 'PUT',
-            path: '/user/disable/{_id}',
+            path: '/user/{_id}/disable',
             config: {
                 handler: disableAccountHandler,
                 auth: {
@@ -634,7 +635,7 @@ module.exports = function (server, mongoose, logger) {
 
       server.route({
         method: 'PUT',
-        path: '/user/activate/{_id}',
+        path: '/user/{_id}/activate',
         config: {
           handler: activateAccountHandler,
           auth: {
@@ -695,7 +696,7 @@ module.exports = function (server, mongoose, logger) {
 
       server.route({
         method: 'PUT',
-        path: '/user/deactivate/{_id}',
+        path: '/user/{_id}/deactivate',
         config: {
           handler: deactivateAccountHandler,
           auth: {
@@ -777,4 +778,113 @@ module.exports = function (server, mongoose, logger) {
       }
     });
   }());
+
+
+    // Get User Connection Stats Endpoint
+    (function () {
+      const Log = logger.bind(Chalk.magenta("Get User Connection Stats"));
+      const User = mongoose.model('user');
+      const Connection = mongoose.model('connection');
+
+      const collectionName = User.collectionDisplayName || User.modelName;
+
+      Log.note("Generating Get User Connection Stats endpoint for " + collectionName);
+
+      const getUserConnectionStatsHandler = function (request, reply) {
+        const promises = []
+
+        promises.push(RestHapi.getAll(User, request.params._id, Connection, 'connections', { isFollowed: true, $count: true }, Log))
+        promises.push(RestHapi.getAll(User, request.params._id, Connection, 'connections', { isFollowing: true, $count: true }, Log))
+        promises.push(RestHapi.getAll(User, request.params._id, Connection, 'connections', { isContact: true, $count: true }, Log))
+
+        return Q.all(promises)
+          .then(function (result) {
+            const connectionStats = {
+              followers: result[0],
+              following: result[1],
+              contacts: result[2]
+            }
+
+            return reply(connectionStats);
+          })
+          .catch(function (error) {
+            Log.error(error);
+            return reply(RestHapi.errorHelper.formatResponse(error));
+          });
+      };
+
+      server.route({
+        method: 'GET',
+        path: '/user/{_id}/connection-stats',
+        config: {
+          handler: getUserConnectionStatsHandler,
+          auth: {
+            strategy: authStrategy,
+            scope: _.values(USER_ROLES)
+          },
+          description: 'Get user connection stats.',
+          tags: ['api', 'User', 'Get User Connection Stats'],
+          validate: {
+            params: {
+              _id: RestHapi.joiHelper.joiObjectId()
+            }
+          },
+          plugins: {
+            'hapi-swagger': {
+              responseMessages: [
+                { code: 200, message: 'Success' },
+                { code: 400, message: 'Bad Request' },
+                { code: 404, message: 'Not Found' },
+                { code: 500, message: 'Internal Server Error' }
+              ]
+            }
+          }
+        }
+      });
+    }());
+
+
+  // Chat
+  (function () {
+    const Log = logger.bind(Chalk.magenta("Check Username"));
+    const User = mongoose.model('user');
+
+    const collectionName = User.collectionDisplayName || User.modelName;
+
+    Log.note("Generating Check Username endpoint for " + collectionName);
+
+    const checkUsernameHandler = function (request, h) {
+
+      User.findOne({ username: request.payload.username })
+        .then(function (result) {
+          if (result) {
+            Log.log("Username already exists.");
+            return reply(true);
+          }
+          else {
+            Log.log("Username doesn't exist.");
+            return reply(false);
+          }
+        })
+        .catch(function (error) {
+          Log.error(error);
+          return reply(RestHapi.errorHelper.formatResponse(error));
+        });
+    };
+
+    server.route({
+      method: 'GET',
+      path: '/test',
+      config: {
+        handler: function (request, reply) {
+
+          Log.debug("HERE")
+
+          return reply('world!');
+        }
+      }
+    });
+  }());
+
+
 };

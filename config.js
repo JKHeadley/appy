@@ -13,7 +13,7 @@ const constants = {
   USER_ROLES: {
     USER: 'User',
     ADMIN: 'Admin',
-    SUPER_ADMIN: 'SuperAdmin',
+    SUPER_ADMIN: 'Super Admin',
   },
   PERMISSION_STATES: {
     INCLUDED: 'Included',

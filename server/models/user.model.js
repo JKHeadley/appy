@@ -1,7 +1,6 @@
 'use strict';
 
 const Bcrypt = require('bcryptjs');
-const Chalk = require('chalk');
 const GeneratePassword = require('password-generator');
 const Q = require('q');
 
@@ -9,6 +8,28 @@ module.exports = function (mongoose) {
   const modelName = "user";
   const Types = mongoose.Schema.Types;
   const Schema = new mongoose.Schema({
+    firstName: {
+      type: Types.String,
+      required: true
+    },
+    lastName: {
+      type: Types.String,
+      required: true
+    },
+    email: {
+      type: Types.String,
+      required: true
+    },
+    title: {
+      type: Types.String
+    },
+    description: {
+      type: Types.String
+    },
+    role: {
+      type: Types.ObjectId,
+      ref: "role"
+    },
     isActive: {
       type: Types.Boolean,
       allowOnUpdate: false,
@@ -32,22 +53,6 @@ module.exports = function (mongoose) {
     facebookId: {
       type: Types.String,
       allowOnUpdate: false
-    },
-    firstName: {
-      type: Types.String,
-      required: true
-    },
-    lastName: {
-      type: Types.String,
-      required: true
-    },
-    email: {
-      type: Types.String,
-      required: true
-    },
-    role: {
-      type: Types.ObjectId,
-      ref: "role"
     },
     resetPassword: {
       hash: {
@@ -110,7 +115,13 @@ module.exports = function (mongoose) {
           alias: "permission",
           model: "permission",
           linkingModel: "user_permission"
-        }
+        },
+        connections: {
+          type: "ONE_MANY",
+          alias: "connection",
+          foreignField: "primaryUser",
+          model: "connection"
+        },
       },
       create: {
         pre: function (payload, request, Log) {
