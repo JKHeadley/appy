@@ -305,6 +305,7 @@
         this.availablePermissions.sort((a, b) => { return a.permission.name.localeCompare(b.permission.name) })
       },
       applyStateToIncluded () {
+        this.dirty = true
         for (let permission of this.selectedIncludedPermissions) {
           permission.state = this.includedToState
         }
@@ -312,6 +313,7 @@
         eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newUser.permissions)
       },
       applyStateToExcluded () {
+        this.dirty = true
         for (let permission of this.selectedExcludedPermissions) {
           permission.state = this.excludedToState
         }
@@ -319,6 +321,7 @@
         eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newUser.permissions)
       },
       applyStateToForbidden () {
+        this.dirty = true
         for (let permission of this.selectedForbiddenPermissions) {
           permission.state = this.forbiddenToState
         }

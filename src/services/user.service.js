@@ -60,7 +60,7 @@ internals.updateUserPermissions = function (userId, newPermissions, oldPermissio
 
   let permissionsToRemove = oldPermissions.filter((oldPermission) => {
     return !newPermissions.find((newPermission) => {
-      return oldPermission.permission._id === newPermission.permission._id && oldPermission.state === newPermission.state
+      return oldPermission.permission._id === newPermission.permission._id
     })
   }).map((permission) => { return permission.permission._id })
 

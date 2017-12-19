@@ -64,7 +64,7 @@ internals.updatePermissionUsers = function (permissionId, newUsers, oldUsers) {
 
   let usersToRemove = oldUsers.filter((oldUser) => {
     return !newUsers.find((newUser) => {
-      return oldUser.user._id === newUser.user._id && oldUser.state === newUser.state
+      return oldUser.user._id === newUser.user._id
     })
   }).map((user) => { return user.user._id })
 
@@ -86,7 +86,7 @@ internals.updatePermissionGroups = function (permissionId, newGroups, oldGroups)
 
   let groupsToRemove = oldGroups.filter((oldGroup) => {
     return !newGroups.find((newGroup) => {
-      return oldGroup.group._id === newGroup.group._id && oldGroup.state === newGroup.state
+      return oldGroup.group._id === newGroup.group._id
     })
   }).map((group) => { return group.group._id })
 
