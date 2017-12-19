@@ -1,50 +1,20 @@
 <template>
   <section class="content">
-    <div class="nav-tabs-custom">
-      <ul class="nav nav-tabs">
-        <li class="active"><a href="#contacts" data-toggle="tab">Contacts</a></li>
-        <li><a href="#following" data-toggle="tab">Followers</a></li>
-        <li><a href="#followers" data-toggle="tab">Following</a></li>
-      </ul>
-      <div class="tab-content">
-        <div class="active tab-pane" id="contacts">
-          <v-server-table ref="userTable" url="" :columns="contactColumns" :options="contactOptions" v-on:row-click="rowClick">
-            <template slot="beforeBody">
-              <tr v-if="loading" class="VueTables__no-results">
-                <td class="text-center" colspan="6"><pulse-loader></pulse-loader></td>
-              </tr>
-            </template>
-            <template slot="avatar" slot-scope="props">
-              <div>
-                <img :src="avatar()" class="user-image" alt="User Image">
-              </div>
-            </template>
-          </v-server-table>
-        </div>
-        <!-- /.tab-pane -->
-        <div class="tab-pane" id="following">
-          <v-server-table ref="userTable" url="" :columns="followingColumns" :options="followingOptions" v-on:row-click="rowClick">
-            <template slot="beforeBody">
-              <tr v-if="loading" class="VueTables__no-results">
-                <td class="text-center" colspan="6"><pulse-loader></pulse-loader></td>
-              </tr>
-            </template>
-            <template slot="avatar" slot-scope="props">
-              <div>
-                <img :src="avatar()" class="user-image" alt="User Image">
-              </div>
-            </template>
-          </v-server-table>
-        </div>
-        <!-- /.tab-pane -->
 
-        <div class="tab-pane" id="followers">
-          <v-server-table ref="userTable" url="" :columns="followerColumns" :options="followerOptions" v-on:row-click="rowClick">
-            <template slot="beforeBody">
-              <tr v-if="loading" class="VueTables__no-results">
-                <td class="text-center" colspan="6"><pulse-loader></pulse-loader></td>
-              </tr>
-            </template>
+    <div v-if="!ready" class="content content-centered">
+      <pulse-loader></pulse-loader>
+    </div>
+
+    <div v-if="ready">
+      <div class="box box-primary box-solid">
+        <div class="box-header">
+          <h3 class="box-title">Contacts</h3>
+          <div class="box-tools">
+            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <v-server-table ref="userTable" url="" :columns="contactColumns" :options="contactOptions" v-on:row-click="rowClick">
             <template slot="avatar" slot-scope="props">
               <div>
                 <img :src="avatar()" class="user-image" alt="User Image">
@@ -52,9 +22,55 @@
             </template>
           </v-server-table>
         </div>
-        <!-- /.tab-pane -->
+
+        <div v-if="contactsLoading" class="overlay">
+          <i class="fa"><pulse-loader></pulse-loader></i>
+        </div>
       </div>
-      <!-- /.tab-content -->
+
+      <div class="box box-primary box-solid">
+        <div class="box-header">
+          <h3 class="box-title">Following</h3>
+          <div class="box-tools">
+            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <v-server-table ref="userTable" url="" :columns="followingColumns" :options="followingOptions" v-on:row-click="rowClick">
+            <template slot="avatar" slot-scope="props">
+              <div>
+                <img :src="avatar()" class="user-image" alt="User Image">
+              </div>
+            </template>
+          </v-server-table>
+        </div>
+
+        <div v-if="followingLoading" class="overlay">
+          <i class="fa"><pulse-loader></pulse-loader></i>
+        </div>
+      </div>
+
+      <div class="box box-primary box-solid">
+        <div class="box-header">
+          <h3 class="box-title">Followers</h3>
+          <div class="box-tools">
+            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <v-server-table ref="userTable" url="" :columns="followerColumns" :options="followerOptions" v-on:row-click="rowClick">
+            <template slot="avatar" slot-scope="props">
+              <div>
+                <img :src="avatar()" class="user-image" alt="User Image">
+              </div>
+            </template>
+          </v-server-table>
+        </div>
+
+        <div v-if="followersLoading" class="overlay">
+          <i class="fa"><pulse-loader></pulse-loader></i>
+        </div>
+      </div>
     </div>
 
   </section>
@@ -66,7 +82,13 @@
   export default {
     data () {
       return {
-        loading: null,
+        ready: false,
+        contactsLoading: null,
+        followingLoading: null,
+        followersLoading: null,
+        contactIds: [],
+        followingIds: [],
+        followerIds: [],
         contactColumns: ['avatar', 'firstName', 'lastName', 'email'],
         contactOptions: {
           highlightMatches: true,
@@ -81,13 +103,17 @@
             if (request.query) {
               params.$term = request.query
             }
-            this.loading = true
-            return this.$userRepository.getConnections(this.$store.state.auth.user._id, { isContact: true, $embed: ['connectedUser'] })
+            if (this.contactIds[0]) {
+              params._id = this.contactIds
+              this.contactsLoading = true
+              return this.$userRepository.list(params)
+            } else {
+              return Promise.resolve(null)
+            }
           },
           responseAdapter: (response) => {
-            this.loading = false
-            const contacts = response.data.docs.map((connection) => { return connection.connectedUser })
-            return { data: contacts, count: response.data.items.total }
+            this.contactsLoading = false
+            return response ? { data: response.data.docs, count: response.data.items.total } : { data: [], count: 0 }
           },
           uniqueKey: '_id'
         },
@@ -105,13 +131,17 @@
             if (request.query) {
               params.$term = request.query
             }
-            this.loading = true
-            return this.$userRepository.getConnections(this.$store.state.auth.user._id, { isFollowed: true, $embed: ['connectedUser'] })
+            if (this.followingIds[0]) {
+              params._id = this.followingIds
+              this.followingLoading = true
+              return this.$userRepository.list(params)
+            } else {
+              return Promise.resolve(null)
+            }
           },
           responseAdapter: (response) => {
-            this.loading = false
-            const contacts = response.data.docs.map((connection) => { return connection.connectedUser })
-            return { data: contacts, count: response.data.items.total }
+            this.followingLoading = false
+            return response ? { data: response.data.docs, count: response.data.items.total } : { data: [], count: 0 }
           },
           uniqueKey: '_id'
         },
@@ -129,13 +159,17 @@
             if (request.query) {
               params.$term = request.query
             }
-            this.loading = true
-            return this.$userRepository.getConnections(this.$store.state.auth.user._id, { isFollowing: true, $embed: ['connectedUser'] })
+            if (this.followerIds[0]) {
+              params._id = this.followerIds
+              this.followersLoading = true
+              return this.$userRepository.list(params)
+            } else {
+              return Promise.resolve(null)
+            }
           },
           responseAdapter: (response) => {
-            this.loading = false
-            const contacts = response.data.docs.map((connection) => { return connection.connectedUser })
-            return { data: contacts, count: response.data.items.total }
+            this.followersLoading = false
+            return response ? { data: response.data.docs, count: response.data.items.total } : { data: [], count: 0 }
           },
           uniqueKey: '_id'
         }
@@ -146,6 +180,20 @@
         this.$router.push({ name: 'MemberProfile', params: { _id: data.row._id }, props: data.row })
       },
       avatar () { return faker.image.avatar() }
+    },
+    created () {
+      const promises = []
+      promises.push(this.$userRepository.getConnections(this.$store.state.auth.user._id, { isContact: true, $select: ['connectedUser'] }))
+      promises.push(this.$userRepository.getConnections(this.$store.state.auth.user._id, { isFollowing: true, $select: ['connectedUser'] }))
+      promises.push(this.$userRepository.getConnections(this.$store.state.auth.user._id, { isFollowed: true, $select: ['connectedUser'] }))
+
+      Promise.all(promises)
+        .then((response) => {
+          this.contactIds = response[0].data.docs.map((user) => { return user.connectedUser })
+          this.followingIds = response[1].data.docs.map((user) => { return user.connectedUser })
+          this.followerIds = response[2].data.docs.map((user) => { return user.connectedUser })
+          this.ready = true
+        })
     }
   }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <section class="content">
-    <div v-if="loading" class="content-centered">
+    <div v-if="loading" class="content content-centered">
       <pulse-loader></pulse-loader>
     </div>
 
