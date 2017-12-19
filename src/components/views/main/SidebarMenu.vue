@@ -1,5 +1,5 @@
 <template>
-  <ul class="sidebar-menu">
+  <ul class="sidebar-menu" data-widget="tree">
     <li class="header">{{role}}</li>
     <div class="sidebar-menu" v-show="user.roleName === USER_ROLES.ADMIN || user.roleName === USER_ROLES.SUPER_ADMIN">
       <router-link tag="li" class="pageLink" to="/users">
@@ -72,17 +72,17 @@
       <ul class="treeview-menu">
         <li>
           <a href="#">
-            <i class="fa fa-file-word-o"></i> Item 1
+            <i class="fa fa-file-word-o"></i> Documents
           </a>
         </li>
         <li>
           <a href="#">
-            <i class="fa fa-file-picture-o"></i> Item 2
+            <i class="fa fa-file-picture-o"></i> Images
           </a>
         </li>
         <li>
           <a href="#">
-            <i class="fa fa-file-pdf-o"></i> Item 3
+            <i class="fa fa-file-pdf-o"></i> PDFs
           </a>
         </li>
       </ul>

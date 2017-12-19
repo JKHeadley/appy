@@ -270,6 +270,7 @@
           })
         })
 
+        this.selectedAvailablePermissions = []
         this.sortLists()
         eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newRole.permissions)
       },
@@ -282,6 +283,7 @@
           })
         })
 
+        this.selectedRolePermissions = []
         this.sortLists()
         eventBus.$emit(EVENTS.PERMISSIONS_UPDATED, this.newRole.permissions)
       },

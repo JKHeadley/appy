@@ -5,21 +5,31 @@
     </div>
 
     <div v-show="!loading" v-if="ready" class="content">
-      <h1 class="text-center">{{newPermission.name}}</h1>
 
-      <div class="row">
-        <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
-          <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+      <div class="box box-primary box-solid">
+        <div class="box-header">
+          <h3 class="box-title">{{newPermission.name}}</h3>
         </div>
-      </div>
+        <div class="box-body">
 
-      <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
-        <li><a data-toggle="tab" href="#users">Users</a></li>
-        <li><a data-toggle="tab" href="#groups">Groups</a></li>
-      </ul>
 
-      <div class="tab-content content">
+
+
+          <!--<h1 class="text-center">{{newPermission.name}}</h1>-->
+
+          <div class="row">
+            <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
+              <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+            </div>
+          </div>
+
+          <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
+            <li><a data-toggle="tab" href="#users">Users</a></li>
+            <li><a data-toggle="tab" href="#groups">Groups</a></li>
+          </ul>
+
+          <div class="tab-content content">
         <div id="details" class="tab-pane fade in active">
 
           <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
@@ -73,6 +83,13 @@
         <div id="groups" class="tab-pane fade">
           <permission-groups :permission="newPermission" v-if="!loading"></permission-groups>
         </div>
+      </div>
+
+
+
+
+        </div>
+
       </div>
     </div>
   </section>

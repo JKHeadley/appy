@@ -144,6 +144,7 @@
           })
         })
 
+        this.selectedAvailableGroups = []
         this.sortLists()
         eventBus.$emit(EVENTS.USER_GROUPS_UPDATED, this.newUser.groups)
       },
@@ -157,6 +158,7 @@
           })
         })
 
+        this.selectedUserGroups = []
         this.sortLists()
         eventBus.$emit(EVENTS.USER_GROUPS_UPDATED, this.newUser.groups)
       },

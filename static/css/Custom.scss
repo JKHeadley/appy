@@ -140,3 +140,101 @@ vue-tables-2
     margin-left: 10px;
   }
 }
+
+
+
+/*
+ * Component: Icon Button
+ * -----------------
+ */
+.icon-btn {
+  border-radius: 50%;
+  height: 50%;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+.icon-btn:active {
+  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  -moz-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+.icon-btn:focus {
+  outline: none;
+}
+.icon-btn:hover {
+  cursor: pointer;
+}
+.icon-btn-default {
+  color: #f4f4f4;
+  color: #444;
+  border-color: #ddd;
+}
+.icon-btn-default:hover,
+.icon-btn-default:active,
+.icon-btn-default.hover {
+  color: #e7e7e7;
+}
+.icon-btn-primary {
+  color: #3c8dbc;
+  border-color: #367fa9;
+}
+.icon-btn-primary:hover,
+.icon-btn-primary:active,
+.icon-btn-primary.hover {
+  color: #367fa9;
+}
+.icon-btn-success {
+  color: #00a65a;
+  border-color: #008d4c;
+}
+.icon-btn-success:hover,
+.icon-btn-success:active,
+.icon-btn-success.hover {
+  color: #008d4c;
+}
+.icon-btn-info {
+  color: #00c0ef;
+  border-color: #00acd6;
+}
+.icon-btn-info:hover,
+.icon-btn-info:active,
+.icon-btn-info.hover {
+  color: #00acd6;
+}
+.icon-btn-danger {
+  color: #dd4b39;
+  border-color: #d73925;
+}
+.icon-btn-danger:hover,
+.icon-btn-danger:active,
+.icon-btn-danger.hover {
+  color: #d73925;
+}
+.icon-btn-warning {
+  color: #f39c12;
+  border-color: #e08e0b;
+}
+.icon-btn-warning:hover,
+.icon-btn-warning:active,
+.icon-btn-warning.hover {
+  color: #e08e0b;
+}
+.icon-btn-outline {
+  border: 1px solid #fff;
+  background: transparent;
+  color: #fff;
+}
+.icon-btn-outline:hover,
+.icon-btn-outline:focus,
+.icon-btn-outline:active {
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+.icon-btn-link {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.icon-btn[class*='bg-']:hover {
+  -webkit-box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.2);
+}

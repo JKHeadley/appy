@@ -283,6 +283,7 @@
           })
         })
 
+        this.selectedAvailableGroups = []
         this.sortLists()
         eventBus.$emit(EVENTS.PERMISSION_GROUPS_UPDATED, this.newPermission.groups)
       },
@@ -296,6 +297,7 @@
           })
         })
 
+        this.selectedPermissionGroups = []
         this.sortLists()
         eventBus.$emit(EVENTS.PERMISSION_GROUPS_UPDATED, this.newPermission.groups)
       },

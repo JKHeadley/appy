@@ -7,54 +7,57 @@
       <input type="text" class="form-control input-lg" @input="getAvailableUsers()" placeholder="Search for users to add" v-model="userSearchText">
     </div>
 
-    <div class="row content-centered">
-
-      <div class="col-sm-5">
-        <h3 style="text-align: center;">Available Users</h3>
-      </div>
-
-
-      <div class="col-sm-5 col-sm-offset-2">
-        <h3 style="text-align: center;">Current Users</h3>
-      </div>
-    </div>
-
     <div v-if="loading" class="content content-centered">
       <pulse-loader></pulse-loader>
     </div>
 
     <div v-show="!loading">
-      <div class="row content-centered">
+      <div class="row content-centered" style="margin-top: 15px;">
 
         <div class="col-sm-5">
-          <select multiple ref="availablelist" size="10" style="width: 100%;"
-                  v-model="selectedAvailableUsers" @change="selectedPermissionUsers = []">
-            <option v-for="obj in availableUsers" v-bind:value="obj">
-              {{ (obj.user || {}).firstName }}, {{ (obj.user || {}).lastName }}
-            </option>
-          </select>
+
+          <div class="box box-info box-solid">
+            <div class="box-header">
+              <h3 class="box-title" style="text-align: center;">Available Users</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="availablelist" size="10" style="width: 100%;"
+                      v-model="selectedAvailableUsers" @change="selectedPermissionUsers = []">
+                <option v-for="obj in availableUsers" v-bind:value="obj">
+                  {{ (obj.user || {}).firstName }}, {{ (obj.user || {}).lastName }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-2 content-centered">
           <div>
             <a @click="addUsers()">
-              <i class="fa fa-arrow-circle-right fa-3x"></i>
+              <i class="fa fa-arrow-circle-right fa-3x icon-btn icon-btn-primary"></i>
             </a>
             <br/>
             <br/>
             <a @click="removeUsers()">
-              <i class="fa fa-arrow-circle-left fa-3x"></i>
+              <i class="fa fa-arrow-circle-left fa-3x icon-btn icon-btn-info"></i>
             </a>
           </div>
         </div>
 
         <div class="col-sm-5">
-          <select multiple ref="permissionlist" size="10" style="width: 100%;"
-                  v-model="selectedPermissionUsers" @change="selectedAvailableUsers = []">
-            <option v-for="obj in newPermission.users" v-bind:value="obj">
-              {{ obj.user.lastName }}, {{ obj.user.firstName }}
-            </option>
-          </select>
+          <div class="box box-primary box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Current Users</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="permissionlist" size="10" style="width: 100%;"
+                      v-model="selectedPermissionUsers" @change="selectedAvailableUsers = []">
+                <option v-for="obj in newPermission.users" v-bind:value="obj">
+                  {{ obj.user.lastName }}, {{ obj.user.firstName }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -63,49 +66,56 @@
         <input class="form-control" style="margin-top: 15px" :disabled="true" :placeholder="userDescription"/>
       </div>
 
-
-      <div class="row content-centered">
-
-        <div class="col-sm-4">
-          <h3 style="text-align: center;">Included</h3>
-        </div>
+      <div class="row content-centered" style="margin-top: 15px">
 
         <div class="col-sm-4">
-          <h3 style="text-align: center;">Excluded</h3>
-        </div>
 
-        <div class="col-sm-4">
-          <h3 style="text-align: center;">Forbidden</h3>
-        </div>
-      </div>
-
-      <div class="row content-centered">
-
-        <div class="col-sm-4">
-          <select multiple ref="includedlist" size="10" style="width: 100%;"
-                  v-model="selectedIncludedUsers">
-            <option v-for="obj in includedUsers" v-bind:value="obj">
-              {{ (obj.user || {}).firstName }}, {{ (obj.user || {}).lastName }}
-            </option>
-          </select>
+          <div class="box box-success box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Included</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="includedlist" size="10" style="width: 100%;"
+                      v-model="selectedIncludedUsers">
+                <option v-for="obj in includedUsers" v-bind:value="obj">
+                  {{ (obj.user || {}).firstName }}, {{ (obj.user || {}).lastName }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-4 content-centered">
-          <select multiple ref="excludedlist" size="10" style="width: 100%;"
-                  v-model="selectedExcludedUsers">
-            <option v-for="obj in excludedUsers" v-bind:value="obj">
-              {{ obj.user.lastName }}, {{ obj.user.firstName }}
-            </option>
-          </select>
+
+          <div class="box box-warning box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Excluded</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="excludedlist" size="10" style="width: 100%;"
+                      v-model="selectedExcludedUsers">
+                <option v-for="obj in excludedUsers" v-bind:value="obj">
+                  {{ obj.user.lastName }}, {{ obj.user.firstName }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-4">
-          <select multiple ref="forbiddenlist" size="10" style="width: 100%;"
-                  v-model="selectedForbiddenUsers">
-            <option v-for="obj in forbiddenUsers" v-bind:value="obj">
-              {{ obj.user.lastName }}, {{ obj.user.firstName }}
-            </option>
-          </select>
+          <div class="box box-danger box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Forbidden</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="forbiddenlist" size="10" style="width: 100%;"
+                      v-model="selectedForbiddenUsers">
+                <option v-for="obj in forbiddenUsers" v-bind:value="obj">
+                  {{ obj.user.lastName }}, {{ obj.user.firstName }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -119,15 +129,18 @@
                       :disabled="lodash.isEmpty(selectedIncludedUsers)">Apply</button>
             </div>
             <div class="col-sm-6">
-              <input type="radio" id="includedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="includedToState">
-              <label for="includedToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
-              <br>
-              <input type="radio" id="includedToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="includedToState">
-              <label for="includedToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
-              <br>
-              <input type="radio" id="includedToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="includedToState">
-              <label for="includedToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
-              <br>
+              <div class="radio radio-success">
+                <input type="radio" id="includedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="includedToState">
+                <label for="includedToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
+              </div>
+              <div class="radio radio-warning">
+                <input type="radio" id="includedToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="includedToState">
+                <label for="includedToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
+              </div>
+              <div class="radio radio-danger">
+                <input type="radio" id="includedToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="includedToState">
+                <label for="includedToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
+              </div>
             </div>
           </div>
         </div>
@@ -138,16 +151,20 @@
               <button class="btn btn-primary" @click="applyStateToExcluded"
                       :disabled="lodash.isEmpty(selectedExcludedUsers)">Apply</button>
             </div>
+
             <div class="col-sm-6">
-              <input type="radio" id="excludedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="excludedToState">
-              <label for="excludedToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
-              <br>
-              <input type="radio" id="excludedToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="excludedToState">
-              <label for="excludedToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
-              <br>
-              <input type="radio" id="excludedToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="excludedToState">
-              <label for="excludedToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
-              <br>
+              <div class="radio radio-success">
+                <input type="radio" id="excludedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="excludedToState">
+                <label for="excludedToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
+              </div>
+              <div class="radio radio-warning">
+                <input type="radio" id="excludedToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="excludedToState">
+                <label for="excludedToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
+              </div>
+              <div class="radio radio-danger">
+                <input type="radio" id="excludedToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="excludedToState">
+                <label for="excludedToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
+              </div>
             </div>
           </div>
         </div>
@@ -159,15 +176,18 @@
                       :disabled="lodash.isEmpty(selectedForbiddenUsers)">Apply</button>
             </div>
             <div class="col-sm-6">
-              <input type="radio" id="forbiddenToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="forbiddenToState">
-              <label for="forbiddenToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
-              <br>
-              <input type="radio" id="forbiddenToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="forbiddenToState">
-              <label for="forbiddenToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
-              <br>
-              <input type="radio" id="forbiddenToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="forbiddenToState">
-              <label for="forbiddenToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
-              <br>
+              <div class="radio radio-success">
+                <input type="radio" id="forbiddenToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="forbiddenToState">
+                <label for="forbiddenToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
+              </div>
+              <div class="radio radio-warning">
+                <input type="radio" id="forbiddenToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="forbiddenToState">
+                <label for="forbiddenToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
+              </div>
+              <div class="radio radio-danger">
+                <input type="radio" id="forbiddenToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="forbiddenToState">
+                <label for="forbiddenToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
+              </div>
             </div>
           </div>
         </div>
@@ -283,6 +303,7 @@
           })
         })
 
+        this.selectedAvailableUsers = []
         this.sortLists()
         eventBus.$emit(EVENTS.PERMISSION_USERS_UPDATED, this.newPermission.users)
       },
@@ -296,6 +317,7 @@
           })
         })
 
+        this.selectedPermissionUsers = []
         this.sortLists()
         eventBus.$emit(EVENTS.PERMISSION_USERS_UPDATED, this.newPermission.users)
       },
