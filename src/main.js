@@ -2,8 +2,13 @@
 import 'es6-promise/auto'
 
 // EXPL: Import global styles
+// import '../static/css/imported/bootstrap.min.css'
 import '../static/css/Custom.scss'
 import 'vue-snotify/styles/material.css'
+
+// EXPL: Import global js files
+// import '../static/js/plugins/bootstrap/bootstrap.min'
+// import 'jquery'
 
 // EXPL: Import System requirements
 import Vue from 'vue'
@@ -29,10 +34,13 @@ import { ServerTable } from 'vue-tables-2'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 import VueForm from 'vue-form'
 import VueSelect from 'vue-select'
-import VueFormInput from './components/utilities/VueFormInput.vue'
+import VueModal from 'vue-js-modal'
 import ToggleButton from 'vue-js-toggle-button'
 import VuePassword from 'vue-password/dist/custom'
 import VueMaskedInput from 'vue-masked-input'
+
+import VueFormInput from './components/utilities/VueFormInput.vue'
+import VueEditor from './components/utilities/VueEditor.vue'
 
 // EXPL: Import Helpers for filters
 import { domain, count, prettyDate, pluralize } from './filters'
@@ -54,8 +62,9 @@ axios.defaults.paramsSerializer = function (params) {
 }
 
 // EXPL: Register global components and plugins
-Vue.component('pulse-loader', PulseLoader)
 Vue.component('vue-form-input', VueFormInput)
+Vue.component('vue-editor', VueEditor)
+Vue.component('pulse-loader', PulseLoader)
 Vue.component('vue-select', VueSelect)
 Vue.component('vue-password', VuePassword)
 Vue.component('vue-masked-input', VueMaskedInput)
@@ -75,6 +84,7 @@ Vue.use(Snotify, {
 })
 Vue.use(ToggleButton)
 Vue.use(VueMoment)
+Vue.use(VueModal)
 
 // EXPL: Routing logic
 var router = new VueRouter({

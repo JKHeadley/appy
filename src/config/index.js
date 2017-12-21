@@ -17,11 +17,25 @@ export const resources = {
       },
       connections: {
         alias: 'connection'
+      },
+      documents: {
+        alias: 'document'
+      },
+      sharedDocuments: {
+        alias: 'shared-document'
       }
     }
   },
   connection: {
     alias: 'connection'
+  },
+  document: {
+    alias: 'document',
+    associations: {
+      users: {
+        alias: 'user'
+      }
+    }
   },
   role: {
     alias: 'role',
@@ -87,7 +101,11 @@ export const EVENTS = {
   PERMISSION_GROUPS_UPDATED: 'permission-groups-updated',
   PERMISSION_GROUPS_SAVED: 'permission-groups-saved',
   PASSWORD_SCORE_UPDATED: 'password-score-updated',
-  UPDATING_PASSWORD_SCORE: 'updating-password-score'
+  UPDATING_PASSWORD_SCORE: 'updating-password-score',
+
+  DATA_REQUESTED: 'data-requested',
+  DATA_READY: 'data-ready',
+  CLEAR_REQUESTED: 'clear-requested'
 }
 
 export const PERMISSION_STATES = {

@@ -70,11 +70,17 @@
         </span>
       </a>
       <ul class="treeview-menu">
-        <li>
-          <a href="#">
-            <i class="fa fa-file-word-o"></i> Documents
+        <!--<li>-->
+          <!--<a href="#">-->
+            <!--<i class="fa fa-file-word-o"></i> Documents-->
+          <!--</a>-->
+        <!--</li>-->
+        <router-link tag="li" class="pageLink" to="/documents">
+          <a>
+            <i class="fa fa-file-word-o"></i>
+            <span class="page">Documents</span>
           </a>
-        </li>
+        </router-link>
         <li>
           <a href="#">
             <i class="fa fa-file-picture-o"></i> Images
