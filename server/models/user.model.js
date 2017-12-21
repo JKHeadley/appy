@@ -122,6 +122,18 @@ module.exports = function (mongoose) {
           foreignField: "primaryUser",
           model: "connection"
         },
+        documents: {
+          type: "ONE_MANY",
+          alias: "document",
+          foreignField: "owner",
+          model: "document"
+        },
+        sharedDocuments: {
+          type: "MANY_MANY",
+          alias: "shared-document",
+          model: "document",
+          linkingModel: "user_document"
+        },
       },
       create: {
         pre: function (payload, request, Log) {
