@@ -18,13 +18,18 @@ module.exports = function (mongoose) {
     },
     email: {
       type: Types.String,
-      required: true
+      required: true,
+      // stringType: 'email'
     },
     title: {
       type: Types.String
     },
-    description: {
+    bio: {
       type: Types.String
+    },
+    profileUrl: {
+      type: Types.String,
+      stringType: 'uri'
     },
     role: {
       type: Types.ObjectId,

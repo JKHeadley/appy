@@ -5,6 +5,7 @@ const exit = require('gulp-exit')
 const Q = require('q')
 const Mongoose = require('mongoose')
 const RestHapi = require('rest-hapi')
+const faker = require('faker')
 const Composer = require('../index')
 
 const Config = require('../config')
@@ -34,6 +35,8 @@ gulp.task('seed', [], function () {
         return server.start((err) => {
           RestHapi.config.loglevel = 'DEBUG'
           const Log = RestHapi.getLogger('seed')
+
+          faker.seed(4997)
 
           const password = 'root'
           const pin = '1234'
@@ -128,63 +131,77 @@ gulp.task('seed', [], function () {
               Log.log('seeding users')
               users = [
                 {
-                  firstName: 'test',
-                  lastName: 'user',
+                  firstName: faker.name.firstName(),
+                  lastName: faker.name.lastName(),
                   email: 'test@user.com',
+                  title: faker.name.jobTitle(),
+                  profileUrl: faker.image.avatar(),
                   password: password,
                   pin: pin,
                   role: roles[0]._id,
                   isActive: true
                 },
                 {
-                  firstName: 'test',
-                  lastName: 'useless',
-                  email: 'test@useless-user.com',
+                  firstName: faker.name.firstName(),
+                  lastName: faker.name.lastName(),
+                  email: 'test@uselessuser.com',
+                  title: faker.name.jobTitle(),
+                  profileUrl: faker.image.avatar(),
                   password: password,
                   pin: pin,
                   role: roles[0]._id,
                   isActive: true
                 },
                 {
-                  firstName: 'test',
-                  lastName: 'admin',
+                  firstName: faker.name.firstName(),
+                  lastName: faker.name.lastName(),
                   email: 'test@admin.com',
+                  title: faker.name.jobTitle(),
+                  profileUrl: faker.image.avatar(),
                   password: password,
                   pin: pin,
                   role: roles[1]._id,
                   isActive: true
                 },
                 {
-                  firstName: 'test',
-                  lastName: 'editor',
+                  firstName: faker.name.firstName(),
+                  lastName: faker.name.lastName(),
                   email: 'test@editor.com',
+                  title: faker.name.jobTitle(),
+                  profileUrl: faker.image.avatar(),
                   password: password,
                   pin: pin,
                   role: roles[1]._id,
                   isActive: true
                 },
                 {
-                  firstName: 'test',
-                  lastName: 'manager',
+                  firstName: faker.name.firstName(),
+                  lastName: faker.name.lastName(),
                   email: 'test@manager.com',
+                  title: faker.name.jobTitle(),
+                  profileUrl: faker.image.avatar(),
                   password: password,
                   pin: pin,
                   role: roles[1]._id,
                   isActive: true
                 },
                 {
-                  firstName: 'test',
-                  lastName: 'manager',
+                  firstName: faker.name.firstName(),
+                  lastName: faker.name.lastName(),
                   email: 'test@creator.com',
+                  title: faker.name.jobTitle(),
+                  profileUrl: faker.image.avatar(),
                   password: password,
                   pin: pin,
                   role: roles[1]._id,
                   isActive: true
                 },
                 {
-                  firstName: 'test',
-                  lastName: 'superadmin',
+                  firstName: faker.name.firstName(),
+                  lastName: faker.name.lastName(),
                   email: 'test@superadmin.com',
+                  title: faker.name.jobTitle(),
+                  profileUrl: faker.image.avatar(),
                   password: password,
                   pin: pin,
                   role: roles[2]._id,
@@ -241,6 +258,12 @@ gulp.task('seed', [], function () {
                       childId: permissions.find(function (p) {
                         return p.name === 'updateConnection'
                       })._id
+                    },
+                    {
+                      state: PERMISSION_STATES.INCLUDED,
+                      childId: permissions.find(function (p) {
+                        return p.name === 'document'
+                      })._id
                     }
                   ], Log))
 
@@ -289,6 +312,12 @@ gulp.task('seed', [], function () {
                           state: PERMISSION_STATES.INCLUDED,
                           childId: permissions.find(function (p) {
                             return p.name === 'updateConnection'
+                          })._id
+                        },
+                        {
+                          state: PERMISSION_STATES.INCLUDED,
+                          childId: permissions.find(function (p) {
+                            return p.name === 'document'
                           })._id
                         }
                       ], Log))
@@ -567,6 +596,10 @@ function dropCollections (models) {
     .then(function () {
       Log.log('removing connections')
       return models.connection.remove({})
+    })
+    .then(function () {
+      Log.log('removing documents')
+      return models.document.remove({})
     })
     .then(function () {
       Log.log('removing group_permission')
