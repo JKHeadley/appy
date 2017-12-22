@@ -10,11 +10,11 @@
         <!-- Profile Image -->
         <div class="box box-primary">
           <div class="box-body box-profile">
-            <img class="profile-user-img img-responsive img-circle" :src="avatar()" alt="User profile picture">
+            <img class="profile-user-img img-responsive img-circle" :src="user.profileUrl" alt="User profile picture">
 
-            <h3 class="profile-username text-center">Nina Mcintire</h3>
+            <h3 class="profile-username text-center">{{user.firstName}} {{user.lastName}}</h3>
 
-            <p class="text-muted text-center">Software Engineer</p>
+            <p class="text-muted text-center">{{user.title}}</p>
 
             <ul class="list-group list-group-unbordered">
               <li class="list-group-item">

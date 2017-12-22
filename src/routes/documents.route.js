@@ -15,6 +15,7 @@ const routes = [
     },
     component: DocumentDetails,
     name: 'DocumentDetails',
+    props: (route) => ({ canEdit: route.query.canEdit }),
     meta: { description: 'Details for the selected document', title: 'Document Details' }
   }, {
     path: '/documents/create',

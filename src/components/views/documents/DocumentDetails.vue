@@ -9,19 +9,20 @@
       <div class="col-md-9">
         <div class="box box-primary">
         <div class="box-header with-border">
-          <h3 class="box-title">Edit Document</h3>
+          <h3 v-if="canEdit" class="box-title">Edit Document</h3>
+          <h3 v-else class="box-title">View Document</h3>
         </div>
         <!-- /.box-header -->
         <div class="box-body">
           <div class="form-document">
-            <input class="form-control" placeholder="Title" v-model="newDocument.title">
+            <input :disabled="!canEdit" class="form-control" placeholder="Title" v-model="newDocument.title">
           </div>
 
-          <vue-editor :body="newDocument.body"></vue-editor>
+          <vue-editor :body="newDocument.body" :canEdit="canEdit"></vue-editor>
 
         </div>
         <!-- /.box-body -->
-        <div class="box-footer">
+        <div class="box-footer" v-if="canEdit">
           <div class="pull-right">
             <button class="btn btn-danger" @click="deleteDocumentModal"><i class="fa fa-trash"></i> Delete</button>
             <button class="btn btn-primary" @click="requestDataToSave"><i class="fa fa-file-text"></i> Save Changes</button>
@@ -48,55 +49,28 @@
           <!-- /.box-header -->
           <div class="box-body no-padding">
             <ul class="users-list clearfix">
-              <li>
-                <img :src="avatar()" alt="User Image">
-                <a class="users-list-name" href="#">Alexander Pierce</a>
+              <li v-for="user in sharedUsers">
+                <img :src="user.profileUrl" alt="User Image">
+
+                <router-link :to="'/members/' + user._id">
+                  <a class="users-list-name" href="#">{{ user.firstName }}</a>
+                </router-link>
+
+
                 <span class="users-list-date">Today</span>
-              </li>
-              <li>
-                <img :src="avatar()" alt="User Image">
-                <a class="users-list-name" href="#">Norman</a>
-                <span class="users-list-date">Yesterday</span>
-              </li>
-              <li>
-                <img :src="avatar()" alt="User Image">
-                <a class="users-list-name" href="#">Jane</a>
-                <span class="users-list-date">12 Jan</span>
-              </li>
-              <li>
-                <img :src="avatar()" alt="User Image">
-                <a class="users-list-name" href="#">John</a>
-                <span class="users-list-date">12 Jan</span>
-              </li>
-              <li>
-                <img :src="avatar()" alt="User Image">
-                <a class="users-list-name" href="#">Alexander</a>
-                <span class="users-list-date">13 Jan</span>
-              </li>
-              <li>
-                <img :src="avatar()" alt="User Image">
-                <a class="users-list-name" href="#">Sarah</a>
-                <span class="users-list-date">14 Jan</span>
-              </li>
-              <li>
-                <img :src="avatar()" alt="User Image">
-                <a class="users-list-name" href="#">Nora</a>
-                <span class="users-list-date">15 Jan</span>
-              </li>
-              <li>
-                <img :src="avatar()" alt="User Image">
-                <a class="users-list-name" href="#">Nadia</a>
-                <span class="users-list-date">15 Jan</span>
               </li>
             </ul>
             <!-- /.users-list -->
           </div>
           <!-- /.box-body -->
-          <div class="box-footer text-center">
-            <!--<a href="#" class="uppercase" data-toggle="modal" data-target="#document-sharing-modal">Manage Sharing</a>-->
+          <div v-if="isOwner" class="box-footer text-center">
             <a href="#" class="uppercase" @click="openSharingModal">Manage Sharing</a>
           </div>
           <!-- /.box-footer -->
+
+          <div v-if="sharedUsersLoading" class="overlay">
+            <i class="fa"><pulse-loader></pulse-loader></i>
+          </div>
         </div>
       </div>
 
@@ -104,9 +78,6 @@
         <document-sharing :document="newDocument" @exit="closeModal"></document-sharing>
       </modal>
 
-      <!--<div class="modal fade" id="document-sharing-modal" ref="document-sharing-modal">-->
-        <!--<document-sharing :document="newDocument" :userIds="userIds" @exit="closeModal"></document-sharing>-->
-      <!--</div>-->
     </div>
   </section>
 </template>
@@ -117,7 +88,6 @@
 
   import DocumentSharing from './DocumentSharing.vue'
 
-  import $ from 'jquery'
   import swal from 'sweetalert2'
   import faker from 'faker'
 
@@ -126,31 +96,46 @@
     components: {
       DocumentSharing
     },
+    props: ['canEdit'],
     data () {
       return {
         loading: false,
+        sharedUsersLoading: false,
         EVENTS: EVENTS,
+        sharedUsers: [],
         newDocument: {},
         oldDocument: {},
+      }
+    },
+    computed: {
+      isOwner () {
+        return this.$store.state.auth.user._id === this.newDocument.owner
       }
     },
     methods: {
       avatar () { return faker.image.avatar() },
       getDocument () {
-//        const params = {
-//          $embed: ['users']
-//        }
-
         return this.$documentRepository.find(this.$route.params._id, {})
           .then((response) => {
             this.newDocument = response.data
             this.oldDocument = _.cloneDeep(this.newDocument)
-//            this.userIds = response.data.users.map((user) => { return user._id })
             this.$store.dispatch('setBreadcrumbTitle', this.newDocument.title)
           })
           .catch((error) => {
             console.error('DocumentDetails.getDocument-error:', error)
             this.$snotify.error('Get document failed', 'Error!')
+          })
+      },
+      getUsers () {
+        this.sharedUsersLoading = true
+        return this.$documentRepository.getUsers(this.$route.params._id, { $select: ['firstName', 'profileUrl'] })
+          .then((response) => {
+            this.sharedUsersLoading = false
+            this.sharedUsers = response.data.docs
+          })
+          .catch((error) => {
+            console.error('DocumentDetails.getUsers-error:', error)
+            this.$snotify.error('Get shared users failed', 'Error!')
           })
       },
       clearDocument () {
@@ -223,12 +208,14 @@
       },
       closeModal () {
         this.$modal.hide('document-sharing-modal')
+        this.getUsers()
       }
     },
     created () {
       const promises = []
       this.loading = true
       promises.push(this.getDocument())
+      promises.push(this.getUsers())
       Promise.all(promises)
         .then(() => {
           this.loading = false

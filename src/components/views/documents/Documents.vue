@@ -1,7 +1,6 @@
 <template>
   <section class="content">
     <div>
-
       <div class="box box-primary box-solid">
         <div class="box-header">
           <h3 class="box-title">Documents</h3>
@@ -16,7 +15,24 @@
             </router-link>
           </div>
 
-          <v-server-table ref="documentTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick" @loaded="onLoaded">
+          <v-server-table ref="documentTable" url="" :columns="documentColumns" :options="documentOptions" v-on:row-click="ownerRowClick" @loaded="onLoaded">
+          </v-server-table>
+        </div>
+
+        <div v-if="loading" class="overlay">
+          <i class="fa"><pulse-loader></pulse-loader></i>
+        </div>
+      </div>
+
+      <div class="box box-success box-solid">
+        <div class="box-header">
+          <h3 class="box-title">Shared with me</h3>
+          <div class="box-tools">
+            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <v-server-table ref="sharedTable" url="" :columns="sharedColumns" :options="sharedOptions" v-on:row-click="sharedRowClick" @loaded="onLoaded">
           </v-server-table>
         </div>
 
@@ -37,8 +53,8 @@
       return {
         loading: null,
         documentTable: null,
-        columns: ['title'],
-        options: {
+        documentColumns: ['title'],
+        documentOptions: {
           highlightMatches: true,
           sortable: ['title'],
           requestFunction: (request) => {
@@ -52,7 +68,34 @@
               params.$term = request.query
             }
             this.loading = true
-            return this.$documentRepository.list(params)
+            return this.$userRepository.getDocuments(this.$store.state.auth.user._id, params)
+              .catch((error) => {
+                console.error('Documents.requestFunction-error:', error)
+                this.$snotify.error('Get documents failed', 'Error!')
+              })
+          },
+          responseAdapter: (response) => {
+            this.loading = false
+            return { data: response.data.docs, count: response.data.items.total }
+          },
+          uniqueKey: '_id'
+        },
+        sharedColumns: ['title'],
+        sharedOptions: {
+          highlightMatches: true,
+          sortable: ['title'],
+          requestFunction: (request) => {
+            const params = {}
+            params.$page = request.page
+            params.$limit = request.limit
+            if (request.orderBy) {
+              params.$sort = request.ascending ? '-' + request.orderBy : request.orderBy
+            }
+            if (request.query) {
+              params.$term = request.query
+            }
+            this.loading = true
+            return this.$userRepository.getSharedDocuments(this.$store.state.auth.user._id, params)
               .catch((error) => {
                 console.error('Documents.requestFunction-error:', error)
                 this.$snotify.error('Get documents failed', 'Error!')
@@ -76,8 +119,11 @@
       }
     },
     methods: {
-      rowClick (data) {
-        this.$router.push({ name: 'DocumentDetails', params: { _id: data.row._id }, props: data.row })
+      ownerRowClick (data) {
+        this.$router.push({ name: 'DocumentDetails', params: { _id: data.row._id }, query: { canEdit: true } })
+      },
+      sharedRowClick (data) {
+        this.$router.push({ name: 'DocumentDetails', params: { _id: data.row._id }, query: { canEdit: data.row.user_document.canEdit } })
       },
       onLoaded () {
         this.documentTable = this.$refs.documentTable

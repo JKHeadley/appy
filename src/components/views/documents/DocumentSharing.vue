@@ -153,7 +153,9 @@
             if (request.query) {
               params.$term = request.query
             }
-            params.$exclude = this.sharedUserIds
+            if (this.sharedUserIds[0]) {
+              params.$exclude = this.sharedUserIds
+            }
             return this.$userRepository.list(params)
           },
           responseAdapter: (response) => {

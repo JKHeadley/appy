@@ -9,7 +9,7 @@
   import { EVENTS } from '../../config'
 
   export default {
-    props: ['body'],
+    props: ['body', 'canEdit'],
     data () {
       return {
         editor: null
@@ -42,6 +42,9 @@
 
           if (this.body) {
             editor.setData(this.body)
+          }
+          if (!this.canEdit) {
+            editor.isReadOnly = true
           }
         })
         .catch((error) => {
