@@ -1,9 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
-const Config = require('../../config');
-
-const USER_ROLES = Config.get('/constants/USER_ROLES');
+const RestHapi = require('rest-hapi');
 
 module.exports = function (mongoose) {
   var modelName = "document";
@@ -27,6 +24,9 @@ module.exports = function (mongoose) {
   Schema.statics = {
     collectionName:modelName,
     routeOptions: {
+      documentScope: {
+        rootScope: ['root']
+      },
       authorizeDocumentCreator: true,
       associations: {
         owner: {
@@ -39,7 +39,67 @@ module.exports = function (mongoose) {
           model: "user",
           linkingModel: "user_document"
         },
+      },
+      create: {
+        pre: function(payload, request, Log) {
+          payload.owner = request.auth.credentials.user._id
+          return payload
+        }
+      },
+      add: {
+        users: {
+          pre: function(payload, request, Log) {
+            const Document = mongoose.model('document');
+            return RestHapi.find(Document, request.params.ownerId, {}, Log)
+              .then(function (document) {
+                const scope = document.scope;
+                // EXPL: Add permissions for shared users to either edit or view the document
+                payload.forEach(function (user_document) {
+                  // EXPL: Remove any previous permissions before adding new ones
+                  Document.removeDocumentPermissions(scope, user_document.childId);
+                  if (user_document.canEdit) {
+                    scope.updateScope = (scope.updateScope || [])
+                    scope.updateScope.push('user-' + user_document.childId)
+                  }
+                  scope.readScope = (scope.readScope || [])
+                  scope.readScope.push('user-' + user_document.childId)
+                })
+                return RestHapi.update(Document, document._id, {scope}, Log)
+              })
+              .then(function() {
+                return payload
+              })
+          }
+        }
+      },
+      remove: {
+        users: {
+          pre: function(payload, request, Log) {
+            const Document = mongoose.model('document');
+            return RestHapi.find(Document, request.params.ownerId, {}, Log)
+              .then(function (document) {
+                const scope = document.scope;
+                const userId = request.params.childId;
+                Document.removeDocumentPermissions(scope, userId);
+                return RestHapi.update(Document, document._id, {scope}, Log);
+              })
+              .then(function() {
+                return payload
+              })
+          }
+        }
       }
+    },
+    removeDocumentPermissions: function(scope, userId) {
+      // EXPL: Remove document permissions for user
+      scope.updateScope = (scope.updateScope || [])
+      scope.updateScope = scope.updateScope.filter(function (value) {
+        return value !== 'user-' +  userId
+      })
+      scope.readScope = (scope.readScope || [])
+      scope.readScope = scope.readScope.filter(function (value) {
+        return value !== 'user-' +  userId
+      })
     }
   };
 
