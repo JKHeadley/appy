@@ -5,34 +5,40 @@
     </div>
 
     <div v-show="!loading" v-if="ready" class="content">
-      <h1 class="text-center">Create User</h1>
+      <div class="box box-primary box-solid">
+        <div class="box-body">
 
-      <div class="row">
-        <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
-          <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
-        </div>
-      </div>
+          <div class="row">
+            <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
+              <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+            </div>
+          </div>
 
-      <h3 class="text-center">User Scope</h3>
+          <div class="row content-centered">
+            <div class="col-sm-4">
+              <div class="box box-success box-solid">
+                <div class="box-header">
+                  <h3 class="box-title">User Scope</h3>
+                </div>
+                <div class="box-body">
+                  <select multiple ref="computedScope" size="10" style="width: 100%;"
+                          disabled="true">
+                    <option v-for="scope in computedUserScope">
+                      {{ scope }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <div class="row content-centered">
-        <div class="col-sm-4">
-          <select multiple ref="computedScope" size="10" style="width: 100%;"
-                  disabled="true">
-            <option v-for="scope in computedUserScope">
-              {{ scope }}
-            </option>
-          </select>
-        </div>
-      </div>
+          <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
+            <li><a data-toggle="tab" href="#groups">Groups</a></li>
+            <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
+          </ul>
 
-      <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
-        <li><a data-toggle="tab" href="#groups">Groups</a></li>
-        <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
-      </ul>
-
-      <div class="tab-content content">
+          <div class="tab-content content">
         <div id="details" class="tab-pane fade in active">
 
           <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
@@ -118,6 +124,8 @@
         </div>
         <div id="permissions" class="tab-pane fade">
           <user-permissions :user="user" v-if="!loading"></user-permissions>
+        </div>
+      </div>
         </div>
       </div>
     </div>

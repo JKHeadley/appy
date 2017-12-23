@@ -44,17 +44,7 @@ custom classes
   opacity: 0;
 }
 
-// breadcrumbs
-//.breadcrumb.breadcrumb-below {
-//  position: relative;
-//  margin-top: 5px;
-//  top: 0;
-//  right: 0;
-//  float: none;
-//  background: #d2d6de;
-//  padding-left: 10px;
-//}
-
+// custom buttons
 .btn.outline {
   background: none;
   padding: 12px 22px;
@@ -145,6 +135,17 @@ vue-tables-2
   label {
     margin-right: 10px;
   }
+}
+
+// table add button
+
+.shift-add-left {
+  position: absolute;
+  right: 135px;
+}
+.add-item {
+  position: absolute;
+  right: 10px;
 }
 
 

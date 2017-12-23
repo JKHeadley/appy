@@ -5,20 +5,21 @@
     </div>
 
     <div v-show="!loading" class="content">
-      <h1 class="text-center">Create Role</h1>
+      <div class="box box-primary box-solid">
+        <div class="box-body">
 
-      <div class="row">
-        <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
-          <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
-        </div>
-      </div>
+          <div class="row">
+            <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
+              <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+            </div>
+          </div>
 
-      <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
-        <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
-      </ul>
+          <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
+            <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
+          </ul>
 
-      <div class="tab-content content">
+          <div class="tab-content content">
         <div id="details" class="tab-pane fade in active">
 
           <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
@@ -58,6 +59,8 @@
         </div>
         <div id="permissions" class="tab-pane fade">
           <role-permissions :role="role" v-if="!loading"></role-permissions>
+        </div>
+      </div>
         </div>
       </div>
     </div>

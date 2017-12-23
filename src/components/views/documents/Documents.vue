@@ -3,7 +3,7 @@
     <div>
       <div class="box box-primary box-solid">
         <div class="box-header">
-          <h3 class="box-title">Documents</h3>
+          <h3 class="box-title">My Documents</h3>
           <div class="box-tools">
             <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
           </div>
@@ -32,7 +32,7 @@
           </div>
         </div>
         <div class="box-body">
-          <v-server-table ref="sharedTable" url="" :columns="sharedColumns" :options="sharedOptions" v-on:row-click="sharedRowClick" @loaded="onLoaded">
+          <v-server-table ref="sharedTable" url="" :columns="sharedColumns" :options="sharedOptions" v-on:row-click="sharedRowClick">
           </v-server-table>
         </div>
 
@@ -80,7 +80,7 @@
           },
           uniqueKey: '_id'
         },
-        sharedColumns: ['title'],
+        sharedColumns: ['title', 'Access', 'Owner'],
         sharedOptions: {
           highlightMatches: true,
           sortable: ['title'],
@@ -94,6 +94,7 @@
             if (request.query) {
               params.$term = request.query
             }
+            params.$embed = ['owner']
             this.loading = true
             return this.$userRepository.getSharedDocuments(this.$store.state.auth.user._id, params)
               .catch((error) => {
@@ -103,6 +104,11 @@
           },
           responseAdapter: (response) => {
             this.loading = false
+            response.data.docs = response.data.docs.map((document) => {
+              document.Access = document.user_document.canEdit ? 'Edit' : 'View'
+              document.Owner = document.owner.firstName + ' ' + document.owner.lastName
+              return document
+            })
             return { data: response.data.docs, count: response.data.items.total }
           },
           uniqueKey: '_id'
@@ -112,9 +118,9 @@
     computed: {
       addButtonClass () {
         if (this.documentTable) {
-          return this.documentTable.count > this.documentTable.limit ? 'shift-add-left' : 'add-document'
+          return this.documentTable.count > this.documentTable.limit ? 'shift-add-left' : 'add-item'
         } else {
-          return 'add-document'
+          return 'add-item'
         }
       }
     },
@@ -131,14 +137,3 @@
     }
   }
 </script>
-
-<style lang="scss">
-  .shift-add-left {
-    position: absolute;
-    right: 130px;
-  }
-  .add-document {
-    position: absolute;
-    right: 10px;
-  }
-</style>

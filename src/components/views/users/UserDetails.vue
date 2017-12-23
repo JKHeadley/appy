@@ -5,126 +5,138 @@
     </div>
 
     <div v-show="!loading" v-if="ready" class="content">
-      <h1 class="text-center">{{newUser.firstName}} {{newUser.lastName}}</h1>
-
-      <h3 class="text-center">User Scope</h3>
-
-      <div class="row content-centered">
-        <div class="col-sm-4">
-          <select multiple ref="computedScope" size="10" style="width: 100%;"
-                  disabled="true">
-            <option v-for="scope in computedUserScope">
-              {{ scope }}
-            </option>
-          </select>
+      <div class="box box-primary box-solid">
+        <div class="box-header">
+          <h3 class="box-title">{{newUser.firstName}} {{newUser.lastName}}</h3>
         </div>
-      </div>
+        <div class="box-body">
 
-      <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
-        <li><a data-toggle="tab" href="#groups">Groups</a></li>
-        <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
-        <li><a data-toggle="tab" href="#password">Password</a></li>
-      </ul>
-
-      <div class="tab-content content">
-        <div id="details" class="tab-pane fade in active">
-
-          <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
-
-            <div class="col-sm-6">
-
-              <validate auto-label class="form-group" :class="fieldClassName(formstate.firstName)">
-                <vue-form-input
-                  required
-                  v-model="newUser.firstName"
-                  :formstate="formstate"
-                  :type="'text'"
-                  :label="'First Name:'"
-                  :name="'firstName'"
-                  :messages="{ required: 'This field is required' }">
-                </vue-form-input>
-              </validate>
-
-              <validate auto-label class="form-group" :class="fieldClassName(formstate.lastName)">
-                <vue-form-input
-                  required
-                  v-model="newUser.lastName"
-                  :formstate="formstate"
-                  :type="'text'"
-                  :label="'Last Name:'"
-                  :name="'lastName'"
-                  :messages="{ required: 'This field is required' }">
-                </vue-form-input>
-              </validate>
-
-              <validate auto-label class="form-group" :class="fieldClassName(formstate.email)" :debounce="250" :custom="{ email: emailValidator, notUnique: emailUniqueValidator }">
-                <vue-form-input
-                  required
-                  v-model="newUser.email"
-                  :formstate="formstate"
-                  :type="'email'"
-                  :label="'Email:'"
-                  :name="'email'"
-                  :messages="{ email: 'Please input a valid email', required: 'This field is required', notUnique: 'That email is already in use.' }">
-                </vue-form-input>
-              </validate>
-
-            </div>
-
-            <div class="col-sm-6">
-
-              <validate auto-label class="form-group" :class="fieldClassName(formstate.role)">
-                <label>Role:</label>
-                <select name="role" class="form-control" v-model="newUser.role">
-                  <option v-for="role in roles" :selected="role._id === newUser.role._id" :value="role">
-                    {{ role.name }}
-                  </option>
-                </select>
-              </validate>
-
-              <div class="form-group">
-                <label>Active Status:</label>
-                <input class="form-control" :disabled="true"
-                       :placeholder="newUser.isActive ? 'Activated' : 'Deactivated'"/>
+          <div class="row content-centered">
+            <div class="col-md-4">
+              <div class="box box-success box-solid">
+                <div class="box-header">
+                  <h3 class="box-title">User Scope</h3>
+                </div>
+                <div class="box-body">
+                  <select multiple ref="computedScope" size="10" style="width: 100%;"
+                          disabled="true">
+                    <option v-for="scope in computedUserScope">
+                      {{ scope }}
+                    </option>
+                  </select>
+                </div>
               </div>
-
-              <div class="form-group">
-                <label>Enabled Status:</label>
-                <input class="form-control" :disabled="true" :placeholder="newUser.isEnabled ? 'Enabled' : 'Disabled'"/>
-              </div>
-
             </div>
-
-            <!--This is a dummy field to facilitate updating the formstate programmatically-->
-            <validate class="hide"><input type="text" v-model="userGroupsUpdated" name="userGroupsUpdated" /></validate>
-            <validate class="hide"><input type="text" v-model="userPermissionsUpdated" name="userPermissionsUpdated" /></validate>
-
-          </vue-form>
-
-          <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-primary" v-if="newUser.isActive" @click="deactivateUser">Deactivate User</button>
-            <button class="btn btn-primary" v-else @click="activateUser">Activate User</button>
-            <button class="btn btn-primary" v-if="newUser.isEnabled" @click="disableUser">Disable User</button>
-            <button class="btn btn-primary" v-else @click="enableUser">Enable User</button>
-            <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="formstate.$pristine || formstate.$invalid">Update User</button>
           </div>
 
-          <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-danger" @click="deleteUserModal">Delete User</button>
-            <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
-          </div>
+            <ul class="nav nav-tabs">
+              <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
+              <li><a data-toggle="tab" href="#groups">Groups</a></li>
+              <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
+              <li><a data-toggle="tab" href="#password">Password</a></li>
+            </ul>
+
+            <div class="tab-content content">
+              <div id="details" class="tab-pane fade in active">
+
+                <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
+
+                  <div class="col-sm-6">
+
+                    <validate auto-label class="form-group" :class="fieldClassName(formstate.firstName)">
+                      <vue-form-input
+                        required
+                        v-model="newUser.firstName"
+                        :formstate="formstate"
+                        :type="'text'"
+                        :label="'First Name:'"
+                        :name="'firstName'"
+                        :messages="{ required: 'This field is required' }">
+                      </vue-form-input>
+                    </validate>
+
+                    <validate auto-label class="form-group" :class="fieldClassName(formstate.lastName)">
+                      <vue-form-input
+                        required
+                        v-model="newUser.lastName"
+                        :formstate="formstate"
+                        :type="'text'"
+                        :label="'Last Name:'"
+                        :name="'lastName'"
+                        :messages="{ required: 'This field is required' }">
+                      </vue-form-input>
+                    </validate>
+
+                    <validate auto-label class="form-group" :class="fieldClassName(formstate.email)" :debounce="250" :custom="{ email: emailValidator, notUnique: emailUniqueValidator }">
+                      <vue-form-input
+                        required
+                        v-model="newUser.email"
+                        :formstate="formstate"
+                        :type="'email'"
+                        :label="'Email:'"
+                        :name="'email'"
+                        :messages="{ email: 'Please input a valid email', required: 'This field is required', notUnique: 'That email is already in use.' }">
+                      </vue-form-input>
+                    </validate>
+
+                  </div>
+
+                  <div class="col-sm-6">
+
+                    <validate auto-label class="form-group" :class="fieldClassName(formstate.role)">
+                      <label>Role:</label>
+                      <select name="role" class="form-control" v-model="newUser.role">
+                        <option v-for="role in roles" :selected="role._id === newUser.role._id" :value="role">
+                          {{ role.name }}
+                        </option>
+                      </select>
+                    </validate>
+
+                    <div class="form-group">
+                      <label>Active Status:</label>
+                      <input class="form-control" :disabled="true"
+                             :placeholder="newUser.isActive ? 'Activated' : 'Deactivated'"/>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Enabled Status:</label>
+                      <input class="form-control" :disabled="true" :placeholder="newUser.isEnabled ? 'Enabled' : 'Disabled'"/>
+                    </div>
+
+                  </div>
+
+                  <!--This is a dummy field to facilitate updating the formstate programmatically-->
+                  <validate class="hide"><input type="text" v-model="userGroupsUpdated" name="userGroupsUpdated" /></validate>
+                  <validate class="hide"><input type="text" v-model="userPermissionsUpdated" name="userPermissionsUpdated" /></validate>
+
+                </vue-form>
+
+                <div class="py-2 text-center row" style="margin-top: 10px">
+                  <button class="btn btn-primary" v-if="newUser.isActive" @click="deactivateUser">Deactivate User</button>
+                  <button class="btn btn-primary" v-else @click="activateUser">Activate User</button>
+                  <button class="btn btn-primary" v-if="newUser.isEnabled" @click="disableUser">Disable User</button>
+                  <button class="btn btn-primary" v-else @click="enableUser">Enable User</button>
+                  <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="formstate.$pristine || formstate.$invalid">Update User</button>
+                </div>
+
+                <div class="py-2 text-center row" style="margin-top: 10px">
+                  <button class="btn btn-danger" @click="deleteUserModal">Delete User</button>
+                  <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
+                </div>
 
 
-        </div>
-        <div id="groups" class="tab-pane fade">
-          <user-groups :user="newUser" v-if="!loading"></user-groups>
-        </div>
-        <div id="permissions" class="tab-pane fade">
-          <user-permissions :user="newUser" v-if="!loading"></user-permissions>
-        </div>
-        <div id="password" class="tab-pane fade">
-          <user-password :user="newUser" v-if="!loading"></user-password>
+              </div>
+              <div id="groups" class="tab-pane fade">
+                <user-groups :user="newUser" v-if="!loading"></user-groups>
+              </div>
+              <div id="permissions" class="tab-pane fade">
+                <user-permissions :user="newUser" v-if="!loading"></user-permissions>
+              </div>
+              <div id="password" class="tab-pane fade">
+                <user-password :user="newUser" v-if="!loading"></user-password>
+              </div>
+            </div>
+
         </div>
       </div>
     </div>

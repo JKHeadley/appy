@@ -6,7 +6,7 @@
 
     <div v-show="!loading" class="content">
 
-      <div class="col-md-9">
+      <div class="col-md-8">
         <div class="box box-primary">
         <div class="box-header with-border">
           <h3 v-if="canEdit" class="box-title">Edit Document</h3>
@@ -34,7 +34,44 @@
       </div>
       </div>
 
-      <div class="col-md-3">
+      <div class="col-md-4">
+        <div class="box box-danger">
+          <div class="box-header with-border">
+            <h3 class="box-title">Owner</h3>
+
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+              <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="box-body no-padding">
+            <ul class="users-list clearfix">
+              <li>
+                <img :src="newDocument.owner.profileUrl" alt="User Image">
+
+                <router-link :to="'/members/' + newDocument.owner._id">
+                  <a class="users-list-name" href="#">{{ getName(newDocument.owner) }}</a>
+                </router-link>
+
+
+                <!--<span class="users-list-date">Today</span>-->
+              </li>
+            </ul>
+            <!-- /.users-list -->
+          </div>
+
+          <div v-if="isOwner" class="box-footer text-center">
+            <a href="#" class="uppercase" @click="openSharingModal">Manage Sharing</a>
+          </div>
+
+          <div v-if="sharedUsersLoading" class="overlay">
+            <i class="fa"><pulse-loader></pulse-loader></i>
+          </div>
+        </div>
+
         <div class="box box-danger">
           <div class="box-header with-border">
             <h3 class="box-title">Shared With</h3>
@@ -46,27 +83,26 @@
               </button>
             </div>
           </div>
-          <!-- /.box-header -->
+
           <div class="box-body no-padding">
             <ul class="users-list clearfix">
               <li v-for="user in sharedUsers">
                 <img :src="user.profileUrl" alt="User Image">
 
                 <router-link :to="'/members/' + user._id">
-                  <a class="users-list-name" href="#">{{ user.firstName }}</a>
+                  <a class="users-list-name" href="#">{{ getName(user) }}</a>
                 </router-link>
 
 
-                <span class="users-list-date">Today</span>
+                <!--<span class="users-list-date">Today</span>-->
               </li>
             </ul>
             <!-- /.users-list -->
           </div>
-          <!-- /.box-body -->
+
           <div v-if="isOwner" class="box-footer text-center">
             <a href="#" class="uppercase" @click="openSharingModal">Manage Sharing</a>
           </div>
-          <!-- /.box-footer -->
 
           <div v-if="sharedUsersLoading" class="overlay">
             <i class="fa"><pulse-loader></pulse-loader></i>
@@ -109,13 +145,20 @@
     },
     computed: {
       isOwner () {
-        return this.$store.state.auth.user._id === this.newDocument.owner
+        return this.$store.state.auth.user._id === this.newDocument.owner._id
       }
     },
     methods: {
       avatar () { return faker.image.avatar() },
+      getName (user) {
+        if (user._id === this.$store.state.auth.user._id) {
+          return 'You'
+        } else {
+          return user.firstName
+        }
+      },
       getDocument () {
-        return this.$documentRepository.find(this.$route.params._id, {})
+        return this.$documentRepository.find(this.$route.params._id, { $embed: ['owner'] })
           .then((response) => {
             this.newDocument = response.data
             this.oldDocument = _.cloneDeep(this.newDocument)

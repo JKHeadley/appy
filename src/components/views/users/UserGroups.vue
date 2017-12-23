@@ -7,54 +7,56 @@
       <input type="text" class="form-control input-lg" @input="getAvailableGroups()" placeholder="Search for groups to add" v-model="groupSearchText">
     </div>
 
-    <div class="row content-centered">
-
-      <div class="col-sm-5">
-        <h3 style="text-align: center;">Available Groups</h3>
-      </div>
-
-
-      <div class="col-sm-5 col-sm-offset-2">
-        <h3 style="text-align: center;">Current Groups</h3>
-      </div>
-    </div>
-
     <div v-if="loading" class="content content-centered">
       <pulse-loader></pulse-loader>
     </div>
 
     <div v-show="!loading">
-      <div class="row content-centered">
+      <div class="row content-centered" style="margin-top: 15px;">
 
         <div class="col-sm-5">
-          <select multiple ref="availablelist" size="10" style="width: 100%;"
-                  v-model="selectedAvailableGroups" @change="selectedUserGroups = []">
-            <option v-for="obj in availableGroups" v-bind:value="obj">
-              {{ (obj.group || {}).name }}
-            </option>
-          </select>
+          <div class="box box-info box-solid">
+            <div class="box-header">
+              <h3 class="box-title" style="text-align: center;">Available Groups</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="availablelist" size="10" style="width: 100%;"
+                      v-model="selectedAvailableGroups" @change="selectedUserGroups = []">
+                <option v-for="obj in availableGroups" v-bind:value="obj">
+                  {{ (obj.group || {}).name }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-2 content-centered">
           <div>
             <a @click="addGroups()">
-              <i class="fa fa-arrow-circle-right fa-3x"></i>
+              <i class="fa fa-arrow-circle-right fa-3x icon-btn icon-btn-primary"></i>
             </a>
             <br/>
             <br/>
             <a @click="removeGroups()">
-              <i class="fa fa-arrow-circle-left fa-3x"></i>
+              <i class="fa fa-arrow-circle-left fa-3x icon-btn icon-btn-info"></i>
             </a>
           </div>
         </div>
 
         <div class="col-sm-5">
-          <select multiple ref="userlist" size="10" style="width: 100%;"
-                  v-model="selectedUserGroups" @change="selectedAvailableGroups = []">
-            <option v-for="obj in newUser.groups" v-bind:value="obj">
-              {{ obj.group.name }}
-            </option>
-          </select>
+          <div class="box box-primary box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Current Groups</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="userlist" size="10" style="width: 100%;"
+                      v-model="selectedUserGroups" @change="selectedAvailableGroups = []">
+                <option v-for="obj in newUser.groups" v-bind:value="obj">
+                  {{ obj.group.name }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 

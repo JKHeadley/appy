@@ -7,56 +7,57 @@
       <input type="text" class="form-control input-lg" @input="getAvailableUsers()" placeholder="Search for users to add" v-model="userSearchText">
     </div>
 
-    <div class="row content-centered">
-
-      <div class="col-sm-5">
-        <h3 style="text-align: center;">Available Users</h3>
-      </div>
-
-
-      <div class="col-sm-5 col-sm-offset-2">
-        <h3 style="text-align: center;">Current Users</h3>
-      </div>
-    </div>
-
     <div v-if="loading" class="content content-centered">
       <pulse-loader></pulse-loader>
     </div>
 
     <div v-show="!loading">
-      <div class="row content-centered">
+      <div class="row content-centered" style="margin-top: 15px;">
 
         <div class="col-sm-5">
-          <select multiple ref="availablelist" size="10" style="width: 100%;"
-                  v-model="selectedAvailableUsers" @change="selectedGroupUsers = []">
-            <option v-for="obj in availableUsers" v-bind:value="obj">
-              {{ (obj.user || {}).lastName }}, {{ (obj.user || {}).firstName }}
-            </option>
-          </select>
+          <div class="box box-info box-solid">
+            <div class="box-header">
+              <h3 class="box-title" style="text-align: center;">Available Users</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="availablelist" size="10" style="width: 100%;"
+                      v-model="selectedAvailableUsers" @change="selectedGroupUsers = []">
+                <option v-for="obj in availableUsers" v-bind:value="obj">
+                  {{ (obj.user || {}).lastName }}, {{ (obj.user || {}).firstName }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-2 content-centered">
           <div>
             <a @click="addUsers()">
-              <i class="fa fa-arrow-circle-right fa-3x"></i>
+              <i class="fa fa-arrow-circle-right fa-3x icon-btn icon-btn-primary"></i>
             </a>
             <br/>
             <br/>
             <a @click="removeUsers()">
-              <i class="fa fa-arrow-circle-left fa-3x"></i>
+              <i class="fa fa-arrow-circle-left fa-3x icon-btn icon-btn-info"></i>
             </a>
           </div>
         </div>
 
         <div class="col-sm-5">
-          <select multiple ref="grouplist" size="10" style="width: 100%;"
-                  v-model="selectedGroupUsers" @change="selectedAvailableUsers = []">
-            <option v-for="obj in newGroup.users" v-bind:value="obj">
-              {{ obj.user.lastName }}, {{ obj.user.firstName }}
-            </option>
-          </select>
+          <div class="box box-primary box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Current Users</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="grouplist" size="10" style="width: 100%;"
+                      v-model="selectedGroupUsers" @change="selectedAvailableUsers = []">
+                <option v-for="obj in newGroup.users" v-bind:value="obj">
+                  {{ obj.user.lastName }}, {{ obj.user.firstName }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
-
       </div>
 
       <div>
@@ -72,16 +73,16 @@
 </template>
 
 <script>
-  import _ from 'lodash'
-  import { eventBus, groupService } from '../../../services'
+  import { groupService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
+
+  import _ from 'lodash'
 
   export default {
     name: 'GroupUsers',
     props: ['group'],
     data () {
       return {
-        lodash: _,
         loading: null,
         dirty: false,
         newGroup: _.cloneDeep(this.group),
@@ -120,15 +121,13 @@
           params.$searchFields = ['firstName', 'lastName', 'email']
         }
         if (!_.isEmpty(groupUserIds)) {
-          // EXPL: Exclude the current group users from the list of available users
           params.$exclude = groupUserIds
         }
+        params.$embed = ['permissions']
         return this.$userRepository.list(params)
           .then((response) => {
             this.loading = false
-            this.availableUsers = response.data.docs.map((user) => {
-              return { user }
-            })
+            this.availableUsers = response.data.docs.map((user) => { return {user} })
             this.sortLists()
           })
           .catch((error) => {

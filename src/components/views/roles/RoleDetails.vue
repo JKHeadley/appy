@@ -5,20 +5,24 @@
     </div>
 
     <div v-show="!loading" v-if="ready" class="content">
-      <h1 class="text-center">{{newRole.name}}</h1>
-
-      <div class="row">
-        <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
-          <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+      <div class="box box-primary box-solid">
+        <div class="box-header">
+          <h3 class="box-title">{{newRole.name}}</h3>
         </div>
-      </div>
+        <div class="box-body">
 
-      <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
-        <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
-      </ul>
+          <div class="row">
+            <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
+              <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
+            </div>
+          </div>
 
-      <div class="tab-content content">
+          <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
+            <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
+          </ul>
+
+          <div class="tab-content content">
         <div id="details" class="tab-pane fade in active">
 
           <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
@@ -67,6 +71,8 @@
         </div>
         <div id="permissions" class="tab-pane fade">
           <role-permissions :role="newRole" v-if="!loading"></role-permissions>
+        </div>
+      </div>
         </div>
       </div>
     </div>

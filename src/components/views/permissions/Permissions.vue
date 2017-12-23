@@ -1,29 +1,31 @@
 <template>
   <section class="content">
-    <h1 class="text-center">Permissions</h1>
+    <div class="box box-primary box-solid">
+      <div class="box-body">
 
-    <div class="add-permission">
-      <router-link :to="{ name: 'PermissionCreate' }">
-        <button class="btn btn-primary">Add Permission</button>
-      </router-link>
-    </div>
-
-    <v-server-table ref="permissionTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick">
-      <template slot="beforeBody">
-        <tr v-if="loading" class="VueTables__no-results">
-          <td class="text-center" colspan="6"><pulse-loader></pulse-loader></td>
-        </tr>
-      </template>
-      <template slot="edit" slot-scope="props">
-        <div>
-          <a class="fa fa-edit" permission="button" v-on:click.stop="edit(props.row)"></a>
+        <div :class="addButtonClass">
+          <router-link :to="{ name: 'PermissionCreate' }">
+            <button class="btn btn-primary">Add Permission</button>
+          </router-link>
         </div>
-      </template>
-      <template slot="child_row" slot-scope="props">
-        <pre><code>{{props.row}}</code></pre>
-      </template>
-    </v-server-table>
 
+        <v-server-table ref="permissionTable" url="" :columns="columns" :options="options" v-on:row-click="rowClick" @loaded="onLoaded">
+          <template slot="beforeBody">
+            <tr v-if="loading" class="VueTables__no-results">
+              <td class="text-center" colspan="6"><pulse-loader></pulse-loader></td>
+            </tr>
+          </template>
+          <template slot="edit" slot-scope="props">
+            <div>
+              <a class="fa fa-edit" permission="button" v-on:click.stop="edit(props.row)"></a>
+            </div>
+          </template>
+          <template slot="child_row" slot-scope="props">
+            <pre><code>{{props.row}}</code></pre>
+          </template>
+        </v-server-table>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -34,6 +36,7 @@ export default {
   data () {
     return {
       loading: null,
+      permissionTable: null,
       columns: ['name', 'description', 'edit'],
       options: {
         highlightMatches: true,
@@ -63,20 +66,25 @@ export default {
       }
     }
   },
+  computed: {
+    addButtonClass () {
+      if (this.permissionTable) {
+        return this.permissionTable.count > this.permissionTable.limit ? 'shift-add-left' : 'add-item'
+      } else {
+        return 'add-item'
+      }
+    }
+  },
   methods: {
     edit (row) {
       this.$router.push({ name: 'PermissionDetails', params: { _id: row._id }, props: row })
     },
     rowClick (data) {
       this.$refs.permissionTable.toggleChildRow(data.row._id)
+    },
+    onLoaded () {
+      this.permissionTable = this.$refs.permissionTable
     }
   }
 }
 </script>
-
-<style lang="scss">
-  .add-permission {
-    position: absolute;
-    right: 125px;
-  }
-</style>

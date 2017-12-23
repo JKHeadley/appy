@@ -7,56 +7,57 @@
       <input type="text" class="form-control input-lg" @input="getAvailablePermissions()" placeholder="Search for permissions to add" v-model="permissionSearchText">
     </div>
 
-    <div class="row content-centered">
-
-      <div class="col-sm-5">
-        <h3 style="text-align: center;">Available Permissions</h3>
-      </div>
-
-
-      <div class="col-sm-5 col-sm-offset-2">
-        <h3 style="text-align: center;">Current Permissions</h3>
-      </div>
-    </div>
-
     <div v-if="loading" class="content content-centered">
       <pulse-loader></pulse-loader>
     </div>
 
     <div v-show="!loading">
-      <div class="row content-centered">
+      <div class="row content-centered" style="margin-top: 15px;">
 
         <div class="col-sm-5">
-          <select multiple ref="availablelist" size="10" style="width: 100%;"
-                  v-model="selectedAvailablePermissions" @change="selectedGroupPermissions = []">
-            <option v-for="obj in availablePermissions" v-bind:value="obj">
-              {{ (obj.permission || {}).name }}
-            </option>
-          </select>
+          <div class="box box-info box-solid">
+            <div class="box-header">
+              <h3 class="box-title" style="text-align: center;">Available Permissions</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="availablelist" size="10" style="width: 100%;"
+                      v-model="selectedAvailablePermissions" @change="selectedGroupPermissions = []">
+                <option v-for="obj in availablePermissions" v-bind:value="obj">
+                  {{ (obj.permission || {}).name }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-2 content-centered">
           <div>
             <a @click="addPermissions()">
-              <i class="fa fa-arrow-circle-right fa-3x"></i>
+              <i class="fa fa-arrow-circle-right fa-3x icon-btn icon-btn-primary"></i>
             </a>
             <br/>
             <br/>
             <a @click="removePermissions()">
-              <i class="fa fa-arrow-circle-left fa-3x"></i>
+              <i class="fa fa-arrow-circle-left fa-3x icon-btn icon-btn-info"></i>
             </a>
           </div>
         </div>
 
         <div class="col-sm-5">
-          <select multiple ref="grouplist" size="10" style="width: 100%;"
-                  v-model="selectedGroupPermissions" @change="selectedAvailablePermissions = []">
-            <option v-for="obj in newGroup.permissions" v-bind:value="obj">
-              {{ obj.permission.name }}
-            </option>
-          </select>
+          <div class="box box-primary box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Current Permissions</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="grouplist" size="10" style="width: 100%;"
+                      v-model="selectedGroupPermissions" @change="selectedAvailablePermissions = []">
+                <option v-for="obj in newGroup.permissions" v-bind:value="obj">
+                  {{ obj.permission.name }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
-
       </div>
 
       <div>
@@ -64,48 +65,56 @@
       </div>
 
 
-      <div class="row content-centered">
+      <div class="row content-centered" style="margin-top: 15px">
 
         <div class="col-sm-4">
-          <h3 style="text-align: center;">Included Permissions</h3>
-        </div>
 
-        <div class="col-sm-4">
-          <h3 style="text-align: center;">Excluded Permissions</h3>
-        </div>
-
-        <div class="col-sm-4">
-          <h3 style="text-align: center;">Forbidden Permissions</h3>
-        </div>
-      </div>
-
-      <div class="row content-centered">
-
-        <div class="col-sm-4">
-          <select multiple ref="includedlist" size="10" style="width: 100%;"
-                  v-model="selectedIncludedPermissions">
-            <option v-for="obj in includedPermissions" v-bind:value="obj">
-              {{ (obj.permission || {}).name }}
-            </option>
-          </select>
+          <div class="box box-success box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Included</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="includedlist" size="10" style="width: 100%;"
+                      v-model="selectedIncludedPermissions">
+                <option v-for="obj in includedPermissions" v-bind:value="obj">
+                  {{ (obj.permission || {}).name }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-4 content-centered">
-          <select multiple ref="excludedlist" size="10" style="width: 100%;"
-                  v-model="selectedExcludedPermissions">
-            <option v-for="obj in excludedPermissions" v-bind:value="obj">
-              {{ obj.permission.name }}
-            </option>
-          </select>
+
+          <div class="box box-warning box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Excluded</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="excludedlist" size="10" style="width: 100%;"
+                      v-model="selectedExcludedPermissions">
+                <option v-for="obj in excludedPermissions" v-bind:value="obj">
+                  {{ obj.permission.name }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="col-sm-4">
-          <select multiple ref="forbiddenlist" size="10" style="width: 100%;"
-                  v-model="selectedForbiddenPermissions">
-            <option v-for="obj in forbiddenPermissions" v-bind:value="obj">
-              {{ obj.permission.name }}
-            </option>
-          </select>
+          <div class="box box-danger box-solid">
+            <div class="box-header">
+              <h3 class="box-title">Forbidden</h3>
+            </div>
+            <div class="box-body">
+              <select multiple ref="forbiddenlist" size="10" style="width: 100%;"
+                      v-model="selectedForbiddenPermissions">
+                <option v-for="obj in forbiddenPermissions" v-bind:value="obj">
+                  {{ obj.permission.name }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -119,15 +128,18 @@
                       :disabled="lodash.isEmpty(selectedIncludedPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
-              <input type="radio" id="includedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="includedToState">
-              <label for="includedToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
-              <br>
-              <input type="radio" id="includedToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="includedToState">
-              <label for="includedToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
-              <br>
-              <input type="radio" id="includedToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="includedToState">
-              <label for="includedToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
-              <br>
+              <div class="radio radio-success">
+                <input type="radio" id="includedToState_includedPermission" :value="PERMISSION_STATES.INCLUDED" v-model="includedToState">
+                <label for="includedToState_includedPermission">{{ PERMISSION_STATES.INCLUDED }}</label>
+              </div>
+              <div class="radio radio-warning">
+                <input type="radio" id="includedToState_excludedPermission" :value="PERMISSION_STATES.EXCLUDED" v-model="includedToState">
+                <label for="includedToState_excludedPermission">{{ PERMISSION_STATES.EXCLUDED }}</label>
+              </div>
+              <div class="radio radio-danger">
+                <input type="radio" id="includedToState_forbiddenPermission" :value="PERMISSION_STATES.FORBIDDEN" v-model="includedToState">
+                <label for="includedToState_forbiddenPermission">{{ PERMISSION_STATES.FORBIDDEN }}</label>
+              </div>
             </div>
           </div>
         </div>
@@ -139,15 +151,18 @@
                       :disabled="lodash.isEmpty(selectedExcludedPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
-              <input type="radio" id="excludedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="excludedToState">
-              <label for="excludedToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
-              <br>
-              <input type="radio" id="excludedToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="excludedToState">
-              <label for="excludedToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
-              <br>
-              <input type="radio" id="excludedToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="excludedToState">
-              <label for="excludedToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
-              <br>
+              <div class="radio radio-success">
+                <input type="radio" id="excludedToState_includedPermission" :value="PERMISSION_STATES.INCLUDED" v-model="excludedToState">
+                <label for="excludedToState_includedPermission">{{ PERMISSION_STATES.INCLUDED }}</label>
+              </div>
+              <div class="radio radio-warning">
+                <input type="radio" id="excludedToState_excludedPermission" :value="PERMISSION_STATES.EXCLUDED" v-model="excludedToState">
+                <label for="excludedToState_excludedPermission">{{ PERMISSION_STATES.EXCLUDED }}</label>
+              </div>
+              <div class="radio radio-danger">
+                <input type="radio" id="excludedToState_forbiddenPermission" :value="PERMISSION_STATES.FORBIDDEN" v-model="excludedToState">
+                <label for="excludedToState_forbiddenPermission">{{ PERMISSION_STATES.FORBIDDEN }}</label>
+              </div>
             </div>
           </div>
         </div>
@@ -159,15 +174,18 @@
                       :disabled="lodash.isEmpty(selectedForbiddenPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
-              <input type="radio" id="forbiddenToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="forbiddenToState">
-              <label for="forbiddenToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
-              <br>
-              <input type="radio" id="forbiddenToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="forbiddenToState">
-              <label for="forbiddenToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
-              <br>
-              <input type="radio" id="forbiddenToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="forbiddenToState">
-              <label for="forbiddenToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
-              <br>
+              <div class="radio radio-success">
+                <input type="radio" id="forbiddenToState_includedPermission" :value="PERMISSION_STATES.INCLUDED" v-model="forbiddenToState">
+                <label for="forbiddenToState_includedPermission">{{ PERMISSION_STATES.INCLUDED }}</label>
+              </div>
+              <div class="radio radio-warning">
+                <input type="radio" id="forbiddenToState_excludedPermission" :value="PERMISSION_STATES.EXCLUDED" v-model="forbiddenToState">
+                <label for="forbiddenToState_excludedPermission">{{ PERMISSION_STATES.EXCLUDED }}</label>
+              </div>
+              <div class="radio radio-danger">
+                <input type="radio" id="forbiddenToState_forbiddenPermission" :value="PERMISSION_STATES.FORBIDDEN" v-model="forbiddenToState">
+                <label for="forbiddenToState_forbiddenPermission">{{ PERMISSION_STATES.FORBIDDEN }}</label>
+              </div>
             </div>
           </div>
         </div>
@@ -285,7 +303,7 @@
 
         this.selectedAvailablePermissions = []
         this.sortLists()
-        eventBus.$emit(EVENTS.GROUP_PERMISSIONS_UPDATED, this.newGroup.permissions)
+        eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newGroup.permissions)
       },
       removePermissions () {
         this.dirty = true
@@ -299,7 +317,7 @@
 
         this.selectedGroupPermissions = []
         this.sortLists()
-        eventBus.$emit(EVENTS.GROUP_PERMISSIONS_UPDATED, this.newGroup.permissions)
+        eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newGroup.permissions)
       },
       sortLists () {
         this.newGroup.permissions.sort((a, b) => { return a.permission.name.localeCompare(b.permission.name) })
@@ -312,7 +330,7 @@
           permission.state = this.includedToState
         }
         this.selectedIncludedPermissions = []
-        eventBus.$emit(EVENTS.GROUP_PERMISSIONS_UPDATED, this.newGroup.permissions)
+        eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newGroup.permissions)
       },
       applyStateToExcluded () {
         this.dirty = true
@@ -320,7 +338,7 @@
           permission.state = this.excludedToState
         }
         this.selectedExcludedPermissions = []
-        eventBus.$emit(EVENTS.GROUP_PERMISSIONS_UPDATED, this.newGroup.permissions)
+        eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newGroup.permissions)
       },
       applyStateToForbidden () {
         this.dirty = true
@@ -328,7 +346,7 @@
           permission.state = this.forbiddenToState
         }
         this.selectedForbiddenPermissions = []
-        eventBus.$emit(EVENTS.GROUP_PERMISSIONS_UPDATED, this.newGroup.permissions)
+        eventBus.$emit(EVENTS.USER_PERMISSIONS_UPDATED, this.newGroup.permissions)
       },
       updateGroupPermissions () {
         groupService.updateGroupPermissions(this.newGroup._id, this.newGroup.permissions, this.oldGroup.permissions)
@@ -336,7 +354,7 @@
             this.loading = false
             this.dirty = false
             this.oldGroup = _.cloneDeep(this.newGroup)
-            eventBus.$emit(EVENTS.GROUP_PERMISSIONS_SAVED)
+            eventBus.$emit(EVENTS.USER_PERMISSIONS_SAVED)
             this.$snotify.success('Group permissions updated', 'Success!')
           })
           .catch((error) => {

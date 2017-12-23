@@ -11,12 +11,6 @@
           <h3 class="box-title">{{newPermission.name}}</h3>
         </div>
         <div class="box-body">
-
-
-
-
-          <!--<h1 class="text-center">{{newPermission.name}}</h1>-->
-
           <div class="row">
             <div class="flash-message col-md-4 col-md-offset-4 text-center" v-if="flash">
               <div class="alert" :class="'alert-' + flashType">{{ flashMessage }}</div>
@@ -30,66 +24,62 @@
           </ul>
 
           <div class="tab-content content">
-        <div id="details" class="tab-pane fade in active">
+            <div id="details" class="tab-pane fade in active">
 
-          <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
+              <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
 
-            <div class="col-sm-4 col-sm-offset-4">
+                <div class="col-sm-4 col-sm-offset-4">
 
-              <validate auto-label class="form-permission" :class="fieldClassName(formstate.name)">
-                <vue-form-input
-                  required
-                  v-model="newPermission.name"
-                  :formstate="formstate"
-                  :type="'text'"
-                  :label="'Name:'"
-                  :name="'name'"
-                  :messages="{ required: 'This field is required' }">
-                </vue-form-input>
-              </validate>
+                  <validate auto-label class="form-permission" :class="fieldClassName(formstate.name)">
+                    <vue-form-input
+                      required
+                      v-model="newPermission.name"
+                      :formstate="formstate"
+                      :type="'text'"
+                      :label="'Name:'"
+                      :name="'name'"
+                      :messages="{ required: 'This field is required' }">
+                    </vue-form-input>
+                  </validate>
 
-              <validate auto-label class="form-permission" :class="fieldClassName(formstate.description)">
-                <vue-form-input
-                  v-model="newPermission.description"
-                  :formstate="formstate"
-                  :type="'text'"
-                  :label="'Description:'"
-                  :name="'desription'">
-                </vue-form-input>
-              </validate>
+                  <validate auto-label class="form-permission" :class="fieldClassName(formstate.description)">
+                    <vue-form-input
+                      v-model="newPermission.description"
+                      :formstate="formstate"
+                      :type="'text'"
+                      :label="'Description:'"
+                      :name="'desription'">
+                    </vue-form-input>
+                  </validate>
+
+                </div>
+
+                <!--This is a dummy field to facilitate updating the formstate programmatically-->
+                <validate class="hide"><input type="text" v-model="permissionUsersUpdated" name="permissionUsersUpdated" /></validate>
+                <validate class="hide"><input type="text" v-model="permissionGroupsUpdated" name="permissionGroupsUpdated" /></validate>
+
+              </vue-form>
+
+              <div class="py-2 text-center row" style="margin-top: 10px">
+                <button class="btn btn-primary" type="submit" @click="updatePermission" :disabled="formstate.$pristine || formstate.$invalid">Update Permission</button>
+              </div>
+
+              <div class="py-2 text-center row" style="margin-top: 10px">
+                <button class="btn btn-danger" @click="deletePermissionModal">Delete Permission</button>
+                <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
+              </div>
+
 
             </div>
-
-            <!--This is a dummy field to facilitate updating the formstate programmatically-->
-            <validate class="hide"><input type="text" v-model="permissionUsersUpdated" name="permissionUsersUpdated" /></validate>
-            <validate class="hide"><input type="text" v-model="permissionGroupsUpdated" name="permissionGroupsUpdated" /></validate>
-
-          </vue-form>
-
-          <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-primary" type="submit" @click="updatePermission" :disabled="formstate.$pristine || formstate.$invalid">Update Permission</button>
+            <div id="users" class="tab-pane fade">
+              <permission-users :permission="newPermission" v-if="!loading"></permission-users>
+            </div>
+            <div id="groups" class="tab-pane fade">
+            <permission-groups :permission="newPermission" v-if="!loading"></permission-groups>
+          </div>
           </div>
 
-          <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-danger" @click="deletePermissionModal">Delete Permission</button>
-            <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
-          </div>
-
-
         </div>
-        <div id="users" class="tab-pane fade">
-          <permission-users :permission="newPermission" v-if="!loading"></permission-users>
-        </div>
-        <div id="groups" class="tab-pane fade">
-          <permission-groups :permission="newPermission" v-if="!loading"></permission-groups>
-        </div>
-      </div>
-
-
-
-
-        </div>
-
       </div>
     </div>
   </section>
