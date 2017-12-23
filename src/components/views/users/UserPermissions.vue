@@ -119,15 +119,18 @@
                       :disabled="lodash.isEmpty(selectedIncludedPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
-              <input type="radio" id="includedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="includedToState">
-              <label for="includedToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
-              <br>
-              <input type="radio" id="includedToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="includedToState">
-              <label for="includedToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
-              <br>
-              <input type="radio" id="includedToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="includedToState">
-              <label for="includedToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
-              <br>
+              <div class="radio radio-success">
+                <input type="radio" id="includedToState_includedUser" :value="PERMISSION_STATES.INCLUDED" v-model="includedToState">
+                <label for="includedToState_includedUser">{{ PERMISSION_STATES.INCLUDED }}</label>
+              </div>
+              <div class="radio radio-warning">
+                <input type="radio" id="includedToState_excludedUser" :value="PERMISSION_STATES.EXCLUDED" v-model="includedToState">
+                <label for="includedToState_excludedUser">{{ PERMISSION_STATES.EXCLUDED }}</label>
+              </div>
+              <div class="radio radio-danger">
+                <input type="radio" id="includedToState_forbiddenUser" :value="PERMISSION_STATES.FORBIDDEN" v-model="includedToState">
+                <label for="includedToState_forbiddenUser">{{ PERMISSION_STATES.FORBIDDEN }}</label>
+              </div>
             </div>
           </div>
         </div>
@@ -139,15 +142,18 @@
                       :disabled="lodash.isEmpty(selectedExcludedPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
-              <input type="radio" id="excludedToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="excludedToState">
-              <label for="excludedToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
-              <br>
-              <input type="radio" id="excludedToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="excludedToState">
-              <label for="excludedToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
-              <br>
-              <input type="radio" id="excludedToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="excludedToState">
-              <label for="excludedToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
-              <br>
+              <div class="radio radio-success">
+                <input type="radio" id="excludedToState_includedUser" :value="PERMISSION_STATES.INCLUDED" v-model="excludedToState">
+                <label for="excludedToState_includedUser">{{ PERMISSION_STATES.INCLUDED }}</label>
+              </div>
+              <div class="radio radio-warning">
+                <input type="radio" id="excludedToState_excludedUser" :value="PERMISSION_STATES.EXCLUDED" v-model="excludedToState">
+                <label for="excludedToState_excludedUser">{{ PERMISSION_STATES.EXCLUDED }}</label>
+              </div>
+              <div class="radio radio-danger">
+                <input type="radio" id="excludedToState_forbiddenUser" :value="PERMISSION_STATES.FORBIDDEN" v-model="excludedToState">
+                <label for="excludedToState_forbiddenUser">{{ PERMISSION_STATES.FORBIDDEN }}</label>
+              </div>
             </div>
           </div>
         </div>
@@ -159,15 +165,18 @@
                       :disabled="lodash.isEmpty(selectedForbiddenPermissions)">Apply</button>
             </div>
             <div class="col-sm-6">
-              <input type="radio" id="forbiddenToState_included" :value="PERMISSION_STATES.INCLUDED" v-model="forbiddenToState">
-              <label for="forbiddenToState_included">{{ PERMISSION_STATES.INCLUDED }}</label>
-              <br>
-              <input type="radio" id="forbiddenToState_excluded" :value="PERMISSION_STATES.EXCLUDED" v-model="forbiddenToState">
-              <label for="forbiddenToState_excluded">{{ PERMISSION_STATES.EXCLUDED }}</label>
-              <br>
-              <input type="radio" id="forbiddenToState_forbidden" :value="PERMISSION_STATES.FORBIDDEN" v-model="forbiddenToState">
-              <label for="forbiddenToState_forbidden">{{ PERMISSION_STATES.FORBIDDEN }}</label>
-              <br>
+              <div class="radio radio-success">
+                <input type="radio" id="forbiddenToState_includedUser" :value="PERMISSION_STATES.INCLUDED" v-model="forbiddenToState">
+                <label for="forbiddenToState_includedUser">{{ PERMISSION_STATES.INCLUDED }}</label>
+              </div>
+              <div class="radio radio-warning">
+                <input type="radio" id="forbiddenToState_excludedUser" :value="PERMISSION_STATES.EXCLUDED" v-model="forbiddenToState">
+                <label for="forbiddenToState_excludedUser">{{ PERMISSION_STATES.EXCLUDED }}</label>
+              </div>
+              <div class="radio radio-danger">
+                <input type="radio" id="forbiddenToState_forbiddenUser" :value="PERMISSION_STATES.FORBIDDEN" v-model="forbiddenToState">
+                <label for="forbiddenToState_forbiddenUser">{{ PERMISSION_STATES.FORBIDDEN }}</label>
+              </div>
             </div>
           </div>
         </div>

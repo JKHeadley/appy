@@ -15,7 +15,7 @@
             <input class="form-control" placeholder="Title" v-model="document.title">
           </div>
 
-          <vue-editor></vue-editor>
+          <vue-editor :canEdit="true"></vue-editor>
 
         </div>
         <!-- /.box-body -->

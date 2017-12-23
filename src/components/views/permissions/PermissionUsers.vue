@@ -24,7 +24,7 @@
               <select multiple ref="availablelist" size="10" style="width: 100%;"
                       v-model="selectedAvailableUsers" @change="selectedPermissionUsers = []">
                 <option v-for="obj in availableUsers" v-bind:value="obj">
-                  {{ (obj.user || {}).firstName }}, {{ (obj.user || {}).lastName }}
+                  {{ (obj.user || {}).lastName }}, {{ (obj.user || {}).firstName }}
                 </option>
               </select>
             </div>
@@ -59,7 +59,6 @@
             </div>
           </div>
         </div>
-
       </div>
 
       <div>
@@ -78,7 +77,7 @@
               <select multiple ref="includedlist" size="10" style="width: 100%;"
                       v-model="selectedIncludedUsers">
                 <option v-for="obj in includedUsers" v-bind:value="obj">
-                  {{ (obj.user || {}).firstName }}, {{ (obj.user || {}).lastName }}
+                  {{ (obj.user || {}).lastName }}, {{ (obj.user || {}).firstName }}
                 </option>
               </select>
             </div>
