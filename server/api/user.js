@@ -409,7 +409,8 @@ module.exports = function (server, mongoose, logger) {
             profile: {
               firstName: Joi.string(),
               lastName: Joi.string(),
-              email: Joi.string()
+              email: Joi.string(),
+              profileImageUrl: Joi.string()
             }
           }
         },
