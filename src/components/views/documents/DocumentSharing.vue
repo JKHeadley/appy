@@ -40,7 +40,7 @@
               </template>
               <template slot="avatar" slot-scope="props">
                 <div>
-                  <img :src="avatar()" class="user-image" alt="User Image">
+                  <img :src="props.row.profileImageUrl" class="user-image" alt="User Image">
                 </div>
               </template>
             </v-server-table>
@@ -72,7 +72,7 @@
               </template>
               <template slot="avatar" slot-scope="props">
                 <div>
-                  <img :src="avatar()" class="user-image" alt="User Image">
+                  <img :src="props.row.profileImageUrl" class="user-image" alt="User Image">
                 </div>
               </template>
             </v-server-table>

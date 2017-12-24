@@ -5,142 +5,149 @@
     </div>
 
     <div v-show="!loading" class="content">
-      <h1 class="text-center">Profile</h1>
 
       <div class="flash-message text-center" v-if="updateRequiredMessage">
         <div class="alert" :class="'alert-info'">{{updateRequiredMessage}}</div>
       </div>
 
-      <ul class="nav nav-tabs">
-        <li :class="detailsActive"><a data-toggle="tab" href="#details">Details</a></li>
-        <li :class="pictureActive"><a data-toggle="tab" href="#picture">Picture</a></li>
-        <li :class="settingsActive"><a data-toggle="tab" href="#settings">Settings</a></li>
-      </ul>
+      <div class="box box-primary">
+        <div class="box-body">
 
-      <div class="tab-content content">
-        <div id="details" class="tab-pane fade in" :class="detailsActive" >
+          <ul class="nav nav-tabs">
+            <li :class="detailsActive"><a data-toggle="tab" href="#details">Details</a></li>
+            <li :class="pictureActive"><a data-toggle="tab" href="#picture">Picture</a></li>
+            <li :class="settingsActive"><a data-toggle="tab" href="#settings">Settings</a></li>
+          </ul>
 
-          <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
+          <div class="tab-content content">
+            <div id="details" class="tab-pane fade in" :class="detailsActive" >
 
-              <validate auto-label class="form-group" :class="fieldClassName(formstate.firstName)">
-                <vue-form-input
-                  required
-                  v-model="newProfile.firstName"
-                  :formstate="formstate"
-                  :type="'text'"
-                  :label="'First Name:'"
-                  :name="'firstName'"
-                  :messages="{ required: 'This field is required' }">
-                </vue-form-input>
-              </validate>
+              <div class="col-md-12">
+                <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
 
-              <validate auto-label class="form-group" :class="fieldClassName(formstate.lastName)">
-                <vue-form-input
-                  required
-                  v-model="newProfile.lastName"
-                  :formstate="formstate"
-                  :type="'text'"
-                  :label="'Last Name:'"
-                  :name="'lastName'"
-                  :messages="{ required: 'This field is required' }">
-                </vue-form-input>
-              </validate>
+                    <validate auto-label class="form-group" :class="fieldClassName(formstate.firstName)">
+                      <vue-form-input
+                        required
+                        v-model="newProfile.firstName"
+                        :formstate="formstate"
+                        :type="'text'"
+                        :label="'First Name:'"
+                        :name="'firstName'"
+                        :messages="{ required: 'This field is required' }">
+                      </vue-form-input>
+                    </validate>
 
-              <validate auto-label class="form-group" :class="fieldClassName(formstate.email)" :debounce="250" :custom="{ email: emailValidator, notUnique: emailUniqueValidator }">
-                <vue-form-input
-                  required
-                  v-model="newProfile.email"
-                  :formstate="formstate"
-                  :type="'email'"
-                  :label="'Email:'"
-                  :name="'email'"
-                  :messages="{ email: 'Please input a valid email', required: 'This field is required', notUnique: 'That email is already in use.' }">
-                </vue-form-input>
-              </validate>
+                    <validate auto-label class="form-group" :class="fieldClassName(formstate.lastName)">
+                      <vue-form-input
+                        required
+                        v-model="newProfile.lastName"
+                        :formstate="formstate"
+                        :type="'text'"
+                        :label="'Last Name:'"
+                        :name="'lastName'"
+                        :messages="{ required: 'This field is required' }">
+                      </vue-form-input>
+                    </validate>
 
-          </vue-form>
+                    <validate auto-label class="form-group" :class="fieldClassName(formstate.email)" :debounce="250" :custom="{ email: emailValidator, notUnique: emailUniqueValidator }">
+                      <vue-form-input
+                        required
+                        v-model="newProfile.email"
+                        :formstate="formstate"
+                        :type="'email'"
+                        :label="'Email:'"
+                        :name="'email'"
+                        :messages="{ email: 'Please input a valid email', required: 'This field is required', notUnique: 'That email is already in use.' }">
+                      </vue-form-input>
+                    </validate>
 
-          <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-primary" type="submit" @click="updateProfile" :disabled="formstate.$pristine || formstate.$invalid">Update Profile</button>
-            <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
-          </div>
+                </vue-form>
 
-          <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-danger" @click="deleteUserModal">Delete Account</button>
-          </div>
+                <div class="py-2 text-center row" style="margin-top: 10px">
+                  <button class="btn btn-primary" type="submit" @click="updateProfile" :disabled="formstate.$pristine || formstate.$invalid">Update Profile</button>
+                  <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
+                </div>
 
-        </div>
-        <div id="picture" class="tab-pane fade in" :class="pictureActive">
-        </div>
-        <div id="settings" class="tab-pane fade in" :class="settingsActive">
-
-          <div class="callout callout-info">
-            <h4>Tip!</h4>
-
-            <p>Your 4 digit PIN will be required if you need to reset your
-              password in the future. Please keep it somewhere safe.</p>
-          </div>
-
-          <div class="col-md-4 col-md-offset-4">
-            <vue-form :state="passwordFormstate" @submit.prevent="updatePassword" class="row">
-
-              <validate auto-label class="form-group" :class="fieldClassName(passwordFormstate.newPassword)" :debounce="250" :custom="{ notStrong: passwordScoreValidator }">
-                <vue-form-input
-                  required
-                  @input="validateConfirm"
-                  v-model="newPassword"
-                  :passwordFormstate="passwordFormstate"
-                  :type="'password'"
-                  :label="'New Password:'"
-                  :name="'newPassword'"
-                  :placeholder="'Please enter your new password.'"
-                  :messages="{ required: 'This field is required', notStrong: 'Password not strong enough' }">
-                </vue-form-input>
-              </validate>
-
-              <validate auto-label class="form-group" :class="fieldClassName(passwordFormstate.confirmPassword)" :debounce="250" :custom="{ notMatch: passwordConfirmValidator }">
-                <vue-form-input
-                  required
-                  v-model="confirmPassword"
-                  :passwordFormstate="passwordFormstate"
-                  :type="'password'"
-                  :label="'Confirm Password:'"
-                  :name="'confirmPassword'"
-                  :placeholder="'Please confirm your password.'"
-                  :messages="{ required: 'This field is required', notMatch: 'Passwords do not match' }">
-                </vue-form-input>
-              </validate>
-
-              <div class="content-centered">
-                <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 15px;"
-                        :disabled="passwordFormstate.$pristine || passwordFormstate.$invalid || passwordScoreUpdating">Update Password</button>
-
+                <div class="py-2 text-center row" style="margin-top: 10px">
+                  <button class="btn btn-danger" @click="deleteUserModal">Delete Account</button>
+                </div>
               </div>
-            </vue-form>
 
-            <vue-form :state="pinFormstate" @submit.prevent="updatePIN" class="row">
+            </div>
+            <div id="picture" class="tab-pane fade in" :class="pictureActive">
+              <profile-image></profile-image>
+            </div>
+            <div id="settings" class="tab-pane fade in" :class="settingsActive">
 
-              <validate auto-label class="form-group" :class="fieldClassName(pinFormstate.pin)" :custom="{ minlength: minlengthValidator(4) }">
-                <vue-form-input
-                  required
-                  v-model="pin"
-                  :pinFormstate="pinFormstate"
-                  :type="'text'"
-                  :label="'PIN:'"
-                  :name="'pin'"
-                  :mask="'1111'"
-                  :minlength="'4'"
-                  :placeholder="'Please enter your 4 digit PIN.'"
-                  :messages="{ required: 'This field is required', minlength: 'PIN must be 4 digits.' }">
-                </vue-form-input>
-              </validate>
+              <div class="callout callout-info">
+                <h4>Tip!</h4>
 
-              <div class="content-centered">
-                <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 15px;"
-                        :disabled="pinFormstate.$pristine || pinFormstate.$invalid || passwordScoreUpdating">Update PIN</button>
-
+                <p>Your 4 digit PIN will be required if you need to reset your
+                  password in the future. Please keep it somewhere safe.</p>
               </div>
-            </vue-form>
+
+              <div class="col-md-4 col-md-offset-4">
+                <vue-form :state="passwordFormstate" @submit.prevent="updatePassword" class="row">
+
+                  <validate auto-label class="form-group" :class="fieldClassName(passwordFormstate.newPassword)" :debounce="250" :custom="{ notStrong: passwordScoreValidator }">
+                    <vue-form-input
+                      required
+                      @input="validateConfirm"
+                      v-model="newPassword"
+                      :passwordFormstate="passwordFormstate"
+                      :type="'password'"
+                      :label="'New Password:'"
+                      :name="'newPassword'"
+                      :placeholder="'Please enter your new password.'"
+                      :messages="{ required: 'This field is required', notStrong: 'Password not strong enough' }">
+                    </vue-form-input>
+                  </validate>
+
+                  <validate auto-label class="form-group" :class="fieldClassName(passwordFormstate.confirmPassword)" :debounce="250" :custom="{ notMatch: passwordConfirmValidator }">
+                    <vue-form-input
+                      required
+                      v-model="confirmPassword"
+                      :passwordFormstate="passwordFormstate"
+                      :type="'password'"
+                      :label="'Confirm Password:'"
+                      :name="'confirmPassword'"
+                      :placeholder="'Please confirm your password.'"
+                      :messages="{ required: 'This field is required', notMatch: 'Passwords do not match' }">
+                    </vue-form-input>
+                  </validate>
+
+                  <div class="content-centered">
+                    <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 15px;"
+                            :disabled="passwordFormstate.$pristine || passwordFormstate.$invalid || passwordScoreUpdating">Update Password</button>
+
+                  </div>
+                </vue-form>
+
+                <vue-form :state="pinFormstate" @submit.prevent="updatePIN" class="row">
+
+                  <validate auto-label class="form-group" :class="fieldClassName(pinFormstate.pin)" :custom="{ minlength: minlengthValidator(4) }">
+                    <vue-form-input
+                      required
+                      v-model="pin"
+                      :pinFormstate="pinFormstate"
+                      :type="'text'"
+                      :label="'PIN:'"
+                      :name="'pin'"
+                      :mask="'1111'"
+                      :minlength="'4'"
+                      :placeholder="'Please enter your 4 digit PIN.'"
+                      :messages="{ required: 'This field is required', minlength: 'PIN must be 4 digits.' }">
+                    </vue-form-input>
+                  </validate>
+
+                  <div class="content-centered">
+                    <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 15px;"
+                            :disabled="pinFormstate.$pristine || pinFormstate.$invalid || passwordScoreUpdating">Update PIN</button>
+
+                  </div>
+                </vue-form>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -149,12 +156,16 @@
 </template>
 
 <script>
+  import ProfileImage from './ProfileImage.vue'
   import { userService, authService, formService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
   import swal from 'sweetalert2'
 
   export default {
-    name: 'UserProfile',
+    name: 'Profile',
+    components: {
+      ProfileImage
+    },
     data () {
       return {
         ready: false,
@@ -207,6 +218,7 @@
             this.oldProfile = _.cloneDeep(this.newProfile)
             // EXPL: Update the global user object
             const user = Object.assign(this.$store.state.auth.user, this.newProfile)
+            user.profileImageUrl = this.profileImageUrl
             this.$store.commit('auth/SET_USER', user)
             this.$snotify.success('Profile updated', 'Success!')
           })
@@ -287,7 +299,7 @@
             console.error('UserProfile.deleteUser-error:', error)
             this.$snotify.error('Delete account failed', 'Error!')
           })
-      },
+      }
     },
     created () {
       // EXPL: Filter out unneeded user properties for the profile

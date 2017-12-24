@@ -1,10 +1,10 @@
 <template>
   <div :class="['wrapper', classes]">
     <!-- Left side column. contains the logo and sidebar -->
-    <main-header :display-name="demo.displayName" :picture-url="demo.avatar" />
+    <main-header :display-name="displayName" :picture-url="user.profileImageUrl" />
 
     <!-- Left side column. contains the logo and sidebar -->
-    <sidebar :display-name="demo.displayName" :picture-url="demo.avatar" />
+    <sidebar :display-name="displayName" :picture-url="user.profileImageUrl" />
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -41,6 +41,7 @@ export default {
   data: function () {
     return {
       // section: 'Dash',
+      user: null,
       year: new Date().getFullYear(),
       classes: {
         fixed_layout: config.fixedLayout,
@@ -60,12 +61,18 @@ export default {
         email: faker.internet.email(),
         randomCard: faker.helpers.createCard()
       }
+    },
+    displayName () {
+      return this.user.firstName + ' ' + this.user.lastName
     }
   },
   methods: {
     changeloading () {
       this.$store.commit('TOGGLE_SEARCHING')
     }
+  },
+  created () {
+    this.user = this.$store.state.auth.user
   }
 }
 </script>

@@ -5,6 +5,7 @@ import 'es6-promise/auto'
 // import '../static/css/imported/bootstrap.min.css'
 import '../static/css/Custom.scss'
 import 'vue-snotify/styles/material.css'
+import 'vue-croppa/dist/vue-croppa.css'
 
 // EXPL: Import global js files
 // import '../static/js/plugins/bootstrap/bootstrap.min'
@@ -38,6 +39,7 @@ import VueModal from 'vue-js-modal'
 import ToggleButton from 'vue-js-toggle-button'
 import VuePassword from 'vue-password/dist/custom'
 import VueMaskedInput from 'vue-masked-input'
+import Croppa from 'vue-croppa'
 
 import VueFormInput from './components/utilities/VueFormInput.vue'
 import VueEditor from './components/utilities/VueEditor.vue'
@@ -85,6 +87,7 @@ Vue.use(Snotify, {
 Vue.use(ToggleButton)
 Vue.use(VueMoment)
 Vue.use(VueModal)
+Vue.use(Croppa)
 
 // EXPL: Routing logic
 var router = new VueRouter({

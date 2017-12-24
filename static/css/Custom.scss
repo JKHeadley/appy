@@ -138,7 +138,6 @@ vue-tables-2
 }
 
 // table add button
-
 .shift-add-left {
   position: absolute;
   right: 135px;
@@ -148,6 +147,29 @@ vue-tables-2
   right: 10px;
 }
 
+// profile images
+.profile-user-img {
+  padding: 0px;
+  background-color: lightblue;
+}
+.user-panel .image img {
+  border-radius: 50%;
+  background-color: lightblue;
+}
+.user-image {
+  background-color: lightblue;
+}
+.users-list>li img {
+  background-color: lightblue;
+}
+
+// box customizations
+.box-clear {
+  -webkit-box-shadow: 0 0;
+  -moz-box-shadow: 0 0;
+  box-shadow: 0 0;
+  margin: 0px;
+}
 
 /*
  * Component: Icon Button

@@ -17,7 +17,7 @@
           <v-server-table ref="userTable" url="" :columns="contactColumns" :options="contactOptions" v-on:row-click="rowClick">
             <template slot="avatar" slot-scope="props">
               <div>
-                <img :src="avatar()" class="user-image" alt="User Image">
+                <img :src="props.row.profileImageUrl" class="user-image" alt="User Image">
               </div>
             </template>
           </v-server-table>
@@ -39,7 +39,7 @@
           <v-server-table ref="userTable" url="" :columns="followingColumns" :options="followingOptions" v-on:row-click="rowClick">
             <template slot="avatar" slot-scope="props">
               <div>
-                <img :src="avatar()" class="user-image" alt="User Image">
+                <img :src="props.row.profileImageUrl" class="user-image" alt="User Image">
               </div>
             </template>
           </v-server-table>
@@ -61,7 +61,7 @@
           <v-server-table ref="userTable" url="" :columns="followerColumns" :options="followerOptions" v-on:row-click="rowClick">
             <template slot="avatar" slot-scope="props">
               <div>
-                <img :src="avatar()" class="user-image" alt="User Image">
+                <img :src="props.row.profileImageUrl" class="user-image" alt="User Image">
               </div>
             </template>
           </v-server-table>

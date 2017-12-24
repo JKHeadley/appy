@@ -50,21 +50,15 @@
           <div class="box-body no-padding">
             <ul class="users-list clearfix">
               <li>
-                <img :src="newDocument.owner.profileUrl" alt="User Image">
+                <img :src="newDocument.owner.profileImageUrl" alt="User Image">
 
                 <router-link :to="'/members/' + newDocument.owner._id">
                   <a class="users-list-name" href="#">{{ getName(newDocument.owner) }}</a>
                 </router-link>
 
-
                 <!--<span class="users-list-date">Today</span>-->
               </li>
             </ul>
-            <!-- /.users-list -->
-          </div>
-
-          <div v-if="isOwner" class="box-footer text-center">
-            <a href="#" class="uppercase" @click="openSharingModal">Manage Sharing</a>
           </div>
 
           <div v-if="sharedUsersLoading" class="overlay">
@@ -87,17 +81,15 @@
           <div class="box-body no-padding">
             <ul class="users-list clearfix">
               <li v-for="user in sharedUsers">
-                <img :src="user.profileUrl" alt="User Image">
+                <img :src="user.profileImageUrl" alt="User Image">
 
                 <router-link :to="'/members/' + user._id">
                   <a class="users-list-name" href="#">{{ getName(user) }}</a>
                 </router-link>
 
-
                 <!--<span class="users-list-date">Today</span>-->
               </li>
             </ul>
-            <!-- /.users-list -->
           </div>
 
           <div v-if="isOwner" class="box-footer text-center">
@@ -171,7 +163,7 @@
       },
       getUsers () {
         this.sharedUsersLoading = true
-        return this.$documentRepository.getUsers(this.$route.params._id, { $select: ['firstName', 'profileUrl'] })
+        return this.$documentRepository.getUsers(this.$route.params._id, { $select: ['firstName', 'profileImageUrl'] })
           .then((response) => {
             this.sharedUsersLoading = false
             this.sharedUsers = response.data.docs
