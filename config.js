@@ -43,6 +43,11 @@ const config = {
     production: process.env.PORT,
     $default: constants.PORT
   },
+  S3BucketName: {
+    $filter: 'env',
+    production: "appy-cdn",
+    $default: "appy-cdn"
+  },
   constants: constants,
   expirationPeriod: {
     short: '10m',

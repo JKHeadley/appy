@@ -2,6 +2,7 @@
 
 const Bcrypt = require('bcryptjs');
 const GeneratePassword = require('password-generator');
+const RestHapi = require('rest-hapi');
 const Q = require('q');
 
 module.exports = function (mongoose) {
@@ -27,7 +28,7 @@ module.exports = function (mongoose) {
     bio: {
       type: Types.String
     },
-    profileUrl: {
+    profileImageUrl: {
       type: Types.String,
       stringType: 'uri'
     },
@@ -160,6 +161,19 @@ module.exports = function (mongoose) {
               payload.pin = result[1].hash;
               return payload;
             });
+        },
+        post: function (document, request, result, Log) {
+          const User = mongoose.model('user');
+          if (!result.profileImageUrl) {
+            let profileImageUrl = 'https://www.gravatar.com/avatar/' + result._id + '?r=PG&d=robohash'
+            return RestHapi.update(User, result._id, { profileImageUrl }, Log)
+              .then(function(result) {
+                return result
+              })
+          }
+          else {
+            return result
+          }
         }
       }
     },
