@@ -69,10 +69,10 @@ internals.formatImage = function (image, Log) {
 }
 
 module.exports = function (server, mongoose, logger) {
+  // NOTE: AWS credentials are automatically loaded from environment variables, otherwise they should be loaded via json
+  // EX: AWS.config.loadFromPath(__dirname + '/../aws-upload.json');
 
-    // Upload File Endpoint
-    // NOTE: AWS credentials are automatically loaded from environment variables, otherwise they should be loaded via json
-    // EX: AWS.config.loadFromPath(__dirname + '/../aws-upload.json');
+    // Upload Profile Image Endpoint
     (function () {
         const Log = logger.bind(Chalk.magenta("Upload File"));
 
@@ -119,8 +119,8 @@ module.exports = function (server, mongoose, logger) {
                     strategy: authStrategy,
                     scope: _.values(USER_ROLES)
                 },
-                description: 'Upload File to S3.',
-                tags: ['api', 'Upload', 'File'],
+                description: 'Upload Profile Image to S3.',
+                tags: ['api', 'Upload', 'Profile Image'],
                 payload: {
                     // output: 'stream',
                     maxBytes: 30*1024*1024, // max 30 MB
@@ -150,4 +150,82 @@ module.exports = function (server, mongoose, logger) {
         });
     }());
 
+  // Upload Image Endpoint
+  (function () {
+    const Log = logger.bind(Chalk.magenta("Upload File"));
+
+    Log.note("Generating Upload File endpoint");
+
+    const uploadHandler = function (request, reply) {
+
+      var data = request.payload;
+
+      Log.log("Uploading File:", data);
+
+      let fileExtenstion = data.name ? data.name.split('.').pop() : 'png';
+
+      // return internals.formatImage(data, Log)
+      return Q.when(data)
+        .then(function(data) {
+
+          // EXPL: The filenames should be unique but also tied to the user
+          var key = request.auth.credentials.user._id + '_' + Uuid.v4() + '.' + fileExtenstion;
+
+          var s3 = new AWS.S3();
+          var params = {
+            Bucket: S3BucketName,
+            Key: key,
+            Body: data.file
+          };
+          s3.putObject(params, function (err, res) {
+            if (err) {
+              Log.error(err);
+              return reply(Boom.badData("There was an error uploading the file."));
+            } else {
+              Log.log("Upload complete for:", data.name);
+              return reply("https://s3-us-west-2.amazonaws.com/" + params.Bucket + "/" + params.Key);
+            }
+          });
+        });
+    };
+
+    server.route({
+      method: 'POST',
+      path: '/file/upload/image',
+      config: {
+        handler: uploadHandler,
+        auth: {
+          strategy: authStrategy,
+          scope: _.values(USER_ROLES)
+        },
+        description: 'Upload Image to S3.',
+        tags: ['api', 'Upload', 'Image'],
+        payload: {
+          // output: 'stream',
+          maxBytes: 30*1024*1024, // max 30 MB
+          parse: true,
+          allow: 'multipart/form-data',
+          timeout: false
+        },
+        validate: {
+          headers: headersValidation,
+          payload: {
+            name: Joi.string().required(),
+            file: Joi.any().meta({ swaggerType: 'file' }).description("File Data").required()
+          }
+        },
+        plugins: {
+          'hapi-swagger': {
+            responseMessages: [
+              { code: 200, message: 'Success' },
+              { code: 400, message: 'Bad Request' },
+              { code: 404, message: 'Not Found' },
+              { code: 500, message: 'Internal Server Error' }
+            ],
+            payloadType: 'form'
+          }
+        }
+      }
+    });
+  }());
 };

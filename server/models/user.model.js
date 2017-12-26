@@ -140,6 +140,12 @@ module.exports = function (mongoose) {
           model: "document",
           linkingModel: "user_document"
         },
+        images: {
+          type: "ONE_MANY",
+          alias: "image",
+          foreignField: "owner",
+          model: "image"
+        },
       },
       create: {
         pre: function (payload, request, Log) {
@@ -166,7 +172,7 @@ module.exports = function (mongoose) {
           const User = mongoose.model('user');
           if (!result.profileImageUrl) {
             let profileImageUrl = 'https://www.gravatar.com/avatar/' + result._id + '?r=PG&d=robohash'
-            return RestHapi.update(User, result._id, { profileImageUrl }, Log)
+            return RestHapi.update(User, document._id, { profileImageUrl }, Log)
               .then(function(result) {
                 return result
               })

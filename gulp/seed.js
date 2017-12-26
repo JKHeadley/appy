@@ -264,6 +264,12 @@ gulp.task('seed', [], function () {
                       childId: permissions.find(function (p) {
                         return p.name === 'document'
                       })._id
+                    },
+                    {
+                      state: PERMISSION_STATES.INCLUDED,
+                      childId: permissions.find(function (p) {
+                        return p.name === 'image'
+                      })._id
                     }
                   ], Log))
 
@@ -318,6 +324,12 @@ gulp.task('seed', [], function () {
                           state: PERMISSION_STATES.INCLUDED,
                           childId: permissions.find(function (p) {
                             return p.name === 'document'
+                          })._id
+                        },
+                        {
+                          state: PERMISSION_STATES.INCLUDED,
+                          childId: permissions.find(function (p) {
+                            return p.name === 'image'
                           })._id
                         }
                       ], Log))
@@ -599,6 +611,10 @@ function dropCollections (models) {
     })
     .then(function () {
       Log.log('removing documents')
+      return models.document.remove({})
+    })
+    .then(function () {
+      Log.log('removing images')
       return models.document.remove({})
     })
     .then(function () {
