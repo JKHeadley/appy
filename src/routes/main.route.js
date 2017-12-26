@@ -18,6 +18,7 @@ import permissionRoutes from './permissions.route'
 import memberRoutes from './members.route'
 import connectionRoutes from './connections.route'
 import documentRoutes from './documents.route'
+import imageRoutes from './images.route'
 
 const routes = [
   {
@@ -72,7 +73,8 @@ const routes = [
       ...permissionRoutes,
       ...memberRoutes,
       ...connectionRoutes,
-      ...documentRoutes
+      ...documentRoutes,
+      ...imageRoutes
     ]
   }
 ]

@@ -40,6 +40,8 @@ import ToggleButton from 'vue-js-toggle-button'
 import VuePassword from 'vue-password/dist/custom'
 import VueMaskedInput from 'vue-masked-input'
 import Croppa from 'vue-croppa'
+import Carousel3d from 'vue-carousel-3d'
+import VueGridLayout from 'vue-grid-layout'
 
 import VueFormInput from './components/utilities/VueFormInput.vue'
 import VueEditor from './components/utilities/VueEditor.vue'
@@ -70,6 +72,8 @@ Vue.component('pulse-loader', PulseLoader)
 Vue.component('vue-select', VueSelect)
 Vue.component('vue-password', VuePassword)
 Vue.component('vue-masked-input', VueMaskedInput)
+Vue.component('grid-layout', VueGridLayout.GridLayout)
+Vue.component('grid-item', VueGridLayout.GridItem)
 Vue.use(VueRouter)
 Vue.use(RestHapiRepository, { httpClient, resources, log: true })
 Vue.use(ServerTable, {}, false)
@@ -88,6 +92,7 @@ Vue.use(ToggleButton)
 Vue.use(VueMoment)
 Vue.use(VueModal)
 Vue.use(Croppa)
+Vue.use(Carousel3d);
 
 // EXPL: Routing logic
 var router = new VueRouter({

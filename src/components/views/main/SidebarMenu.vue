@@ -81,11 +81,12 @@
             <span class="page">Documents</span>
           </a>
         </router-link>
-        <li>
-          <a href="#">
-            <i class="fa fa-file-picture-o"></i> Images
+        <router-link tag="li" class="pageLink" to="/images">
+          <a>
+            <i class="fa fa-file-picture-o"></i>
+            <span class="page">Images</span>
           </a>
-        </li>
+        </router-link>
         <li>
           <a href="#">
             <i class="fa fa-file-pdf-o"></i> PDFs

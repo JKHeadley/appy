@@ -23,6 +23,9 @@ export const resources = {
       },
       sharedDocuments: {
         alias: 'shared-document'
+      },
+      images: {
+        alias: 'image'
       }
     }
   },
@@ -36,6 +39,9 @@ export const resources = {
         alias: 'user'
       }
     }
+  },
+  image: {
+    alias: 'image'
   },
   role: {
     alias: 'role',
