@@ -14,52 +14,55 @@
         <div class="box-body">
 
           <ul class="nav nav-tabs">
-            <li :class="detailsActive"><a data-toggle="tab" href="#details">Details</a></li>
             <li :class="pictureActive"><a data-toggle="tab" href="#picture">Picture</a></li>
+            <li :class="detailsActive"><a data-toggle="tab" href="#details">Details</a></li>
             <li :class="settingsActive"><a data-toggle="tab" href="#settings">Settings</a></li>
           </ul>
 
           <div class="tab-content content">
+            <div id="picture" class="tab-pane fade in" :class="pictureActive">
+              <profile-image></profile-image>
+            </div>
             <div id="details" class="tab-pane fade in" :class="detailsActive" >
 
               <div class="col-md-12">
                 <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
 
-                    <validate auto-label class="form-group" :class="fieldClassName(formstate.firstName)">
-                      <vue-form-input
-                        required
-                        v-model="newProfile.firstName"
-                        :formstate="formstate"
-                        :type="'text'"
-                        :label="'First Name:'"
-                        :name="'firstName'"
-                        :messages="{ required: 'This field is required' }">
-                      </vue-form-input>
-                    </validate>
+                  <validate auto-label class="form-group" :class="fieldClassName(formstate.firstName)">
+                    <vue-form-input
+                      required
+                      v-model="newProfile.firstName"
+                      :formstate="formstate"
+                      :type="'text'"
+                      :label="'First Name:'"
+                      :name="'firstName'"
+                      :messages="{ required: 'This field is required' }">
+                    </vue-form-input>
+                  </validate>
 
-                    <validate auto-label class="form-group" :class="fieldClassName(formstate.lastName)">
-                      <vue-form-input
-                        required
-                        v-model="newProfile.lastName"
-                        :formstate="formstate"
-                        :type="'text'"
-                        :label="'Last Name:'"
-                        :name="'lastName'"
-                        :messages="{ required: 'This field is required' }">
-                      </vue-form-input>
-                    </validate>
+                  <validate auto-label class="form-group" :class="fieldClassName(formstate.lastName)">
+                    <vue-form-input
+                      required
+                      v-model="newProfile.lastName"
+                      :formstate="formstate"
+                      :type="'text'"
+                      :label="'Last Name:'"
+                      :name="'lastName'"
+                      :messages="{ required: 'This field is required' }">
+                    </vue-form-input>
+                  </validate>
 
-                    <validate auto-label class="form-group" :class="fieldClassName(formstate.email)" :debounce="250" :custom="{ email: emailValidator, notUnique: emailUniqueValidator }">
-                      <vue-form-input
-                        required
-                        v-model="newProfile.email"
-                        :formstate="formstate"
-                        :type="'email'"
-                        :label="'Email:'"
-                        :name="'email'"
-                        :messages="{ email: 'Please input a valid email', required: 'This field is required', notUnique: 'That email is already in use.' }">
-                      </vue-form-input>
-                    </validate>
+                  <validate auto-label class="form-group" :class="fieldClassName(formstate.email)" :debounce="250" :custom="{ email: emailValidator, notUnique: emailUniqueValidator }">
+                    <vue-form-input
+                      required
+                      v-model="newProfile.email"
+                      :formstate="formstate"
+                      :type="'email'"
+                      :label="'Email:'"
+                      :name="'email'"
+                      :messages="{ email: 'Please input a valid email', required: 'This field is required', notUnique: 'That email is already in use.' }">
+                    </vue-form-input>
+                  </validate>
 
                 </vue-form>
 
@@ -73,9 +76,6 @@
                 </div>
               </div>
 
-            </div>
-            <div id="picture" class="tab-pane fade in" :class="pictureActive">
-              <profile-image></profile-image>
             </div>
             <div id="settings" class="tab-pane fade in" :class="settingsActive">
 
@@ -310,12 +310,12 @@
       this.oldProfile = _.cloneDeep(this.newProfile)
 
       // EXPL: Set the active tab
-      if (this.$route.query.picture) {
-        this.pictureActive = 'active'
+      if (this.$route.query.details) {
+        this.detailsActive = 'active'
       } else if (this.$route.query.settings) {
         this.settingsActive = 'active'
       } else {
-        this.detailsActive = 'active'
+        this.pictureActive = 'active'
       }
       // EXPL: Notify the user of any required updates
       if (this.$store.state.auth.user.passwordUpdateRequired && this.$store.state.auth.user.pinUpdateRequired) {

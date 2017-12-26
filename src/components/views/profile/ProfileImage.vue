@@ -2,7 +2,7 @@
   <section>
     <div class="box box-solid box-clear">
       <div class="content">
-        <div class="row content-centered">
+        <div class="row content-centered profile">
           <croppa v-model="profileImage"
                   :width="350"
                   :height="350"
@@ -176,12 +176,14 @@
 </script>
 
 <style lang="scss">
-  .croppa-container {
-    border: 2px solid grey;
-    border-radius: 50%;
-  }
-  canvas {
-    border: 2px solid grey;
-    border-radius: 50%;
+  .profile {
+    .croppa-container {
+      border: 2px solid grey;
+      border-radius: 50%;
+    }
+    canvas {
+      border: 2px solid grey;
+      border-radius: 50%;
+    }
   }
 </style>

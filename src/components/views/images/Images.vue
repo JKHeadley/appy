@@ -10,17 +10,22 @@
         </div>
         <div class="box-body" ref="imageBox" v-if="ready">
 
-          <carousel-3d ref="carousel"
-                       v-if="enableCarousel"
-                       :controlsVisible="true"
-                       :width="imageSize.width"
-                       :height="imageSize.height"
-                       :controlsPrevHtml="controlsPrevHtml"
-                       :controlsNextHtml="controlsNextHtml">
-            <slide v-for="(image, index) in images" :index="index" :key="image._id">
-              <a href="#" @click="openModal(index)"><img :src="image.imageUrl"></a>
-            </slide>
-          </carousel-3d>
+          <div v-if="images[0]">
+            <carousel-3d ref="carousel"
+                         v-if="enableCarousel"
+                         :controlsVisible="true"
+                         :width="imageSize.width"
+                         :height="imageSize.height"
+                         :controlsPrevHtml="controlsPrevHtml"
+                         :controlsNextHtml="controlsNextHtml">
+              <slide v-for="(image, index) in images" :index="index" :key="image._id">
+                <a href="#" @click="openModal(index)"><img :src="image.imageUrl"></a>
+              </slide>
+            </carousel-3d>
+          </div>
+          <div v-else class="content content-centered">
+            <span> You don't have any images yet. Click the button below to add some!</span>
+          </div>
 
         </div>
 
@@ -43,7 +48,7 @@
     </div>
 
 
-    <modal v-if="ready && carousel && enableCarousel" :adaptive="true"
+    <modal v-if="ready && carousel && enableCarousel && images[0]" :adaptive="true"
            :width="imageSize.width * 3"
            :height="imageSize.height * 3"
            name="image-modal"
@@ -59,40 +64,46 @@
            height="auto"
            name="edit-images-modal"
            style="z-index: 2000">
-      <grid-layout
-        ref="gridLayout"
-        :layout="images"
-        :col-num="4"
-        :row-height="60"
-        :is-draggable="false"
-        :is-resizable="false"
-        :is-mirrored="false"
-        :vertical-compact="true"
-        :margin="[5, 5]"
-        :use-css-transforms="true">
-        <grid-item v-for="image in images" :key="image.i"
-                   :x="image.x"
-                   :y="image.y"
-                   :w="image.w"
-                   :h="image.h"
-                   :i="image.i"
-                   @moved="updateIndex">
-          <div class="content-centered" style="height: 100%">
-            <img class='no-select' draggable="false" :src="image.imageUrl" :width="image.w * 70 * 2" :height="image.h * 70 * 2 / 3">
-          </div>
+      <div class="box box-solid box-clear">
+        <grid-layout
+          ref="gridLayout"
+          :layout="images"
+          :col-num="4"
+          :row-height="60"
+          :is-draggable="false"
+          :is-resizable="false"
+          :is-mirrored="false"
+          :vertical-compact="true"
+          :margin="[5, 5]"
+          :use-css-transforms="true">
+          <grid-item v-for="image in images" :key="image.i"
+                     :x="image.x"
+                     :y="image.y"
+                     :w="image.w"
+                     :h="image.h"
+                     :i="image.i"
+                     @moved="updateIndex">
+            <div class="content-centered" style="height: 100%">
+              <img class='no-select' draggable="false" :src="image.imageUrl" :width="image.w * 70 * 2" :height="image.h * 70 * 2 / 3">
+            </div>
 
-          <svg @click="removeImage(image)" class="icon icon-edit-remove" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <path d="M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024
+            <svg @click="removeImage(image)" class="icon icon-edit-remove" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <path d="M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024
               794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692
               732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231
               373.366154 732.081231L291.761231 650.633846C291.761231 650.633846 430.316308 523.500308 430.316308 512.196923 430.316308
               500.696615 291.761231 373.523692 291.761231 373.523692L373.366154 291.918769C373.366154 291.918769 503.453538 430.395077
               511.881846 430.395077 520.349538 430.395077 650.515692 291.918769 650.515692 291.918769L732.041846 373.523692C732.041846
               373.523692 593.447385 502.547692 593.447385 512.196923 593.447385 521.412923 732.041846 650.633846 732.041846 650.633846Z"
-                  fill="red">
-            </path></svg>
-        </grid-item>
-      </grid-layout>
+                    fill="red">
+              </path></svg>
+          </grid-item>
+        </grid-layout>
+
+        <div v-if="loading" class="overlay">
+          <i class="fa"><pulse-loader></pulse-loader></i>
+        </div>
+      </div>
     </modal>
 
   </section>
@@ -118,6 +129,28 @@
     computed: {
     },
     methods: {
+      getImages () {
+        this.loading = true
+        this.$userRepository.getImages(this.$store.state.auth.user._id, {})
+          .then((result) => {
+            this.ready = true
+            this.loading = false
+            this.images = result.data.docs.map((image, index) => {
+              image.x = index % 4
+              image.y = image.x % 4
+              image.w = 1
+              image.h = 2
+              image.i = index.toString()
+              return image
+            })
+            this.refreshImage()
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('Images.getImages-error:', error)
+            this.$snotify.error('Loading images failed', 'Error!')
+          })
+      },
       openModal (index) {
         if (index === this.carousel.currentIndex) {
           this.$modal.show('image-modal')
@@ -142,10 +175,23 @@
         }
       },
       removeImage (imageToRemove) {
-        this.images.splice(this.images.indexOf(imageToRemove), 1)
-        // EXPL: This is a hack to rerender the carousel component
-        this.enableCarousel = false
-        setTimeout(() => { this.enableCarousel = true }, 1)
+        this.loading = true
+        this.$imageRepository.deleteOne(imageToRemove._id)
+          .then((result) => {
+            this.images.splice(this.images.indexOf(imageToRemove), 1)
+            // EXPL: This is a hack to rerender the carousel component
+            this.enableCarousel = false
+            setTimeout(() => {
+              this.loading = false
+              this.enableCarousel = true
+              this.$snotify.success('Image removed', 'Success!')
+            }, 1)
+          })
+          .catch((error) => {
+            this.loading = false
+            console.error('Images.removeImage-error:', error)
+            this.$snotify.error('Removing image failed', 'Error!')
+          })
       },
       updateIndex (index, newX, newY) {
         // NOTE: Eventually this could be used to allow images to be re-arranged
@@ -160,19 +206,7 @@
         height: 200
       }
 
-      this.$userRepository.getImages(this.$store.state.auth.user._id, {})
-        .then((result) => {
-          this.ready = true
-          this.images = result.data.docs.map((image, index) => {
-            image.x = index % 4
-            image.y = image.x % 4
-            image.w = 1
-            image.h = 2
-            image.i = index.toString()
-            return image
-          })
-          this.refreshImage()
-        })
+      this.getImages()
     },
     updated () {
       if (!this.carousel) {
