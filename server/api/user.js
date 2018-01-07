@@ -844,48 +844,4 @@ module.exports = function (server, mongoose, logger) {
       });
     }());
 
-
-  // Chat
-  (function () {
-    const Log = logger.bind(Chalk.magenta("Check Username"));
-    const User = mongoose.model('user');
-
-    const collectionName = User.collectionDisplayName || User.modelName;
-
-    Log.note("Generating Check Username endpoint for " + collectionName);
-
-    const checkUsernameHandler = function (request, h) {
-
-      User.findOne({ username: request.payload.username })
-        .then(function (result) {
-          if (result) {
-            Log.log("Username already exists.");
-            return reply(true);
-          }
-          else {
-            Log.log("Username doesn't exist.");
-            return reply(false);
-          }
-        })
-        .catch(function (error) {
-          Log.error(error);
-          return reply(RestHapi.errorHelper.formatResponse(error));
-        });
-    };
-
-    server.route({
-      method: 'GET',
-      path: '/test',
-      config: {
-        handler: function (request, reply) {
-
-          Log.debug("HERE")
-
-          return reply('world!');
-        }
-      }
-    });
-  }());
-
-
 };

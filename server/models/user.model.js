@@ -128,6 +128,12 @@ module.exports = function (mongoose) {
           foreignField: "primaryUser",
           model: "connection"
         },
+        conversations: {
+          type: "ONE_MANY",
+          alias: "conversation",
+          foreignField: "primaryUser",
+          model: "conversation"
+        },
         documents: {
           type: "ONE_MANY",
           alias: "document",

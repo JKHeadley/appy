@@ -38,8 +38,11 @@ const manifest = {
       plugin: './server/auth'
     },
     {
+      plugin: './server/sockets'
+    },
+    {
       plugin: './server/api'
-    }
+    },
   ]
 };
 
