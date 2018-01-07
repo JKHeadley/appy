@@ -33,6 +33,7 @@
     "lodash": "~3.10.1",
     "lodash-pickdeep": "^1.0.2",
     "mongoose": "4.7.4",
+    "nes": "6.5.1",
     "node-uuid": "^1.4.7",
     "nodemailer": "^2.6.4",
     "nodemailer-markdown": "^1.0.1",
