@@ -44,6 +44,7 @@ import Carousel3d from 'vue-carousel-3d'
 import VueGridLayout from 'vue-grid-layout'
 
 import VueFormInput from './components/utilities/VueFormInput.vue'
+import ChatBox from './components/utilities/ChatBox.vue'
 import VueEditor from './components/utilities/VueEditor.vue'
 
 // EXPL: Import Helpers for filters
@@ -67,6 +68,7 @@ axios.defaults.paramsSerializer = function (params) {
 
 // EXPL: Register global components and plugins
 Vue.component('vue-form-input', VueFormInput)
+Vue.component('chat-box', ChatBox)
 Vue.component('vue-editor', VueEditor)
 Vue.component('pulse-loader', PulseLoader)
 Vue.component('vue-select', VueSelect)
