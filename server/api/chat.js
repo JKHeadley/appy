@@ -21,6 +21,30 @@ const headersValidation = Joi.object({
 
 module.exports = function (server, mongoose, logger) {
 
+  // Create the chat subscription
+  (function () {
+    const Log = logger.bind(Chalk.magenta("Chat Subscription"));
+
+    server.subscription('/conversation/{_id}', {
+      filter: function (path, message, options, next) {
+        Log.debug("PUBLISHED PATH:", path)
+        Log.debug("PUBLISHED MESSAGE:", message)
+        Log.debug("PUBLISHED PARAMS:", options.params)
+        next(true);
+      },
+      auth: {
+        scope: _.values(USER_ROLES),
+        entity: 'user',
+        index: true
+      },
+      onSubscribe: function (socket, path, params, next) {
+        Log.debug("SUBSCRIPTION PATH:", path)
+        Log.debug("SUBSCRIPTION PARAMS:", params)
+        next();
+      }
+    });
+  })
+
   // Get the conversation between the current user and other users
   (function () {
     const Log = logger.bind(Chalk.magenta("Get Current User Conversation"));
@@ -50,7 +74,6 @@ module.exports = function (server, mongoose, logger) {
 
       return RestHapi.list(Conversation, query, Log)
         .then(function(result) {
-          Log.debug("RESUTL:", result)
           // EXPL: if the conversation doesn't exist, create it
           if (!result.docs[0]) {
             users.push(request.auth.credentials.user._id)
@@ -68,8 +91,6 @@ module.exports = function (server, mongoose, logger) {
           return reply(RestHapi.errorHelper.formatResponse(error));
         });
     };
-
-    server.subscription('/conversation/{_id}');
 
     server.route({
       method: 'GET',
@@ -102,7 +123,7 @@ module.exports = function (server, mongoose, logger) {
     });
   }());
 
-  // Chat
+  // Post chat messages
   (function () {
     const Log = logger.bind(Chalk.magenta("Post Message"));
 
@@ -110,8 +131,6 @@ module.exports = function (server, mongoose, logger) {
 
     const postMessageHandler = function (request, reply) {
       const Message = mongoose.model('message');
-
-      // Log.debug("AUTH:", request.auth)
 
       const payload = {
         text: request.payload.text,
@@ -121,8 +140,7 @@ module.exports = function (server, mongoose, logger) {
 
       return RestHapi.create(Message, payload, Log)
         .then(function (result) {
-          Log.debug("RESULT:", result);
-          server.publish('/conversation/' + payload.conversation, result);
+          server.publish('/conversation/' + payload.conversation.toString(), result);
           return reply('published');
         })
         .catch(function (error) {
@@ -138,11 +156,10 @@ module.exports = function (server, mongoose, logger) {
       config: {
         id: 'message',
         handler: postMessageHandler,
-        // auth: {
-        //   strategy: authStrategy,
-        //   scope: _.values(USER_ROLES)
-        // },
-        // auth: false,
+        auth: {
+          strategy: authStrategy,
+          scope: _.values(USER_ROLES)
+        },
         description: 'Post a message to a conversation.',
         tags: ['api', 'Chat', 'Post Message'],
         validate: {
@@ -163,19 +180,6 @@ module.exports = function (server, mongoose, logger) {
               { code: 500, message: 'Internal Server Error' }
             ]
           }
-        }
-      }
-    });
-
-
-
-    server.route({
-      method: 'GET',
-      path: '/h',
-      config: {
-        id: 'hello',
-        handler: function (request, reply) {
-          return reply('Welcome to Chat!');
         }
       }
     });
