@@ -16,15 +16,15 @@
     <!-- /.box-header -->
     <div class="box-body">
       <!-- Conversations are loaded here -->
-      <div class="direct-chat-messages">
+      <div class="direct-chat-messages" id="messages">
         <!-- Message. Default to the left -->
         <div v-for="message in messages" class="direct-chat-msg" :class="chatMsg(message)">
           <div class="direct-chat-info clearfix">
-            <span class="direct-chat-name" :class="chatName(message)">{{ user1.displayName }}</span>
-            <span class="direct-chat-timestamp" :class="chatTimestamp(message)">{{message.createdAt | moment("D MMM H:mm a")}}</span>
+            <span class="direct-chat-name" :class="chatName(message)">{{ displayName(message) }}</span>
+            <span class="direct-chat-timestamp" :class="chatTimestamp(message)">{{message.createdAt | moment("D MMM h:mm a")}}</span>
           </div>
           <!-- /.direct-chat-info -->
-          <img class="direct-chat-img" :src="user1.avatar" alt="message user image">
+          <img class="direct-chat-img" :src="userProfile(message)" alt="message user image">
           <!-- /.direct-chat-img -->
           <div class="direct-chat-text">
             {{message.text}}
@@ -39,7 +39,7 @@
       <div class="direct-chat-contacts">
         <ul class="contacts-list">
           <li v-for="contact in contacts" @click="getConversation(contact)">
-            <a href="#">
+            <a href="#" data-widget="chat-pane-toggle">
               <img class="contacts-list-img" :src="contact.profileImageUrl" alt="Contact Avatar">
               <div class="contacts-list-info">
               <span class="contacts-list-name">
@@ -60,10 +60,10 @@
     <!-- /.box-body -->
     <div class="box-footer">
       <div class="input-group">
-        <input v-model="newMessageText" type="text" name="message" placeholder="Type Message ..." class="form-control">
+        <input v-model="newMessageText" @keyup.enter="sendMessage" type="text" name="message" placeholder="Type Message ..." class="form-control" id="chat-input">
         <span class="input-group-btn">
-                <button @click="sendMessage" type="button" class="btn btn-danger btn-flat">Send</button>
-                </span>
+          <button @click="sendMessage" type="button" class="btn btn-danger btn-flat">Send</button>
+        </span>
       </div>
     </div>
     <!-- /.box-footer-->
@@ -72,7 +72,7 @@
 </template>
 
 <script>
-  import { chatService } from '../../services'
+  import { wsClient, chatService } from '../../services'
 
   import faker from 'faker'
   import Nes from 'nes/lib/client'
@@ -81,28 +81,16 @@
     props: [],
     data () {
       return {
+        currentUser: null,
         client: null,
         conversation: null,
         messages: [],
         newMessageText: null,
-        contacts: null
+        contacts: null,
+        selectedContact: null
       }
     },
     computed: {
-      user1 () {
-        return {
-          displayName: faker.name.findName(),
-          avatar: faker.image.avatar(),
-          email: faker.internet.email(),
-        }
-      },
-      user2 () {
-        return {
-          displayName: faker.name.findName(),
-          avatar: faker.image.avatar(),
-          email: faker.internet.email(),
-        }
-      }
     },
     methods: {
       chatMsg (message) {
@@ -114,80 +102,77 @@
       chatTimestamp (message) {
         return message.me ? 'pull-left' : 'pull-right'
       },
+      displayName (message) {
+        let user = message.me ? this.currentUser : this.selectedContact
+        return user.firstName + ' ' + user.lastName
+      },
+      userProfile (message) {
+        let user = message.me ? this.currentUser : this.selectedContact
+        return user.profileImageUrl
+      },
       getConversation (contact) {
-        console.log("CONTACT:", contact)
+        this.selectedContact = contact
         chatService.getConversation(contact._id)
           .then((conversation) => {
             this.conversation = conversation
-            console.log('Conversation:', conversation._id)
-            this.client.subscribe('/conversation/' + conversation._id, this.messageRecieved, (err) => {
-              console.log("ERROR:", err)
+            this.messages = conversation.messages.map((message) => {
+              message.me = message.user === this.currentUser._id
+              return message
             })
+            this.scrollToEnd()
+            return wsClient.subscribe('/conversation/' + conversation._id, this.messageRecieved)
+          })
+          .catch((error) => {
+            console.error('ChatBox.getConversation-error:', error)
+            this.$snotify.error('Get conversation failed', 'Error!')
           })
       },
       messageRecieved (message, flags) {
-        console.log("MESSAGE:", message)
-        if (message.user !== this.$store.state.auth.user._id) {
+        if (message.user !== this.currentUser._id) {
           message.me = false
           this.messages.push(message)
         }
-      },
-      connectToChat () {
-
-        this.client.connect({ auth: { headers: { authorization: 'Bearer' + this.$store.state.auth.accessToken } } }, (err) => {
-//        this.client.connect((err) => {
-//        this.client.connect({ auth: this.$store.state.auth.accessToken }, (err) => {
-          if (err) {
-            console.log("ERROR:", err)
-          }
-
-          this.client.request('hello', (err, payload, statusCode, headers) => {   // Can also request '/h'
-            console.log("CHAT:", payload)
-            console.log("statusCode:", statusCode)
-            console.log("headers:", headers)
-          })
-        })
+        this.scrollToEnd()
       },
       sendMessage () {
-        this.client.request({
+        wsClient.request({
           path: '/message/' + this.conversation._id,
           method: 'POST',
           payload: {
             text: this.newMessageText
           }
-        }, (err, payload, statusCode, headers) => {
-          console.log("ERR:", err)
-          console.log("payload:", payload)
-          console.log("statusCode:", statusCode)
         })
-        this.messages.push({ text: this.newMessageText, createdAt: Date.now(), me: true })
+          .catch((error) => {
+            console.error('ChatBox.sendMessage-error:', error)
+            this.$snotify.error('Send message failed', 'Error!')
+          })
+        this.messages.push({ text: this.newMessageText, createdAt: new Date(), me: true })
         this.newMessageText = null
+        this.scrollToEnd()
+      },
+      scrollToEnd () {
+        this.$nextTick(function () {
+          let container = this.$el.querySelector('#messages')
+          container.scrollTop = container.scrollHeight
+        })
       }
     },
     created () {
-
-      this.client = new Nes.Client('ws://localhost:8125');
-      this.client.onConnect = () => {
-        console.log("CONNECTED")
-      }
-      this.client.onDisconnect = () => {
-        console.log("DISCONNECTED")
-      }
-      this.client.onUpdate = (incomingMessage) => {
-        console.log("UPDATE")
-        this.messages.push({ text: incomingMessage, createdAt: Date.now(), me: false })
-      };
-
-      this.connectToChat()
-
       const promises = []
       promises.push(this.$userRepository.getConnections(this.$store.state.auth.user._id, { isContact: true, $select: ['connectedUser'], $embed: ['connectedUser'] }))
 
       Promise.all(promises)
         .then((response) => {
           this.contacts = response[0].data.docs.map((user) => { return user.connectedUser })
+          this.currentUser = this.$store.state.auth.user
           this.ready = true
         })
     }
   }
 </script>
+
+<style lang="scss">
+  #chat-input {
+    width: 99%
+  }
+</style>

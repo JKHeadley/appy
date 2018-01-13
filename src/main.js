@@ -18,7 +18,7 @@ import { sync } from 'vuex-router-sync'
 import routes from './routes'
 import store from './store'
 
-import { httpClient, authInterceptor } from './services'
+import { httpClient, wsClient, authInterceptor } from './services'
 
 import axios from 'axios'
 import qs from 'querystring'
@@ -142,6 +142,12 @@ router.beforeEach((to, from, next) => {
 })
 
 sync(store, router)
+
+// EXPL: Set up websockets
+// store.dispatch('websocket/init')
+if (store.state.auth.accessToken) {
+  wsClient.connect()
+}
 
 // EXPL: Add a response interceptor
 axios.interceptors.response.use(function (response) {
