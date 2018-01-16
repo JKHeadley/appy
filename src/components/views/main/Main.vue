@@ -13,10 +13,13 @@
     </div>
     <!-- /.content-wrapper -->
 
+    <!-- Chat Box -->
+    <chat-box></chat-box>
+
     <!-- Main Footer -->
     <footer class="main-footer">
       <strong>Copyright &copy; {{year}}
-        <a href="javascript:;">CoPilot</a>.</strong> All rights reserved.
+        <a href="javascript:;">Appy</a>.</strong> All rights reserved.
     </footer>
   </div>
   <!-- ./wrapper -->
@@ -25,7 +28,9 @@
 <script>
 import faker from 'faker'
 import { mapState } from 'vuex'
-import config from '../../../config'
+import config, { EVENTS } from '../../../config'
+import { eventBus } from '../../../services'
+
 import MainHeader from './MainHeader.vue'
 import ContentHeader from './ContentHeader.vue'
 import Sidebar from './Sidebar.vue'
@@ -78,54 +83,55 @@ export default {
 </script>
 
 <style lang="scss">
-.wrapper.fixed_layout {
-  .main-header {
-    position: fixed;
-    width: 100%;
-  }
+  .wrapper.fixed_layout {
+    .main-header {
+      position: fixed;
+      width: 100%;
+    }
 
-  .content-wrapper {
-    padding-top: 50px;
-  }
+    .content-wrapper {
+      padding-top: 50px;
+    }
 
-  .main-sidebar {
-    position: fixed;
-    height: 100vh;
-  }
-}
-
-.wrapper.hide_logo {
-  @media (max-width: 767px) {
-    .main-header .logo {
-      display: none;
+    .main-sidebar {
+      position: fixed;
+      height: 100vh;
     }
   }
-}
 
-.logo-mini,
-.logo-lg {
-  text-align: left;
-
-  img {
-    padding: .4em !important;
+  .wrapper.hide_logo {
+    @media (max-width: 767px) {
+      .main-header .logo {
+        display: none;
+      }
+    }
   }
-}
 
-.logo-lg {
-  img {
-    display: -webkit-inline-box;
-    width: 25%;
+  .logo-mini,
+  .logo-lg {
+    text-align: left;
+
+    img {
+      padding: .4em !important;
+    }
   }
-}
 
-.user-panel {
-  height: 4em;
-}
+  .logo-lg {
+    img {
+      display: -webkit-inline-box;
+      width: 25%;
+    }
+  }
 
-hr.visible-xs-block {
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.17);
-  height: 1px;
-  border-color: transparent;
-}
+  .user-panel {
+    height: 4em;
+  }
+
+  hr.visible-xs-block {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.17);
+    height: 1px;
+    border-color: transparent;
+  }
+
 </style>

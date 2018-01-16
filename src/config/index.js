@@ -1,7 +1,10 @@
 export default {
   serverURI: 'http://localhost:8125',
   websocketURI: 'ws://localhost:8125',
+  // serverURI: 'http://192.168.86.42:8125',
+  // websocketURI: 'ws://192.168.86.42:8125',
   appURI: 'http://localhost:8080',
+  // appURI: 'http://192.168.86.42:8080',
   fixedLayout: false,
   hideLogoOnMobile: false
 }
@@ -112,7 +115,10 @@ export const EVENTS = {
 
   DATA_REQUESTED: 'data-requested',
   DATA_READY: 'data-ready',
-  CLEAR_REQUESTED: 'clear-requested'
+  CLEAR_REQUESTED: 'clear-requested',
+
+  OPEN_CHAT: 'open-chat',
+  CLOSE_CHAT: 'close-chat'
 }
 
 export const PERMISSION_STATES = {

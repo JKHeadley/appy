@@ -48,7 +48,7 @@ import ChatBox from './components/utilities/ChatBox.vue'
 import VueEditor from './components/utilities/VueEditor.vue'
 
 // EXPL: Import Helpers for filters
-import { domain, count, prettyDate, pluralize } from './filters'
+import { domain, count, prettyDate, pluralize, shortMessage } from './filters'
 
 // EXPL: Import Views - Top level
 import AppView from './components/App.vue'
@@ -58,6 +58,7 @@ Vue.filter('count', count)
 Vue.filter('domain', domain)
 Vue.filter('prettyDate', prettyDate)
 Vue.filter('pluralize', pluralize)
+Vue.filter('shortMessage', shortMessage)
 
 axios.defaults.baseURL = config.serverURI
 

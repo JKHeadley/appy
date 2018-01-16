@@ -21,3 +21,11 @@ export function pluralize (time, label) {
 
   return time + label + 's'
 }
+
+export function shortMessage (message) {
+  if (message && message.length > 40) {
+    message = message.slice(0, 40)
+    message = message + '...'
+  }
+  return message
+}

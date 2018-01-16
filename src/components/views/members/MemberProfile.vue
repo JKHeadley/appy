@@ -28,11 +28,11 @@
               </li>
             </ul>
 
-            <a v-if="!connection.isContact" href="#" class="btn btn-primary outline btn-block" @click="addContact"><b>Connect</b></a>
+            <a v-if="!connection.isContact" href="#" :disabled="isSelf" class="btn btn-primary outline btn-block" @click="addContact"><b>Connect</b></a>
             <a v-if="connection.isContact" href="#" class="btn btn-primary outline btn-block" @click="removeContact"><b>Remove Contact</b></a>
-            <a v-if="!connection.isFollowing" href="#" class="btn btn-primary btn-block" @click="followUser"><b>Follow</b></a>
+            <a v-if="!connection.isFollowing" href="#" :disabled="isSelf" class="btn btn-primary btn-block" @click="followUser"><b>Follow</b></a>
             <a v-if="connection.isFollowing" href="#" class="btn btn-primary btn-block" @click="unfollowUser"><b>Unfollow</b></a>
-            <a href="#" class="btn btn-success btn-block"><b>Message</b></a>
+            <a href="#" class="btn btn-success btn-block" :disabled="isSelf" @click="openChatBox"><b>Message</b></a>
           </div>
           <!-- /.box-body -->
         </div>
@@ -80,12 +80,13 @@
         <!-- /.box -->
       </div>
       <!-- /.col -->
+
     </div>
   </section>
 </template>
 
 <script>
-  import { userService } from '../../../services'
+  import { userService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
 
   import _ from 'lodash'
@@ -111,6 +112,9 @@
     computed: {
       computedUserScope () {
         return userService.computeUserScope(this.user)
+      },
+      isSelf () {
+        return this.$store.state.auth.user._id === this.$route.params._id
       }
     },
     methods: {
@@ -161,30 +165,32 @@
           })
       },
       addContact () {
-        this.loading = true
-        const params = {
-          isContact: true
+        if (!this.isSelf) {
+          this.loading = true
+          const params = {
+            isContact: true
+          }
+          let promise = {}
+          if (this.connection && this.connection._id) {
+            promise = this.$connectionRepository.update(this.connection._id, params)
+          } else {
+            params.primaryUser = this.$store.state.auth.user._id
+            params.connectedUser = this.user._id
+            promise = this.$connectionRepository.create(params)
+          }
+          return promise
+            .then((response) => {
+              this.connection = response.data
+              this.connectionStats.contacts += 1
+              this.loading = false
+              this.$snotify.success('Contact added', 'Success!')
+            })
+            .catch((error) => {
+              this.loading = false
+              console.error('MemberProfile.addContact-error:', error)
+              this.$snotify.error('Add contact failed', 'Error!')
+            })
         }
-        let promise = {}
-        if (this.connection && this.connection._id) {
-          promise = this.$connectionRepository.update(this.connection._id, params)
-        } else {
-          params.primaryUser = this.$store.state.auth.user._id
-          params.connectedUser = this.user._id
-          promise = this.$connectionRepository.create(params)
-        }
-        return promise
-          .then((response) => {
-            this.connection = response.data
-            this.connectionStats.contacts += 1
-            this.loading = false
-            this.$snotify.success('Contact added', 'Success!')
-          })
-          .catch((error) => {
-            this.loading = false
-            console.error('MemberProfile.addContact-error:', error)
-            this.$snotify.error('Add contact failed', 'Error!')
-          })
       },
       removeContact () {
         this.loading = true
@@ -205,30 +211,31 @@
           })
       },
       followUser () {
-        this.loading = true
-        const params = {
-          isFollowing: true
+        if (!this.isSelf) {this.loading = true
+          const params = {
+            isFollowing: true
+          }
+          let promise = {}
+          if (this.connection && this.connection._id) {
+            promise = this.$connectionRepository.update(this.connection._id, params)
+          } else {
+            params.primaryUser = this.$store.state.auth.user._id
+            params.connectedUser = this.user._id
+            promise = this.$connectionRepository.create(params)
+          }
+          return promise
+            .then((response) => {
+              this.connection = response.data
+              this.connectionStats.followers += 1
+              this.loading = false
+              this.$snotify.success('Following member', 'Success!')
+            })
+            .catch((error) => {
+              this.loading = false
+              console.error('MemberProfile.followUser-error:', error)
+              this.$snotify.error('Follow member failed', 'Error!')
+            })
         }
-        let promise = {}
-        if (this.connection && this.connection._id) {
-          promise = this.$connectionRepository.update(this.connection._id, params)
-        } else {
-          params.primaryUser = this.$store.state.auth.user._id
-          params.connectedUser = this.user._id
-          promise = this.$connectionRepository.create(params)
-        }
-        return promise
-          .then((response) => {
-            this.connection = response.data
-            this.connectionStats.followers += 1
-            this.loading = false
-            this.$snotify.success('Following member', 'Success!')
-          })
-          .catch((error) => {
-            this.loading = false
-            console.error('MemberProfile.followUser-error:', error)
-            this.$snotify.error('Follow member failed', 'Error!')
-          })
       },
       unfollowUser () {
         this.loading = true
@@ -248,6 +255,11 @@
             this.$snotify.error('Unfollow member failed', 'Error!')
           })
       },
+      openChatBox () {
+        if (!this.isSelf) {
+          eventBus.$emit(EVENTS.OPEN_CHAT, [this.user._id])
+        }
+      }
     },
     created () {
       const promises = []
@@ -264,4 +276,7 @@
     }
   }
 </script>
+
+<style lang="scss">
+</style>
 

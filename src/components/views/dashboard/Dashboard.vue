@@ -81,9 +81,6 @@
     </div>
 
 
-    <chat-box></chat-box>
-
-
 
   </section>
 </template>
