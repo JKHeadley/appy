@@ -16,8 +16,9 @@
         <div class="box-tools pull-right">
           <span data-toggle="tooltip" title="3 New Messages" class="badge bg-red">3</span>
           <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+          <!--<button class="btn btn-box-tool"><i class="fa fa-user-plus"></i></button>-->
           <!-- In box-tools add this button if you intend to use the contacts pane -->
-          <button class="btn btn-box-tool" data-toggle="tooltip" title="Contacts" data-widget="chat-pane-toggle"><i class="fa fa-comments"></i></button>
+          <button class="btn btn-box-tool" data-toggle="tooltip" title="Messages" data-widget="chat-pane-toggle"><i class="fa fa-comments"></i></button>
           <button class="btn btn-box-tool" @click="closeChat"><i class="fa fa-times"></i></button>
         </div>
       </div>
@@ -46,7 +47,7 @@
         <!-- Contacts are loaded here -->
         <div class="direct-chat-contacts">
           <ul class="contacts-list">
-            <li v-for="conversation in conversations" @click="getConversation(conversation)">
+            <li v-for="conversation in conversations" @click="getConversation(conversation)" v-if="conversation.lastMessage">
               <a href="#" data-widget="chat-pane-toggle">
                 <img class="contacts-list-img" :src="(conversation.users[0] || {}).profileImageUrl" alt="Contact Avatar">
                 <div class="contacts-list-info">
@@ -222,7 +223,6 @@
       Promise.all(promises)
         .then((response) => {
           this.conversations = response[0].data.docs.map((conversation) => {
-            conversation.lastMessage = conversation.lastMessage || {}
             return conversation
           })
           this.ready = true
