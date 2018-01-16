@@ -27,9 +27,6 @@ module.exports = function (server, mongoose, logger) {
 
     server.subscription('/chat/{userId}', {
       filter: function (path, message, options, next) {
-        Log.debug("PUBLISHED PATH:", path)
-        Log.debug("PUBLISHED MESSAGE:", message)
-        // Log.debug("PUBLISHED PARAMS:", options.params)
         next(true);
       },
       auth: {
@@ -38,13 +35,10 @@ module.exports = function (server, mongoose, logger) {
         index: true
       },
       onSubscribe: function (socket, path, params, next) {
-        Log.debug("SUBSCRIPTION PATH:", path)
-        // Log.debug("SUBSCRIPTION PARAMS:", params)
         next();
       }
     });
   })
-
 
   // Get the current user's conversations
   (function () {
@@ -110,8 +104,10 @@ module.exports = function (server, mongoose, logger) {
 
     const getConversationHandler = function (request, reply) {
       const Conversation = mongoose.model('conversation');
+      const User = mongoose.model('user');
 
       let promise = {};
+      let newConversation = false;
 
       let users = [];
 
@@ -155,14 +151,28 @@ module.exports = function (server, mongoose, logger) {
             return result
           }
           else {
-            // EXPL: if the conversation doesn't exist, create it
+            // EXPL: If the conversation doesn't exist, create it
             if (!result.docs[0]) {
-              users.push(request.auth.credentials.user._id)
-              return RestHapi.create(Conversation, {users}, Log)
+              newConversation = true;
+              let promises = [];
+              users.push(request.auth.credentials.user._id);
+              promises.push(RestHapi.create(Conversation, {users}, Log));
+              promises.push(RestHapi.list(User, { _id: users, $select: ['_id', 'firstName', 'lastName', 'profileImageUrl'] }, Log));
+              return Q.all(promises);
             }
             else {
               return result.docs[0];
             }
+          }
+        })
+        .then(function(result) {
+          if (newConversation) {
+            let conversation = result[0];
+            conversation.users = result[1].docs;
+            return conversation;
+          }
+          else {
+            return result;
           }
         })
         .then(function(conversation) {
@@ -237,9 +247,7 @@ module.exports = function (server, mongoose, logger) {
           let message = result[2];
           conversation.users = users;
           message.conversation = conversation;
-          Log.debug("CURRENT USER:", payload.user)
           users.forEach(function(user) {
-            Log.debug("PUBLISHING TO USER:", user)
             server.publish('/chat/' + user._id.toString(), message);
           })
           return reply('published');
