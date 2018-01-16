@@ -20,7 +20,7 @@ exports.register = function (server, options, next) {
       // auth: false,
       headers: ['*'],
       onConnection: function (socket) {
-        console.log("connection established", socket.auth)
+        // console.log("connection established", socket.auth)
         if (!socket.auth.isAuthenticated) {
           console.log("NO AUTH, DISCONNECTING")
           socket.disconnect()

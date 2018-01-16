@@ -39,8 +39,18 @@ module.exports = function (mongoose) {
           type: "MANY_ONE",
           model: "user",
         }
+      },
+      create: {
+        post: function(document, request, result, Log) {
+          const Conversation = mongoose.model('conversation');
+          // EXPL: Every new message is set as the latest message in the conversation
+          return RestHapi.update(Conversation, document.conversation, { lastMessage: document._id }, Log)
+            .then(function() {
+              return document;
+            })
+        }
       }
-    }
+    },
   };
 
   return Schema;
