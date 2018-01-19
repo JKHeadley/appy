@@ -129,10 +129,10 @@ module.exports = function (mongoose) {
           model: "connection"
         },
         conversations: {
-          type: "ONE_MANY",
+          type: "MANY_MANY",
           alias: "conversation",
-          foreignField: "primaryUser",
-          model: "conversation"
+          model: "conversation",
+          linkingModel: "user_conversation"
         },
         documents: {
           type: "ONE_MANY",
@@ -177,7 +177,7 @@ module.exports = function (mongoose) {
         post: function (document, request, result, Log) {
           const User = mongoose.model('user');
           if (!result.profileImageUrl) {
-            let profileImageUrl = 'https://www.gravatar.com/avatar/' + result._id + '?r=PG&d=robohash'
+            let profileImageUrl = 'https://www.gravatar.com/avatar/' + document._id + '?r=PG&d=robohash'
             return RestHapi.update(User, document._id, { profileImageUrl }, Log)
               .then(function(result) {
                 return result

@@ -40,6 +40,102 @@ module.exports = function (server, mongoose, logger) {
     });
   })
 
+  // Mark conversation as read
+  (function () {
+    const Log = logger.bind(Chalk.magenta("Mark Conversation As Read"));
+
+    Log.note("Generating Mark Conversation As Read Endpoint for Chat");
+
+    const markAsReadHandler = function (request, reply) {
+      const Conversation = mongoose.model('conversation');
+      const User = mongoose.model('user');
+
+      return RestHapi.addOne(Conversation, request.params._id, User, request.auth.credentials.user._id, 'userData', { hasRead: true })
+        .then(function (result) {
+          return reply(result)
+        })
+        .catch(function (error) {
+          Log.error(error);
+          return reply(RestHapi.errorHelper.formatResponse(error));
+        });
+    };
+
+    server.route({
+      method: 'PUT',
+      path: '/conversation/{_id}/read',
+      config: {
+        handler: markAsReadHandler,
+        auth: {
+          strategy: authStrategy,
+          scope: _.values(USER_ROLES)
+        },
+        description: 'Mark the conversation as read for the current user.',
+        tags: ['api', 'Chat', 'Mark as read'],
+        validate: {
+          headers: headersValidation,
+        },
+        plugins: {
+          'hapi-swagger': {
+            responseMessages: [
+              { code: 200, message: 'Success' },
+              { code: 400, message: 'Bad Request' },
+              { code: 404, message: 'Not Found' },
+              { code: 500, message: 'Internal Server Error' }
+            ]
+          }
+        }
+      }
+    });
+  }());
+
+  // Mark conversation as unread
+  (function () {
+    const Log = logger.bind(Chalk.magenta("Mark Conversation As Unread"));
+
+    Log.note("Generating Mark Conversation As Unread Endpoint for Chat");
+
+    const markAsUnreadHandler = function (request, reply) {
+      const Conversation = mongoose.model('conversation');
+      const User = mongoose.model('user');
+
+      return RestHapi.addOne(Conversation, request.params._id, User, request.auth.credentials.user._id, 'userData', { hasRead: false })
+        .then(function (result) {
+          return reply(result)
+        })
+        .catch(function (error) {
+          Log.error(error);
+          return reply(RestHapi.errorHelper.formatResponse(error));
+        });
+    };
+
+    server.route({
+      method: 'PUT',
+      path: '/conversation/{_id}/unread',
+      config: {
+        handler: markAsUnreadHandler,
+        auth: {
+          strategy: authStrategy,
+          scope: _.values(USER_ROLES)
+        },
+        description: 'Mark the conversation as unread for the current user.',
+        tags: ['api', 'Chat', 'Mark as unread'],
+        validate: {
+          headers: headersValidation,
+        },
+        plugins: {
+          'hapi-swagger': {
+            responseMessages: [
+              { code: 200, message: 'Success' },
+              { code: 400, message: 'Bad Request' },
+              { code: 404, message: 'Not Found' },
+              { code: 500, message: 'Internal Server Error' }
+            ]
+          }
+        }
+      }
+    });
+  }());
+
   // Get the current user's conversations
   (function () {
     const Log = logger.bind(Chalk.magenta("Get Current User Conversations"));
@@ -53,7 +149,8 @@ module.exports = function (server, mongoose, logger) {
       // in the request query ONLY.
       const query = { $where: { users: { $elemMatch: { $eq: request.auth.credentials.user._id } } } }
 
-      query.$embed = ['users', 'lastMessage']
+      query.$embed = ['users', 'lastMessage.user', 'userData'];
+      query.$sort = ['-updatedAt'];
 
       return RestHapi.list(Conversation, query, Log)
         .then(function (result) {
@@ -107,17 +204,22 @@ module.exports = function (server, mongoose, logger) {
       const User = mongoose.model('user');
 
       let promise = {};
+      let conversation = {};
       let newConversation = false;
 
       let users = [];
 
+      const query = {
+        $embed: ['messages.user', 'users', 'userData', 'lastMessage.user']
+      };
+
       if (request.query.conversation) {
-        promise = RestHapi.find(Conversation, request.query.conversation, { $embed: ['messages.user', 'users'] } , Log);
+        promise = RestHapi.find(Conversation, request.query.conversation, query , Log);
       }
       else if (request.query.users) {
         // EXPL: The query below searches for the conversation that includes the current user and the users provided
         // in the request query ONLY.
-        const query = { $where: { $and: [{ users: { $elemMatch: { $eq: request.auth.credentials.user._id } } }] } }
+        query.$where = { $and: [{ users: { $elemMatch: { $eq: request.auth.credentials.user._id } } }] };
 
         users = _.isArray(request.query.users) ? request.query.users : [request.query.users]
 
@@ -130,8 +232,6 @@ module.exports = function (server, mongoose, logger) {
         })
 
         query.$where.$and.push({ users: { $size: users.length + 1 } })
-
-        query.$embed = ['messages.user', 'users']
 
         promise = RestHapi.list(Conversation, query, Log)
       }
@@ -167,7 +267,8 @@ module.exports = function (server, mongoose, logger) {
         })
         .then(function(result) {
           if (newConversation) {
-            let conversation = result[0];
+            // EXPL: Add the user docs to the new conversation object
+            conversation = result[0];
             conversation.users = result[1].docs;
             return conversation;
           }
@@ -175,7 +276,16 @@ module.exports = function (server, mongoose, logger) {
             return result;
           }
         })
-        .then(function(conversation) {
+        .then(function(result) {
+          conversation = result;
+          if (newConversation) {
+            // EXPL: Associate the user data with the new conversation
+            let users = conversation.users.map(function(user) { return user._id })
+            conversation.hasRead = false;
+            return RestHapi.addMany(Conversation, conversation._id, User, 'userData', users, Log)
+          }
+        })
+        .then(function() {
           formatConversation(request, conversation);
           return reply(conversation)
         })
@@ -247,6 +357,7 @@ module.exports = function (server, mongoose, logger) {
           let message = result[2];
           conversation.users = users;
           message.conversation = conversation;
+          Log.debug("MESSAGE:", message);
           users.forEach(function(user) {
             server.publish('/chat/' + user._id.toString(), message);
           })
@@ -308,6 +419,25 @@ module.exports = function (server, mongoose, logger) {
         profileImageUrl: user.profileImageUrl
       }
     })
+    if (conversation.lastMessage) {
+      conversation.lastMessage.user = {
+        _id: conversation.lastMessage.user._id,
+        firstName: conversation.lastMessage.user.firstName,
+        lastName: conversation.lastMessage.user.lastName,
+        profileImageUrl: conversation.lastMessage.user.profileImageUrl
+      }
+    }
+    if (conversation.userData) {
+      let currentUserData = conversation.userData.find(function(userData) {
+        return userData.user._id.toString() === request.auth.credentials.user._id.toString()
+      })
+
+      conversation.hasRead = currentUserData ? currentUserData.hasRead : false;
+      delete conversation.userData;
+    }
+    else {
+      conversation.hasRead = false;
+    }
 
     return conversation
   }

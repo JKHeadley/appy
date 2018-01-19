@@ -633,6 +633,14 @@ function dropCollections (models) {
       Log.log('removing user_permission')
       return mongoose.model('user_permission').remove({})
     })
+    .then(function () {
+      Log.log('removing user_conversation')
+      return mongoose.model('user_conversation').remove({})
+    })
+    .then(function () {
+      Log.log('removing user_document')
+      return mongoose.model('user_document').remove({})
+    })
     .catch(function (error) {
       Log.error(error)
     })
