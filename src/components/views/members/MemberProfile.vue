@@ -118,6 +118,17 @@
       }
     },
     methods: {
+      init () {
+        const promises = []
+        promises.push(this.getUser())
+        promises.push(this.getConnection())
+        promises.push(this.getConnectionStats())
+        Promise.all(promises)
+          .then(() => {
+            this.loading = false
+            this.ready = true
+          })
+      },
       avatar () { return faker.image.avatar() },
       image () { return faker.image() },
       getUser () {
@@ -261,16 +272,12 @@
         }
       }
     },
+    beforeRouteUpdate (to, from, next) {
+      next()
+      this.init()
+    },
     created () {
-      const promises = []
-      promises.push(this.getUser())
-      promises.push(this.getConnection())
-      promises.push(this.getConnectionStats())
-      Promise.all(promises)
-        .then(() => {
-          this.loading = false
-          this.ready = true
-        })
+      this.init()
     },
     beforeDestroy () {
     }

@@ -42,9 +42,11 @@ import VueMaskedInput from 'vue-masked-input'
 import Croppa from 'vue-croppa'
 import Carousel3d from 'vue-carousel-3d'
 import VueGridLayout from 'vue-grid-layout'
+import VTooltip from 'v-tooltip'
 
 import VueFormInput from './components/utilities/VueFormInput.vue'
 import ChatBox from './components/utilities/ChatBox.vue'
+import ChatBoxCreate from './components/utilities/ChatBoxCreate.vue'
 import VueEditor from './components/utilities/VueEditor.vue'
 
 // EXPL: Import Helpers for filters
@@ -70,6 +72,7 @@ axios.defaults.paramsSerializer = function (params) {
 // EXPL: Register global components and plugins
 Vue.component('vue-form-input', VueFormInput)
 Vue.component('chat-box', ChatBox)
+Vue.component('chat-box-create', ChatBoxCreate)
 Vue.component('vue-editor', VueEditor)
 Vue.component('pulse-loader', PulseLoader)
 Vue.component('vue-select', VueSelect)
@@ -95,7 +98,8 @@ Vue.use(ToggleButton)
 Vue.use(VueMoment)
 Vue.use(VueModal)
 Vue.use(Croppa)
-Vue.use(Carousel3d);
+Vue.use(Carousel3d)
+Vue.use(VTooltip)
 
 // EXPL: Routing logic
 var router = new VueRouter({

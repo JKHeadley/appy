@@ -22,6 +22,9 @@ export const resources = {
       connections: {
         alias: 'connection'
       },
+      conversations: {
+        alias: 'conversation'
+      },
       documents: {
         alias: 'document'
       },
@@ -32,6 +35,9 @@ export const resources = {
         alias: 'image'
       }
     }
+  },
+  conversation: {
+    alias: 'conversation'
   },
   connection: {
     alias: 'connection'
@@ -118,7 +124,12 @@ export const EVENTS = {
   CLEAR_REQUESTED: 'clear-requested',
 
   OPEN_CHAT: 'open-chat',
-  CLOSE_CHAT: 'close-chat'
+  CLOSE_CHAT: 'close-chat',
+  OPEN_CHAT_CREATE: 'open-chat-create',
+  CLOSE_CHAT_CREATE: 'close-chat-create',
+
+  MARK_AS_READ: 'mark-as-read',
+  MARK_AS_UNREAD: 'mark-as-unread'
 }
 
 export const PERMISSION_STATES = {

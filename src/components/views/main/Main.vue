@@ -15,6 +15,8 @@
 
     <!-- Chat Box -->
     <chat-box></chat-box>
+    <!-- Create Chat Box -->
+    <chat-box-create></chat-box-create>
 
     <!-- Main Footer -->
     <footer class="main-footer">

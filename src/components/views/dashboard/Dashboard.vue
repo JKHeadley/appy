@@ -87,8 +87,6 @@
 
 <script>
   import faker from 'faker'
-  import Nes from 'nes/lib/client'
-  import ws from 'websocket'
 
   import ChatBox from '../../utilities/ChatBox.vue'
 

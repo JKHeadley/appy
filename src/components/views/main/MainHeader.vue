@@ -47,11 +47,50 @@
           </li>
           <!-- /.messages-menu -->
 
+          <!-- Chat Menu -->
+          <li class="dropdown notifications-menu">
+            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+              <i class="fa fa-comments-o"></i>
+              <span class="label label-warning">{{ unreadCount }}</span>
+            </a>
+            <ul class="dropdown-menu" id="dropdown-messages-menu">
+              <li class="header">You have {{ unreadCount }} unread message(s) <a href="javascript:;" @click="openChatCreateBox" class="message-menu-link" style="float: right;">New Chat</a></li>
+              <li v-if="conversations.length > 0">
+                <!-- Inner Menu: contains the notifications -->
+                <ul class="menu">
+                  <li v-for="conversation in conversations" v-if="conversation.lastMessage" :class="{ 'message-unread': !conversation.hasRead }">
+                    <!-- start notification -->
+                    <a href="javascript:;" @click="openChatBox(conversation)">
+                      <img class="message-list-img" :src="(conversation.users[0] || {}).profileImageUrl" alt="Contact Avatar">
+                      <div class="message-list-info">
+                        <span class="message-list-name">
+                          {{(conversation.users[0] || {}).firstName}} {{(conversation.users[0] || {}).lastName}}
+                          <small class="message-list-date pull-right">{{conversation.lastMessage.createdAt | moment("MMM D, h:mm a")}}</small>
+                        </span>
+                        <span class="message-list-msg">{{conversation.lastMessage.me ? 'You: ' : conversation.lastMessage.user.firstName + ': '}}{{conversation.lastMessage.text | shortMessage}}</span>
+                        <span class="message-list-dot" v-if="conversation.hasRead">
+                          <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as unread'" @click.stop="markAsUnread(conversation)"><i class="fa fa-dot-circle-o"></i></button>
+                        </span>
+                        <span class="message-list-dot" v-else>
+                          <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as read'" @click.stop="markAsRead(conversation)"><i class="fa fa-circle"></i></button>
+                        </span>
+                      </div>
+                    </a>
+                  </li>
+                  <!-- end notification -->
+                </ul>
+              </li>
+              <li class="footer">
+                <a href="javascript:;" class="message-menu-link" @click.stop="markAllAsRead">Mark All as Read</a>
+              </li>
+            </ul>
+          </li>
           <!-- Notifications Menu -->
+
           <li class="dropdown notifications-menu">
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
               <i class="fa fa-bell-o"></i>
-              <span class="label label-warning">{{ userInfo.notifications | count }}</span>
+              <span class="label label-danger">{{ userInfo.notifications | count }}</span>
             </a>
             <ul class="dropdown-menu">
               <li class="header">You have {{ userInfo.notifications | count }} notification(s)</li>
@@ -69,43 +108,6 @@
               </li>
               <li class="footer" v-if="userInfo.notifications.length > 0">
                 <a href="javascript:;">View all</a>
-              </li>
-            </ul>
-          </li>
-
-          <!-- Tasks Menu -->
-          <li class="dropdown tasks-menu">
-            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
-              <i class="fa fa-flag-o"></i>
-              <span class="label label-danger">{{ userInfo.tasks | count }} </span>
-            </a>
-            <ul class="dropdown-menu">
-              <li class="header">You have {{ userInfo.tasks | count }} task(s)</li>
-              <li v-if="userInfo.tasks.length > 0">
-                <!-- Inner menu: contains the tasks -->
-                <ul class="menu">
-                  <li>
-                    <!-- Task item -->
-                    <a href="javascript:;">
-                      <!-- Task title and progress text -->
-                      <h3>
-                        Design some buttons
-                        <small class="pull-right">20%</small>
-                      </h3>
-                      <!-- The progress bar -->
-                      <div class="progress xs">
-                        <!-- Change the css width attribute to simulate progress -->
-                        <div class="progress-bar progress-bar-aqua" style="width: 20%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
-                          <span class="sr-only">20% Complete</span>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
-                  <!-- end task item -->
-                </ul>
-              </li>
-              <li class="footer" v-if="userInfo.tasks.length > 0">
-                <a href="javascript:;">View all tasks</a>
               </li>
             </ul>
           </li>
@@ -150,17 +152,34 @@
 
 <script>
   import { mapState } from 'vuex'
-  import { authService } from '../../../services'
+  import { authService, eventBus } from '../../../services'
+  import { EVENTS } from '../../../config'
 
   export default {
     name: 'MainHeader',
     props: ['displayName', 'pictureUrl'],
+    data () {
+      return {
+        ready: false,
+        loading: false
+      }
+    },
     components: { },
     computed: {
       ...mapState({
         user: (state) => state.auth.user,
-        userInfo: (state) => state.userInfo
-      })
+        userInfo: (state) => state.userInfo,
+        conversations: (state) => state.conversations
+      }),
+      unreadCount () {
+        return this.conversations.reduce((count, conversation) => {
+          if (conversation.hasRead) {
+            return count
+          } else {
+            return count + 1
+          }
+        }, 0)
+      }
     },
     methods: {
       logout () {
@@ -177,8 +196,77 @@
             this.$snotify.error('Log Out failed', 'Error!')
           })
       },
+      openChatCreateBox () {
+        eventBus.$emit(EVENTS.OPEN_CHAT_CREATE)
+      },
+      openChatBox (conversation) {
+        eventBus.$emit(EVENTS.OPEN_CHAT, conversation)
+      },
+      markAsRead (conversation) {
+        eventBus.$emit(EVENTS.MARK_AS_READ, conversation)
+      },
+      markAsUnread (conversation) {
+        eventBus.$emit(EVENTS.MARK_AS_UNREAD, conversation)
+      },
+      markAllAsRead () {
+        for (let conversation of this.conversations) {
+          if (!conversation.hasRead) {
+            this.markAsRead(conversation)
+          }
+        }
+      }
     },
     mounted: function () {
     }
   }
 </script>
+
+<style lang="scss">
+  .message-list-img {
+    border-radius: 50%;
+    width: 40px;
+    float: left;
+  }
+  .message-list-info {
+    margin-left: 45px;
+  }
+  .message-list-name {
+    font-weight: 600;
+    display: block;
+  }
+  .message-list-msg {
+    color: #999;
+  }
+  .message-list-dot {
+    float: right;
+    .btn-box-tool {
+      color: #97a0b3;
+    }
+    .btn-box-tool:hover {
+      color: #333;
+    }
+  }
+  .message-unread {
+    background-color: #f2f5fd;
+  }
+  #dropdown-messages-menu {
+    width: 365px;
+    .footer {
+      border-top: 1px solid #eeeeee;
+    }
+    li {
+      a.message-menu-link {
+        color: cornflowerblue;
+        &:hover {
+          text-decoration: underline;
+          background-color: inherit;
+        }
+      }
+    }
+  }
+  .menu {
+    li {
+      border-bottom: 1px solid #eeeeee;
+    }
+  }
+</style>

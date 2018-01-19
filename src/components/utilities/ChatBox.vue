@@ -11,14 +11,15 @@
     <!-- The contextual class should match the box, so we are using direct-chat-danger -->
     <div v-if="ready" class="box box-success direct-chat direct-chat-success">
       <div class="box-header with-border">
-        <h3 v-if="currentConversation" class="box-title">{{currentConversation.users[0].firstName}} {{currentConversation.users[0].lastName}}</h3>
+        <h3 v-if="currentConversation && currentConversation.name" class="box-title">{{currentConversation.name}}</h3>
+        <h3 v-else-if="currentConversation" class="box-title">{{currentConversation.users[0].firstName}} {{currentConversation.users[0].lastName}}</h3>
         <h3 v-else class="box-title">Direct Chat</h3>
         <div class="box-tools pull-right">
-          <span data-toggle="tooltip" title="3 New Messages" class="badge bg-red">3</span>
+          <!--<span data-toggle="tooltip" title="3 New Messages" class="badge bg-red">3</span>-->
           <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
           <!--<button class="btn btn-box-tool"><i class="fa fa-user-plus"></i></button>-->
           <!-- In box-tools add this button if you intend to use the contacts pane -->
-          <button class="btn btn-box-tool" data-toggle="tooltip" title="Messages" data-widget="chat-pane-toggle"><i class="fa fa-comments"></i></button>
+          <button class="btn btn-box-tool" v-tooltip="'Messages'" data-widget="chat-pane-toggle"><i class="fa fa-comments"></i></button>
           <button class="btn btn-box-tool" @click="closeChat"><i class="fa fa-times"></i></button>
         </div>
       </div>
@@ -30,10 +31,11 @@
           <div v-for="message in messages" class="direct-chat-msg" :class="chatMsg(message)">
             <div class="direct-chat-info clearfix">
               <span class="direct-chat-name" :class="chatName(message)">{{ displayName(message) }}</span>
-              <span class="direct-chat-timestamp" :class="chatTimestamp(message)">{{message.createdAt | moment("D MMM h:mm a")}}</span>
+              <span class="direct-chat-timestamp" :class="chatTimestamp(message)">{{message.createdAt | moment("MMM D, h:mm a")}}</span>
             </div>
             <!-- /.direct-chat-info -->
-            <img class="direct-chat-img" :src="userProfile(message)" alt="message user image">
+            <!--<router-link tag="img" class="direct-chat-img" :src="userProfile(message)" alt="message user image" to="/tasks"></router-link>-->
+            <a href="#"><img class="direct-chat-img" :src="userProfile(message)" alt="message user image" @click=goToProfile(message.user)></a>
             <!-- /.direct-chat-img -->
             <div class="direct-chat-text">
               {{message.text}}
@@ -51,9 +53,9 @@
               <a href="#" data-widget="chat-pane-toggle">
                 <img class="contacts-list-img" :src="(conversation.users[0] || {}).profileImageUrl" alt="Contact Avatar">
                 <div class="contacts-list-info">
-                <span class="contacts-list-name">
-                  {{(conversation.users[0] || {}).firstName}} {{(conversation.users[0] || {}).lastName}}
-                  <small class="contacts-list-date pull-right">{{conversation.lastMessage.createdAt | moment("D MMM h:mm a")}}</small>
+                  <span class="contacts-list-name">
+                    {{(conversation.users[0] || {}).firstName}} {{(conversation.users[0] || {}).lastName}}
+                    <small class="contacts-list-date pull-right">{{conversation.lastMessage.createdAt | moment("MMM D, h:mm a")}}</small>
                   </span>
                   <span class="contacts-list-msg">{{conversation.lastMessage.text | shortMessage}}</span>
                 </div>
@@ -88,6 +90,8 @@
 <script>
   import { wsClient, chatService, eventBus } from '../../services'
   import { EVENTS } from '../../config'
+
+  import _ from 'lodash'
 
   export default {
     props: [],
@@ -145,30 +149,68 @@
               return message
             })
             this.scrollToEnd()
+            this.markConversation(conversation, true)
           })
           .catch((error) => {
             console.error('ChatBox.getConversation-error:', error)
             this.$snotify.error('Get conversation failed', 'Error!')
           })
       },
+      markConversation (conversation, hasRead) {
+        let convo = this.conversations.find((convo) => {
+          return convo._id === conversation._id
+        })
+        if (!convo) {
+          conversation.hasRead = hasRead
+        } else {
+          convo.lastMessage = conversation.lastMessage
+          convo.hasRead = hasRead
+        }
+        this.$store.commit('SET_CONVERSATIONS', this.conversations)
+
+        let promise = hasRead ? chatService.markAsRead(conversation._id) : chatService.markAsUnread(conversation._id)
+        return promise
+          .catch((error) => {
+            console.error('ChatBox.markConversation-error:', error)
+            this.$snotify.error('Mark as read failed', 'Error!')
+          })
+      },
       messageRecieved (message, flags) {
+//        console.log("MESSAGE USER:", message.user)
+//        console.log("CURRENT USER:", this.currentUser)
+        console.log("THIS MESSAGE:", message._id)
+        console.log("LAST MESSAGE:", message.conversation.lastMessage)
         if (message.user !== this.currentUser._id) {
+          console.log("ADDING MESSAGE", message)
           message.me = false
           message.user = message.conversation.users.find((user) => { return user._id === message.user })
-          let convo = this.conversations.find((convo) => {
-            return convo._id === message.conversation._id
-          })
-          // EXPL: Add new conversations
-          if (!convo) {
-            message.conversation.users = message.conversation.users.filter((user) => {
-              return user._id !== this.currentUser._id
-            })
-            convo = message.conversation
-            this.conversations.push(convo);
+          let convo = message.conversation
+
+          let newMessage = _.cloneDeep(message)
+          delete newMessage.conversation
+          convo.lastMessage = newMessage
+
+          this.updateConversationOrder(convo)
+
+          if (this.currentConversation && this.currentConversation._id === convo._id) {
+            this.markConversation(convo, true)
+          } else {
+            this.markConversation(convo, false)
           }
-          convo.lastMessage = message
-          this.messages.push(message)
+
+          this.messages.push(newMessage)
           this.scrollToEnd()
+        }
+      },
+      updateConversationOrder (conversation) {
+        let convo = this.conversations.find((convo) => {
+          return convo._id === conversation._id
+        })
+        if (!convo) {
+          this.conversations.unshift(conversation)
+        } else {
+          this.conversations.splice(this.conversations.indexOf(convo), 1)
+          this.conversations.unshift(convo)
         }
       },
       sendMessage () {
@@ -201,14 +243,17 @@
           } catch (error) {}
         })
       },
-      openChat (contacts) {
-        if (contacts) {
-          this.getConversation(contacts)
+      openChat (params) {
+        if (params) {
+          this.getConversation(params)
         }
         this.$modal.show('chat-modal')
       },
       closeChat () {
         this.$modal.hide('chat-modal')
+      },
+      goToProfile (user) {
+        this.$router.push({ name: 'MemberProfile', params: { _id: user._id }, props: user })
       }
     },
     created () {
@@ -222,24 +267,30 @@
 
       Promise.all(promises)
         .then((response) => {
-          this.conversations = response[0].data.docs.map((conversation) => {
-            return conversation
-          })
+          this.conversations = response[0].data.docs
+          this.$store.commit('SET_CONVERSATIONS', this.conversations)
           this.ready = true
         })
       eventBus.$on(EVENTS.OPEN_CHAT, this.openChat)
       eventBus.$on(EVENTS.CLOSE_CHAT, this.closeChat)
+      eventBus.$on(EVENTS.MARK_AS_READ, (conversation) => { this.markConversation(conversation, true) })
+      eventBus.$on(EVENTS.MARK_AS_UNREAD, (conversation) => { this.markConversation(conversation, false) })
     },
     beforeDestroy () {
       eventBus.$off(EVENTS.OPEN_CHAT, this.openChat)
       eventBus.$off(EVENTS.CLOSE_CHAT, this.closeChat)
+      eventBus.$off(EVENTS.MARK_AS_READ)
+      eventBus.$off(EVENTS.MARK_AS_UNREAD)
     }
   }
 </script>
 
 <style lang="scss">
   #chat-input {
-    width: 99%
+    height: 34px;
+  }
+  #messages {
+    height: 271px;
   }
   .direct-chat {
     height: 100%;

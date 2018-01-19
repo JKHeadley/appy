@@ -1,7 +1,6 @@
 export default {
-  callingAPI: false,
-  searching: '',
   breadcrumbs: [],
+  conversations: [],
   userInfo: {
     messages: [{1: 'test', 2: 'test'}],
     notifications: [],
