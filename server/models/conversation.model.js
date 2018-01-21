@@ -5,6 +5,7 @@ const _ = require('lodash');
 const Config = require('../../config');
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
+const CHAT_TYPES = Config.get('/constants/CHAT_TYPES');
 
 module.exports = function (mongoose) {
   var modelName = "conversation";
@@ -18,12 +19,18 @@ module.exports = function (mongoose) {
       type: Types.ObjectId,
       ref: "message"
     },
+    chatType: {
+      type: Types.String,
+      required: true,
+      enum: _.values(CHAT_TYPES)
+    },
   }, { collection: modelName });
     
   Schema.statics = {
     collectionName:modelName,
     routeOptions: {
       routeScope: {
+        //TODO: replace with permissions
         createScope: _.values(USER_ROLES)
       },
       policies: {

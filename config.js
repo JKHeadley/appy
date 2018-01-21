@@ -20,6 +20,10 @@ const constants = {
     EXCLUDED: 'Excluded',
     FORBIDDEN: 'Forbidden',
   },
+  CHAT_TYPES: {
+    DIRECT: 'direct',
+    GROUP: 'group',
+  },
   AUTH_STRATEGIES: {
     TOKEN: 'standard-jwt',
     SESSION: 'jwt-with-session',
