@@ -12,7 +12,7 @@ const Config = require('../../config');
 const auditLog = require('../policies/audit-log');
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
-const REQUIRED_PASSWORD_STRENGTH = Config.get('/constants/REQUIRED_PASSWORD_STRENGTH');
+const CHAT_TYPES = Config.get('/constants/CHAT_TYPES');
 const authStrategy = Config.get('/restHapiConfig/authStrategy');
 
 const headersValidation = Joi.object({
@@ -144,9 +144,6 @@ module.exports = function (server, mongoose, logger) {
 
     const getConversationsHandler = function (request, reply) {
       const Conversation = mongoose.model('conversation');
-
-      // EXPL: The query below searches for the conversation that includes the current user and the users provided
-      // in the request query ONLY.
       const query = { $where: { users: { $elemMatch: { $eq: request.auth.credentials.user._id } } } }
 
       query.$embed = ['users', 'lastMessage.user', 'userData'];
@@ -207,36 +204,33 @@ module.exports = function (server, mongoose, logger) {
       let conversation = {};
       let newConversation = false;
 
-      let users = [];
-
       const query = {
         $embed: ['messages.user', 'users', 'userData', 'lastMessage.user']
       };
 
+      // EXPL: Find the conversation by _id if provided
       if (request.query.conversation) {
         promise = RestHapi.find(Conversation, request.query.conversation, query , Log);
       }
-      else if (request.query.users) {
-        // EXPL: The query below searches for the conversation that includes the current user and the users provided
-        // in the request query ONLY.
-        query.$where = { $and: [{ users: { $elemMatch: { $eq: request.auth.credentials.user._id } } }] };
+      else if (request.query.user) {
 
-        users = _.isArray(request.query.users) ? request.query.users : [request.query.users]
-
-        if (users.includes(request.auth.credentials.user._id.toString())) {
+        if (request.query.user === request.auth.credentials.user._id.toString()) {
           return reply(Boom.badRequest('No chatting with yourself.'))
         }
 
-        users.forEach(function(userId) {
-          query.$where.$and.push({ users: { $elemMatch: { $eq: userId } } })
-        })
-
-        query.$where.$and.push({ users: { $size: users.length + 1 } })
+        // EXPL: The query below searches for the direct chat conversation between the current user and the user provided
+        query.$where = {
+          $and: [
+            { users: { $elemMatch: { $eq: request.auth.credentials.user._id } } },
+            { users: { $elemMatch: { $eq: request.query.user } } },
+            { chatType: { $eq: CHAT_TYPES.DIRECT } }
+          ]
+        };
 
         promise = RestHapi.list(Conversation, query, Log)
       }
       else {
-        return reply(Boom.badRequest('Must provide either conversation or users query params.'));
+        return reply(Boom.badRequest('Must provide either conversation or user query params.'));
       }
 
       return promise
@@ -255,8 +249,8 @@ module.exports = function (server, mongoose, logger) {
             if (!result.docs[0]) {
               newConversation = true;
               let promises = [];
-              users.push(request.auth.credentials.user._id);
-              promises.push(RestHapi.create(Conversation, {users}, Log));
+              let users = [request.auth.credentials.user._id, request.query.user];
+              promises.push(RestHapi.create(Conversation, { users, chatType: CHAT_TYPES.DIRECT }, Log));
               promises.push(RestHapi.list(User, { _id: users, $select: ['_id', 'firstName', 'lastName', 'profileImageUrl'] }, Log));
               return Q.all(promises);
             }
@@ -309,7 +303,7 @@ module.exports = function (server, mongoose, logger) {
         validate: {
           headers: headersValidation,
           query: {
-            users: Joi.alternatives(Joi.array().items(RestHapi.joiHelper.joiObjectId()), RestHapi.joiHelper.joiObjectId()),
+            user: RestHapi.joiHelper.joiObjectId(),
             conversation: RestHapi.joiHelper.joiObjectId()
           }
         },
@@ -347,19 +341,15 @@ module.exports = function (server, mongoose, logger) {
       }
 
       promises.push(RestHapi.find(Conversation, payload.conversation, {}, Log));
-      promises.push(RestHapi.getAll(Conversation, payload.conversation, User, 'users', { $select: ['_id', 'firstName', 'lastName', 'profileImageUrl'] }, Log));
       promises.push(RestHapi.create(Message, payload, Log));
 
       return Q.all(promises)
         .then(function (result) {
           let conversation = result[0];
-          let users = result[1].docs;
-          let message = result[2];
-          conversation.users = users;
-          message.conversation = conversation;
+          let message = result[1];
           Log.debug("MESSAGE:", message);
-          users.forEach(function(user) {
-            server.publish('/chat/' + user._id.toString(), message);
+          conversation.users.forEach(function(userId) {
+            server.publish('/chat/' + userId, message);
           })
           return reply('published');
         })
@@ -426,6 +416,7 @@ module.exports = function (server, mongoose, logger) {
         lastName: conversation.lastMessage.user.lastName,
         profileImageUrl: conversation.lastMessage.user.profileImageUrl
       }
+      conversation.lastMessage.me = conversation.lastMessage.user._id.toString() === request.auth.credentials.user._id.toString()
     }
     if (conversation.userData) {
       let currentUserData = conversation.userData.find(function(userData) {
