@@ -103,6 +103,11 @@ export const USER_ROLES = {
   SUPER_ADMIN: 'Super Admin'
 }
 
+export const CHAT_TYPES = {
+  DIRECT: 'direct',
+  GROUP: 'group'
+}
+
 export const EVENTS = {
   USER_PERMISSIONS_UPDATED: 'user-permissions-updated',
   USER_PERMISSIONS_SAVED: 'user-permissions-saved',

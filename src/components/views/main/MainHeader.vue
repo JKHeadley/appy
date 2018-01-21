@@ -54,26 +54,39 @@
               <span class="label label-warning">{{ unreadCount }}</span>
             </a>
             <ul class="dropdown-menu" id="dropdown-messages-menu">
-              <li class="header">You have {{ unreadCount }} unread message(s) <a href="javascript:;" @click="openChatCreateBox" class="message-menu-link" style="float: right;">New Chat</a></li>
+              <li class="header">You have {{ unreadCount }} unread message(s)
+                <span style="float: right;">
+                <a href="javascript:;" @click="openNewGroupBox" class="message-menu-link">New Group</a> &middot;
+                <a href="javascript:;" @click="openNewMessageBox" class="message-menu-link">New Message</a>
+                </span>
+              </li>
               <li v-if="conversations.length > 0">
                 <!-- Inner Menu: contains the notifications -->
                 <ul class="menu">
-                  <li v-for="conversation in conversations" v-if="conversation.lastMessage" :class="{ 'message-unread': !conversation.hasRead }">
+                  <li v-for="conversation in conversations" :class="{ 'message-unread': !conversation.hasRead }">
                     <!-- start notification -->
                     <a href="javascript:;" @click="openChatBox(conversation)">
-                      <img class="message-list-img" :src="(conversation.users[0] || {}).profileImageUrl" alt="Contact Avatar">
+                      <img class="contacts-list-img" v-if="conversation.lastMessage && conversation.chatType === CHAT_TYPES.GROUP" :src="conversation.lastMessage.user.profileImageUrl" alt="Contact Avatar">
+                      <img class="contacts-list-img" v-else :src="(conversation.users[0] || {}).profileImageUrl" alt="Contact Avatar">
                       <div class="message-list-info">
                         <span class="message-list-name">
-                          {{(conversation.users[0] || {}).firstName}} {{(conversation.users[0] || {}).lastName}}
-                          <small class="message-list-date pull-right">{{conversation.lastMessage.createdAt | moment("MMM D, h:mm a")}}</small>
+                          <span v-if="conversation.name" v-tooltip="userListTooltip(conversation.users)">{{conversation.name}}</span>
+                          <span v-else>{{conversation.users | userList}}</span>
+                          <span v-if="conversation.chatType === CHAT_TYPES.GROUP"><i class="fa fa-users"></i></span>
+                          <small class="message-list-date pull-right" v-if="conversation.lastMessage">{{conversation.lastMessage.createdAt | moment("MMM D, h:mm a")}}</small>
                         </span>
-                        <span class="message-list-msg">{{conversation.lastMessage.me ? 'You: ' : conversation.lastMessage.user.firstName + ': '}}{{conversation.lastMessage.text | shortMessage}}</span>
-                        <span class="message-list-dot" v-if="conversation.hasRead">
+                        <div v-if="conversation.lastMessage">
+                          <span class="message-list-msg">{{conversation.lastMessage.me ? 'You: ' : conversation.lastMessage.user.firstName + ': '}}{{conversation.lastMessage.text | shortMessage}}</span>
+                          <span class="message-list-dot" v-if="conversation.hasRead">
                           <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as unread'" @click.stop="markAsUnread(conversation)"><i class="fa fa-dot-circle-o"></i></button>
-                        </span>
-                        <span class="message-list-dot" v-else>
-                          <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as read'" @click.stop="markAsRead(conversation)"><i class="fa fa-circle"></i></button>
-                        </span>
+                          </span>
+                            <span class="message-list-dot" v-else>
+                            <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as read'" @click.stop="markAsRead(conversation)"><i class="fa fa-circle"></i></button>
+                          </span>
+                        </div>
+                        <div v-else>
+                          <span class="message-list-msg">This chat is empty.</span>
+                        </div>
                       </div>
                     </a>
                   </li>
@@ -153,7 +166,7 @@
 <script>
   import { mapState } from 'vuex'
   import { authService, eventBus } from '../../../services'
-  import { EVENTS } from '../../../config'
+  import { EVENTS, CHAT_TYPES } from '../../../config'
 
   export default {
     name: 'MainHeader',
@@ -161,7 +174,8 @@
     data () {
       return {
         ready: false,
-        loading: false
+        loading: false,
+        CHAT_TYPES: CHAT_TYPES
       }
     },
     components: { },
@@ -196,11 +210,14 @@
             this.$snotify.error('Log Out failed', 'Error!')
           })
       },
-      openChatCreateBox () {
+      openNewGroupBox () {
         eventBus.$emit(EVENTS.OPEN_CHAT_CREATE)
       },
+      openNewMessageBox () {
+        eventBus.$emit(EVENTS.OPEN_CHAT, { new: true })
+      },
       openChatBox (conversation) {
-        eventBus.$emit(EVENTS.OPEN_CHAT, conversation)
+        eventBus.$emit(EVENTS.OPEN_CHAT, { conversation })
       },
       markAsRead (conversation) {
         eventBus.$emit(EVENTS.MARK_AS_READ, conversation)
@@ -214,6 +231,17 @@
             this.markAsRead(conversation)
           }
         }
+      },
+      userListTooltip (users) {
+        let list = ''
+        for (let user of users) {
+          if (list === '') {
+            list = list + user.firstName + ' ' + user.lastName
+          } else {
+            list = list + ', ' + user.firstName + ' ' + user.lastName
+          }
+        }
+        return list
       }
     },
     mounted: function () {
@@ -250,7 +278,7 @@
     background-color: #f2f5fd;
   }
   #dropdown-messages-menu {
-    width: 365px;
+    width: 450px;
     .footer {
       border-top: 1px solid #eeeeee;
     }

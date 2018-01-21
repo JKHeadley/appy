@@ -15,8 +15,8 @@
 
     <!-- Chat Box -->
     <chat-box></chat-box>
-    <!-- Create Chat Box -->
-    <chat-box-create></chat-box-create>
+    <!-- Create Group Chat -->
+    <new-group-chat></new-group-chat>
 
     <!-- Main Footer -->
     <footer class="main-footer">
@@ -37,10 +37,12 @@ import MainHeader from './MainHeader.vue'
 import ContentHeader from './ContentHeader.vue'
 import Sidebar from './Sidebar.vue'
 import 'hideseek'
+import NewGroupChat from '../../utilities/NewGroupChat.vue'
 
 export default {
   name: 'Main',
   components: {
+    NewGroupChat,
     MainHeader,
     ContentHeader,
     Sidebar

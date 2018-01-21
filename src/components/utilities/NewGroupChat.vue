@@ -85,10 +85,10 @@
 <script>
   import { mapState } from 'vuex'
   import { eventBus } from '../../services'
-  import { EVENTS } from '../../config'
+  import { EVENTS, CHAT_TYPES } from '../../config'
 
   export default {
-    name: 'ChatBoxCreate',
+    name: 'NewGroupChat',
     data () {
       return {
         ready: false,
@@ -110,15 +110,17 @@
         this.loading = true
         this.newConversation.users = this.addedUsers.map((user) => { return user._id })
         this.newConversation.users.push(this.currentUser._id)
+        this.newConversation.chatType = CHAT_TYPES.GROUP
         this.$conversationRepository.create(this.newConversation)
           .then(response => {
+            let conversation = response.data
             this.loading = false
             this.closeChatCreateBox()
-            return this.openChatBox(response.data)
+            return this.openChatBox({ conversation })
           })
           .catch(error => {
             this.loading = false
-            console.error('ChatBoxCreate.createChat-error:', error)
+            console.error('NewGroupChat.createChat-error:', error)
             this.$snotify.error('Create chat failed', 'Error!')
           })
       },
@@ -161,7 +163,7 @@
           })
           .catch(error => {
             this.loading = false
-            console.error('ChatBoxCreate.getMembers-error:', error)
+            console.error('NewGroupChat.getMembers-error:', error)
             this.$snotify.error('Failed to get members', 'Error!')
           })
       },

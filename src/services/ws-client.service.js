@@ -60,11 +60,13 @@ internals.request = (options) => {
 }
 
 internals.subscribe = (path, handler) => {
+  console.log("CURRENT SUBSCRIPTIONS:", internals.client.subscriptions())
   return new Promise((resolve, reject) => {
     internals.client.subscribe(path, handler, (error) => {
       if (error) {
         return reject(error)
       } else {
+        console.log("NEW SUBSCRIPTIONS:", internals.client.subscriptions())
         return resolve()
       }
     })

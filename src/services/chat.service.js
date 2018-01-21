@@ -17,8 +17,8 @@ internals.getConversationById = (conversationId) => {
     })
 }
 
-internals.getConversationByContacts = (userIds) => {
-  return http.get('/conversation/my', { users: userIds })
+internals.getConversationByUser = (userId) => {
+  return http.get('/conversation/my', { user: userId })
     .then((response) => {
       return response.data
     })

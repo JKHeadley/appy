@@ -46,11 +46,11 @@ import VTooltip from 'v-tooltip'
 
 import VueFormInput from './components/utilities/VueFormInput.vue'
 import ChatBox from './components/utilities/ChatBox.vue'
-import ChatBoxCreate from './components/utilities/ChatBoxCreate.vue'
+import NewGroupChat from './components/utilities/NewGroupChat.vue'
 import VueEditor from './components/utilities/VueEditor.vue'
 
 // EXPL: Import Helpers for filters
-import { domain, count, prettyDate, pluralize, shortMessage } from './filters'
+import { domain, count, prettyDate, pluralize, shortMessage, userList } from './filters'
 
 // EXPL: Import Views - Top level
 import AppView from './components/App.vue'
@@ -61,6 +61,7 @@ Vue.filter('domain', domain)
 Vue.filter('prettyDate', prettyDate)
 Vue.filter('pluralize', pluralize)
 Vue.filter('shortMessage', shortMessage)
+Vue.filter('userList', userList)
 
 axios.defaults.baseURL = config.serverURI
 
@@ -72,7 +73,7 @@ axios.defaults.paramsSerializer = function (params) {
 // EXPL: Register global components and plugins
 Vue.component('vue-form-input', VueFormInput)
 Vue.component('chat-box', ChatBox)
-Vue.component('chat-box-create', ChatBoxCreate)
+Vue.component('new-group-chat', NewGroupChat)
 Vue.component('vue-editor', VueEditor)
 Vue.component('pulse-loader', PulseLoader)
 Vue.component('vue-select', VueSelect)

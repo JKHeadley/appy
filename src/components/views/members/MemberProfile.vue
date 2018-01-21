@@ -268,7 +268,7 @@
       },
       openChatBox () {
         if (!this.isSelf) {
-          eventBus.$emit(EVENTS.OPEN_CHAT, [this.user._id])
+          eventBus.$emit(EVENTS.OPEN_CHAT, { user: this.user })
         }
       }
     },
