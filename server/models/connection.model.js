@@ -54,6 +54,7 @@ module.exports = function (mongoose) {
       create: {
         pre: function (payload, request, Log) {
           const Connection = mongoose.model('connection');
+          const Notification = mongoose.model('notification');
           // EXPL: Connections must be made both ways
           if (!payload.isSecondary) {
             const secondaryPayload = {
@@ -67,6 +68,7 @@ module.exports = function (mongoose) {
 
             return RestHapi.create(Connection, secondaryPayload, Log)
               .then(function (result) {
+                Notification.createConnectionNotification(payload, payload, request.server, Log)
                 return payload
               })
           }
@@ -74,12 +76,13 @@ module.exports = function (mongoose) {
             delete payload.isSecondary
             return payload
           }
-
-        }
+        },
       },
       update: {
         pre: function (_id, payload, request, Log) {
           const Connection = mongoose.model('connection');
+          const Notification = mongoose.model('notification');
+          let primaryConnection = {}
           // EXPL: Connections must be updated both ways
           if (!payload.isSecondary) {
             const secondaryPayload = {
@@ -96,9 +99,10 @@ module.exports = function (mongoose) {
                 if (!result) {
                   throw "Connection not found."
                 }
+                primaryConnection = result;
                 return RestHapi.list(Connection, {
-                  primaryUser: result.connectedUser,
-                  connectedUser: result.primaryUser
+                  primaryUser: primaryConnection.connectedUser,
+                  connectedUser: primaryConnection.primaryUser
                 }, Log)
               })
               .then(function (result) {
@@ -107,6 +111,7 @@ module.exports = function (mongoose) {
                 }
                 return RestHapi.update(Connection, result.docs[0]._id, secondaryPayload, Log)
                   .then(function (result) {
+                    Notification.createConnectionNotification(primaryConnection, payload, request.server, Log)
                     return payload
                   })
               })
@@ -115,7 +120,6 @@ module.exports = function (mongoose) {
             delete payload.isSecondary
             return payload
           }
-
         }
       }
     }

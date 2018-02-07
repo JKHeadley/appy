@@ -152,6 +152,12 @@ module.exports = function (mongoose) {
           foreignField: "owner",
           model: "image"
         },
+        notifications: {
+          type: "ONE_MANY",
+          alias: "notification",
+          foreignField: "primaryUser",
+          model: "notification"
+        },
       },
       create: {
         pre: function (payload, request, Log) {

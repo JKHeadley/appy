@@ -2,6 +2,10 @@
 
 const RestHapi = require('rest-hapi');
 
+const Config = require('../../config');
+
+const NOTIFICATION_TYPES = Config.get('/constants/NOTIFICATION_TYPES');
+
 module.exports = function (mongoose) {
   var modelName = "document";
   var Types = mongoose.Schema.Types;
@@ -50,6 +54,7 @@ module.exports = function (mongoose) {
         users: {
           pre: function(payload, request, Log) {
             const Document = mongoose.model('document');
+            const Notification = mongoose.model('notification');
             return RestHapi.find(Document, request.params.ownerId, {}, Log)
               .then(function (document) {
                 const scope = document.scope;
@@ -63,6 +68,14 @@ module.exports = function (mongoose) {
                   }
                   scope.readScope = (scope.readScope || [])
                   scope.readScope.push('user-' + user_document.childId)
+
+                  // EXPL: Create a notification for the user that is gaining access
+                  let notification = {
+                    primaryUser: user_document.childId,
+                    actingUser: document.owner,
+                    type: NOTIFICATION_TYPES.SHARED_DOCUMENT
+                  }
+                  Notification.createDocumentNotification(notification, request.server, Log)
                 })
                 return RestHapi.update(Document, document._id, {scope}, Log)
               })
