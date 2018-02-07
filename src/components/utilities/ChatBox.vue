@@ -365,14 +365,14 @@
         })
       eventBus.$on(EVENTS.OPEN_CHAT, this.openChat)
       eventBus.$on(EVENTS.CLOSE_CHAT, this.closeChat)
-      eventBus.$on(EVENTS.MARK_AS_READ, (conversation) => { this.markConversation(conversation, true) })
-      eventBus.$on(EVENTS.MARK_AS_UNREAD, (conversation) => { this.markConversation(conversation, false) })
+      eventBus.$on(EVENTS.MARK_CONVERSATION_AS_READ, (conversation) => { this.markConversation(conversation, true) })
+      eventBus.$on(EVENTS.MARK_CONVERSATION_AS_UNREAD, (conversation) => { this.markConversation(conversation, false) })
     },
     beforeDestroy () {
       eventBus.$off(EVENTS.OPEN_CHAT, this.openChat)
       eventBus.$off(EVENTS.CLOSE_CHAT, this.closeChat)
-      eventBus.$off(EVENTS.MARK_AS_READ)
-      eventBus.$off(EVENTS.MARK_AS_UNREAD)
+      eventBus.$off(EVENTS.MARK_CONVERSATION_AS_READ)
+      eventBus.$off(EVENTS.MARK_CONVERSATION_AS_UNREAD)
     }
   }
 </script>

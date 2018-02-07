@@ -25,6 +25,9 @@ export const resources = {
       conversations: {
         alias: 'conversation'
       },
+      notifications: {
+        alias: 'notification'
+      },
       documents: {
         alias: 'document'
       },
@@ -38,6 +41,9 @@ export const resources = {
   },
   conversation: {
     alias: 'conversation'
+  },
+  notification: {
+    alias: 'notification'
   },
   connection: {
     alias: 'connection'
@@ -108,6 +114,23 @@ export const CHAT_TYPES = {
   GROUP: 'group'
 }
 
+export const PERMISSION_STATES = {
+  INCLUDED: 'Included',
+  EXCLUDED: 'Excluded',
+  FORBIDDEN: 'Forbidden'
+}
+
+export const RESPONSE_MESSAGES = {
+  EXPIRED_ACCESS_TOKEN: 'Expired Access Token',
+  EXPIRED_REFRESH_TOKEN: 'Expired Refresh Token'
+}
+
+export const NOTIFICATION_TYPES = {
+  SHARED_DOCUMENT: 'shared-document',
+  FOLLOW: 'follow',
+  CONTACT: 'contact'
+}
+
 export const EVENTS = {
   USER_PERMISSIONS_UPDATED: 'user-permissions-updated',
   USER_PERMISSIONS_SAVED: 'user-permissions-saved',
@@ -133,17 +156,9 @@ export const EVENTS = {
   OPEN_CHAT_CREATE: 'open-chat-create',
   CLOSE_CHAT_CREATE: 'close-chat-create',
 
-  MARK_AS_READ: 'mark-as-read',
-  MARK_AS_UNREAD: 'mark-as-unread'
-}
+  MARK_CONVERSATION_AS_READ: 'mark-conversation-as-read',
+  MARK_CONVERSATION_AS_UNREAD: 'mark-conversation-as-unread',
 
-export const PERMISSION_STATES = {
-  INCLUDED: 'Included',
-  EXCLUDED: 'Excluded',
-  FORBIDDEN: 'Forbidden'
-}
-
-export const RESPONSE_MESSAGES = {
-  EXPIRED_ACCESS_TOKEN: 'Expired Access Token',
-  EXPIRED_REFRESH_TOKEN: 'Expired Refresh Token'
+  MARK_NOTIFICATION_AS_READ: 'mark-notification-as-read',
+  MARK_NOTIFICATION_AS_UNREAD: 'mark-notification-as-unread'
 }

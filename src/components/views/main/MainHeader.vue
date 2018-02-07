@@ -51,10 +51,10 @@
           <li class="dropdown notifications-menu">
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
               <i class="fa fa-comments-o"></i>
-              <span class="label label-warning">{{ unreadCount }}</span>
+              <span class="label label-warning">{{ unreadConversationsCount }}</span>
             </a>
             <ul class="dropdown-menu" id="dropdown-messages-menu">
-              <li class="header">You have {{ unreadCount }} unread message(s)
+              <li class="header">You have {{ unreadConversationsCount }} unread message(s)
                 <span style="float: right;">
                 <a href="javascript:;" @click="openNewGroupBox" class="message-menu-link">New Group</a> &middot;
                 <a href="javascript:;" @click="openNewMessageBox" class="message-menu-link">New Message</a>
@@ -78,10 +78,10 @@
                         <div v-if="conversation.lastMessage">
                           <span class="message-list-msg">{{conversation.lastMessage.me ? 'You: ' : conversation.lastMessage.user.firstName + ': '}}{{conversation.lastMessage.text | shortMessage}}</span>
                           <span class="message-list-dot" v-if="conversation.hasRead">
-                          <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as unread'" @click.stop="markAsUnread(conversation)"><i class="fa fa-dot-circle-o"></i></button>
+                          <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as unread'" @click.stop="markConversationAsUnread(conversation)"><i class="fa fa-dot-circle-o"></i></button>
                           </span>
                             <span class="message-list-dot" v-else>
-                            <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as read'" @click.stop="markAsRead(conversation)"><i class="fa fa-circle"></i></button>
+                            <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as read'" @click.stop="markConversationAsRead(conversation)"><i class="fa fa-circle"></i></button>
                           </span>
                         </div>
                         <div v-else>
@@ -94,33 +94,49 @@
                 </ul>
               </li>
               <li class="footer">
-                <a href="javascript:;" class="message-menu-link" @click.stop="markAllAsRead">Mark All as Read</a>
+                <a href="javascript:;" class="message-menu-link" @click.stop="markAllConversationsAsRead">Mark All as Read</a>
               </li>
             </ul>
           </li>
-          <!-- Notifications Menu -->
 
+          <!-- Notifications Menu -->
           <li class="dropdown notifications-menu">
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
               <i class="fa fa-bell-o"></i>
-              <span class="label label-danger">{{ userInfo.notifications | count }}</span>
+              <span class="label label-danger">{{ unreadNotificationsCount }}</span>
             </a>
-            <ul class="dropdown-menu">
-              <li class="header">You have {{ userInfo.notifications | count }} notification(s)</li>
-              <li v-if="userInfo.notifications.length > 0">
+            <ul class="dropdown-menu" id="dropdown-notifications-menu">
+              <li class="header">You have {{ unreadNotificationsCount }} notification(s)</li>
+              <li v-if="notifications.length > 0">
                 <!-- Inner Menu: contains the notifications -->
                 <ul class="menu">
-                  <li>
+                  <li v-for="notification in notifications" :class="{ 'message-unread': !notification.hasRead }">
                     <!-- start notification -->
-                    <a href="javascript:;">
-                      <i class="fa fa-users text-aqua"></i> 5 new members joined today
+                    <a href="javascript:;" @click="goToProfile(notification.actingUser)">
+                      <img class="contacts-list-img" :src="notification.actingUser.profileImageUrl" alt="Contact Avatar">
+                      <div class="message-list-info">
+                        <span class="message-list-name">
+                          <span>{{notification.actingUser.firstName}} {{notification.actingUser.lastName}}</span>
+                          <small class="message-list-date pull-right">{{notification.createdAt | moment("MMM D, h:mm a")}}</small>
+                        </span>
+                        <div>
+                          <span class="message-list-msg">{{notification.message}}</span>
+                          <span class="message-list-dot" v-if="notification.hasRead">
+                          <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as unread'" @click.stop="markNotificationAsUnread(notification)"><i class="fa fa-dot-circle-o"></i></button>
+                          </span>
+                          <span class="message-list-dot" v-else>
+                            <button type="button" class="btn btn-box-tool" v-tooltip="'Mark as read'" @click.stop="markNotificationAsRead(notification)"><i class="fa fa-circle"></i></button>
+                          </span>
+                        </div>
+                      </div>
                     </a>
                   </li>
                   <!-- end notification -->
                 </ul>
               </li>
-              <li class="footer" v-if="userInfo.notifications.length > 0">
-                <a href="javascript:;">View all</a>
+              <li class="footer" v-if="notifications.length > 0">
+                <!--<a href="javascript:;">View all</a>-->
+                <a href="javascript:;" class="message-menu-link" @click.stop="markAllNotificationsAsRead">Mark All as Read</a>
               </li>
             </ul>
           </li>
@@ -160,6 +176,8 @@
         </ul>
       </div>
     </nav>
+
+    <notifications></notifications>
   </header>
 </template>
 
@@ -167,9 +185,13 @@
   import { mapState } from 'vuex'
   import { authService, eventBus } from '../../../services'
   import { EVENTS, CHAT_TYPES } from '../../../config'
+  import Notifications from '../../utilities/Notifications.vue'
 
   export default {
     name: 'MainHeader',
+    components: {
+      Notifications
+    },
     props: ['displayName', 'pictureUrl'],
     data () {
       return {
@@ -178,16 +200,25 @@
         CHAT_TYPES: CHAT_TYPES
       }
     },
-    components: { },
     computed: {
       ...mapState({
         user: (state) => state.auth.user,
         userInfo: (state) => state.userInfo,
-        conversations: (state) => state.conversations
+        conversations: (state) => state.conversations,
+        notifications: (state) => state.notifications
       }),
-      unreadCount () {
+      unreadConversationsCount () {
         return this.conversations.reduce((count, conversation) => {
           if (conversation.hasRead) {
+            return count
+          } else {
+            return count + 1
+          }
+        }, 0)
+      },
+      unreadNotificationsCount () {
+        return this.notifications.reduce((count, notification) => {
+          if (notification.hasRead) {
             return count
           } else {
             return count + 1
@@ -219,16 +250,29 @@
       openChatBox (conversation) {
         eventBus.$emit(EVENTS.OPEN_CHAT, { conversation })
       },
-      markAsRead (conversation) {
-        eventBus.$emit(EVENTS.MARK_AS_READ, conversation)
+      markConversationAsRead (conversation) {
+        eventBus.$emit(EVENTS.MARK_CONVERSATION_AS_READ, conversation)
       },
-      markAsUnread (conversation) {
-        eventBus.$emit(EVENTS.MARK_AS_UNREAD, conversation)
+      markConversationAsUnread (conversation) {
+        eventBus.$emit(EVENTS.MARK_CONVERSATION_AS_UNREAD, conversation)
       },
-      markAllAsRead () {
+      markAllConversationsAsRead () {
         for (let conversation of this.conversations) {
           if (!conversation.hasRead) {
-            this.markAsRead(conversation)
+            this.markConversationAsRead(conversation)
+          }
+        }
+      },
+      markNotificationAsRead (notification) {
+        eventBus.$emit(EVENTS.MARK_NOTIFICATION_AS_READ, notification)
+      },
+      markNotificationAsUnread (notification) {
+        eventBus.$emit(EVENTS.MARK_NOTIFICATION_AS_UNREAD, notification)
+      },
+      markAllNotificationsAsRead () {
+        for (let notification of this.notifications) {
+          if (!notification.hasRead) {
+            this.markNotificationAsRead(notification)
           }
         }
       },
@@ -242,7 +286,10 @@
           }
         }
         return list
-      }
+      },
+      goToProfile (user) {
+        this.$router.push({ name: 'MemberProfile', params: { _id: user._id }, props: user })
+      },
     },
     mounted: function () {
     }
@@ -278,6 +325,21 @@
     background-color: #f2f5fd;
   }
   #dropdown-messages-menu {
+    width: 450px;
+    .footer {
+      border-top: 1px solid #eeeeee;
+    }
+    li {
+      a.message-menu-link {
+        color: cornflowerblue;
+        &:hover {
+          text-decoration: underline;
+          background-color: inherit;
+        }
+      }
+    }
+  }
+  #dropdown-notifications-menu {
     width: 450px;
     .footer {
       border-top: 1px solid #eeeeee;

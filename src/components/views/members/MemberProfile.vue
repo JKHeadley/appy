@@ -222,7 +222,8 @@
           })
       },
       followUser () {
-        if (!this.isSelf) {this.loading = true
+        if (!this.isSelf) {
+          this.loading = true
           const params = {
             isFollowing: true
           }
