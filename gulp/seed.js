@@ -234,6 +234,7 @@ gulp.task('seed', [], function () {
 
                   promises = []
 
+                  // EXPL: initial User role permissions
                   promises.push(RestHapi.addMany(models.role, roles[0]._id, models.permission, 'permissions', [
                     {
                       state: PERMISSION_STATES.INCLUDED,
@@ -262,6 +263,12 @@ gulp.task('seed', [], function () {
                     {
                       state: PERMISSION_STATES.INCLUDED,
                       childId: permissions.find(function (p) {
+                        return p.name === 'updateNotification'
+                      })._id
+                    },
+                    {
+                      state: PERMISSION_STATES.INCLUDED,
+                      childId: permissions.find(function (p) {
                         return p.name === 'document'
                       })._id
                     },
@@ -277,6 +284,7 @@ gulp.task('seed', [], function () {
                     .then(function (result) {
                       promises = []
 
+                      // EXPL: initial Admin role permissions
                       promises.push(RestHapi.addMany(models.role, roles[1]._id, models.permission, 'permissions', [
                         {
                           state: PERMISSION_STATES.INCLUDED,
@@ -323,6 +331,12 @@ gulp.task('seed', [], function () {
                         {
                           state: PERMISSION_STATES.INCLUDED,
                           childId: permissions.find(function (p) {
+                            return p.name === 'updateNotification'
+                          })._id
+                        },
+                        {
+                          state: PERMISSION_STATES.INCLUDED,
+                          childId: permissions.find(function (p) {
                             return p.name === 'document'
                           })._id
                         },
@@ -339,6 +353,7 @@ gulp.task('seed', [], function () {
                     .then(function (result) {
                       promises = []
 
+                      // EXPL: initial Super Admin role permissions
                       promises.push(RestHapi.addMany(models.role, roles[2]._id, models.permission, 'permissions', [
                         {
                           state: PERMISSION_STATES.INCLUDED,

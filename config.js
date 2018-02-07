@@ -24,6 +24,11 @@ const constants = {
     DIRECT: 'direct',
     GROUP: 'group',
   },
+  NOTIFICATION_TYPES: {
+    SHARED_DOCUMENT: 'shared-document',
+    FOLLOW: 'follow',
+    CONTACT: 'contact'
+  },
   AUTH_STRATEGIES: {
     TOKEN: 'standard-jwt',
     SESSION: 'jwt-with-session',
@@ -163,6 +168,11 @@ const config = {
       $filter: 'env',
       local: constants.AUTH_STRATEGIES.REFRESH,
       $default: constants.AUTH_STRATEGIES.REFRESH
+    },
+    enableWhereQueries: {
+      $filter: 'env',
+      local: false,
+      $default: false
     },
     enableQueryValidation: {
       $filter: 'env',
