@@ -20,6 +20,8 @@ import connectionRoutes from './connections.route'
 import documentRoutes from './documents.route'
 import imageRoutes from './images.route'
 
+import auditLogRoutes from './audit-logs.route'
+
 const routes = [
   {
     path: '/',
@@ -74,7 +76,8 @@ const routes = [
       ...memberRoutes,
       ...connectionRoutes,
       ...documentRoutes,
-      ...imageRoutes
+      ...imageRoutes,
+      ...auditLogRoutes
     ]
   }
 ]

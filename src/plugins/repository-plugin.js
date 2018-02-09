@@ -17,12 +17,13 @@ const RestHapiRepository = {
     for (var resourceName in resources) {
       const resource = resources[resourceName]
       const resourceRoute = resource.alias || resourceName
-      var repoCalls = resourceHelper.generateCrudCallers(resourceRoute)
+      var repoCalls = resourceHelper.generateCrudCallers(resourceRoute, resource.options)
       const associations = resource.associations
 
       for (var associationName in associations) {
-        const associationRoute = associations[associationName].alias || associationName
-        repoCalls = Object.assign({}, repoCalls, resourceHelper.generateAssociationCallers(resourceRoute, associationName, associationRoute))
+        const association = associations[associationName]
+        const associationRoute = association.alias || associationName
+        repoCalls = Object.assign({}, repoCalls, resourceHelper.generateAssociationCallers(resourceRoute, associationName, associationRoute, association.options))
       }
 
       const repoName = '$' + resourceName + 'Repository'

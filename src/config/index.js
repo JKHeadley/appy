@@ -48,6 +48,12 @@ export const resources = {
   connection: {
     alias: 'connection'
   },
+  auditLog: {
+    alias: 'auditLog',
+    options: {
+      filterDeleted: false
+    }
+  },
   document: {
     alias: 'document',
     associations: {

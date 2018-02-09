@@ -26,10 +26,10 @@
           <span class="page">Permissions</span>
         </a>
       </router-link>
-      <router-link tag="li" class="pageLink" to="/tables">
+      <router-link tag="li" class="pageLink" to="/audit-logs">
         <a>
-          <i class="fa fa-table"></i>
-          <span class="page">Tables</span>
+          <i class="fa fa-book"></i>
+          <span class="page">Audit Logs</span>
         </a>
       </router-link>
     </div>
