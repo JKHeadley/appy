@@ -410,6 +410,10 @@ module.exports = function (server, mongoose, logger) {
               firstName: Joi.string(),
               lastName: Joi.string(),
               email: Joi.string(),
+              title: Joi.string(),
+              location: Joi.string(),
+              education: Joi.string(),
+              bio: Joi.string(),
               profileImageUrl: Joi.string()
             }
           }
@@ -519,7 +523,7 @@ module.exports = function (server, mongoose, logger) {
                 handler: enableAccountHandler,
                 auth: {
                     strategy: authStrategy,
-                    scope: ['SuperAdmin']
+                    scope: [USER_ROLES.SUPER_ADMIN]
                 },
                 description: 'Enable user account.',
                 tags: ['api', 'User', 'Enable Account'],
@@ -580,7 +584,7 @@ module.exports = function (server, mongoose, logger) {
                 handler: disableAccountHandler,
                 auth: {
                     strategy: authStrategy,
-                    scope: ['SuperAdmin']
+                    scope: [USER_ROLES.SUPER_ADMIN]
                 },
                 description: 'Disable user account.',
                 tags: ['api', 'User', 'Disable Account'],
@@ -641,7 +645,7 @@ module.exports = function (server, mongoose, logger) {
           handler: activateAccountHandler,
           auth: {
             strategy: authStrategy,
-            scope: ['SuperAdmin']
+            scope: [USER_ROLES.SUPER_ADMIN]
           },
           description: 'Activate user account.',
           tags: ['api', 'User', 'Activate Account'],
@@ -702,7 +706,7 @@ module.exports = function (server, mongoose, logger) {
           handler: deactivateAccountHandler,
           auth: {
             strategy: authStrategy,
-            scope: ['SuperAdmin']
+            scope: [USER_ROLES.SUPER_ADMIN]
           },
           description: 'Deactivate user account.',
           tags: ['api', 'User', 'Deactivate Account'],

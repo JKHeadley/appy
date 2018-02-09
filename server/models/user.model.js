@@ -25,6 +25,12 @@ module.exports = function (mongoose) {
     title: {
       type: Types.String
     },
+    education: {
+      type: Types.String
+    },
+    location: {
+      type: Types.String
+    },
     bio: {
       type: Types.String
     },
