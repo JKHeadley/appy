@@ -64,6 +64,45 @@
                     </vue-form-input>
                   </validate>
 
+                  <validate auto-label class="form-group" :class="fieldClassName(formstate.title)">
+                    <vue-form-input
+                      v-model="newProfile.title"
+                      :formstate="formstate"
+                      :type="'text'"
+                      :label="'Title:'"
+                      :placeholder="'Ex: Central Marketing Developer'"
+                      :name="'title'"
+                      :messages="{}">
+                    </vue-form-input>
+                  </validate>
+
+                  <validate auto-label class="form-group" :class="fieldClassName(formstate.location)">
+                    <vue-form-input
+                      v-model="newProfile.location"
+                      :formstate="formstate"
+                      :type="'text'"
+                      :label="'Location:'"
+                      :placeholder="'City, State, Country'"
+                      :name="'location'"
+                      :messages="{}">
+                    </vue-form-input>
+                  </validate>
+
+                  <validate auto-label class="form-group" :class="fieldClassName(formstate.education)">
+                    <vue-form-input
+                      v-model="newProfile.education"
+                      :formstate="formstate"
+                      :type="'text'"
+                      :label="'Education:'"
+                      :placeholder="'Ex: B.S. in Computer Science from the University of Tennessee at Knoxville'"
+                      :name="'education'"
+                      :messages="{}">
+                    </vue-form-input>
+                  </validate>
+
+                  <label>Bio:</label>
+                  <textarea v-model="newProfile.bio" class="form-control" style="height:200px;" placeholder="Ex: I'm an amazingly interesting person!"></textarea>
+
                 </vue-form>
 
                 <div class="py-2 text-center row" style="margin-top: 10px">
@@ -303,8 +342,8 @@
     },
     created () {
       // EXPL: Filter out unneeded user properties for the profile
-      this.newProfile = (({ email, firstName, lastName }) => {
-        return { email, firstName, lastName }
+      this.newProfile = (({ email, firstName, lastName, title, education, location, bio }) => {
+        return { email, firstName, lastName, title, education, location, bio  }
       })(this.$store.state.auth.user)
 
       this.oldProfile = _.cloneDeep(this.newProfile)

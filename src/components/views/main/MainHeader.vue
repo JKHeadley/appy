@@ -13,7 +13,7 @@
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
           <!-- Messages-->
-          <li class="dropdown messages-menu">
+          <li class="dropdown messages-menu"  v-tooltip="'Coming Soon!'" >
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
               <i class="fa fa-envelope-o"></i>
               <span class="label label-success">{{ userInfo.messages | count }}</span>
