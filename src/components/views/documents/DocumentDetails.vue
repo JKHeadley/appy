@@ -8,46 +8,45 @@
 
       <div class="col-md-8">
         <div class="box box-primary">
-        <div class="box-header with-border">
-          <h3 v-if="canEdit" class="box-title">Edit Document</h3>
-          <h3 v-else class="box-title">View Document</h3>
-        </div>
-        <!-- /.box-header -->
-        <div class="box-body">
-          <div class="form-document">
-            <input :disabled="!canEdit" class="form-control" placeholder="Title" v-model="newDocument.title">
+          <div class="box-header with-border">
+            <h3 v-if="canEdit" class="box-title">Edit Document</h3>
+            <h3 v-else class="box-title">View Document</h3>
           </div>
+          <!-- /.box-header -->
+          <div class="box-body">
+            <div class="form-document">
+              <input :disabled="!canEdit" class="form-control" placeholder="Title" v-model="newDocument.title">
+            </div>
 
-          <vue-editor :body="newDocument.body" :canEdit="canEdit"></vue-editor>
+            <vue-editor :body="newDocument.body" :canEdit="canEdit"></vue-editor>
 
-        </div>
-        <!-- /.box-body -->
-        <div class="box-footer" v-if="canEdit">
-          <div class="pull-right">
-            <button class="btn btn-danger" @click="deleteDocumentModal"><i class="fa fa-trash"></i> Delete</button>
-            <button class="btn btn-primary" @click="requestDataToSave"><i class="fa fa-file-text"></i> Save Changes</button>
           </div>
-          <button class="btn btn-default" @click="clearDocument"><i class="fa fa-times"></i> Clear</button>
-          <button class="btn btn-default" @click="resetDocument"><i class="fa fa-refresh"></i> Reset</button>
+          <!-- /.box-body -->
+          <div class="box-footer" v-if="canEdit">
+            <div class="pull-right">
+              <button class="btn btn-danger" @click="deleteDocumentModal"><i class="fa fa-trash"></i> Delete</button>
+              <button class="btn btn-primary" @click="requestDataToSave"><i class="fa fa-file-text"></i> Save Changes</button>
+            </div>
+            <button class="btn btn-default" @click="clearDocument"><i class="fa fa-times"></i> Clear</button>
+            <button class="btn btn-default" @click="resetDocument"><i class="fa fa-refresh"></i> Reset</button>
+          </div>
+          <!-- /.box-footer -->
         </div>
-        <!-- /.box-footer -->
-      </div>
       </div>
 
       <div class="col-md-4">
-        <div class="box box-danger">
-          <div class="box-header with-border">
-            <h3 class="box-title">Owner</h3>
 
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-              </button>
-              <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
-              </button>
-            </div>
+        <box :classes="['box-danger']"
+             :canCollapse="true"
+             :canClose="true"
+             :disableFooter="true"
+             :noPadding="true"
+             :headerBorder="true">
+          <div slot="header">
+            <h3 class="box-title">Owner</h3>
           </div>
 
-          <div class="box-body no-padding">
+          <div slot="body">
             <ul class="users-list clearfix">
               <li>
                 <img :src="newDocument.owner.profileImageUrl" alt="User Image">
@@ -64,21 +63,18 @@
           <div v-if="sharedUsersLoading" class="overlay">
             <i class="fa"><pulse-loader></pulse-loader></i>
           </div>
-        </div>
+        </box>
 
-        <div class="box box-danger">
-          <div class="box-header with-border">
+        <box :classes="['box-danger']"
+             :canCollapse="true"
+             :canClose="true"
+             :noPadding="true"
+             :headerBorder="true">
+          <div slot="header">
             <h3 class="box-title">Shared With</h3>
-
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-              </button>
-              <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
-              </button>
-            </div>
           </div>
 
-          <div class="box-body no-padding">
+          <div slot="body">
             <ul class="users-list clearfix">
               <li v-for="user in sharedUsers">
                 <img :src="user.profileImageUrl" alt="User Image">
@@ -92,14 +88,16 @@
             </ul>
           </div>
 
-          <div v-if="isOwner" class="box-footer text-center">
-            <a href="#" class="uppercase" @click="openSharingModal">Manage Sharing</a>
+          <div v-if="isOwner" slot="footer">
+            <div class="text-center">
+              <a href="#" class="uppercase" @click="openSharingModal">Manage Sharing</a>
+            </div>
           </div>
 
           <div v-if="sharedUsersLoading" class="overlay">
             <i class="fa"><pulse-loader></pulse-loader></i>
           </div>
-        </div>
+        </box>
       </div>
 
       <modal :scrollable="true" :clickToClose="false" height="auto" name="document-sharing-modal" style="z-index: 2000">

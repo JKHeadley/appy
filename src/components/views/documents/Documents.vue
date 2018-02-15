@@ -1,14 +1,12 @@
 <template>
   <section class="content">
     <div>
-      <div class="box box-primary box-solid">
-        <div class="box-header">
+      <box :classes="['box-solid', 'box-primary']" :canCollapse="true" :canClose="true" :disableFooter="true">
+        <div slot="header">
           <h3 class="box-title">My Documents</h3>
-          <div class="box-tools">
-            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
-          </div>
         </div>
-        <div class="box-body">
+
+        <div slot="body">
           <div :class="addButtonClass">
             <router-link :to="{ name: 'DocumentCreate' }">
               <button class="btn btn-primary">Add Document</button>
@@ -22,16 +20,14 @@
         <div v-if="loading" class="overlay">
           <i class="fa"><pulse-loader></pulse-loader></i>
         </div>
-      </div>
+      </box>
 
-      <div class="box box-success box-solid">
-        <div class="box-header">
-          <h3 class="box-title">Shared with me</h3>
-          <div class="box-tools">
-            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
-          </div>
+      <box :classes="['box-solid', 'box-success']" :canCollapse="true" :canClose="true" :disableFooter="true">
+        <div slot="header">
+          <h3 class="box-title">Shared With Me</h3>
         </div>
-        <div class="box-body">
+
+        <div slot="body">
           <v-server-table ref="sharedTable" url="" :columns="sharedColumns" :options="sharedOptions" v-on:row-click="sharedRowClick">
           </v-server-table>
         </div>
@@ -39,7 +35,7 @@
         <div v-if="loading" class="overlay">
           <i class="fa"><pulse-loader></pulse-loader></i>
         </div>
-      </div>
+      </box>
     </div>
 
   </section>

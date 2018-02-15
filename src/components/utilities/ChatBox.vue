@@ -17,7 +17,7 @@
         <span v-if="currentConversation && currentConversation.chatType === CHAT_TYPES.GROUP"><i class="fa fa-users"></i></span>
         <div class="box-tools pull-right">
           <!--<span data-toggle="tooltip" title="3 New Messages" class="badge bg-red">3</span>-->
-          <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+          <!--<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>-->
           <!--<button class="btn btn-box-tool"><i class="fa fa-user-plus"></i></button>-->
           <!-- In box-tools add this button if you intend to use the contacts pane -->
           <button class="btn btn-box-tool" v-tooltip="'Messages'" data-widget="chat-pane-toggle"><i class="fa fa-comments"></i></button>

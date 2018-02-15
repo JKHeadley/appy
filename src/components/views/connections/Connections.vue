@@ -5,15 +5,14 @@
       <pulse-loader></pulse-loader>
     </div>
 
+
     <div v-if="ready">
-      <div class="box box-primary box-solid">
-        <div class="box-header">
+      <box :classes="['box-solid', 'box-success']" :canCollapse="true" :canClose="true" :disableFooter="true">
+        <div slot="header">
           <h3 class="box-title">Contacts</h3>
-          <div class="box-tools">
-            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
-          </div>
         </div>
-        <div class="box-body">
+
+        <div slot="body">
           <v-server-table ref="userTable" url="" :columns="contactColumns" :options="contactOptions" v-on:row-click="rowClick">
             <template slot="avatar" slot-scope="props">
               <div>
@@ -26,16 +25,15 @@
         <div v-if="contactsLoading" class="overlay">
           <i class="fa"><pulse-loader></pulse-loader></i>
         </div>
-      </div>
+      </box>
 
-      <div class="box box-primary box-solid">
-        <div class="box-header">
+
+      <box :classes="['box-solid', 'box-info']" :canCollapse="true" :canClose="true" :disableFooter="true">
+        <div slot="header">
           <h3 class="box-title">Following</h3>
-          <div class="box-tools">
-            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
-          </div>
         </div>
-        <div class="box-body">
+
+        <div slot="body">
           <v-server-table ref="userTable" url="" :columns="followingColumns" :options="followingOptions" v-on:row-click="rowClick">
             <template slot="avatar" slot-scope="props">
               <div>
@@ -48,16 +46,14 @@
         <div v-if="followingLoading" class="overlay">
           <i class="fa"><pulse-loader></pulse-loader></i>
         </div>
-      </div>
+      </box>
 
-      <div class="box box-primary box-solid">
-        <div class="box-header">
+      <box :classes="['box-solid', 'box-primary']" :canCollapse="true" :canClose="true" :disableFooter="true">
+        <div slot="header">
           <h3 class="box-title">Followers</h3>
-          <div class="box-tools">
-            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
-          </div>
         </div>
-        <div class="box-body">
+
+        <div slot="body">
           <v-server-table ref="userTable" url="" :columns="followerColumns" :options="followerOptions" v-on:row-click="rowClick">
             <template slot="avatar" slot-scope="props">
               <div>
@@ -70,7 +66,7 @@
         <div v-if="followersLoading" class="overlay">
           <i class="fa"><pulse-loader></pulse-loader></i>
         </div>
-      </div>
+      </box>
     </div>
 
   </section>
@@ -78,8 +74,10 @@
 
 <script>
   import faker from 'faker'
+  import Box from '../../utilities/Box.vue'
 
   export default {
+    components: {Box},
     data () {
       return {
         ready: false,

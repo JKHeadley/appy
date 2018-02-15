@@ -4,9 +4,6 @@
       <div class="box box-primary box-solid">
         <div class="box-header">
           <h3 class="box-title">My Images</h3>
-          <div class="box-tools">
-            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
-          </div>
         </div>
         <div class="box-body" ref="imageBox" v-if="ready">
 
