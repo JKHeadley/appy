@@ -13,9 +13,9 @@ const internals = {};
 internals.connectionUpdateAuth = function(mongoose) {
 
   const connectionUpdateAuth = function connectionAuth(request, reply, next) {
-    try {
-      let Log = request.logger.bind("connectionAuth");
+    let Log = request.logger.bind("connectionAuth");
 
+    try {
       const Connection = mongoose.model('connection');
 
       let userId = request.auth.credentials.user._id;
@@ -43,7 +43,5 @@ internals.connectionUpdateAuth = function(mongoose) {
 };
 internals.connectionUpdateAuth.applyPoint = 'onPreHandler';
 
-module.exports = {
-  connectionUpdateAuth: internals.connectionUpdateAuth
-}
+module.exports = internals.connectionUpdateAuth
 

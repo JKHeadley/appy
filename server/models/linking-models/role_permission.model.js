@@ -16,7 +16,7 @@ module.exports = function () {
         enum: _.values(PERMISSION_STATES),
         required: true,
         default: PERMISSION_STATES.INCLUDED
-      },
+      }
     },
     modelName: "role_permission"
   };

@@ -14,6 +14,8 @@ const restHapiConfig = Config.get('/restHapiConfig')
 const USER_ROLES = Config.get('/constants/USER_ROLES')
 const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES')
 
+const superAdminAssignScope = require('./superAdminAssignScope')
+
 let models = null
 
 gulp.task('seed', [], function () {
@@ -45,6 +47,8 @@ gulp.task('seed', [], function () {
           let users = []
           let groups = []
           let permissions = []
+          let userPermissions = []
+          let adminPermissions = []
 
           let request = {}
           let promises = []
@@ -59,14 +63,17 @@ gulp.task('seed', [], function () {
               roles = [
                 {
                   name: USER_ROLES.USER,
+                  priority: 2,
                   description: 'A standard user account.'
                 },
                 {
                   name: USER_ROLES.ADMIN,
+                  priority: 1,
                   description: 'A user with advanced permissions.'
                 },
                 {
                   name: USER_ROLES.SUPER_ADMIN,
+                  priority: 0,
                   description: 'A user with full permissions.'
                 }
               ]
@@ -78,31 +85,33 @@ gulp.task('seed', [], function () {
               permissions = [
                 {
                   name: 'root',
-                  description: 'Access to all endpoints'
+                  description: 'Access to all endpoints',
+                  assignScope: [USER_ROLES.SUPER_ADMIN]
                 },
                 {
                   name: 'create',
-                  description: 'Access to all create endpoints'
+                  description: 'Access to all create endpoints',
+                  assignScope: [USER_ROLES.SUPER_ADMIN]
                 },
                 {
                   name: 'read',
-                  description: 'Access to all read endpoints'
+                  description: 'Access to all read endpoints',
+                  assignScope: [USER_ROLES.SUPER_ADMIN]
                 },
                 {
                   name: 'update',
-                  description: 'Access to all update endpoints'
+                  description: 'Access to all update endpoints',
+                  assignScope: [USER_ROLES.SUPER_ADMIN]
                 },
                 {
                   name: 'delete',
-                  description: 'Access to all delete endpoints'
+                  description: 'Access to all delete endpoints',
+                  assignScope: [USER_ROLES.SUPER_ADMIN]
                 },
                 {
                   name: 'associate',
-                  description: 'Access to all association endpoints'
-                },
-                {
-                  name: 'nothing',
-                  description: 'Permission with no use.'
+                  description: 'Access to all association endpoints',
+                  assignScope: [USER_ROLES.SUPER_ADMIN]
                 }
               ]
               return RestHapi.create(models.permission, permissions, Log)
@@ -234,119 +243,46 @@ gulp.task('seed', [], function () {
 
                   promises = []
 
-                  // EXPL: initial User role permissions
-                  promises.push(RestHapi.addMany(models.role, roles[0]._id, models.permission, 'permissions', [
-                    {
+                  userPermissions = [
+                    'readUser',
+                    'createConnection',
+                    'readConnection',
+                    'updateConnection',
+                    'updateNotification',
+                    // NOTE: Document model authorized by creator
+                    'document',
+                    // NOTE: Image model authorized by creator
+                    'image'
+                  ];
+
+                  userPermissions = userPermissions.map(function(permissionName) {
+                    return {
                       state: PERMISSION_STATES.INCLUDED,
                       childId: permissions.find(function (p) {
-                        return p.name === 'readUser'
-                      })._id
-                    },
-                    {
-                      state: PERMISSION_STATES.INCLUDED,
-                      childId: permissions.find(function (p) {
-                        return p.name === 'createConnection'
-                      })._id
-                    },
-                    {
-                      state: PERMISSION_STATES.INCLUDED,
-                      childId: permissions.find(function (p) {
-                        return p.name === 'readConnection'
-                      })._id
-                    },
-                    {
-                      state: PERMISSION_STATES.INCLUDED,
-                      childId: permissions.find(function (p) {
-                        return p.name === 'updateConnection'
-                      })._id
-                    },
-                    {
-                      state: PERMISSION_STATES.INCLUDED,
-                      childId: permissions.find(function (p) {
-                        return p.name === 'updateNotification'
-                      })._id
-                    },
-                    {
-                      state: PERMISSION_STATES.INCLUDED,
-                      childId: permissions.find(function (p) {
-                        return p.name === 'document'
-                      })._id
-                    },
-                    {
-                      state: PERMISSION_STATES.INCLUDED,
-                      childId: permissions.find(function (p) {
-                        return p.name === 'image'
+                        return p.name === permissionName
                       })._id
                     }
-                  ], Log))
+                  })
+
+                  // EXPL: Admins have access to any permission they can assign.
+                  adminPermissions = permissions.filter(function(p) {
+                    return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
+                  }).map(function(p) {
+                    return {
+                      state: PERMISSION_STATES.INCLUDED,
+                      childId: p._id
+                    }
+                  })
+
+                  // EXPL: initial User role permissions
+                  promises.push(RestHapi.addMany(models.role, roles[0]._id, models.permission, 'permissions', userPermissions, Log))
 
                   return Q.all(promises)
                     .then(function (result) {
                       promises = []
 
                       // EXPL: initial Admin role permissions
-                      promises.push(RestHapi.addMany(models.role, roles[1]._id, models.permission, 'permissions', [
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'updateUser'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'readUser'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'addUserPermissions'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'removeUserPermissions'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'createConnection'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'readConnection'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'updateConnection'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'updateNotification'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'document'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'image'
-                          })._id
-                        }
-                      ], Log))
+                      promises.push(RestHapi.addMany(models.role, roles[1]._id, models.permission, 'permissions', adminPermissions, Log))
 
                       return Q.all(promises)
                     })
@@ -453,12 +389,6 @@ gulp.task('seed', [], function () {
                             return p.name === 'readUser'
                           })._id
                         },
-                        {
-                          state: PERMISSION_STATES.INCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'nothing'
-                          })._id
-                        }
                       ], Log))
 
                       return Q.all(promises)
@@ -537,19 +467,50 @@ function updatePermissions () {
         const model = models[modelKey]
         const modelName = model.collectionName[0].toUpperCase() + model.collectionName.slice(1)
         const permissions = []
+        let name = '';
+        let assignScope;
 
         permissions.push({
           name: model.collectionName,
-          description: 'Full access to ' + model.collectionName + ' endpoints'
+          description: 'Full access to ' + model.collectionName + ' endpoints',
+          assignScope: [USER_ROLES.SUPER_ADMIN]
         })
-        permissions.push({name: 'create' + modelName, description: 'Can create a ' + model.collectionName})
-        permissions.push({name: 'read' + modelName, description: 'Can read a ' + model.collectionName})
-        permissions.push({name: 'update' + modelName, description: 'Can update a ' + model.collectionName})
-        permissions.push({name: 'delete' + modelName, description: 'Can delete a ' + model.collectionName})
         permissions.push({
           name: 'associate' + modelName,
-          description: 'Can modify associations for a ' + model.collectionName
+          description: 'Can access all association endpoints for a ' + model.collectionName,
+          assignScope: [USER_ROLES.SUPER_ADMIN]
         })
+        permissions.push({
+          name: 'add' + modelName + 'Associations',
+          description: 'Can add all associations for a ' + model.collectionName,
+          assignScope: [USER_ROLES.SUPER_ADMIN]
+        })
+        permissions.push({
+          name: 'remove' + modelName + 'Associations',
+          description: 'Can remove all associations for a ' + model.collectionName,
+          assignScope: [USER_ROLES.SUPER_ADMIN]
+        })
+        permissions.push({
+          name: 'get' + modelName + 'Associations',
+          description: 'Can get all associations for a ' + model.collectionName,
+          assignScope: [USER_ROLES.SUPER_ADMIN]
+        })
+
+        name = 'create' + modelName;
+        assignScope = superAdminAssignScope.indexOf(name) > -1 ? [USER_ROLES.SUPER_ADMIN] : undefined
+        permissions.push({name: name, description: 'Can create a ' + model.collectionName, assignScope})
+
+        name = 'read' + modelName;
+        assignScope = superAdminAssignScope.indexOf(name) > -1 ? [USER_ROLES.SUPER_ADMIN] : undefined
+        permissions.push({name: 'read' + modelName, description: 'Can read a ' + model.collectionName, assignScope})
+
+        name = 'update' + modelName;
+        assignScope = superAdminAssignScope.indexOf(name) > -1 ? [USER_ROLES.SUPER_ADMIN] : undefined
+        permissions.push({name: 'update' + modelName, description: 'Can update a ' + model.collectionName, assignScope})
+
+        name = 'delete' + modelName;
+        assignScope = superAdminAssignScope.indexOf(name) > -1 ? [USER_ROLES.SUPER_ADMIN] : undefined
+        permissions.push({name: 'delete' + modelName, description: 'Can delete a ' + model.collectionName, assignScope})
 
         const associations = model.routeOptions.associations
 
@@ -558,17 +519,28 @@ function updatePermissions () {
           if (associations[key].type === 'MANY_MANY' || associations[key].type === 'ONE_MANY') {
             const associationName = key[0].toUpperCase() + key.slice(1)
 
+            name = 'add' + modelName + associationName;
+            assignScope = superAdminAssignScope.indexOf(name) > -1 ? [USER_ROLES.SUPER_ADMIN] : undefined
             permissions.push({
               name: 'add' + modelName + associationName,
-              description: 'Can add ' + key + ' to a ' + model.collectionName
+              description: 'Can add ' + key + ' to a ' + model.collectionName,
+              assignScope
             })
+
+            name = 'remove' + modelName + associationName;
+            assignScope = superAdminAssignScope.indexOf(name) > -1 ? [USER_ROLES.SUPER_ADMIN] : undefined
             permissions.push({
               name: 'remove' + modelName + associationName,
-              description: 'Can remove ' + key + ' from a ' + model.collectionName
+              description: 'Can remove ' + key + ' from a ' + model.collectionName,
+              assignScope
             })
+
+            name = 'get' + modelName + associationName;
+            assignScope = superAdminAssignScope.indexOf(name) > -1 ? [USER_ROLES.SUPER_ADMIN] : undefined
             permissions.push({
               name: 'get' + modelName + associationName,
-              description: 'Can get a ' + model.collectionName + '\'s ' + key
+              description: 'Can get a ' + model.collectionName + '\'s ' + key,
+              assignScope
             })
           }
 
