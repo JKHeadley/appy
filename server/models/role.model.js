@@ -3,6 +3,8 @@
 const _ = require('lodash');
 const Config = require('../../config');
 
+const permissionAuth = require('../policies/permissionAuth');
+
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 
 module.exports = function (mongoose) {
@@ -15,14 +17,24 @@ module.exports = function (mongoose) {
       required: true,
       unique: true
     },
+    priority: {
+      type: Types.Number,
+      required: true,
+      unique: true,
+      description: 'Determines the role\'s position in the hierarchy, with "0" being the highest.'
+    },
     description: {
       type: Types.String
-    }
+    },
   }, { collection: modelName });
     
   Schema.statics = {
     collectionName:modelName,
     routeOptions: {
+      policies: {
+        // EXPL: Restrict which users can assign policies
+        associatePolicies: [permissionAuth(mongoose, false)]
+      },
       associations: {
         users: {
           type: "ONE_MANY",
@@ -37,7 +49,10 @@ module.exports = function (mongoose) {
           linkingModel: "role_permission"
         }
       }
-    }
+    },
+    test: function () {
+      console.log("TEST");
+    },
   };
 
   return Schema;

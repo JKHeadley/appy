@@ -13,9 +13,9 @@ const internals = {};
 internals.notificationUpdateAuth = function(mongoose) {
 
   const notificationUpdateAuth = function notificationAuth(request, reply, next) {
-    try {
-      let Log = request.logger.bind("notificationAuth");
+    let Log = request.logger.bind("notificationAuth");
 
+    try {
       const Connection = mongoose.model('notification');
 
       let userId = request.auth.credentials.user._id;
@@ -43,7 +43,5 @@ internals.notificationUpdateAuth = function(mongoose) {
 };
 internals.notificationUpdateAuth.applyPoint = 'onPreHandler';
 
-module.exports = {
-  notificationUpdateAuth: internals.notificationUpdateAuth
-}
+module.exports = internals.notificationUpdateAuth
 

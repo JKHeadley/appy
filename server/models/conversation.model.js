@@ -30,8 +30,6 @@ module.exports = function (mongoose) {
     collectionName:modelName,
     routeOptions: {
       routeScope: {
-        //TODO: replace with permissions
-        createScope: _.values(USER_ROLES)
       },
       policies: {
       },

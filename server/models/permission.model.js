@@ -5,7 +5,10 @@ const Q = require('q');
 const _ = require('lodash');
 const Config = require('../../config');
 
+const permissionAuth = require('../policies/permissionAuth');
+
 const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES');
+const USER_ROLES = Config.get('/constants/USER_ROLES')
 
 module.exports = function (mongoose) {
   var modelName = "permission";
@@ -18,11 +21,20 @@ module.exports = function (mongoose) {
     },
     description: {
       type: Types.String
+    },
+    assignScope: {
+      type: [Types.String],
+      default: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN],
+      description: "Specifies the scope required to be able to assign this permission to users."
     }
   }, { collection: modelName });
   Schema.statics = {
     collectionName: modelName,
     routeOptions: {
+      policies: {
+        // EXPL: Restrict which users can assign policies
+        associatePolicies: [permissionAuth(mongoose, true)]
+      },
       associations: {
         users: {
           type: "MANY_MANY",

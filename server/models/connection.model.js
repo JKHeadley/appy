@@ -2,7 +2,7 @@
 
 const RestHapi = require('rest-hapi');
 
-const connectionUpdateAuth = require('../policies/connectionAuth').connectionUpdateAuth;
+const connectionUpdateAuth = require('../policies/connectionAuth');
 
 module.exports = function (mongoose) {
   var modelName = "connection";

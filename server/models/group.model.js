@@ -1,5 +1,7 @@
 'use strict';
 
+const permissionAuth = require('../policies/permissionAuth');
+
 module.exports = function (mongoose) {
   var modelName = "group";
   var Types = mongoose.Schema.Types;
@@ -17,6 +19,10 @@ module.exports = function (mongoose) {
   Schema.statics = {
     collectionName:modelName,
     routeOptions: {
+      policies: {
+        // EXPL: Restrict which users can assign policies
+        associatePolicies: [permissionAuth(mongoose, false)]
+      },
       associations: {
         users: {
           type: "MANY_MANY",

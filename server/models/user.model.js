@@ -5,6 +5,8 @@ const GeneratePassword = require('password-generator');
 const RestHapi = require('rest-hapi');
 const Q = require('q');
 
+const permissionAuth = require('../policies/permissionAuth');
+
 module.exports = function (mongoose) {
   const modelName = "user";
   const Types = mongoose.Schema.Types;
@@ -109,6 +111,13 @@ module.exports = function (mongoose) {
     routeOptions: {
       authorizeDocumentCreator: false,
       // policies: ['authorizePromotion'],
+      policies: {
+        // EXPL: Restrict which users can assign policies
+        associatePolicies: [permissionAuth(mongoose, false)]
+      },
+      routeScope: {
+        getUserNotificationsScope: 'user-{params.ownerId}'
+      },
       associations: {
         role: {
           type: "MANY_ONE",
@@ -162,7 +171,7 @@ module.exports = function (mongoose) {
           type: "ONE_MANY",
           alias: "notification",
           foreignField: "primaryUser",
-          model: "notification"
+          model: "notification",
         },
       },
       create: {
