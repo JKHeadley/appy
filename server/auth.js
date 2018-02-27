@@ -221,8 +221,24 @@ internals.applyFacebookStrategy = function (server, next) {
 
 };
 
+internals.customForbiddenMessage = function (server) {
+  server.ext('onPreResponse', (request, reply) => {
+
+    const response = request.response;
+
+    if (response.output && response.output.statusCode === 403 &&
+        response.output.payload && response.output.payload.message === 'Insufficient scope') {
+      response.output.payload.message = 'Insufficient permissions'
+    }
+
+    return reply.continue();
+  });
+}
+
 exports.register = function (server, options, next) {
   const authStrategy = Config.get('/restHapiConfig/authStrategy');
+
+  internals.customForbiddenMessage(server);
 
   internals.applyFacebookStrategy(server, next);
 

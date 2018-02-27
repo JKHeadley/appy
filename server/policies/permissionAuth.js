@@ -18,41 +18,27 @@ internals.permissionAuth = function(mongoose, isOwner) {
     let Log = request.logger.bind("permissionAuth");
 
     try {
-      Log.debug("PATH:", request.path);
       // EXPL: Return next if this isn't a permission association
       if (!isOwner && !request.path.includes("permission")) {
-        Log.debug("NOT PERMISSION")
         return next(null, true)
       }
       let userScope = request.auth.credentials.scope;
-      Log.debug("USER SCOPE", userScope)
 
       // EXPL: Always allow root
       if (userScope.indexOf('root') > -1) {
-        Log.debug("ROOT SCOPE:", userScope.indexOf('root'))
         return next(null, true);
       }
 
       if (isOwner) {
         return internals.canAssign(request.params.ownerId, userScope, mongoose, Log)
           .then(function(canAssign) {
-            if (canAssign) {
-              return next(null, true);
-            }
-            else {
-              return next(Boom.forbidden("Insufficient scope to assign permission."), false);
-            }
+            return internals.formatResponse(canAssign, next, Log);
           })
       }
       else if (request.params.childId) {
         return internals.canAssign(request.params.childId, userScope, mongoose, Log)
           .then(function(canAssign) {
-            if (canAssign) {
-              return next(null, true);
-            }
-            else {
-              return next(Boom.forbidden("Insufficient scope to assign permission."), false);
-            }
+            return internals.formatResponse(canAssign, next, Log);
           })
       }
       // EXPL: Multiple permissions are being assigned so we need to check each one.
@@ -63,18 +49,10 @@ internals.permissionAuth = function(mongoose, isOwner) {
 
         return Q.all(promises)
           .then(function(result) {
-
-            Log.debug("MULTIPLE CHECKS:", result);
             // EXPL: If any of the checks fail, then an error is returned
             let canAssign = result.filter(canAssign => canAssign === false)[0] === undefined
-            Log.debug("canAssign:", canAssign);
 
-            if (canAssign) {
-              return next(null, true);
-            }
-            else {
-              return next(Boom.forbidden("Insufficient scope to assign permission."), false);
-            }
+            return internals.formatResponse(canAssign, next, Log);
           })
       }
     }
@@ -96,12 +74,20 @@ internals.canAssign = function(permissionId, userScope, mongoose, Log) {
   return RestHapi.find(Permission, permissionId, {}, Log)
     .then(function (result) {
       let assignScope = result.assignScope;
-      Log.debug("ASSIGN SCOPE:", assignScope)
       // EXPL: Check if the user scope intersects (contains values of) the assign scope.
       let canAssign = !!userScope.filter(scope => assignScope.indexOf(scope) > -1)[0]
 
       return canAssign
     })
+}
+
+internals.formatResponse = function(canAssign, next, Log) {
+  if (canAssign) {
+    return next(null, true);
+  }
+  else {
+    return next(Boom.forbidden("Higher role required to assign permission"), false);
+  }
 }
 
 module.exports = internals.permissionAuth
