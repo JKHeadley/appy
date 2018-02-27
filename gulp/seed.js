@@ -63,17 +63,17 @@ gulp.task('seed', [], function () {
               roles = [
                 {
                   name: USER_ROLES.USER,
-                  priority: 2,
+                  rank: 2,
                   description: 'A standard user account.'
                 },
                 {
                   name: USER_ROLES.ADMIN,
-                  priority: 1,
+                  rank: 1,
                   description: 'A user with advanced permissions.'
                 },
                 {
                   name: USER_ROLES.SUPER_ADMIN,
-                  priority: 0,
+                  rank: 0,
                   description: 'A user with full permissions.'
                 }
               ]
