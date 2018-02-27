@@ -72,6 +72,10 @@ internals.updateUserPermissions = function (userId, newPermissions, oldPermissio
     })
 }
 
+internals.getAvailablePermissions = (query) => {
+  return http.get(API.PERMISSION + '/available', query)
+}
+
 internals.updateUserProfile = (profile) => {
   return http.put(API.USER + '/my/profile', { profile })
 }

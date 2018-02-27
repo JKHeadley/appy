@@ -202,7 +202,7 @@
 
 <script>
   import _ from 'lodash'
-  import { eventBus, roleService } from '../../../services'
+  import { eventBus, roleService, userService } from '../../../services'
   import { PERMISSION_STATES, EVENTS } from '../../../config'
 
   export default {
@@ -277,7 +277,7 @@
           // EXPL: Exclude the current role permissions from the list of available permissions
           params.$exclude = rolePermissionIds
         }
-        return this.$permissionRepository.list(params)
+        return userService.getAvailablePermissions(params)
           .then((response) => {
             this.loading = false
             this.availablePermissions = response.data.docs.map((permission) => {

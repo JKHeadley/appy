@@ -1,7 +1,7 @@
 <template>
   <ul class="sidebar-menu" data-widget="tree">
     <li class="header">{{role}}</li>
-    <div class="sidebar-menu" v-show="user.roleName === USER_ROLES.ADMIN || user.roleName === USER_ROLES.SUPER_ADMIN">
+    <div class="sidebar-menu" v-if="user.roleName === USER_ROLES.ADMIN || user.roleName === USER_ROLES.SUPER_ADMIN">
       <router-link tag="li" class="pageLink" to="/users">
         <a>
           <i class="fa fa-user"></i>
@@ -47,86 +47,43 @@
         <span class="page">Members</span>
       </a>
     </router-link>
+    <router-link tag="li" class="pageLink" to="/members">
+      <a>
+        <i class="fa fa-users"></i>
+        <span class="page">Chat</span>
+      </a>
+    </router-link>
+    <router-link tag="li" class="pageLink" to="/members">
+      <a>
+        <i class="fa fa-users"></i>
+        <span class="page">Mail</span>
+      </a>
+    </router-link>
 
-    <li class="header">ME</li>
-    <router-link tag="li" class="pageLink" to="/tasks">
+    <li class="header">FILES</li>
+    <router-link tag="li" class="pageLink" to="/documents">
       <a>
-        <i class="fa fa-tasks"></i>
-        <span class="page">Tasks</span>
+        <i class="fa fa-file-word-o"></i>
+        <span class="page">Documents</span>
       </a>
     </router-link>
-    <router-link tag="li" class="pageLink" to="/setting">
+    <router-link tag="li" class="pageLink" to="/images">
       <a>
-        <i class="fa fa-cog"></i>
-        <span class="page">Settings</span>
+        <i class="fa fa-file-picture-o"></i>
+        <span class="page">Images</span>
       </a>
     </router-link>
-    <li class="treeview">
-      <a href="#">
-        <i class="fa fa-folder-o"></i>
-        <span>Files</span>
-        <span class="pull-right-container">
-          <i class="fa fa-angle-left fa-fw pull-right"></i>
-        </span>
+    <li>
+      <a href="#" v-tooltip="'Coming Soon!'">
+        <i class="fa fa-file-pdf-o"></i> PDFs
       </a>
-      <ul class="treeview-menu">
-        <!--<li>-->
-          <!--<a href="#">-->
-            <!--<i class="fa fa-file-word-o"></i> Documents-->
-          <!--</a>-->
-        <!--</li>-->
-        <router-link tag="li" class="pageLink" to="/documents">
-          <a>
-            <i class="fa fa-file-word-o"></i>
-            <span class="page">Documents</span>
-          </a>
-        </router-link>
-        <router-link tag="li" class="pageLink" to="/images">
-          <a>
-            <i class="fa fa-file-picture-o"></i>
-            <span class="page">Images</span>
-          </a>
-        </router-link>
-        <li>
-          <a href="#">
-            <i class="fa fa-file-pdf-o"></i> PDFs
-          </a>
-        </li>
-      </ul>
     </li>
-
-    <li class="header">LOGS</li>
-    <router-link tag="li" class="pageLink" to="/access">
-      <a>
-        <i class="fa fa-book"></i>
-        <span class="page">Access</span>
-      </a>
-    </router-link>
-    <router-link tag="li" class="pageLink" to="/server">
-      <a>
-        <i class="fa fa-hdd-o"></i>
-        <span class="page">Server</span>
-      </a>
-    </router-link>
-    <router-link tag="li" class="pageLink" to="/repos">
-      <a>
-        <i class="fa fa-heart"></i>
-        <span class="page">Repos</span>
-        <small class="label pull-right bg-green">AJAX</small>
-      </a>
-    </router-link>
 
     <li class="header">PAGES</li>
     <router-link tag="li" class="pageLink" to="/login">
       <a>
         <i class="fa fa-circle-o text-yellow"></i>
         <span class="page"> Login</span>
-      </a>
-    </router-link>
-    <router-link tag="li" class="pageLink" to="/404">
-      <a>
-        <i class="fa fa-circle-o text-red"></i>
-        <span class="page"> 404</span>
       </a>
     </router-link>
   </ul>

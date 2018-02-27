@@ -50,6 +50,9 @@ import ChatBox from './components/utilities/ChatBox.vue'
 import NewGroupChat from './components/utilities/NewGroupChat.vue'
 import VueEditor from './components/utilities/VueEditor.vue'
 
+// EXPL: Import global directives
+import vPermission from './directives/v-permission'
+
 // EXPL: Import Helpers for filters
 import { domain, count, prettyDate, pluralize, shortMessage, userList } from './filters'
 
@@ -103,6 +106,9 @@ Vue.use(VueModal)
 Vue.use(Croppa)
 Vue.use(Carousel3d)
 Vue.use(VTooltip)
+
+// EXPL: Register global directives
+Vue.directive('permission', vPermission);
 
 // EXPL: Routing logic
 var router = new VueRouter({

@@ -29,14 +29,14 @@
             </div>
           </div>
 
-            <ul class="nav nav-tabs">
-              <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
-              <li><a data-toggle="tab" href="#groups">Groups</a></li>
-              <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
-              <li><a data-toggle="tab" href="#password">Password</a></li>
-            </ul>
+          <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
+            <li><a data-toggle="tab" href="#groups">Groups</a></li>
+            <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
+            <li><a data-toggle="tab" href="#password">Password</a></li>
+          </ul>
 
-            <div class="tab-content content">
+          <div class="tab-content content">
               <div id="details" class="tab-pane fade in active">
 
                 <vue-form :state="formstate" @submit.prevent="onSubmit" class="row">
@@ -117,6 +117,7 @@
                   <button class="btn btn-primary" v-if="newUser.isEnabled" @click="disableUser">Disable User</button>
                   <button class="btn btn-primary" v-else @click="enableUser">Enable User</button>
                   <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="formstate.$pristine || formstate.$invalid">Update User</button>
+                  <button class="btn btn-primary" v-permission.enable="['user', 'updateUsers']">TEST</button>
                 </div>
 
                 <div class="py-2 text-center row" style="margin-top: 10px">
@@ -202,7 +203,7 @@
           })
       },
       getRoles () {
-        return this.$roleRepository.list({ $embed: ['permissions'] })
+        return this.$roleRepository.list({ $embed: ['permissions'], $sort: '-priority' })
           .then((response) => {
             this.roles = response.data.docs
           })

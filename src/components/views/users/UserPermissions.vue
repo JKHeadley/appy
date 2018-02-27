@@ -277,7 +277,7 @@
           // EXPL: Exclude the current user permissions from the list of available permissions
           params.$exclude = userPermissionIds
         }
-        return this.$permissionRepository.list(params)
+        return userService.getAvailablePermissions(params)
           .then((response) => {
             this.loading = false
             this.availablePermissions = response.data.docs.map((permission) => {

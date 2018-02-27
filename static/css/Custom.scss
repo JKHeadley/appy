@@ -2,6 +2,13 @@
 custom classes
 **********************************************/
 
+// fix full-screen bug
+#app {
+  height: 100%;
+}
+.content-wrapper {
+  min-height: 90%;
+}
 
 // center vertically and horizontally
 .content-centered {

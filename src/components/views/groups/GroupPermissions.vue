@@ -202,7 +202,7 @@
 
 <script>
   import _ from 'lodash'
-  import { eventBus, groupService } from '../../../services'
+  import { eventBus, groupService, userService } from '../../../services'
   import { PERMISSION_STATES, EVENTS } from '../../../config'
 
   export default {
@@ -277,7 +277,7 @@
           // EXPL: Exclude the current group permissions from the list of available permissions
           params.$exclude = groupPermissionIds
         }
-        return this.$permissionRepository.list(params)
+        return userService.getAvailablePermissions(params)
           .then((response) => {
             this.loading = false
             this.availablePermissions = response.data.docs.map((permission) => {

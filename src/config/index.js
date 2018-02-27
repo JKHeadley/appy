@@ -104,7 +104,8 @@ export const resources = {
 }
 
 export const API = {
-  USER: resources.user.alias || 'user'
+  USER: resources.user.alias || 'user',
+  PERMISSION: resources.permission.alias || 'permission'
 }
 
 export const REQUIRED_PASSWORD_STRENGTH = 3
