@@ -4,6 +4,7 @@ const _ = require('lodash');
 const Config = require('../../config');
 
 const permissionAuth = require('../policies/permissionAuth');
+const rankAuth = require('../policies/roleAuth').rankAuth;
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 
@@ -17,7 +18,7 @@ module.exports = function (mongoose) {
       required: true,
       unique: true
     },
-    priority: {
+    rank: {
       type: Types.Number,
       required: true,
       unique: true,
@@ -32,8 +33,7 @@ module.exports = function (mongoose) {
     collectionName:modelName,
     routeOptions: {
       policies: {
-        // EXPL: Restrict which users can assign policies
-        associatePolicies: [permissionAuth(mongoose, false)]
+        associatePolicies: [rankAuth(mongoose, "child"), permissionAuth(mongoose, true)]
       },
       associations: {
         users: {

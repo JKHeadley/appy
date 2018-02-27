@@ -6,6 +6,8 @@ const RestHapi = require('rest-hapi');
 const Q = require('q');
 
 const permissionAuth = require('../policies/permissionAuth');
+const rankAuth = require('../policies/roleAuth').rankAuth;
+const promoteAuth = require('../policies/roleAuth').promoteAuth;
 
 module.exports = function (mongoose) {
   const modelName = "user";
@@ -110,10 +112,10 @@ module.exports = function (mongoose) {
     collectionName: modelName,
     routeOptions: {
       authorizeDocumentCreator: false,
-      // policies: ['authorizePromotion'],
       policies: {
-        // EXPL: Restrict which users can assign policies
-        associatePolicies: [permissionAuth(mongoose, false)]
+        associatePolicies: [rankAuth(mongoose, "ownerId"), permissionAuth(mongoose, true)],
+        updatePolicies: [rankAuth(mongoose, "_id"), promoteAuth(mongoose)],
+        deletePolicies: [rankAuth(mongoose, "_id")]
       },
       routeScope: {
         getUserNotificationsScope: 'user-{params.ownerId}'
@@ -124,6 +126,8 @@ module.exports = function (mongoose) {
           model: "role",
           duplicate: [{
             field: 'name'
+          }, {
+            field: 'rank'
           }]
         },
         groups: {
@@ -233,7 +237,10 @@ module.exports = function (mongoose) {
 
       let user = {};
 
-      return self.findOne(query).lean()
+
+      var mongooseQuery = self.findOne(query);
+
+      return mongooseQuery.lean()
         .then(function (result) {
           user = result;
 

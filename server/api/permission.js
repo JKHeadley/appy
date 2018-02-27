@@ -53,7 +53,7 @@ module.exports = function (server, mongoose, logger) {
         handler: getAvailablePermissionsHandler,
         auth: {
           strategy: authStrategy,
-          scope: [USER_ROLES.ADMIN]
+          scope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
         },
         description: 'Get the permissions available for the current user to assign.',
         tags: ['api', 'Available Permissions'],
