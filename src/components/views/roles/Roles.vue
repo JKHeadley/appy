@@ -48,7 +48,7 @@ export default {
           if (request.orderBy) {
             params.$sort = request.ascending ? '-' + request.orderBy : request.orderBy
           } else {
-            params.$sort = '-priority'
+            params.$sort = '-rank'
           }
           if (request.query) {
             params.$term = request.query

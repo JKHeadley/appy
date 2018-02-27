@@ -203,7 +203,7 @@
           })
       },
       getRoles () {
-        return this.$roleRepository.list({ $embed: ['permissions'], $sort: '-priority' })
+        return this.$roleRepository.list({ $embed: ['permissions'], $sort: '-rank' })
           .then((response) => {
             this.roles = response.data.docs
           })
