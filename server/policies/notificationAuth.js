@@ -27,7 +27,7 @@ internals.notificationUpdateAuth = function(mongoose) {
             return next(null, true);
           }
           else {
-            return next(Boom.forbidden("Not primary user."), false);
+            return next(Boom.forbidden("Not primary user"), false);
           }
         })
     }

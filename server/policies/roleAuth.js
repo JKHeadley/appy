@@ -19,23 +19,15 @@ internals.rankAuth = function(mongoose, userIdParam) {
     let Log = request.logger.bind("rankAuth");
 
     try {
-      Log.debug("PATH:", request.path);
-      Log.debug("userIdParam:", userIdParam);
       // EXPL: Return next if this isn't a user association
       if (!request.path.includes("user")) {
-        Log.debug("NOT USER")
         return next(null, true)
       }
       if (userIdParam === "child") {
         if (request.params.childId) {
           return internals.canEdit(request.params.childId, request, mongoose, Log)
             .then(function(canEdit) {
-              if (canEdit) {
-                return next(null, true);
-              }
-              else {
-                return next(Boom.forbidden("Can only update users with a lower role."), false);
-              }
+              return internals.formatResponse(canEdit, next, Log);
             })
         }
         // EXPL: Multiple users are being updated.
@@ -46,29 +38,16 @@ internals.rankAuth = function(mongoose, userIdParam) {
 
           return Q.all(promises)
             .then(function(result) {
-
-              Log.debug("MULTIPLE CHECKS:", result);
               // EXPL: If any of the checks fail, then an error is returned
               let canEdit = result.filter(canEdit => canEdit === false)[0] === undefined
-              Log.debug("canEdit:", canEdit);
 
-              if (canEdit) {
-                return next(null, true);
-              }
-              else {
-                return next(Boom.forbidden("Can only update users with a lower role."), false);
-              }
+              return internals.formatResponse(canEdit, next, Log);
             })
         }
       } else {
         return internals.canEdit(request.params[userIdParam], request, mongoose, Log)
           .then(function(canEdit) {
-            if (canEdit) {
-              return next(null, true);
-            }
-            else {
-              return next(Boom.forbidden("Can only update users with a lower role."), false);
-            }
+            return internals.formatResponse(canEdit, next, Log);
           })
       }
     }
@@ -104,7 +83,7 @@ internals.promoteAuth = function(mongoose) {
             let currentRank = request.auth.credentials.user.roleRank;
 
             if (updatedRank < currentRank) {
-              return next(Boom.forbidden("Can't promote user to a higher role than yours."), false);
+              return next(Boom.forbidden("Can't promote user to a higher role than yours"), false);
             }
             else {
               return next(null, true);
@@ -134,11 +113,18 @@ internals.canEdit = function(userId, request, mongoose, Log) {
     .then(function(result) {
       const currentUserRank = request.auth.credentials.user.roleRank;
       const affectedUserRank = result.roleRank;
-      Log.debug("CURRENT RANK:", currentUserRank)
-      Log.debug("USER:", result);
 
       return currentUserRank < affectedUserRank
     })
+}
+
+internals.formatResponse = function(canEdit, next, Log) {
+  if (canEdit) {
+    return next(null, true);
+  }
+  else {
+    return next(Boom.forbidden("Can only update users with a lower role"), false);
+  }
 }
 
 module.exports = {
