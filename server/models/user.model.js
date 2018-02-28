@@ -113,12 +113,21 @@ module.exports = function (mongoose) {
     routeOptions: {
       authorizeDocumentCreator: false,
       policies: {
-        associatePolicies: [rankAuth(mongoose, "ownerId"), permissionAuth(mongoose, true)],
+        associatePolicies: [rankAuth(mongoose, "ownerId"), permissionAuth(mongoose, false)],
         updatePolicies: [rankAuth(mongoose, "_id"), promoteAuth(mongoose)],
         deletePolicies: [rankAuth(mongoose, "_id")]
       },
       routeScope: {
-        getUserNotificationsScope: 'user-{params.ownerId}'
+        // EXPL: Users can access their own Notifications
+        getUserNotificationsScope: 'user-{params.ownerId}',
+        // EXPL: Users can access their own Connections
+        getUserConnectionsScope: 'user-{params.ownerId}',
+        // EXPL: Users can access their own Documents
+        getUserDocumentsScope: 'user-{params.ownerId}',
+        // EXPL: Users can access their own Shared Documents
+        getUserSharedDocumentsScope: 'user-{params.ownerId}',
+        // EXPL: Users can access their own Images
+        getUserImagesScope: 'user-{params.ownerId}'
       },
       associations: {
         role: {

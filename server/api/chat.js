@@ -30,7 +30,7 @@ module.exports = function (server, mongoose, logger) {
         next(true);
       },
       auth: {
-        scope: _.values(USER_ROLES),
+        scope: ['root', 'receiveChatMessages', '!-receiveChatMessages'],
         entity: 'user',
         index: true
       },
@@ -67,7 +67,7 @@ module.exports = function (server, mongoose, logger) {
         handler: markAsReadHandler,
         auth: {
           strategy: authStrategy,
-          scope: _.values(USER_ROLES)
+          scope: ['root', 'markConversationAsRead', '!-markConversationAsRead'],
         },
         description: 'Mark the conversation as read for the current user.',
         tags: ['api', 'Chat', 'Mark as read'],
@@ -115,7 +115,7 @@ module.exports = function (server, mongoose, logger) {
         handler: markAsUnreadHandler,
         auth: {
           strategy: authStrategy,
-          scope: _.values(USER_ROLES)
+          scope: ['root', 'markConversationAsUnread', '!-markConversationAsUnread'],
         },
         description: 'Mark the conversation as unread for the current user.',
         tags: ['api', 'Chat', 'Mark as unread'],
@@ -169,7 +169,7 @@ module.exports = function (server, mongoose, logger) {
         handler: getConversationsHandler,
         auth: {
           strategy: authStrategy,
-          scope: _.values(USER_ROLES)
+          scope: ['root', 'readMyConversations', '!-readMyConversations'],
         },
         description: 'Get the current user\'s conversations.',
         tags: ['api', 'Chat', 'Get Conversations'],
@@ -296,7 +296,7 @@ module.exports = function (server, mongoose, logger) {
         handler: getConversationHandler,
         auth: {
           strategy: authStrategy,
-          scope: _.values(USER_ROLES)
+          scope: ['root', 'readMyConversations', '!-readMyConversations'],
         },
         description: 'Get the conversation between the current user and other specified users.',
         tags: ['api', 'Chat', 'Get Conversation'],
@@ -368,7 +368,7 @@ module.exports = function (server, mongoose, logger) {
         handler: postMessageHandler,
         auth: {
           strategy: authStrategy,
-          scope: _.values(USER_ROLES)
+          scope: ['root', 'postChatMessage', '!-postChatMessage'],
         },
         description: 'Post a message to a conversation.',
         tags: ['api', 'Chat', 'Post Message'],

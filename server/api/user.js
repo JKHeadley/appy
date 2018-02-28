@@ -20,61 +20,6 @@ const headersValidation = Joi.object({
 }).options({ allowUnknown: true });
 
 module.exports = function (server, mongoose, logger) {
-    // Check Username Endpoint
-    (function () {
-        const Log = logger.bind(Chalk.magenta("Check Username"));
-        const User = mongoose.model('user');
-
-        const collectionName = User.collectionDisplayName || User.modelName;
-
-        Log.note("Generating Check Username endpoint for " + collectionName);
-
-        const checkUsernameHandler = function (request, reply) {
-
-            User.findOne({ username: request.payload.username })
-                .then(function (result) {
-                    if (result) {
-                        Log.log("Username already exists.");
-                        return reply(true);
-                    }
-                    else {
-                        Log.log("Username doesn't exist.");
-                        return reply(false);
-                    }
-                })
-                .catch(function (error) {
-                  Log.error(error);
-                  return reply(RestHapi.errorHelper.formatResponse(error));
-                });
-        };
-
-        server.route({
-            method: 'POST',
-            path: '/user/check-username',
-            config: {
-                handler: checkUsernameHandler,
-                auth: null,
-                description: 'User check username.',
-                tags: ['api', 'User', 'Check Username'],
-                validate: {
-                    payload: {
-                        username: Joi.string().required()
-                    }
-                },
-                plugins: {
-                    'hapi-swagger': {
-                        responseMessages: [
-                            { code: 200, message: 'Success' },
-                            { code: 400, message: 'Bad Request' },
-                            { code: 404, message: 'Not Found' },
-                            { code: 500, message: 'Internal Server Error' }
-                        ]
-                    }
-                }
-            }
-        });
-    }());
-
     
     // Check Email Endpoint
     // NOTE: For more secure applications, this endpoint should either be disabled or authenticated. For more information
@@ -488,7 +433,7 @@ module.exports = function (server, mongoose, logger) {
   }());
 
 
-  // Enable Account Endpoint
+    // Enable Account Endpoint
     (function () {
         const Log = logger.bind(Chalk.magenta("Enable Account"));
         const User = mongoose.model('user');
@@ -523,7 +468,7 @@ module.exports = function (server, mongoose, logger) {
                 handler: enableAccountHandler,
                 auth: {
                     strategy: authStrategy,
-                    scope: [USER_ROLES.SUPER_ADMIN]
+                    scope: ['root', 'enableUser', '!-enableUser']
                 },
                 description: 'Enable user account.',
                 tags: ['api', 'User', 'Enable Account'],
@@ -584,7 +529,7 @@ module.exports = function (server, mongoose, logger) {
                 handler: disableAccountHandler,
                 auth: {
                     strategy: authStrategy,
-                    scope: [USER_ROLES.SUPER_ADMIN]
+                  scope: ['root', 'disableUser', '!-disableUser']
                 },
                 description: 'Disable user account.',
                 tags: ['api', 'User', 'Disable Account'],
@@ -645,7 +590,7 @@ module.exports = function (server, mongoose, logger) {
           handler: activateAccountHandler,
           auth: {
             strategy: authStrategy,
-            scope: [USER_ROLES.SUPER_ADMIN]
+            scope: ['root', 'activateUser', '!-activateUser']
           },
           description: 'Activate user account.',
           tags: ['api', 'User', 'Activate Account'],
@@ -706,7 +651,7 @@ module.exports = function (server, mongoose, logger) {
           handler: deactivateAccountHandler,
           auth: {
             strategy: authStrategy,
-            scope: [USER_ROLES.SUPER_ADMIN]
+            scope: ['root', 'deactivateUser', '!-deactivateUser']
           },
           description: 'Deactivate user account.',
           tags: ['api', 'User', 'Deactivate Account'],
@@ -761,7 +706,7 @@ module.exports = function (server, mongoose, logger) {
         handler: getUserScopeHandler,
         auth: {
           strategy: authStrategy,
-          scope: [USER_ROLES.SUPER_ADMIN]
+          scope: ['root', 'readUserScope', '!-readUserScope']
         },
         description: 'Get user effective permissions.',
         tags: ['api', 'User', 'Get User Scope'],
@@ -825,7 +770,7 @@ module.exports = function (server, mongoose, logger) {
           handler: getUserConnectionStatsHandler,
           auth: {
             strategy: authStrategy,
-            scope: _.values(USER_ROLES)
+            scope: ['!-readUserConnectionStats']
           },
           description: 'Get user connection stats.',
           tags: ['api', 'User', 'Get User Connection Stats'],

@@ -33,7 +33,7 @@ module.exports = function (mongoose) {
     collectionName:modelName,
     routeOptions: {
       policies: {
-        associatePolicies: [rankAuth(mongoose, "child"), permissionAuth(mongoose, true)]
+        associatePolicies: [rankAuth(mongoose, "child"), permissionAuth(mongoose, false)]
       },
       associations: {
         users: {

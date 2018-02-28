@@ -79,9 +79,17 @@ internals.canAssign = function(permissionId, userScope, mongoose, Log) {
 
       return canAssign
     })
+    .catch(function(error) {
+      Log.error("ERROR:", error)
+      return Boom.badRequest(error)
+    })
 }
 
 internals.formatResponse = function(canAssign, next, Log) {
+  if (canAssign.isBoom) {
+    return next(canAssign, false);
+  }
+
   if (canAssign) {
     return next(null, true);
   }

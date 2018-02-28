@@ -72,8 +72,8 @@ module.exports = function (server, mongoose, logger) {
   // NOTE: AWS credentials are automatically loaded from environment variables, otherwise they should be loaded via json
   // EX: AWS.config.loadFromPath(__dirname + '/../aws-upload.json');
 
-    // Upload Profile Image Endpoint
-    (function () {
+  // Upload Profile Image Endpoint
+  (function () {
         const Log = logger.bind(Chalk.magenta("Upload File"));
 
         Log.note("Generating Upload File endpoint");
@@ -117,7 +117,7 @@ module.exports = function (server, mongoose, logger) {
                 handler: uploadHandler,
                 auth: {
                     strategy: authStrategy,
-                    scope: _.values(USER_ROLES)
+                  scope: ['root', 'uploadProfileImage', '!-uploadProfileImage'],
                 },
                 description: 'Upload Profile Image to S3.',
                 tags: ['api', 'Upload', 'Profile Image'],
@@ -196,7 +196,7 @@ module.exports = function (server, mongoose, logger) {
         handler: uploadHandler,
         auth: {
           strategy: authStrategy,
-          scope: _.values(USER_ROLES)
+          scope: ['root', 'uploadImage', '!-uploadImage'],
         },
         description: 'Upload Image to S3.',
         tags: ['api', 'Upload', 'Image'],

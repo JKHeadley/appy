@@ -60,7 +60,6 @@ module.exports = [
   'createNotification',
   'deleteNotification',
   'readNotification',
-  'updateNotification',
   // EXPL: AuthAttempt permissions
   'associateAuthAttempt',
   'createAuthAttempt',
