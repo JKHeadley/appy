@@ -287,8 +287,12 @@
           }
         })
           .catch((error) => {
-            console.error('ChatBox.sendMessage-error:', error)
-            this.$snotify.error('Send message failed', 'Error!')
+            console.error('ChatBox.sendMessage-error:', error.message)
+            if (error.message === 'Insufficient permissions') {
+              this.$snotify.warning('Not authorized: ' + error.message, 'Warning')
+            } else {
+              this.$snotify.error('Send message failed', 'Error!')
+            }
           })
         let message = { text: this.newMessageText, createdAt: new Date(), user: this.currentUser, me: true }
         this.messages.push(message)

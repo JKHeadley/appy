@@ -29,6 +29,7 @@ internals.loginSocial = (token) => {
 }
 
 internals.logout = () => {
+  store.dispatch('auth/useRefreshToken')
   return http.delete('/logout')
     .then((response) => {
       store.dispatch('auth/clearAuth')
