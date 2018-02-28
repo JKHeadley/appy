@@ -116,9 +116,17 @@ internals.canEdit = function(userId, request, mongoose, Log) {
 
       return currentUserRank < affectedUserRank
     })
+    .catch(function(error) {
+      Log.error("ERROR:", error)
+      return Boom.badRequest(error)
+    })
 }
 
 internals.formatResponse = function(canEdit, next, Log) {
+  if (canEdit.isBoom) {
+    return next(canEdit, false);
+  }
+
   if (canEdit) {
     return next(null, true);
   }

@@ -18,7 +18,7 @@ module.exports = function (server, mongoose, logger) {
         next(true);
       },
       auth: {
-        scope: _.values(USER_ROLES),
+        scope: ['root', 'receiveNotifications', '!-receiveNotifications'],
         entity: 'user',
         index: true
       },

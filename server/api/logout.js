@@ -32,10 +32,10 @@ module.exports = function (server, mongoose, logger) {
           .then(function (sessionDoc) {
 
             if (!sessionDoc) {
-              return reply(Boom.notFound('Session not found.'));
+              return reply(Boom.notFound('Session not found'));
             }
 
-            return reply({ message: 'Success.' });
+            return reply({ message: 'Success' });
           })
           .catch(function (error) {
             Log.error(error);
@@ -43,7 +43,7 @@ module.exports = function (server, mongoose, logger) {
           });
       }
       else {
-        return reply({ message: 'Success.' });
+        return reply(Boom.badRequest("Requires refresh token for auth header"));
       }
     };
 

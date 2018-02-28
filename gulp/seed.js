@@ -112,6 +112,81 @@ gulp.task('seed', [], function () {
                   name: 'associate',
                   description: 'Access to all association endpoints',
                   assignScope: [USER_ROLES.SUPER_ADMIN]
+                },
+                {
+                  name: 'enableUser',
+                  description: 'Can enable a user\'s account',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'disableUser',
+                  description: 'Can disable a user\'s account',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'activateUser',
+                  description: 'Can activate a user\'s account',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'deactivateUser',
+                  description: 'Can deactivateUser a user\'s account',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'readUserScope',
+                  description: 'Can read a user\'s scope',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'readUserConnectionStats',
+                  description: 'Can read a user\'s connection stats',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'receiveChatMessages',
+                  description: 'Can receive chat messages in real time',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'markConversationAsRead',
+                  description: 'Can mark a conversation as read',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'markConversationAsUnread',
+                  description: 'Can mark a conversation as unread',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'readMyConversations',
+                  description: 'Can read the current user\'s chat conversations',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'postChatMessage',
+                  description: 'Can post a chat message to a conversation',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'uploadImage',
+                  description: 'Can upload an image to the cloud',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'uploadProfileImage',
+                  description: 'Can upload a profile image to the cloud',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'receiveNotifications',
+                  description: 'Can receive notifications in real time',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
+                  name: 'readAvailableNotifications',
+                  description: 'Can get the permissions available for the current user to assign',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
                 }
               ]
               return RestHapi.create(models.permission, permissions, Log)
@@ -248,6 +323,15 @@ gulp.task('seed', [], function () {
                     'createConnection',
                     'readConnection',
                     'updateConnection',
+                    'readUserConnectionStats',
+                    'receiveChatMessages',
+                    'markConversationAsRead',
+                    'markConversationAsUnread',
+                    'readMyConversations',
+                    'postChatMessage',
+                    'uploadImage',
+                    'uploadProfileImage',
+                    'receiveNotifications',
                     'updateNotification',
                     // NOTE: Document model authorized by creator
                     'document',
