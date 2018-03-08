@@ -134,6 +134,11 @@ gulp.task('seed', [], function () {
                   assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
                 },
                 {
+                  name: 'resetPasswordNoPin',
+                  description: 'Can allow a user to reset their password without a PIN',
+                  assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
+                },
+                {
                   name: 'readUserScope',
                   description: 'Can read a user\'s scope',
                   assignScope: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN]
