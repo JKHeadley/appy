@@ -573,7 +573,13 @@ module.exports = function (server, mongoose, logger) {
 
       let keyHash = {};
       let user = {};
-      const pinRequired = request.auth.credentials ? !request.auth.credentials.scope.includes(USER_ROLES.SUPER_ADMIN) : true;
+      let pinRequired = true;
+      if (request.auth.credentials) {
+        pinRequired = !request.auth.credentials.scope.filter(function(scope) {
+          return scope === 'root' || scope === 'resetPasswordNoPin'
+        })[0]
+      }
+
 
       Session.generateKeyHash(Log)
         .then(function (result) {
