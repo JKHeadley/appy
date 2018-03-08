@@ -193,7 +193,9 @@
       </div>
 
       <div v-show="newUser._id" class="py-2 text-center row" style="margin-top: 10px">
-        <button class="btn btn-primary" type="submit" @click="updateUserPermissions" :disabled="!dirty">Update User Permissions</button>
+        <button class="btn btn-primary" type="submit" @click="updateUserPermissions" :disabled="!dirty"
+                v-permission.enable="['user', 'addUserPermissions', 'removeUserPermissions',
+                'addUserAssociations', 'removeUserAssociations']">Update User Permissions</button>
       </div>
     </div>
 

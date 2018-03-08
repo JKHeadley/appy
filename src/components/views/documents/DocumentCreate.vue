@@ -21,7 +21,8 @@
         <!-- /.box-body -->
         <div class="box-footer">
           <div class="pull-right">
-            <button class="btn btn-primary" @click="requestDataToSave"><i class="fa fa-file-text"></i> Create</button>
+            <button class="btn btn-primary" @click="requestDataToSave"
+                    v-permission.enable="['document', 'createDocument']"><i class="fa fa-file-text"></i> Create</button>
           </div>
           <button class="btn btn-default" @click="clearDocument"><i class="fa fa-times"></i> Clear</button>
         </div>

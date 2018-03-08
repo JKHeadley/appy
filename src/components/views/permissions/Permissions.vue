@@ -3,7 +3,7 @@
     <div class="box box-primary box-solid">
       <div class="box-body">
 
-        <div :class="addButtonClass">
+        <div :class="addButtonClass" v-permission.if="['permission', 'createPermission']">
           <router-link :to="{ name: 'PermissionCreate' }">
             <button class="btn btn-primary">Add Permission</button>
           </router-link>

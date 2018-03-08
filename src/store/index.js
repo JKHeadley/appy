@@ -4,6 +4,7 @@ import createPersistedState from 'vuex-persistedstate'
 import generateMutations from './utilities/generate-mutations'
 
 import auth from './modules/auth'
+import websocket from './modules/websocket'
 
 import state from './state'
 import actions from './actions'
@@ -16,7 +17,8 @@ export default new Vuex.Store({
   actions,
   mutations: Object.assign(mutations, generateMutations(state)),
   modules: {
-    auth
+    auth,
+    websocket
   },
   plugins: [createPersistedState()]
 })

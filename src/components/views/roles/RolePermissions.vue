@@ -193,7 +193,9 @@
       </div>
 
       <div v-show="newRole._id" class="py-2 text-center row" style="margin-top: 10px">
-        <button class="btn btn-primary" type="submit" @click="updateRolePermissions" :disabled="!dirty">Update Role Permissions</button>
+        <button class="btn btn-primary" type="submit" @click="updateRolePermissions" :disabled="!dirty"
+                v-permission.enable="['role', 'addRolePermissions', 'removeRolePermissions',
+                'addRoleAssociations', 'removeRoleAssociations']">Update Role Permissions</button>
       </div>
     </div>
 

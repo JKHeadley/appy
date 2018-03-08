@@ -30,7 +30,8 @@
                       <li @click="allowView(props.row)"><a href="#"><i v-if="!props.row.user_document.canEdit" class="fa fa-check" aria-hidden="true"></i> Can view</a></li>
                     </ul>
 
-                    <button @click="stopSharing(props.row)" type="button" class="btn btn-default">
+                    <button @click="stopSharing(props.row)" type="button" class="btn btn-default"
+                            v-permission.enable="['document', 'associateDocument', 'removeDocumentUsers']">
                       <a class="fa fa-times"></a>
                     </button>
                   </div>
@@ -82,7 +83,8 @@
 
       <div class="box-footer">
         <button type="button" class="btn btn-default pull-left" @click="closeModal">Close</button>
-        <button type="button" class="btn btn-primary pull-right" @click="inviteUsers" :disabled="!usersToInvite[0]">Invite Users</button>
+        <button type="button" class="btn btn-primary pull-right" @click="inviteUsers" :disabled="!usersToInvite[0]"
+                v-permission.enable="['document', 'associateDocument', 'addDocumentUsers']">Invite Users</button>
       </div>
 
       <div v-if="loading" class="overlay">

@@ -31,7 +31,8 @@
           <div class="row">
             <div class="content-centered">
               <router-link :to="{ name: 'ImageCreate' }">
-                <button class="btn btn-primary btn-lg"><i class="fa fa-file-picture-o"></i> Add Image</button>
+                <button class="btn btn-primary btn-lg"><i class="fa fa-file-picture-o"
+                  v-permission.enable="['image', 'createImage']"></i> Add Image</button>
               </router-link>
               <button class="btn btn-danger btn-lg" @click="openEditModal" style="margin-left: 15px;"><i class="fa fa-trash"></i> Edit Images</button>
             </div>
@@ -84,7 +85,8 @@
               <img class='no-select' draggable="false" :src="image.imageUrl" :width="image.w * 70 * 2" :height="image.h * 70 * 2 / 3">
             </div>
 
-            <svg @click="removeImage(image)" class="icon icon-edit-remove" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <svg @click="removeImage(image)" class="icon icon-edit-remove" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                 v-permission.enable="['image', 'deleteImage']">
               <path d="M511.921231 0C229.179077 0 0 229.257846 0 512 0 794.702769 229.179077 1024 511.921231 1024
               794.781538 1024 1024 794.702769 1024 512 1024 229.257846 794.781538 0 511.921231 0ZM732.041846 650.633846 650.515692
               732.081231C650.515692 732.081231 521.491692 593.683692 511.881846 593.683692 502.429538 593.683692 373.366154 732.081231

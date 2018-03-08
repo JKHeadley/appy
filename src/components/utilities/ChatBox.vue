@@ -95,7 +95,7 @@
         <div class="input-group">
           <input v-model="newMessageText" @keyup.enter="sendMessage" type="text" name="message" placeholder="Type Message ..." class="form-control" id="chat-input">
           <span class="input-group-btn">
-            <button :disabled="!currentConversation" @click="sendMessage" type="button" class="btn btn-success btn-flat">Send</button>
+            <button :disabled="!currentConversation" @click="sendMessage" type="button" class="btn btn-success btn-flat" v-permission.enable="['postChatMessages']">Send</button>
           </span>
         </div>
       </div>

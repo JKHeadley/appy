@@ -28,10 +28,14 @@
               </li>
             </ul>
 
-            <a v-if="!connection.isContact" href="#" :disabled="isSelf" class="btn btn-primary outline btn-block" @click="addContact"><b>Connect</b></a>
-            <a v-if="connection.isContact" href="#" class="btn btn-primary outline btn-block" @click="removeContact"><b>Remove Contact</b></a>
-            <a v-if="!connection.isFollowing" href="#" :disabled="isSelf" class="btn btn-primary btn-block" @click="followUser"><b>Follow</b></a>
-            <a v-if="connection.isFollowing" href="#" class="btn btn-primary btn-block" @click="unfollowUser"><b>Unfollow</b></a>
+            <a v-if="!connection.isContact" href="#" :disabled="isSelf" class="btn btn-primary outline btn-block" @click="addContact"
+               v-permission.enable="['connection', 'createConnection', 'updateConnection']"><b>Connect</b></a>
+            <a v-if="connection.isContact" href="#" class="btn btn-primary outline btn-block" @click="removeContact"
+               v-permission.enable="['connection', 'createConnection', 'updateConnection']"><b>Remove Contact</b></a>
+            <a v-if="!connection.isFollowing" href="#" :disabled="isSelf" class="btn btn-primary btn-block" @click="followUser"
+               v-permission.enable="['connection', 'createConnection', 'updateConnection']"><b>Follow</b></a>
+            <a v-if="connection.isFollowing" href="#" class="btn btn-primary btn-block" @click="unfollowUser"
+               v-permission.enable="['connection', 'createConnection', 'updateConnection']"><b>Unfollow</b></a>
             <a href="#" class="btn btn-success btn-block" :disabled="isSelf" @click="openChatBox"><b>Message</b></a>
           </div>
           <!-- /.box-body -->

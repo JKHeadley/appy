@@ -3,7 +3,7 @@
     <div class="box box-primary box-solid">
       <div class="box-body">
 
-        <div :class="addButtonClass">
+        <div :class="addButtonClass" v-permission.if="['group', 'createGroup']">
           <router-link :to="{ name: 'GroupCreate' }">
             <button class="btn btn-primary">Add Group</button>
           </router-link>

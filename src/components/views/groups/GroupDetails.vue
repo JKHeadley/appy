@@ -61,11 +61,13 @@
           </vue-form>
 
           <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-primary" type="submit" @click="updateGroup" :disabled="formstate.$pristine || formstate.$invalid">Update Group</button>
+            <button class="btn btn-primary" type="submit" @click="updateGroup" :disabled="formstate.$pristine || formstate.$invalid"
+                    v-permission.enable="['group', 'updateGroup']">Update Group</button>
           </div>
 
           <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-danger" @click="deleteGroupModal">Delete Group</button>
+            <button class="btn btn-danger" @click="deleteGroupModal"
+                    v-permission.enable="['group', 'deleteGroup']">Delete Group</button>
             <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
           </div>
 

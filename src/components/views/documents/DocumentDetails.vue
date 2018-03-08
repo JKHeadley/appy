@@ -24,8 +24,10 @@
           <!-- /.box-body -->
           <div class="box-footer" v-if="canEdit">
             <div class="pull-right">
-              <button class="btn btn-danger" @click="deleteDocumentModal"><i class="fa fa-trash"></i> Delete</button>
-              <button class="btn btn-primary" @click="requestDataToSave"><i class="fa fa-file-text"></i> Save Changes</button>
+              <button class="btn btn-danger" @click="deleteDocumentModal"
+                      v-permission.enable="['document', 'deleteDocument']"><i class="fa fa-trash"></i> Delete</button>
+              <button class="btn btn-primary" @click="requestDataToSave"
+                      v-permission.enable="['document', 'updateDocument']"><i class="fa fa-file-text"></i> Save Changes</button>
             </div>
             <button class="btn btn-default" @click="clearDocument"><i class="fa fa-times"></i> Clear</button>
             <button class="btn btn-default" @click="resetDocument"><i class="fa fa-refresh"></i> Reset</button>

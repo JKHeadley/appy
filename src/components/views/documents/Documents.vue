@@ -7,7 +7,7 @@
         </div>
 
         <div slot="body">
-          <div :class="addButtonClass">
+          <div :class="addButtonClass" v-permission.enable="['document', 'createDocument']">
             <router-link :to="{ name: 'DocumentCreate' }">
               <button class="btn btn-primary">Add Document</button>
             </router-link>

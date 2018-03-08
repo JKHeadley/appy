@@ -59,11 +59,13 @@
           </vue-form>
 
           <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-primary" type="submit" @click="updateRole" :disabled="formstate.$pristine || formstate.$invalid">Update Role</button>
+            <button class="btn btn-primary" type="submit" @click="updateRole" :disabled="formstate.$pristine || formstate.$invalid"
+                    v-permission.enable="['role', 'updateRole']">Update Role</button>
           </div>
 
           <div class="py-2 text-center row" style="margin-top: 10px">
-            <button class="btn btn-danger" @click="deleteRoleModal">Delete Role</button>
+            <button class="btn btn-danger" @click="deleteRoleModal"
+                    v-permission.enable="['role', 'deleteRole']">Delete Role</button>
             <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
           </div>
 

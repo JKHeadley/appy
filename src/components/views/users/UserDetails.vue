@@ -33,7 +33,7 @@
             <li class="active"><a data-toggle="tab" href="#details">Details</a></li>
             <li><a data-toggle="tab" href="#groups">Groups</a></li>
             <li><a data-toggle="tab" href="#permissions">Permissions</a></li>
-            <li><a data-toggle="tab" href="#password">Password</a></li>
+            <li><a data-toggle="tab" href="#password" v-permission.enable="['resetPasswordNoPin']">Password</a></li>
           </ul>
 
           <div class="tab-content content">
@@ -112,16 +112,21 @@
                 </vue-form>
 
                 <div class="py-2 text-center row" style="margin-top: 10px">
-                  <button class="btn btn-primary" v-if="newUser.isActive" @click="deactivateUser">Deactivate User</button>
-                  <button class="btn btn-primary" v-else @click="activateUser">Activate User</button>
-                  <button class="btn btn-primary" v-if="newUser.isEnabled" @click="disableUser">Disable User</button>
-                  <button class="btn btn-primary" v-else @click="enableUser">Enable User</button>
-                  <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="formstate.$pristine || formstate.$invalid">Update User</button>
-                  <button class="btn btn-primary" v-permission.enable="['user', 'updateUsers']">TEST</button>
+                  <button class="btn btn-primary" v-if="newUser.isActive" @click="deactivateUser"
+                          v-permission.enable="['deactivateUser']">Deactivate User</button>
+                  <button class="btn btn-primary" v-else @click="activateUser"
+                          v-permission.enable="['activateUser']">Activate User</button>
+                  <button class="btn btn-primary" v-if="newUser.isEnabled" @click="disableUser"
+                          v-permission.enable="['disableUser']">Disable User</button>
+                  <button class="btn btn-primary" v-else @click="enableUser"
+                          v-permission.enable="['enableUser']">Enable User</button>
+                  <button class="btn btn-primary" type="submit" @click="updateUser" :disabled="formstate.$pristine || formstate.$invalid"
+                          v-permission.enable="['user', 'updateUser']">Update User</button>
                 </div>
 
                 <div class="py-2 text-center row" style="margin-top: 10px">
-                  <button class="btn btn-danger" @click="deleteUserModal">Delete User</button>
+                  <button class="btn btn-danger" @click="deleteUserModal"
+                          v-permission.enable="['user', 'deleteUser']">Delete User</button>
                   <button class="btn btn-primary" type="submit" @click="clearChanges" :disabled="formstate.$pristine">Clear Changes</button>
                 </div>
 

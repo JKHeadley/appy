@@ -2,7 +2,7 @@
   <section class="content">
     <div class="box box-primary box-solid">
       <div class="box-body">
-        <div :class="addButtonClass">
+        <div :class="addButtonClass" v-permission.if="['role', 'createRole']">
           <router-link :to="{ name: 'RoleCreate' }">
             <button class="btn btn-primary">Add Role</button>
           </router-link>
