@@ -343,7 +343,7 @@
     created () {
       // EXPL: Filter out unneeded user properties for the profile
       this.newProfile = (({ email, firstName, lastName, title, education, location, bio }) => {
-        return { email, firstName, lastName, title, education, location, bio  }
+        return { email, firstName, lastName, title, education, location, bio }
       })(this.$store.state.auth.user)
 
       this.oldProfile = _.cloneDeep(this.newProfile)

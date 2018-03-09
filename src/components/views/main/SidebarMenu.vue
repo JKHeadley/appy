@@ -51,7 +51,7 @@
     </div>
 
     <li class="header">PEOPLE</li>
-    <router-link tag="li" class="pageLink" to="/connections" v-permission.enable="['getUserConnections']">
+    <router-link tag="li" class="pageLink" to="/connections">
       <a>
         <i class="fa fa-handshake-o"></i>
         <span class="page">Connections</span>
@@ -65,13 +65,13 @@
     </router-link>
 
     <li class="header">FILES</li>
-    <router-link tag="li" class="pageLink" to="/documents" v-permission.enable="['document', 'readDocument']">
+    <router-link tag="li" class="pageLink" to="/documents">
       <a>
         <i class="fa fa-file-word-o"></i>
         <span class="page">Documents</span>
       </a>
     </router-link>
-    <router-link tag="li" class="pageLink" to="/images" v-permission.enable="['image', 'readImage']">
+    <router-link tag="li" class="pageLink" to="/images">
       <a>
         <i class="fa fa-file-picture-o"></i>
         <span class="page">Images</span>

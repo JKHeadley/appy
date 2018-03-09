@@ -250,10 +250,10 @@
       userDescription () {
         const user = (this.selectedAvailableUsers[0] || {}).user || (this.selectedPermissionUsers[0] || {}).user
         if (user) {
-          return user.email
+          return user.email + ', ' + user.roleName
         }
 
-        return 'Select a user to see their email.'
+        return 'Select a user to see their email and role.'
       },
       includedUsers () {
         return this.newPermission.users.filter((user) => { return user.state === PERMISSION_STATES.INCLUDED })

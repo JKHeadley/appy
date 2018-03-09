@@ -107,10 +107,10 @@
       userDescription () {
         const user = (this.selectedAvailableUsers[0] || {}).user || (this.selectedGroupUsers[0] || {}).user
         if (user) {
-          return user.email
+          return user.email + ', ' + user.roleName
         }
 
-        return 'Select a user to see their email.'
+        return 'Select a user to see their email and role.'
       }
     },
     methods: {

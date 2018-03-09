@@ -7,10 +7,12 @@
         </div>
 
         <div slot="body">
-          <div :class="addButtonClass" v-permission.enable="['document', 'createDocument']">
-            <router-link :to="{ name: 'DocumentCreate' }">
-              <button class="btn btn-primary">Add Document</button>
-            </router-link>
+          <div :class="addButtonClass">
+            <div v-permission.enable="['document', 'createDocument']">
+              <router-link :to="{ name: 'DocumentCreate' }">
+                <button class="btn btn-primary" v-permission.enable="['document', 'createDocument']">Add Document</button>
+              </router-link>
+            </div>
           </div>
 
           <v-server-table ref="documentTable" url="" :columns="documentColumns" :options="documentOptions" v-on:row-click="ownerRowClick" @loaded="onLoaded">
