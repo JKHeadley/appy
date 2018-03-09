@@ -43,7 +43,6 @@ module.exports = [
   // EXPL: Conversation permissions
   'addConversationMessages',
   'addConversationUserData',
-  'createConversation',
   'deleteConversation',
   'getConversationMessages',
   'getConversationUserData',

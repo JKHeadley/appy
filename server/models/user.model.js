@@ -6,6 +6,7 @@ const RestHapi = require('rest-hapi');
 const Q = require('q');
 
 const permissionAuth = require('../policies/permissionAuth');
+const groupAuth = require('../policies/groupAuth');
 const rankAuth = require('../policies/roleAuth').rankAuth;
 const promoteAuth = require('../policies/roleAuth').promoteAuth;
 
@@ -113,7 +114,7 @@ module.exports = function (mongoose) {
     routeOptions: {
       authorizeDocumentCreator: false,
       policies: {
-        associatePolicies: [rankAuth(mongoose, "ownerId"), permissionAuth(mongoose, false)],
+        associatePolicies: [rankAuth(mongoose, "ownerId"), permissionAuth(mongoose, false), groupAuth(mongoose, false)],
         updatePolicies: [rankAuth(mongoose, "_id"), promoteAuth(mongoose)],
         deletePolicies: [rankAuth(mongoose, "_id")]
       },

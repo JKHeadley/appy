@@ -1,6 +1,7 @@
 'use strict';
 
 const permissionAuth = require('../policies/permissionAuth');
+const groupAuth = require('../policies/groupAuth');
 const rankAuth = require('../policies/roleAuth').rankAuth;
 
 module.exports = function (mongoose) {
@@ -21,7 +22,7 @@ module.exports = function (mongoose) {
     collectionName:modelName,
     routeOptions: {
       policies: {
-        associatePolicies: [rankAuth(mongoose, "child"), permissionAuth(mongoose, false)]
+        associatePolicies: [rankAuth(mongoose, "child"), permissionAuth(mongoose, false), groupAuth(mongoose, true)]
       },
       associations: {
         users: {
