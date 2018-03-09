@@ -47,8 +47,9 @@ gulp.task('seed', [], function () {
           let users = []
           let groups = []
           let permissions = []
-          let userPermissions = []
           let adminPermissions = []
+
+          let permissionNames = []
 
           let request = {}
           let promises = []
@@ -201,16 +202,16 @@ gulp.task('seed', [], function () {
               Log.log('seeding groups')
               groups = [
                 {
-                  name: 'Editors',
-                  description: 'Admins that can only update users.'
+                  name: 'Read Only',
+                  description: 'Group that excludes all permissions except for Admin level read permissions.'
                 },
                 {
-                  name: 'Managers',
-                  description: 'Admins that can only change users\' permissions.'
+                  name: 'Editor',
+                  description: 'Group that forbids all creating.'
                 },
                 {
-                  name: 'Creator',
-                  description: 'Admin that can create and modify but not delete a user.'
+                  name: 'Super User',
+                  description: 'Group with full permissions except root. Role restrictions remain.'
                 }
               ]
               return RestHapi.create(models.group, groups, Log)
@@ -233,7 +234,7 @@ gulp.task('seed', [], function () {
                 {
                   firstName: faker.name.firstName(),
                   lastName: faker.name.lastName(),
-                  email: 'test@uselessuser.com',
+                  email: 'test@readonlyuser.com',
                   title: faker.name.jobTitle(),
                   profileImageUrl: 'https://www.gravatar.com/avatar/' + Mongoose.Types.ObjectId().toString() + '?r=PG&d=robohash',
                   password: password,
@@ -255,7 +256,7 @@ gulp.task('seed', [], function () {
                 {
                   firstName: faker.name.firstName(),
                   lastName: faker.name.lastName(),
-                  email: 'test@editor.com',
+                  email: 'test@readonlyadmin.com',
                   title: faker.name.jobTitle(),
                   profileImageUrl: 'https://www.gravatar.com/avatar/' + Mongoose.Types.ObjectId().toString() + '?r=PG&d=robohash',
                   password: password,
@@ -266,7 +267,7 @@ gulp.task('seed', [], function () {
                 {
                   firstName: faker.name.firstName(),
                   lastName: faker.name.lastName(),
-                  email: 'test@manager.com',
+                  email: 'test@editoradmin.com',
                   title: faker.name.jobTitle(),
                   profileImageUrl: 'https://www.gravatar.com/avatar/' + Mongoose.Types.ObjectId().toString() + '?r=PG&d=robohash',
                   password: password,
@@ -277,7 +278,7 @@ gulp.task('seed', [], function () {
                 {
                   firstName: faker.name.firstName(),
                   lastName: faker.name.lastName(),
-                  email: 'test@creator.com',
+                  email: 'test@superuseradmin.com',
                   title: faker.name.jobTitle(),
                   profileImageUrl: 'https://www.gravatar.com/avatar/' + Mongoose.Types.ObjectId().toString() + '?r=PG&d=robohash',
                   password: password,
@@ -320,10 +321,11 @@ gulp.task('seed', [], function () {
               return RestHapi.list(models.permission, {}, Log)
                 .then(function (result) {
                   permissions = result.docs
+                  permissionNames = permissions.map(function(p) { return p.name })
 
                   promises = []
 
-                  userPermissions = [
+                  let userBasePermissionNames = [
                     'readUser',
                     'createConnection',
                     'readConnection',
@@ -338,24 +340,14 @@ gulp.task('seed', [], function () {
                     'uploadProfileImage',
                     'receiveNotifications',
                     'updateNotification',
-                    // NOTE: Document model authorized by creator
-                    'document',
-                    // NOTE: Image model authorized by creator
-                    'image'
                   ];
 
-                  userPermissions = userPermissions.map(function(permissionName) {
-                    return {
-                      state: PERMISSION_STATES.INCLUDED,
-                      childId: permissions.find(function (p) {
-                        return p.name === permissionName
-                      })._id
-                    }
-                  })
 
-                  // EXPL: Admins have access to any permission they can assign.
-                  adminPermissions = permissions.filter(function(p) {
+                  let userDocumentPermissions = permissions.filter(function(p) {
+                    //EXPL: We start with permissions Admins can assign so that they can edit the user permissions
                     return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
+                  }).filter(function(p) {
+                    return p.name.includes('Document')
                   }).map(function(p) {
                     return {
                       state: PERMISSION_STATES.INCLUDED,
@@ -363,12 +355,44 @@ gulp.task('seed', [], function () {
                     }
                   })
 
+                  let userImagePermissions = permissions.filter(function(p) {
+                    //EXPL: We start with permissions Admins can assign so that they can edit the user permissions
+                    return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
+                  }).filter(function(p) {
+                    return p.name.includes('Image')
+                  }).map(function(p) {
+                    return {
+                      state: PERMISSION_STATES.INCLUDED,
+                      childId: p._id
+                    }
+                  })
+
+                  let userPermissions = userBasePermissionNames.map(function(permissionName) {
+                    return {
+                      state: PERMISSION_STATES.INCLUDED,
+                      childId: permissions.find(function (p) {
+                        return p.name === permissionName
+                      })._id
+                    }
+                  }).concat(userDocumentPermissions).concat(userImagePermissions)
+
+
                   // EXPL: initial User role permissions
                   promises.push(RestHapi.addMany(models.role, roles[0]._id, models.permission, 'permissions', userPermissions, Log))
 
                   return Q.all(promises)
                     .then(function (result) {
                       promises = []
+
+                      // EXPL: Admins have access to any permission they can assign.
+                      adminPermissions = permissions.filter(function(p) {
+                        return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
+                      }).map(function(p) {
+                        return {
+                          state: PERMISSION_STATES.INCLUDED,
+                          childId: p._id
+                        }
+                      })
 
                       // EXPL: initial Admin role permissions
                       promises.push(RestHapi.addMany(models.role, roles[1]._id, models.permission, 'permissions', adminPermissions, Log))
@@ -393,98 +417,67 @@ gulp.task('seed', [], function () {
                     .then(function (result) {
                       promises = []
 
-                      promises.push(RestHapi.addMany(models.group, groups[0]._id, models.permission, 'permissions', [
-                        {
+                      //EXPL: Read Only group permissions
+                      let readOnlyExcludedPermissions = permissions.filter(function(p) {
+                        //EXPL: We start with permissions Admins can assign so that they will also be able to assign the group
+                        return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
+                      }).filter(function(p) {
+                        return !(p.name.includes('read') || p.name.includes ('get'))
+                      }).map(function(p) {
+                        return {
                           state: PERMISSION_STATES.EXCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'addUserPermissions'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.EXCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'removeUserPermissions'
-                          })._id
+                          childId: p._id
                         }
-                      ], Log))
+                      })
+
+                      promises.push(RestHapi.addMany(models.group, groups[0]._id, models.permission, 'permissions', readOnlyExcludedPermissions, Log))
 
                       return Q.all(promises)
                     })
                     .then(function (result) {
                       promises = []
 
-                      promises.push(RestHapi.addMany(models.group, groups[1]._id, models.permission, 'permissions', [
-                        {
-                          state: PERMISSION_STATES.EXCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'updateUser'
-                          })._id
-                        },
-                      ], Log))
+                      //EXPL: Editor group permissions
+                      let createForbiddenPermission = permissions.filter(function(p) {
+                        //EXPL: We start with permissions Admins can assign so that they will also be able to assign the group
+                        return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
+                      }).filter(function(p) {
+                        return p.name.includes('create')
+                      }).map(function(p) {
+                        return {
+                          state: PERMISSION_STATES.FORBIDDEN,
+                          childId: p._id
+                        }
+                      })
+
+                      promises.push(RestHapi.addMany(models.group, groups[1]._id, models.permission, 'permissions', createForbiddenPermission, Log))
 
                       return Q.all(promises)
                     })
                     .then(function (result) {
                       promises = []
 
-                      promises.push(RestHapi.addMany(models.group, groups[2]._id, models.permission, 'permissions', [
-                        {
+                      //EXPL: Super User group permissions
+                      let includedPermissions = permissionNames.filter(function(permissionName) {
+                        return permissionName !== 'root'
+                      }).map(function(permissionName) {
+                        return {
                           state: PERMISSION_STATES.INCLUDED,
                           childId: permissions.find(function (p) {
-                            return p.name === 'user'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.FORBIDDEN,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'deleteUser'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.EXCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'addUserPermissions'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.EXCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'removeUserPermissions'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.EXCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'updateUser'
-                          })._id
-                        },
-                        {
-                          state: PERMISSION_STATES.EXCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'readUser'
+                            return p.name === permissionName
                           })._id
                         }
-                      ], Log))
+                      })
+
+                      promises.push(RestHapi.addMany(models.group, groups[2]._id, models.permission, 'permissions', includedPermissions, Log))
 
                       return Q.all(promises)
                     })
                     .then(function (result) {
                       promises = []
 
-                      promises.push(RestHapi.addMany(models.user, users[1]._id, models.permission, 'permissions', [
-                        {
-                          state: PERMISSION_STATES.EXCLUDED,
-                          childId: permissions.find(function (p) {
-                            return p.name === 'readUser'
-                          })._id
-                        },
-                      ], Log))
-
-                      return Q.all(promises)
-                    })
-                    .then(function (result) {
-                      promises = []
-
+                      //EXPL: Assign groups to users
+                      promises.push(RestHapi.addMany(models.user, users[1]._id, models.group, 'groups', [groups[0]._id], Log))
                       promises.push(RestHapi.addMany(models.user, users[3]._id, models.group, 'groups', [groups[0]._id], Log))
                       promises.push(RestHapi.addMany(models.user, users[4]._id, models.group, 'groups', [groups[1]._id], Log))
                       promises.push(RestHapi.addMany(models.user, users[5]._id, models.group, 'groups', [groups[2]._id], Log))

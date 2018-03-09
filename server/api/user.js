@@ -15,6 +15,8 @@ const USER_ROLES = Config.get('/constants/USER_ROLES');
 const REQUIRED_PASSWORD_STRENGTH = Config.get('/constants/REQUIRED_PASSWORD_STRENGTH');
 const authStrategy = Config.get('/restHapiConfig/authStrategy');
 
+const rankAuth = require('../policies/roleAuth').rankAuth;
+
 const headersValidation = Joi.object({
     'authorization': Joi.string().required()
 }).options({ allowUnknown: true });
@@ -487,7 +489,7 @@ module.exports = function (server, mongoose, logger) {
                             { code: 500, message: 'Internal Server Error' }
                         ]
                     },
-                  'policies': [auditLog(mongoose, {}, Log)]
+                  'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id")]
                 }
             }
         });
@@ -548,7 +550,7 @@ module.exports = function (server, mongoose, logger) {
                             { code: 500, message: 'Internal Server Error' }
                         ]
                     },
-                  'policies': [auditLog(mongoose, {}, Log)]
+                  'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id")]
                 }
             }
         });
@@ -609,7 +611,7 @@ module.exports = function (server, mongoose, logger) {
                 { code: 500, message: 'Internal Server Error' }
               ]
             },
-            'policies': [auditLog(mongoose, {}, Log)]
+            'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id")]
           }
         }
       });
@@ -670,7 +672,7 @@ module.exports = function (server, mongoose, logger) {
                 { code: 500, message: 'Internal Server Error' }
               ]
             },
-            'policies': [auditLog(mongoose, {}, Log)]
+            'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id")]
           }
         }
       });
