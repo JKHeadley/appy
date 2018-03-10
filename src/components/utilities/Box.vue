@@ -3,6 +3,7 @@
 
     <div v-if="!disableHeader" class="box-header" :class="headerBorder ? 'with-border' : ''">
       <div class="box-tools">
+        <slot name="box-tools"></slot>
         <button v-if="canCollapse && !collapsed" class="btn btn-box-tool" v-tooltip="'Collapse'" @click="collapse"><i class="fa fa-minus"></i></button>
         <button v-if="canCollapse && collapsed" class="btn btn-box-tool" v-tooltip="'Expand'" @click="expand"><i class="fa fa-plus"></i></button>
         <button v-if="canClose" class="btn btn-box-tool" v-tooltip="'Close'" @click="close"><i class="fa fa-times"></i></button>

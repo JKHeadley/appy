@@ -8,7 +8,7 @@
                   :height="350"
                   placeholder="Click here to choose an image."
                   :placeholder-font-size="14"
-                  accept=".png,.jpg,.gif"
+                  accept=".png,.jpg,.jpeg,.gif"
                   @init="onReady"
                   @image-remove="onImageRemove"
                   @file-type-mismatch="onFileTypeMismatch"

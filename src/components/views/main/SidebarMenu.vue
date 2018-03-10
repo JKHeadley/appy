@@ -36,6 +36,12 @@
 
     <div class="sidebar-menu">
       <li class="header">USER</li>
+      <router-link tag="li" class="pageLink" to="/">
+        <a>
+          <i class="fa fa-dashboard"></i>
+          <span class="page">Dashboard</span>
+        </a>
+      </router-link>
       <li class="pageLink" @click="openNewMessageBox" v-permission.enable="['readMyConversations']">
         <a>
           <i class="fa fa-comments"></i>

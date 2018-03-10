@@ -1,87 +1,59 @@
 <template>
   <section class="content">
-    Dashboard
 
-    <div class="callout callout-info">
-      <h4>Tip!</h4>
+    <!--<div class="callout callout-info">-->
+      <!--<h4>Tip!</h4>-->
 
-      <p>Add the layout-top-nav class to the body tag to get this layout. This feature can also be used with a
-        sidebar! So use this class if you want to remove the custom dropdown menus from the navbar and use regular
-        links instead.</p>
-    </div>
+      <!--<p>Add the layout-top-nav class to the body tag to get this layout. This feature can also be used with a-->
+        <!--sidebar! So use this class if you want to remove the custom dropdown menus from the navbar and use regular-->
+        <!--links instead.</p>-->
+    <!--</div>-->
 
 
     <div>
       <!-- USERS LIST -->
-      <div class="box box-danger">
-        <div class="box-header with-border">
+      <box :classes="['box-danger']" :canCollapse="true" :canClose="true"
+           :disableFooter="false" :headerBorder="true" :noPadding="true">
+        <div slot="header">
           <h3 class="box-title">Latest Members</h3>
-
-          <div class="box-tools pull-right">
-            <span class="label label-danger">8 New Members</span>
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-            </button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
-            </button>
-          </div>
         </div>
-        <!-- /.box-header -->
-        <div class="box-body no-padding">
+        <!-- /box-header -->
+
+        <span slot="box-tools">
+          <!--<span class="label label-danger">8 New Members</span>-->
+        </span>
+        <!-- /box-tools -->
+
+        <div slot="body">
           <ul class="users-list clearfix">
-            <li>
-              <img :src="avatar()" alt="User Image">
-              <a class="users-list-name" href="#">Alexander Pierce</a>
-              <span class="users-list-date">Today</span>
-            </li>
-            <li>
-              <img :src="avatar()" alt="User Image">
-              <a class="users-list-name" href="#">Norman</a>
-              <span class="users-list-date">Yesterday</span>
-            </li>
-            <li>
-              <img :src="avatar()" alt="User Image">
-              <a class="users-list-name" href="#">Jane</a>
-              <span class="users-list-date">12 Jan</span>
-            </li>
-            <li>
-              <img :src="avatar()" alt="User Image">
-              <a class="users-list-name" href="#">John</a>
-              <span class="users-list-date">12 Jan</span>
-            </li>
-            <li>
-              <img :src="avatar()" alt="User Image">
-              <a class="users-list-name" href="#">Alexander</a>
-              <span class="users-list-date">13 Jan</span>
-            </li>
-            <li>
-              <img :src="avatar()" alt="User Image">
-              <a class="users-list-name" href="#">Sarah</a>
-              <span class="users-list-date">14 Jan</span>
-            </li>
-            <li>
-              <img :src="avatar()" alt="User Image">
-              <a class="users-list-name" href="#">Nora</a>
-              <span class="users-list-date">15 Jan</span>
-            </li>
-            <li>
-              <img :src="avatar()" alt="User Image">
-              <a class="users-list-name" href="#">Nadia</a>
-              <span class="users-list-date">15 Jan</span>
+            <li v-for="user in newMembers">
+              <img :src="user.profileImageUrl" alt="User Image">
+
+              <router-link :to="'/members/' + user._id">
+                <a class="users-list-name" href="#">{{ getName(user) }}</a>
+              </router-link>
+
+              <span class="users-list-date">{{user.createdAt |  moment("D MMM")}}</span>
             </li>
           </ul>
           <!-- /.users-list -->
         </div>
-        <!-- /.box-body -->
-        <div class="box-footer text-center">
-          <a href="javascript:void(0)" class="uppercase">View All Users</a>
+        <!-- /box-body -->
+
+        <div slot="footer" class="text-center">
+          <router-link tag="a" class="pageLink uppercase" to="/members" v-permission.enable="['user', 'readUser']">
+            View All Members
+          </router-link>
         </div>
-        <!-- /.box-footer -->
-      </div>
-      <!--/.box -->
+        <!-- /box-footer -->
+
+        <div v-if="newMembersLoading" class="overlay">
+          <i class="fa"><pulse-loader></pulse-loader></i>
+        </div>
+        <!-- /.overlay -->
+      </box>
     </div>
-
-
-
+    <!-- /USERS LIST -->
   </section>
 </template>
 
@@ -93,68 +65,59 @@
   export default {
     name: 'Dashboard',
     components: {
-      ChatBox,
     },
     data () {
       return {
-        generateRandomNumbers (numbers, max, min) {
-          var a = []
-          for (var i = 0; i < numbers; i++) {
-            a.push(Math.floor(Math.random() * (max - min + 1)) + max)
-          }
-          return a
-        },
+        newMembers: {},
         client: null
       }
     },
     computed: {
     },
     methods: {
-      avatar () { return faker.image.avatar() }
+      avatar () { return faker.image.avatar() },
+      getName (user) {
+        if (user._id === this.$store.state.auth.user._id) {
+          return 'You'
+        } else {
+          return user.firstName + ' ' + user.lastName
+        }
+      },
+      getNewMembers () {
+        this.newMembersLoading = true
+        this.$userRepository.list({ $sort: ['-createdAt'], $limit: 8 })
+          .then(result => {
+            this.newMembersLoading = false
+            this.newMembers = result.data.docs
+          })
+          .catch((error) => {
+            this.newMembersLoading = false
+            console.error('Dashboard.getNewMembers-error:', error)
+            this.$snotify.error('Get new members failed', 'Error!')
+          })
+      }
     },
-    mounted () {
-
-//      var ws = new WebSocket('ws://localhost:8125');
-//
-//      ws.onerror = function (error) {  }
-//      ws.onclose = function () {  }
-//
-//      ws.onopen = function () {
-//        let payload = {
-//          type: 'hello',
-//          id: 1,
-//          version: '2'
-//        }
-//        ws.send(JSON.stringify(payload));
-//      }
-//
-//      ws.onmessage = function(msg) {
-//        let response = JSON.parse(msg.data)
-//        console.log("MESSAGE:", response)
-//        if (response.type === 'hello') {
-//          let payload = {
-//            type: 'request',
-//            id: 1,
-//            method: 'GET',
-//            path: 'hello'
-//          }
-//          ws.send(JSON.stringify(payload));
-//        }
-//      }
+    created () {
+      this.getNewMembers()
     }
   }
 </script>
 
-<style>
-.info-box {
-  cursor: pointer;
-}
-.info-box-content {
-  text-align: center;
-  vertical-align: middle;
-  display: inherit;
-}
-.fullCanvas {
-  width: 100%;
-}
+<style lang="scss">
+  .users-list {
+    & > li img {
+      height: 128px;
+    }
+  }
+  .info-box {
+    cursor: pointer;
+  }
+  .info-box-content {
+    text-align: center;
+    vertical-align: middle;
+    display: inherit;
+  }
+  .fullCanvas {
+    width: 100%;
+  }
 </style>
