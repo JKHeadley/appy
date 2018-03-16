@@ -30,7 +30,7 @@ module.exports = function (server, mongoose, logger) {
           Log.debug("DATA:", result)
           Log.debug("agent:", agent.family)
 
-          Log.debug("TEST");
+          Log.debug("TEST2");
 
           return reply();
         })
