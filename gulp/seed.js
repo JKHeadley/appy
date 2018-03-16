@@ -6,6 +6,7 @@ const Q = require('q')
 const Mongoose = require('mongoose')
 const RestHapi = require('rest-hapi')
 const faker = require('faker')
+const iplocation = require('iplocation');
 const Composer = require('../index')
 
 const Config = require('../config')
@@ -46,6 +47,7 @@ gulp.task('seed', [], function () {
           let roles = []
           let users = []
           let groups = []
+          let visitors = []
           let permissions = []
           let adminPermissions = []
 
@@ -315,7 +317,38 @@ gulp.task('seed', [], function () {
             })
             .then(function (result) {
               users = result.result
+              Log.log('seeding visitors')
 
+              promises = [];
+
+              let addVisitor = function(visitor) {
+
+                let rand = Math.random();
+
+                let browser = 'Other'
+
+                if (rand > 0 && rand <= 0.4) {
+                  browser = 'Chrome'
+                } else if (rand > 0.4 && rand <= 0.7) {
+                  browser = 'Firefox'
+                } else if (rand > 0.7 && rand <= 0.8) {
+                  browser = 'Safari'
+                } else if (rand > 0.8 && rand <= 0.95) {
+                  browser = 'IE'
+                }
+
+                visitor.browser = browser;
+
+                return RestHapi.create(models.visitor, visitor, Log);
+              }
+
+              for (let i = 0; i <= 367; i++) {
+                promises.push(iplocation(faker.internet.ip()).then(addVisitor))
+              }
+
+              return Q.all(promises)
+            })
+            .then(function (result) {
               Log.log('setting associations')
 
               return RestHapi.list(models.permission, {}, Log)
@@ -394,7 +427,7 @@ gulp.task('seed', [], function () {
                         }
                       })
 
-                      // EXPL: initial Admin role permissions
+                      // EXPL: Initial Admin role permissions
                       promises.push(RestHapi.addMany(models.role, roles[1]._id, models.permission, 'permissions', adminPermissions, Log))
 
                       return Q.all(promises)
@@ -402,7 +435,7 @@ gulp.task('seed', [], function () {
                     .then(function (result) {
                       promises = []
 
-                      // EXPL: initial Super Admin role permissions
+                      // EXPL: Initial Super Admin role permissions
                       promises.push(RestHapi.addMany(models.role, roles[2]._id, models.permission, 'permissions', [
                         {
                           state: PERMISSION_STATES.INCLUDED,
@@ -684,7 +717,11 @@ function dropCollections (models) {
     })
     .then(function () {
       Log.log('removing images')
-      return models.document.remove({})
+      return models.image.remove({})
+    })
+    .then(function () {
+      Log.log('removing visitors')
+      return models.visitor.remove({})
     })
     .then(function () {
       Log.log('removing group_permission')
