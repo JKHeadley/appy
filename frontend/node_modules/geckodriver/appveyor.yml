@@ -1,0 +1,17 @@
+environment:
+  nodejs_version: "4"
+
+install:
+  # update to latest version of npm for Windows fixes.
+  - npm install --global npm@latest
+  # install modules
+  - npm install
+
+test_script:
+  - node --version
+  - npm --version
+  # run tests
+  - npm test
+
+# Don't actually build.
+build: off

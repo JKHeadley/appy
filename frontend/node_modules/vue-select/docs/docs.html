@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Vue Select | VueJS Select2 Component</title>
+
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,600|Roboto Mono" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Dosis:300&amp;text=Vue Select" rel="stylesheet" type="text/css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <meta name="title" content="Vue Select | VueJS Select2/Chosen Component">
+    <meta name="description" content="A well-tested, native Vue.js component that provides similar functionality to Select2/Chosen without the overhead of jQuery.">
+
+    <link rel="icon" href="static/vue-logo.png" type="image/png">
+    <meta property="og:image" content="static/vue-logo.png">
+    <meta property="twitter:image" content="static/vue-logo.png">
+
+    <meta name="description" content="A native Vue.js component that provides similar functionality to Select2/Chosen without the overhead of jQuery.">
+    <meta property="og:description" content="A native Vue.js component that provides similar functionality to Select2/Chosen without the overhead of jQuery.">
+    <meta property="twitter:description" content="A native Vue.js component that provides similar functionality to Select2/Chosen without the overhead of jQuery.">
+
+    <meta property="twitter:title" content="Vue Select | VueJS Select2/Chosen Component">
+    <meta property="og:title" content="Vue Select | VueJS Select2/Chosen Component">
+    <meta property="og:site_name" content="Vue Select | VueJS Select2/Chosen Component">
+    <meta property="og:url" content="http://sagalbot.github.io/vue-select/">
+  </head>
+  <body>
+    <div id="app">
+    <div class="jumbotron jumbotron-top">
+      <div class="container">
+        <div class="col-md-8 col-md-offset-2">
+
+          <h1>Vue Select</h1>
+
+          <p class="accolades lead">
+            <a href="https://travis-ci.org/sagalbot/vue-select"><img src="https://img.shields.io/travis/sagalbot/vue-select.svg?style=flat-square" alt="Build Status"></a>
+            <a href="https://codeclimate.com/github/sagalbot/vue-select"><img src="https://img.shields.io/codeclimate/coverage/github/sagalbot/vue-select.svg?style=flat-square" alt="Code Coverage"></a>
+            <a href="https://gemnasium.com/github.com/sagalbot/vue-select"><img src="https://img.shields.io/gemnasium/sagalbot/vue-select.svg?style=flat-square" alt="No Dependencies"></a>
+            <img src="https://img.shields.io/github/license/sagalbot/vue-select.svg?style=flat-square" alt="MIT License">
+            <img src="https://img.shields.io/github/release/sagalbot/vue-select.svg?style=flat-square" alt="Current Release">
+          </p>
+
+          <p class="lead">A native Vue.js select component that provides similar functionality to Select2/Chosen without the overhead of jQuery.</p>
+
+          <v-select
+                  id="v-select"
+                  :placeholder="placeholder"
+                  :options="options"
+                  multiple
+          >
+          </v-select>
+
+          <div class="row">
+            <div class="col-md-3 col-md-offset-3">
+              <ul class="list-vue">
+                <li>Fully Reactive</li>
+                <li>Tagging Support <small>v1.1.0</small></li>
+                <li>Works with Vuex</li>
+                <li>Zero dependencies</li>
+              </ul>
+            </div>
+            <div class="col-md-3">
+              <ul class="list-vue">
+                <li>+95% Test Coverage</li>
+                <li>Select Single/Multiple</li>
+                <li>Typeahead Suggestions</li>
+                <li>Bootstrap Friendly Markup</li>
+              </ul>
+            </div>
+          </div>
+
+          <a class="btn btn-primary btn-outline btn-lg" href="https://github.com/sagalbot/vue-select"><span class="octicon octicon-mark-github"></span> View on GitHub</a>
+        </div>
+      </div>
+      <a href="#install" class="down-arrow">
+        Install, Examples &amp; Documentation
+        <i role="presentation" class="glyphicon glyphicon-chevron-down"></i>
+      </a>
+    </div>
+      <docs></docs>
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-12818324-8', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+@import 'variables';
+
+#v-select {
+  max-width: 500px;
+  margin: 0 auto;
+  .dropdown-toggle {
+    background: #fff;
+    border-color: rgba(82, 166, 183, 0.39);
+  }
+  .selected-tag {
+    color: #147688;
+    background-color: #d7f3f9;
+    border-color: #91ddec;
+    .close {
+      color: #147688;
+      opacity: .5;
+    }
+  }
+  &.dropdown.open .dropdown-toggle,
+  &.dropdown.open .dropdown-menu,
+  &.dropdown.open .open-indicator:before {
+    border-color: #4CC3D9;
+  }
+  .active a {
+    background: rgba(50,50,50,.1);
+    color: #333;
+  }
+  &.dropdown .highlight a,
+  &.dropdown li:hover a {
+    background: #4CC3D9;
+    color: #fff;
+  }
+}
