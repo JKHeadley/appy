@@ -9,6 +9,10 @@ export default {
   hideLogoOnMobile: false
 }
 
+/**
+ * Adding a property to this object will create a repository for that property.
+ * Ex: user: { alias: 'user' } will create $visitorRepository accessible in each component's "this".
+ * */
 export const resources = {
   user: {
     alias: 'user',
@@ -64,6 +68,9 @@ export const resources = {
   },
   image: {
     alias: 'image'
+  },
+  visitor: {
+    alias: 'visitor'
   },
   role: {
     alias: 'role',
