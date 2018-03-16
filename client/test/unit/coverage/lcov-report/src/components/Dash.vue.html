@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src/components/Dash.vue</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">all files</a> / <a href="index.html">src/components/</a> Dash.vue
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/3</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/0</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/1</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/3</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">&lt;template&gt;
+  &lt;div :class="['wrapper', classes]"&gt;
+    &lt;header class="main-header"&gt;
+	&lt;span class="logo-mini"&gt;
+		&lt;a href="/"&gt;&lt;img src="/static/img/copilot-logo-white.svg" alt="Logo" class="img-responsive center-block logo"&gt;&lt;/a&gt;
+	&lt;/span&gt;
+      &lt;!-- Header Navbar --&gt;
+      &lt;nav class="navbar navbar-static-top" role="navigation"&gt;
+        &lt;!-- Sidebar toggle button--&gt;
+        &lt;a href="javascript:;" class="sidebar-toggle" data-toggle="offcanvas" role="button"&gt;
+          &lt;span class="sr-only"&gt;Toggle navigation&lt;/span&gt;
+        &lt;/a&gt;
+        &lt;!-- Navbar Right Menu --&gt;
+        &lt;div class="navbar-custom-menu"&gt;
+          &lt;ul class="nav navbar-nav"&gt;
+            &lt;!-- Messages--&gt;
+            &lt;li class="dropdown messages-menu"&gt;
+              &lt;a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"&gt;
+                &lt;i class="fa fa-envelope-o"&gt;&lt;/i&gt;
+                &lt;span class="label label-success"&gt;{{ userInfo.messages | count }}&lt;/span&gt;
+              &lt;/a&gt;
+              &lt;ul class="dropdown-menu"&gt;
+                &lt;li class="header"&gt;You have {{ userInfo.messages | count }} message(s)&lt;/li&gt;
+                &lt;li v-if="userInfo.messages.length &gt; 0"&gt;
+                  &lt;!-- inner menu: contains the messages --&gt;
+                  &lt;ul class="menu"&gt;
+                    &lt;li&gt;
+                      &lt;!-- start message --&gt;
+                      &lt;a href="javascript:;"&gt;
+                        &lt;!-- Message title and timestamp --&gt;
+                        &lt;h4&gt;
+                          Support Team
+                          &lt;small&gt;
+                            &lt;i class="fa fa-clock-o"&gt;&lt;/i&gt; 5 mins&lt;/small&gt;
+                        &lt;/h4&gt;
+                        &lt;!-- The message --&gt;
+                        &lt;p&gt;Why not consider this a test message?&lt;/p&gt;
+                      &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;!-- end message --&gt;
+                  &lt;/ul&gt;
+                  &lt;!-- /.menu --&gt;
+                &lt;/li&gt;
+                &lt;li class="footer" v-if="userInfo.messages.length &gt; 0"&gt;
+                  &lt;a href="javascript:;"&gt;See All Messages&lt;/a&gt;
+                &lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/li&gt;
+            &lt;!-- /.messages-menu --&gt;
+  
+            &lt;!-- Notifications Menu --&gt;
+            &lt;li class="dropdown notifications-menu"&gt;
+              &lt;a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"&gt;
+                &lt;i class="fa fa-bell-o"&gt;&lt;/i&gt;
+                &lt;span class="label label-warning"&gt;{{ userInfo.notifications | count }}&lt;/span&gt;
+              &lt;/a&gt;
+              &lt;ul class="dropdown-menu"&gt;
+                &lt;li class="header"&gt;You have {{ userInfo.notifications | count }} notification(s)&lt;/li&gt;
+                &lt;li v-if="userInfo.notifications.length &gt; 0"&gt;
+                  &lt;!-- Inner Menu: contains the notifications --&gt;
+                  &lt;ul class="menu"&gt;
+                    &lt;li&gt;
+                      &lt;!-- start notification --&gt;
+                      &lt;a href="javascript:;"&gt;
+                        &lt;i class="fa fa-users text-aqua"&gt;&lt;/i&gt; 5 new members joined today
+                      &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;!-- end notification --&gt;
+                  &lt;/ul&gt;
+                &lt;/li&gt;
+                &lt;li class="footer" v-if="userInfo.notifications.length &gt; 0"&gt;
+                  &lt;a href="javascript:;"&gt;View all&lt;/a&gt;
+                &lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/li&gt;
+  
+            &lt;!-- Tasks Menu --&gt;
+            &lt;li class="dropdown tasks-menu"&gt;
+              &lt;a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"&gt;
+                &lt;i class="fa fa-flag-o"&gt;&lt;/i&gt;
+                &lt;span class="label label-danger"&gt;{{ userInfo.tasks | count }} &lt;/span&gt;
+              &lt;/a&gt;
+              &lt;ul class="dropdown-menu"&gt;
+                &lt;li class="header"&gt;You have {{ userInfo.tasks | count }} task(s)&lt;/li&gt;
+                &lt;li v-if="userInfo.tasks.length &gt; 0"&gt;
+                  &lt;!-- Inner menu: contains the tasks --&gt;
+                  &lt;ul class="menu"&gt;
+                    &lt;li&gt;
+                      &lt;!-- Task item --&gt;
+                      &lt;a href="javascript:;"&gt;
+                        &lt;!-- Task title and progress text --&gt;
+                        &lt;h3&gt;
+                          Design some buttons
+                          &lt;small class="pull-right"&gt;20%&lt;/small&gt;
+                        &lt;/h3&gt;
+                        &lt;!-- The progress bar --&gt;
+                        &lt;div class="progress xs"&gt;
+                          &lt;!-- Change the css width attribute to simulate progress --&gt;
+                          &lt;div class="progress-bar progress-bar-aqua" style="width: 20%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"&gt;
+                            &lt;span class="sr-only"&gt;20% Complete&lt;/span&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                      &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;!-- end task item --&gt;
+                  &lt;/ul&gt;
+                &lt;/li&gt;
+                &lt;li class="footer" v-if="userInfo.tasks.length &gt; 0"&gt;
+                  &lt;a href="javascript:;"&gt;View all tasks&lt;/a&gt;
+                &lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/li&gt;
+  
+            &lt;!-- User Account Menu --&gt;
+            &lt;li class="dropdown user user-menu"&gt;
+              &lt;a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"&gt;
+                &lt;!-- The user image in the navbar--&gt;
+                &lt;img v-bind:src="demo.avatar" class="user-image" alt="User Image"&gt;
+                &lt;!-- hidden-xs hides the username on small devices so only the image appears. --&gt;
+                &lt;span class="hidden-xs"&gt;{{ demo.displayName }}&lt;/span&gt;
+              &lt;/a&gt;
+            &lt;/li&gt;
+          &lt;/ul&gt;
+        &lt;/div&gt;
+      &lt;/nav&gt;
+    &lt;/header&gt;
+    &lt;!-- Left side column. contains the logo and sidebar --&gt;
+    &lt;sidebar :display-name="demo.displayName" :picture-url="demo.avatar" /&gt;
+  
+    &lt;!-- Content Wrapper. Contains page content --&gt;
+    &lt;div class="content-wrapper"&gt;
+      &lt;!-- Content Header (Page header) --&gt;
+      &lt;section class="content-header"&gt;
+        &lt;h1&gt;
+          {{$route.name.toUpperCase() }}
+          &lt;small&gt;{{ $route.meta.description }}&lt;/small&gt;
+        &lt;/h1&gt;
+        &lt;ol class="breadcrumb"&gt;
+          &lt;li&gt;
+            &lt;a href="javascript:;"&gt;
+              &lt;i class="fa fa-home"&gt;&lt;/i&gt;Home&lt;/a&gt;
+          &lt;/li&gt;
+          &lt;li class="active"&gt;{{$route.name.toUpperCase()}}&lt;/li&gt;
+        &lt;/ol&gt;
+      &lt;/section&gt;
+  
+      &lt;router-view&gt;&lt;/router-view&gt;
+    &lt;/div&gt;
+    &lt;!-- /.content-wrapper --&gt;
+  
+    &lt;!-- Main Footer --&gt;
+    &lt;footer class="main-footer"&gt;
+      &lt;strong&gt;Copyright &amp;copy; {{year}}
+        &lt;a href="javascript:;"&gt;CoPilot&lt;/a&gt;.&lt;/strong&gt; All rights reserved.
+    &lt;/footer&gt;
+  &lt;/div&gt;
+  &lt;!-- ./wrapper --&gt;
+&lt;/template&gt;
+&nbsp;
+&lt;script&gt;
+import faker from 'faker'
+import { mapState } from 'vuex'
+import config from '../config'
+import Sidebar from './Sidebar'
+import 'hideseek'
+&nbsp;
+export default {
+  name: 'Dash',
+  components: {
+    Sidebar
+  },
+  data: function () <span class="fstat-no" title="function not covered" >{</span>
+<span class="cstat-no" title="statement not covered" >    return {</span>
+      // section: 'Dash',
+      year: new Date().getFullYear(),
+      classes: {
+        fixed_layout: config.fixedLayout,
+        hide_logo: config.hideLogoOnMobile
+      },
+      error: ''
+    }
+  },
+  computed: {
+    ...mapState([
+      'userInfo'
+    ]),
+    demo () {
+<span class="cstat-no" title="statement not covered" >      return {</span>
+        displayName: faker.name.findName(),
+        avatar: faker.image.avatar(),
+        email: faker.internet.email(),
+        randomCard: faker.helpers.createCard()
+      }
+    }
+  },
+  methods: {
+    changeloading () {
+<span class="cstat-no" title="statement not covered" >      this.$store.commit('TOGGLE_SEARCHING')</span>
+    }
+  }
+}
+&lt;/script&gt;
+&nbsp;
+&lt;style lang="scss"&gt;
+.wrapper.fixed_layout {
+  .main-header {
+    position: fixed;
+    width: 100%;
+  }
+&nbsp;
+  .content-wrapper {
+    padding-top: 50px;
+  }
+&nbsp;
+  .main-sidebar {
+    position: fixed;
+    height: 100vh;
+  }
+}
+&nbsp;
+.wrapper.hide_logo {
+  @media (max-width: 767px) {
+    .main-header .logo {
+      display: none;
+    }
+  }
+}
+&nbsp;
+.logo-mini,
+.logo-lg {
+  text-align: left;
+&nbsp;
+  img {
+    padding: .4em !important;
+  }
+}
+&nbsp;
+.logo-lg {
+  img {
+    display: -webkit-inline-box;
+    width: 25%;
+  }
+}
+&nbsp;
+.user-panel {
+  height: 4em;
+}
+&nbsp;
+hr.visible-xs-block {
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.17);
+  height: 1px;
+  border-color: transparent;
+}
+&lt;/style&gt;
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Oct 30 2017 14:34:10 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>
