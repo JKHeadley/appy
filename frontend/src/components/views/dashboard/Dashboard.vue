@@ -1,5 +1,5 @@
 <template>
-  <section class="content">
+  <section class="content dashboard">
 
     <!--<div class="callout callout-info">-->
       <!--<h4>Tip!</h4>-->
@@ -564,41 +564,43 @@
 </script>
 
 <style lang="scss">
-  .users-list {
-    & > li img {
-      height: 128px;
+  .dashboard {
+    .users-list {
+      & > li img {
+        height: 128px;
+      }
     }
-  }
-  .info-box {
-    cursor: pointer;
-  }
-  .info-box-content {
-    text-align: center;
-    vertical-align: middle;
-    display: inherit;
-  }
-  .fullCanvas {
-    width: 100%;
-  }
-  .pad canvas {
-    border: 0px;
-  }
-
-  .chart-responsive {
-    canvas {
+    .info-box {
+      cursor: pointer;
+    }
+    .info-box-content {
+      text-align: center;
+      vertical-align: middle;
+      display: inherit;
+    }
+    .fullCanvas {
+      width: 100%;
+    }
+    .pad canvas {
       border: 0px;
     }
-    padding-bottom: 10px;
-  }
 
-  .small-box.visitor-box {
-    height: 375px;
-    margin-bottom: 0px;
-    .inner {
-      padding-top: 100px;
+    .chart-responsive {
+      canvas {
+        border: 0px;
+      }
+      padding-bottom: 10px;
     }
-    .icon {
-      position: static;
+
+    .small-box.visitor-box {
+      height: 375px;
+      margin-bottom: 0px;
+      .inner {
+        padding-top: 100px;
+      }
+      .icon {
+        position: static;
+      }
     }
   }
 </style>
