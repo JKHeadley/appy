@@ -7,6 +7,10 @@ const criteria = {
   env: process.env.NODE_ENV
 };
 
+console.log("ENV:", process.env.NODE_ENV)
+console.log("EMAIL:", Config.get('/defaultEmail'))
+console.log("URL:", Config.get('/clientURL'))
+
 
 const manifest = {
   $meta: 'This file defines the server.',
