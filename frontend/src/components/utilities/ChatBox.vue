@@ -95,7 +95,7 @@
         <div class="input-group">
           <input v-model="newMessageText" @keyup.enter="sendMessage" type="text" name="message" placeholder="Type Message ..." class="form-control" id="chat-input">
           <span class="input-group-btn">
-            <button :disabled="!currentConversation" @click="sendMessage" type="button" class="btn btn-success btn-flat" v-permission.enable="['postChatMessages']">Send</button>
+            <button :disabled="!currentConversation || !newMessageText" @click="sendMessage" type="button" class="btn btn-success btn-flat" v-permission.enable="['postChatMessage']">Send</button>
           </span>
         </div>
       </div>
@@ -279,31 +279,33 @@
         }
       },
       sendMessage () {
-        wsClient.request({
-          path: '/message/' + this.currentConversation._id,
-          method: 'POST',
-          payload: {
-            text: this.newMessageText
-          }
-        })
-          .catch((error) => {
-            console.error('ChatBox.sendMessage-error:', error.message)
-            if (error.message === 'Insufficient permissions') {
-              this.$snotify.warning('Not authorized: ' + error.message, 'Warning')
-            } else {
-              this.$snotify.error('Send message failed', 'Error!')
+        if (this.newMessageText) {
+          wsClient.request({
+            path: '/message/' + this.currentConversation._id,
+            method: 'POST',
+            payload: {
+              text: this.newMessageText
             }
           })
-        let message = { text: this.newMessageText, createdAt: new Date(), user: this.currentUser, me: true }
-        this.messages.push(message)
-        let convo = this.conversations.find((convo) => {
-          return convo._id === this.currentConversation._id
-        })
-        convo.lastMessage = message
-        this.updateConversationOrder(convo)
-        this.$store.commit('SET_CONVERSATIONS', this.conversations)
-        this.newMessageText = null
-        this.scrollToEnd()
+            .catch((error) => {
+              console.error('ChatBox.sendMessage-error:', error.message)
+              if (error.message === 'Insufficient permissions') {
+                this.$snotify.warning('Not authorized: ' + error.message, 'Warning')
+              } else {
+                this.$snotify.error('Send message failed', 'Error!')
+              }
+            })
+          let message = { text: this.newMessageText, createdAt: new Date(), user: this.currentUser, me: true }
+          this.messages.push(message)
+          let convo = this.conversations.find((convo) => {
+            return convo._id === this.currentConversation._id
+          })
+          convo.lastMessage = message
+          this.updateConversationOrder(convo)
+          this.$store.commit('SET_CONVERSATIONS', this.conversations)
+          this.newMessageText = null
+          this.scrollToEnd()
+        }
       },
       scrollToEnd () {
         this.$nextTick(function () {
