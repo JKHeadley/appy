@@ -126,7 +126,7 @@ const config = {
     $filter: 'env',
     local: 'appyhapi@gmail.com',
     development: 'appyhapi@gmail.com',
-    production: 'appyhapi@gmail.com'
+    production: null
   },
   system: {
     fromAddress: {
