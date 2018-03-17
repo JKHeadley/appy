@@ -26,4 +26,8 @@ internals.getDashboardStats = () => {
   }
 }
 
+internals.postVisit = () => {
+  return http.post('visitor')
+}
+
 export default internals

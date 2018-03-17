@@ -18,7 +18,7 @@ import { sync } from 'vuex-router-sync'
 import routes from './routes'
 import store from './store'
 
-import { httpClient, wsClient, authInterceptor } from './services'
+import { httpClient, wsClient, authInterceptor, statsService } from './services'
 
 import axios from 'axios'
 import qs from 'querystring'
@@ -172,6 +172,9 @@ axios.interceptors.response.use(function (response) {
 
 // EXPL: Initialize auth header
 axios.defaults.headers.common.Authorization = 'Bearer ' + store.state.auth.accessToken
+
+// EXPL: Post to visitor endpoint to record visit
+statsService.postVisit()
 
 // Start our app!
 // eslint-disable-next-line no-new
