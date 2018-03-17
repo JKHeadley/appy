@@ -1,10 +1,13 @@
 export default {
-  serverURI: 'http://localhost:8125',
-  websocketURI: 'ws://localhost:8125',
+  // serverURI: 'http://localhost:8125',
+  // websocketURI: 'ws://localhost:8125',
   // serverURI: 'http://192.168.86.42:8125',
   // websocketURI: 'ws://192.168.86.42:8125',
-  appURI: 'http://localhost:8080',
+  // appURI: 'http://localhost:8080',
   // appURI: 'http://192.168.86.42:8080',
+  serverURI: process.env.SERVER_URI,
+  websocketURI: process.env.WEBSOCKET_URI,
+  appURI: process.env.APP_URI,
   fixedLayout: false,
   hideLogoOnMobile: false
 }
