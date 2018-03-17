@@ -360,6 +360,7 @@ gulp.task('seed', [], function () {
 
                   let userBasePermissionNames = [
                     'readUser',
+                    'readVisitor',
                     'createConnection',
                     'readConnection',
                     'updateConnection',

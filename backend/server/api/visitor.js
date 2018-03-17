@@ -3,6 +3,7 @@
 const Joi = require('joi');
 const Boom = require('boom');
 const Chalk = require('chalk');
+const RestHapi = require('rest-hapi');
 
 const iplocation = require('iplocation');
 const useragent = require('useragent');
@@ -17,23 +18,27 @@ module.exports = function (server, mongoose, logger) {
 
   // Record Visitor Endpoint
   (function() {
+    const Visitor = mongoose.model('visitor');
     const Log = logger.bind(Chalk.magenta("Visitor"));
 
     Log.note("Generating Record Visitor endpoint");
 
     const recordVisitorHandler = function (request, reply) {
-      iplocation(faker.internet.ip())
+      iplocation(request.info.remoteAddress)
         .then(function(result) {
-          const ipAddress = request.info.remoteAddress;
           const agent = useragent.parse(request.headers['user-agent']);
-          Log.debug("IP:", ipAddress);
-          Log.debug("DATA:", result)
-          Log.debug("agent:", agent.family)
 
-          Log.debug("TEST2");
+          const visitor = Object.assign(result, {browser: agent.family});
 
+          return RestHapi.create(Visitor, visitor, Log)
+        })
+        .then(function(result) {
           return reply();
         })
+        .catch(function(error) {
+          Log.error(error);
+          return reply(RestHapi.errorHelper.formatResponse(error));
+        });
     };
 
     server.route({
@@ -54,8 +59,7 @@ module.exports = function (server, mongoose, logger) {
               { code: 404, message: 'Not Found' },
               { code: 500, message: 'Internal Server Error' }
             ]
-          },
-          'policies': [auditLog(mongoose, {}, Log)]
+          }
         }
       }
     });
