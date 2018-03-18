@@ -1,9 +1,32 @@
+var fs = require('fs')
+
+let prodEnv, devEnv
+
+// EXPL: We don't commit env vars, so these lines are required for CI deployments
+fs.stat('./frontend/config/prod.env', function (err, stat) {
+  if (err == null) {
+    // file exists
+    prodEnv = require('./prod.env')
+  } else {
+    prodEnv = process.env
+  }
+})
+
+fs.stat('./frontend/config/dev.env', function (err, stat) {
+  if (err == null) {
+    // file exists
+    devEnv = require('./dev.env')
+  } else {
+    devEnv = process.env
+  }
+})
+
 // see http://vuejs-templates.github.io/webpack for documentation.
 var path = require('path')
 
 module.exports = {
   build: {
-    env: require('./prod.env'),
+    env: prodEnv,
     index: path.resolve(__dirname, '../dist/index.html'),
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
@@ -17,7 +40,7 @@ module.exports = {
     productionGzipExtensions: ['js', 'css'],
   },
   dev: {
-    env: require('./dev.env'),
+    env: devEnv,
     port: 8080,
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
