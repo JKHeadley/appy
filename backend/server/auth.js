@@ -12,6 +12,7 @@ const socialPassword = Config.get('/socialPassword');
 const socialIds = Config.get('/socialIds');
 const socialSecrets = Config.get('/socialSecrets');
 const expirationPeriod = Config.get('/expirationPeriod');
+const isSecure = Config.get('/socialSecure')
 
 const logger = RestHapi.getLogger('appy');
 
@@ -190,7 +191,7 @@ internals.applyFacebookStrategy = function (server, next) {
     password: socialPassword,
     clientId: socialIds.facebook,
     clientSecret: socialSecrets.facebook,
-    isSecure: false //Should be set to true (which is the default) in production
+    isSecure //Should be set to true (which is the default) in production
   };
 
   //Setup the social Facebook login strategy

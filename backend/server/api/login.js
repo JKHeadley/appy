@@ -458,32 +458,32 @@ module.exports = function (server, mongoose, logger) {
           })
           .then(function (user) {
 
-            let authHeader = "";
+            let accessToken = "";
             let response = {};
 
             switch (authStrategy) {
               case AUTH_STRATEGIES.TOKEN:
-                authHeader = 'Bearer ' + request.pre.standardToken;
+                accessToken = 'Bearer ' + request.pre.standardToken;
                 response = {
                   user: user,
-                  authHeader,
+                  accessToken,
                   scope: request.pre.scope
                 };
                 break;
               case AUTH_STRATEGIES.SESSION:
-                authHeader = 'Bearer ' + request.pre.sessionToken;
+                accessToken = 'Bearer ' + request.pre.sessionToken;
                 response = {
                   user: user,
-                  authHeader,
+                  accessToken,
                   scope: request.pre.scope
                 };
                 break;
               case AUTH_STRATEGIES.REFRESH:
-                authHeader = 'Bearer ' + request.pre.standardToken;
+                accessToken = 'Bearer ' + request.pre.standardToken;
                 response = {
                   user: user,
                   refreshToken: request.pre.refreshToken,
-                  authHeader,
+                  accessToken,
                   scope: request.pre.scope
                 };
                 break;
