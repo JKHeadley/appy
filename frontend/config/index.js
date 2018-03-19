@@ -3,23 +3,38 @@ var fs = require('fs')
 let prodEnv, devEnv
 
 // EXPL: We don't commit env vars, so these lines are required for CI deployments
-fs.stat('./frontend/config/prod.env', function (err, stat) {
-  if (err == null) {
-    // file exists
-    prodEnv = require('./prod.env')
-  } else {
-    prodEnv = process.env
-  }
-})
+// fs.stat('./frontend/config/prod.env', function (err, stat) {
+//   if (err == null) {
+//     console.log("NO PROD")
+//     // file exists
+//     prodEnv = require('./prod.env')
+//   } else {
+//     prodEnv = process.env
+//   }
+// })
+//
+// fs.stat('./frontend/config/dev.env', function (err, stat) {
+//   if (err == null) {
+//     console.log("NO DEV")
+//     // file exists
+//     devEnv = require('./dev.env')
+//   } else {
+//     devEnv = process.env
+//   }
+// })
 
-fs.stat('./frontend/config/dev.env', function (err, stat) {
-  if (err == null) {
-    // file exists
-    devEnv = require('./dev.env')
-  } else {
-    devEnv = process.env
-  }
-})
+// EXPL: We don't commit env vars, so these lines are required for CI deployments
+try {
+  prodEnv = require('./prod.env')
+} catch (error) {
+  prodEnv = process.env
+}
+
+try {
+  devEnv = require('./dev.env')
+} catch (error) {
+  devEnv = process.env
+}
 
 // see http://vuejs-templates.github.io/webpack for documentation.
 var path = require('path')
