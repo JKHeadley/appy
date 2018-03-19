@@ -96,6 +96,11 @@ const config = {
       facebook: process.env.FACEBOOK_SECRET,
     }
   },
+  socialSecure: {
+    $filter: 'env',
+    production: true,
+    $default: false
+  },
   nodemailer: {
     $filter: 'env',
     local: {
