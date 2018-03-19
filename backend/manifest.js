@@ -10,6 +10,7 @@ const criteria = {
 console.log("ENV:", process.env.NODE_ENV)
 console.log("EMAIL:", Config.get('/defaultEmail'))
 console.log("URL:", Config.get('/clientURL'))
+console.log("SMTP_PASSWORD:", process.env.SMTP_PASSWORD)
 
 
 const manifest = {
