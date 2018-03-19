@@ -10,6 +10,7 @@ const RestHapi = require('rest-hapi');
 const Config = require('../../config');
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
+const clientURL = Config.get('/clientURL');
 
 module.exports = function (server, mongoose, logger) {
     /**
@@ -23,6 +24,7 @@ module.exports = function (server, mongoose, logger) {
             return reply(Boom.unauthorized('Authentication failed: ' + request.auth.error.message));
         }
 
+        Log.debug("MADE IT:", request.pre)
         // NOTE: this token has a very short lifespan as it should be used immediately under correct conditions
         const token = Jwt.sign({
             username: request.pre.user.username,
@@ -38,7 +40,7 @@ module.exports = function (server, mongoose, logger) {
 
         return RestHapi.update(User, _id, update, Log)
             .then(function(user) {
-                const redirectUrl = new Buffer(request.params.redirectBuffer, 'base64').toString('ascii');
+                const redirectUrl = new Buffer(clientURL + '/login/social', 'base64').toString('ascii');
                 return reply.redirect(redirectUrl + '/?token=' + token);
             })
             .catch(function (error) {
@@ -47,7 +49,7 @@ module.exports = function (server, mongoose, logger) {
             });
     };
 
-    
+
     // Facebook Auth Endpoint
     (function () {
         const Log = logger.bind(Chalk.magenta("Facebook Auth"));
@@ -128,17 +130,13 @@ module.exports = function (server, mongoose, logger) {
 
         server.route({
             method: 'GET',
-            path: '/auth/facebook/{redirectBuffer}',
+            path: '/auth/facebook',
             config: {
                 handler: socialAuthHandler,
                 auth: 'facebook',
                 description: 'Facebook auth.',
                 tags: ['api', 'Facebook', 'Auth'],
                 validate: {
-                    params: {
-                        //NOTE: The redirectBuffer is a redirect URL that has been base64 encoded
-                        redirectBuffer: Joi.string().required()
-                    }
                 },
                 pre: facebookAuthPre,
                 plugins: {
