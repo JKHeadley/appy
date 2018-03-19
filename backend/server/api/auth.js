@@ -24,7 +24,6 @@ module.exports = function (server, mongoose, logger) {
             return reply(Boom.unauthorized('Authentication failed: ' + request.auth.error.message));
         }
 
-        Log.debug("MADE IT:", request.pre)
         // NOTE: this token has a very short lifespan as it should be used immediately under correct conditions
         const token = Jwt.sign({
             username: request.pre.user.username,
@@ -40,7 +39,7 @@ module.exports = function (server, mongoose, logger) {
 
         return RestHapi.update(User, _id, update, Log)
             .then(function(user) {
-                const redirectUrl = new Buffer(clientURL + '/login/social', 'base64').toString('ascii');
+                const redirectUrl = clientURL + '/login/social';
                 return reply.redirect(redirectUrl + '/?token=' + token);
             })
             .catch(function (error) {
