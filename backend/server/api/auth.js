@@ -5,6 +5,7 @@ const Boom = require('boom');
 const Chalk = require('chalk');
 const Jwt = require('jsonwebtoken');
 const Uuid = require('node-uuid');
+const Q = require('q');
 const RestHapi = require('rest-hapi');
 
 const Config = require('../../config');
@@ -71,9 +72,13 @@ module.exports = function (server, mongoose, logger) {
                     let user = {};
                     let password = {};
 
+                    let promises = [];
                     //EXPL: if the user does not exist, we create one with the facebook account data
-                    User.findOne({ facebookId: facebookProfile.id })
-                        .then(function (user) {
+                    promises.push(User.findOne({ email: facebookProfile.email }))
+                    promises.push(User.findOne({ facebookId: facebookProfile.id }))
+                    return Q.all(promises)
+                        .then(function (result) {
+                            user = result[0] ? result[0] : result[1];
                             if (user) {
                                 reply(user);
 
