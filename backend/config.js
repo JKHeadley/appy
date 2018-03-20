@@ -242,7 +242,8 @@ const config = {
     loglevel: {
       $filter: 'env',
       local: "DEBUG",
-      $default: "ERROR"
+      production: "DEBUG",
+      $default: "DEBUG"
     }
 
   }
