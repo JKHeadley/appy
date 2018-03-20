@@ -437,6 +437,8 @@ module.exports = function (server, mongoose, logger) {
 
       const socialLoginHandler = function (request, reply) {
 
+        Log.debug("LOGGING IN:", request.pre)
+
         const key = request.pre.decoded.key;
         const hash = request.pre.user.socialLoginHash;
 
