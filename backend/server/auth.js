@@ -191,6 +191,7 @@ internals.applyFacebookStrategy = function (server, next) {
     password: socialPassword,
     clientId: socialIds.facebook,
     clientSecret: socialSecrets.facebook,
+    forceHttps: isSecure,
     isSecure //Should be set to true (which is the default) in production
   };
 
