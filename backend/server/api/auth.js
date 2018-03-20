@@ -37,6 +37,8 @@ module.exports = function (server, mongoose, logger) {
             socialLoginHash: request.pre.keyHash.hash,
         };
 
+      Log.debug("request.pre:", request.pre)
+
         return RestHapi.update(User, _id, update, Log)
             .then(function(user) {
                 Log.debug("UPDATED USER:", user)
