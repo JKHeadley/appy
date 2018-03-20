@@ -39,6 +39,7 @@ module.exports = function (server, mongoose, logger) {
 
         return RestHapi.update(User, _id, update, Log)
             .then(function(user) {
+                Log.debug("UPDATED USER:", user)
                 const redirectUrl = clientURL + '/login/social';
                 return reply.redirect(redirectUrl + '/?token=' + token);
             })
