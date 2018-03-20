@@ -337,6 +337,7 @@
         this.$modal.show('chat-modal')
       },
       closeChat () {
+        this.currentConversation = null
         this.$modal.hide('chat-modal')
       },
       goToProfile (user) {
