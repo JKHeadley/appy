@@ -34,8 +34,11 @@ module.exports = function (server, mongoose, logger) {
         }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "1m" });
 
         const _id = request.pre.user._id;
+
+        // EXPL: We update the user's facebookId just in case they didn't have one yet
         const update = {
             socialLoginHash: request.pre.keyHash.hash,
+            facebookId: request.pre.user.facebookId
         };
 
       Log.debug("request.pre:", request.pre)
@@ -80,6 +83,7 @@ module.exports = function (server, mongoose, logger) {
                         .then(function (result) {
                             user = result[0] ? result[0] : result[1];
                             if (user) {
+                                user.facebookId = facebookProfile.id;
                                 reply(user);
 
                                 throw 'Found User';
