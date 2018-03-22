@@ -39,7 +39,7 @@ module.exports = function (server, mongoose, logger) {
           AuthAttempt.abuseDetected(ip, email, Log)
             .then(function (detected) {
               if (detected) {
-                return reply(Boom.badRequest('Maximum number of auth attempts reached. Please try again later.'));
+                return reply(Boom.unauthorized('Maximum number of auth attempts reached. Please try again later.'));
               }
               return reply();
             })
@@ -79,7 +79,7 @@ module.exports = function (server, mongoose, logger) {
 
           AuthAttempt.createInstance(ip, email, Log)
             .then(function (authAttempt) {
-              return reply(Boom.badRequest('Invalid Email or Password.'));
+              return reply(Boom.unauthorized('Invalid Email or Password.'));
             })
             .catch(function (error) {
               Log.error(error);
@@ -95,7 +95,7 @@ module.exports = function (server, mongoose, logger) {
             return reply();
           }
           else {
-            return reply(Boom.badRequest('Account is inactive.'));
+            return reply(Boom.unauthorized('Account is inactive.'));
           }
         }
       },
@@ -107,7 +107,7 @@ module.exports = function (server, mongoose, logger) {
             return reply();
           }
           else {
-            return reply(Boom.badRequest('Account is disabled.'));
+            return reply(Boom.unauthorized('Account is disabled.'));
           }
         }
       },
@@ -294,7 +294,7 @@ module.exports = function (server, mongoose, logger) {
 
             Jwt.verify(request.payload.token, Config.get('/jwtSecret'), function (err, decoded) {
               if (err) {
-                return reply(Boom.badRequest('Invalid email or key.'));
+                return reply(Boom.unauthorized('Invalid email or key.'));
               }
 
               return reply(decoded);
@@ -313,13 +313,16 @@ module.exports = function (server, mongoose, logger) {
             else if (request.pre.decoded.facebookId) {
               conditions.facebookId = request.pre.decoded.facebookId;
             }
+            else if (request.pre.decoded.googleId) {
+              conditions.googleId = request.pre.decoded.googleId;
+            }
 
             conditions.isDeleted = false
 
             User.findOne(conditions)
               .then(function (user) {
                 if (!user) {
-                  return reply(Boom.badRequest('Invalid email or key.'));
+                  return reply(Boom.unauthorized('Invalid email or key.'));
                 }
                 return reply(user);
               })
@@ -337,7 +340,7 @@ module.exports = function (server, mongoose, logger) {
               return reply();
             }
             else {
-              return reply(Boom.badRequest('Account is inactive.'));
+              return reply(Boom.unauthorized('Account is inactive.'));
             }
           }
         },
@@ -349,7 +352,7 @@ module.exports = function (server, mongoose, logger) {
               return reply();
             }
             else {
-              return reply(Boom.badRequest('Account is disabled.'));
+              return reply(Boom.unauthorized('Account is disabled.'));
             }
           }
         },
@@ -437,15 +440,13 @@ module.exports = function (server, mongoose, logger) {
 
       const socialLoginHandler = function (request, reply) {
 
-        Log.debug("LOGGING IN:", request.pre)
-
         const key = request.pre.decoded.key;
         const hash = request.pre.user.socialLoginHash;
 
         return Bcrypt.compare(key, hash)
           .then(function (keyMatch) {
             if (!keyMatch) {
-              reply(Boom.badRequest('Invalid email or key.'));
+              reply(Boom.unauthorized('Invalid email or key.'));
               throw 'Invalid email or key.'
             }
 
@@ -684,7 +685,7 @@ module.exports = function (server, mongoose, logger) {
           Jwt.verify(request.payload.token, Config.get('/jwtSecret'), function (err, decoded) {
             if (err) {
               Log.error(err)
-              return reply(Boom.badRequest('Invalid token.'));
+              return reply(Boom.unauthorized('Invalid token.'));
             }
 
             return reply(decoded);
@@ -703,7 +704,7 @@ module.exports = function (server, mongoose, logger) {
           User.findOne(conditions)
             .then(function (user) {
               if (!user || !user.resetPassword) {
-                return reply(Boom.badRequest('Invalid email or key.'));
+                return reply(Boom.unauthorized('Invalid email or key.'));
               }
               return reply(user);
             })
@@ -720,14 +721,14 @@ module.exports = function (server, mongoose, logger) {
           // EXPL: A PIN is not required if the SuperAdmin initiated the password reset
           if (request.pre.user.resetPassword.pinRequired) {
             if (!request.payload.pin) {
-              return reply(Boom.badRequest('PIN required.'));
+              return reply(Boom.unauthorized('PIN required.'));
             }
             const key = request.payload.pin;
             const hash = request.pre.user.pin;
             Bcrypt.compare(key, hash)
               .then(function (keyMatch) {
                 if (!keyMatch) {
-                  return reply(Boom.badRequest('Invalid PIN.'));
+                  return reply(Boom.unauthorized('Invalid PIN.'));
                 }
                 return reply(keyMatch);
               })
@@ -749,7 +750,7 @@ module.exports = function (server, mongoose, logger) {
       Bcrypt.compare(key, resetPassword.hash)
         .then(function (keyMatch) {
           if (!keyMatch) {
-            throw Boom.badRequest('Invalid email or key.');
+            throw Boom.unauthorized('Invalid email or key.');
           }
 
           return User.generateHash(request.payload.password, Log);

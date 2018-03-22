@@ -71,6 +71,10 @@ module.exports = function (mongoose) {
       type: Types.String,
       allowOnUpdate: false
     },
+    googleId: {
+      type: Types.String,
+      allowOnUpdate: false
+    },
     resetPassword: {
       hash: {
         type: Types.String

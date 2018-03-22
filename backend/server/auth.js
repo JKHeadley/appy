@@ -197,30 +197,20 @@ internals.applyFacebookStrategy = function (server, next) {
 
   //Setup the social Facebook login strategy
   server.auth.strategy('facebook', 'bell', facebookOptions);
+};
 
-  // const verifyFacebookToken = function(token, next) {
-  //   let uri = 'https://graph.facebook.com/v2.3/me';
-  //
-  //   uri += "?fields=email,name";
-  //
-  //   let options = {
-  //     uri: uri,
-  //     headers: {
-  //       Authorization: "Bearer " + token
-  //     },
-  //   };
-  //
-  //   rp(options)
-  //     .then(function (response) {
-  //       next(null, JSON.parse(response));
-  //     })
-  //     .catch(function (err) {
-  //       next(err, null);
-  //     });
-  // };
-  //
-  // server.method('verifyFacebookToken', verifyFacebookToken, {});
+internals.applyGoogleStrategy = function (server, next) {
+  const googleOptions = {
+    provider: 'google',
+    password: socialPassword,
+    clientId: socialIds.google,
+    clientSecret: socialSecrets.google,
+    forceHttps: isSecure,
+    isSecure //Should be set to true (which is the default) in production
+  };
 
+  //Setup the social Google login strategy
+  server.auth.strategy('google', 'bell', googleOptions);
 };
 
 internals.customForbiddenMessage = function (server) {
@@ -243,6 +233,7 @@ exports.register = function (server, options, next) {
   internals.customForbiddenMessage(server);
 
   internals.applyFacebookStrategy(server, next);
+  internals.applyGoogleStrategy(server, next);
 
   switch (authStrategy) {
     case AUTH_STRATEGIES.TOKEN:

@@ -82,18 +82,22 @@ const config = {
     $filter: 'env',
     production: {
       facebook: process.env.FACEBOOK_ID,
+      google: process.env.GOOGLE_ID,
     },
     $default: {
       facebook: process.env.FACEBOOK_ID,
+      google: process.env.GOOGLE_ID,
     }
   },
   socialSecrets: {
     $filter: 'env',
     production: {
       facebook: process.env.FACEBOOK_SECRET,
+      google: process.env.GOOGLE_SECRET,
     },
     $default: {
       facebook: process.env.FACEBOOK_SECRET,
+      google: process.env.GOOGLE_SECRET,
     }
   },
   socialSecure: {
@@ -223,6 +227,11 @@ const config = {
         $filter: 'env',
         local: true,
         $default: true
+    },
+    enableSwaggerHttps: {
+      $filter: 'env',
+      production: true,
+      $default: false
     },
     generateScopes: {
       $filter: 'env',

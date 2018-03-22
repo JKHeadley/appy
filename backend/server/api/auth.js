@@ -27,25 +27,24 @@ module.exports = function (server, mongoose, logger) {
 
         // NOTE: this token has a very short lifespan as it should be used immediately under correct conditions
         const token = Jwt.sign({
-            username: request.pre.user.username,
             email: request.pre.user.email,
             facebookId: request.pre.user.facebookId,
+            googelId: request.pre.user.googelId,
             key: request.pre.keyHash.key
         }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "1m" });
 
         const _id = request.pre.user._id;
 
-        // EXPL: We update the user's facebookId just in case they didn't have one yet
         const update = {
-            socialLoginHash: request.pre.keyHash.hash,
-            facebookId: request.pre.user.facebookId
+            socialLoginHash: request.pre.keyHash.hash
         };
 
-      Log.debug("request.pre:", request.pre)
+        // EXPL: We update the user's social Id just in case they didn't have one yet
+        if (request.pre.user.facebookId) { update.facebookId = request.pre.user.facebookId }
+        if (request.pre.user.googleId) { update.googleId = request.pre.user.googleId }
 
         return RestHapi.update(User, _id, update, Log)
             .then(function(user) {
-                Log.debug("UPDATED USER:", user)
                 const redirectUrl = clientURL + '/login/social';
                 return reply.redirect(redirectUrl + '/?token=' + token);
             })
@@ -106,7 +105,22 @@ module.exports = function (server, mongoose, logger) {
                                 role: role._id,
                             };
 
-                            return RestHapi.create(User, user, Log);
+                            // EXPL: We use the actual endpoint to take advantage of policies. Specifically in this case we need to
+                            // take advantage of duplicate fields so that roleName and roleRank are populated.
+                            // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
+                            let request = {
+                              method: 'POST',
+                              url: '/user',
+                              params: {},
+                              query: {},
+                              payload: user,
+                              credentials: {scope: ['root', USER_ROLES.SUPER_ADMIN]},
+                              headers: {authorization: 'Bearer'}
+                            }
+
+                            let injectOptions = RestHapi.testHelper.mockInjection(request)
+
+                            return server.inject(injectOptions)
                         })
                         .then(function(result) {
                             user = result;
@@ -163,4 +177,128 @@ module.exports = function (server, mongoose, logger) {
             },
         });
     }());
+
+    // Google Auth Endpoint
+    (function () {
+    const Log = logger.bind(Chalk.magenta("Google Auth"));
+    const Session = mongoose.model('session');
+    const User = mongoose.model('user');
+    const Role = mongoose.model('role');
+
+    Log.note("Generating Google Auth endpoint");
+
+    const googleAuthPre = [
+      {
+        assign: 'user',
+        method: function (request, reply) {
+
+          const googleProfile = request.auth.credentials.profile;
+
+          let user = {};
+          let password = {};
+
+          let promises = [];
+          //EXPL: if the user does not exist, we create one with the google account data
+          promises.push(User.findOne({ email: googleProfile.email }))
+          promises.push(User.findOne({ googleId: googleProfile.id }))
+          return Q.all(promises)
+            .then(function (result) {
+              user = result[0] ? result[0] : result[1];
+              if (user) {
+                user.googleId = googleProfile.id;
+                reply(user);
+
+                throw 'Found User';
+              }
+              else {
+                return RestHapi.list(Role, { name: USER_ROLES.USER }, Log)
+              }
+            })
+            .then(function(role) {
+              role = role.docs[0];
+
+              password = Uuid.v4();
+              user = {
+                isActive: true,
+                email: googleProfile.email,
+                firstName: googleProfile.name.given_name,
+                lastName: googleProfile.name.family_name,
+                profileImageUrl:  googleProfile.raw.picture,
+                password: password,
+                googleId: googleProfile.id,
+                role: role._id,
+              };
+
+              // EXPL: We use the actual endpoint to take advantage of policies. Specifically in this case we need to
+              // take advantage of duplicate fields so that roleName and roleRank are populated.
+              // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
+              let request = {
+                method: 'POST',
+                url: '/user',
+                params: {},
+                query: {},
+                payload: user,
+                credentials: {scope: ['root', USER_ROLES.SUPER_ADMIN]},
+                headers: {authorization: 'Bearer'}
+              }
+
+              let injectOptions = RestHapi.testHelper.mockInjection(request)
+
+              return server.inject(injectOptions)
+            })
+            .then(function(result) {
+              user = result.result;
+
+              user.password = password;
+
+              return reply(user);
+            })
+            .catch(function (error) {
+              if (error === 'Found User') {
+                return
+              }
+              Log.error(error);
+              return reply(Boom.gatewayTimeout('An error occurred.'));
+            });
+        }
+      },
+      {
+        assign: 'keyHash',
+        method: function (request, reply) {
+          Session.generateKeyHash(Log)
+            .then(function (result) {
+              return reply(result)
+            })
+            .catch(function (error) {
+              Log.error(error);
+              return reply(Boom.gatewayTimeout('An error occurred.'));
+            });
+        }
+      }
+    ];
+
+    server.route({
+      method: 'GET',
+      path: '/auth/google',
+      config: {
+        handler: socialAuthHandler,
+        auth: 'google',
+        description: 'Google auth.',
+        tags: ['api', 'Google', 'Auth'],
+        validate: {
+        },
+        pre: googleAuthPre,
+        plugins: {
+          'hapi-swagger': {
+            responseMessages: [
+              { code: 200, message: 'Success' },
+              { code: 400, message: 'Bad Request' },
+              { code: 404, message: 'Not Found' },
+              { code: 500, message: 'Internal Server Error' }
+            ]
+          }
+        }
+      },
+    });
+  }());
 };
