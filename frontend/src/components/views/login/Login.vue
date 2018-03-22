@@ -63,7 +63,7 @@
                 <a class="btn btn-block btn-social btn-facebook" :href="loginFacebookURI">
                   <span class="fa fa-facebook"></span> Sign in with Facebook
                 </a>
-                <a class="btn btn-block btn-social btn-google">
+                <a class="btn btn-block btn-social btn-google" :href="loginGoogleURI">
                   <span class="fa fa-google"></span> Sign in with Google
                 </a>
                 <a class="btn btn-block btn-social btn-github">
@@ -129,10 +129,13 @@
       }
     },
     computed: {
+      // EXPL: The '/auth/{social}' endpoint will first authenticate the user using the third party
+      // social authentication, then the appy server will redirect us to the '/login/social/' view
       loginFacebookURI () {
-        // EXPL: The '/auth/{social}/{redirectURL}' endpoint will first authenticate the user using the third party
-        // social authentication, then the appy server will redirect us to the '/login/social/' view
-        return config.serverURI + '/auth/facebook/' + btoa(config.appURI + '/login/social')
+        return config.serverURI + '/auth/facebook'
+      },
+      loginGoogleURI () {
+        return config.serverURI + '/auth/google'
       }
     },
     methods: {
