@@ -102,6 +102,7 @@ module.exports = function (server, mongoose, logger) {
                                 email: facebookProfile.email,
                                 firstName: facebookProfile.name.first,
                                 lastName: facebookProfile.name.last,
+                                profileImageUrl:  'https://graph.facebook.com/' + facebookProfile.id + '/picture?type=large',
                                 password: password,
                                 facebookId: facebookProfile.id,
                                 role: role._id,
