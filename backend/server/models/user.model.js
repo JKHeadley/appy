@@ -222,12 +222,12 @@ module.exports = function (mongoose) {
           if (!document.profileImageUrl) {
             let profileImageUrl = 'https://www.gravatar.com/avatar/' + document._id + '?r=PG&d=robohash'
             return RestHapi.update(User, document._id, { profileImageUrl }, Log)
-              .then(function(result) {
-                return result
+              .then(function(user) {
+                return user
               })
           }
           else {
-            return result
+            return document
           }
         }
       }
