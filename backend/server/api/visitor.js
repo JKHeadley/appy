@@ -24,8 +24,7 @@ module.exports = function (server, mongoose, logger) {
     Log.note("Generating Record Visitor endpoint");
 
     const recordVisitorHandler = function (request, reply) {
-      Log.debug("location:", request.location)
-      iplocation(request.info.remoteAddress)
+      iplocation(server.methods.getIP(request))
         .then(function(result) {
           const agent = useragent.parse(request.headers['user-agent']);
 

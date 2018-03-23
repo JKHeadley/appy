@@ -265,6 +265,14 @@ exports.register = function (server, options, next) {
       break;
   }
 
+  // EXPL: Add helper method to get request ip
+  const getIP = function(request) {
+    // EXPL: We check the headers first in case the server is behind a reverse proxy.
+    // see: https://ypereirareis.github.io/blog/2017/02/15/nginx-real-ip-behind-nginx-reverse-proxy/
+    return request.headers[ 'x-real-ip' ] || request.headers[ 'x-forwarded-for'] || request.info.remoteAddress;
+  };
+  server.method('getIP', getIP, {});
+
 };
 
 exports.register.attributes = {

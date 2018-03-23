@@ -33,7 +33,7 @@ module.exports = function (server, mongoose, logger) {
         assign: 'abuseDetected',
         method: function (request, reply) {
 
-          const ip = request.info.remoteAddress;
+          const ip = server.methods.getIP(request);
           const email = request.payload.email;
 
           AuthAttempt.abuseDetected(ip, email, Log)
@@ -74,7 +74,7 @@ module.exports = function (server, mongoose, logger) {
             return reply();
           }
 
-          const ip = request.info.remoteAddress;
+          const ip = server.methods.getIP(request);
           const email = request.payload.email;
 
           AuthAttempt.createInstance(ip, email, Log)
