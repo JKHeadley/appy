@@ -37,6 +37,9 @@ const manifest = {
       plugin: 'bell'
     },
     {
+      plugin: 'hapi-geo-locate'
+    },
+    {
       plugin: './server/mailer'
     },
     {
