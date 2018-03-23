@@ -66,7 +66,7 @@
                 <a class="btn btn-block btn-social btn-google" :href="loginGoogleURI">
                   <span class="fa fa-google"></span> Sign in with Google
                 </a>
-                <a class="btn btn-block btn-social btn-github">
+                <a class="btn btn-block btn-social btn-github" :href="loginGithubURI">
                   <span class="fa fa-github"></span> Sign in with GitHub
                 </a>
               </div>
@@ -136,6 +136,9 @@
       },
       loginGoogleURI () {
         return config.serverURI + '/auth/google'
+      },
+      loginGithubURI () {
+        return config.serverURI + '/auth/github'
       }
     },
     methods: {
