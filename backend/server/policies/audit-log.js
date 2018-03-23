@@ -21,7 +21,7 @@ internals.auditLog = function(mongoose, options, Log) {
     try {
       const AuditLog = mongoose.model('auditLog');
 
-      const ipAddress = request.info.remoteAddress;
+      const ipAddress = request.server.methods.getIP(request);
       let userId = _.get(request.auth.credentials, 'user._id');
 
       let payload = {}
