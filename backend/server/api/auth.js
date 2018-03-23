@@ -30,6 +30,7 @@ module.exports = function (server, mongoose, logger) {
             email: request.pre.user.email,
             facebookId: request.pre.user.facebookId,
             googelId: request.pre.user.googelId,
+            githubId: request.pre.user.githubId,
             key: request.pre.keyHash.key
         }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "1m" });
 
@@ -42,6 +43,7 @@ module.exports = function (server, mongoose, logger) {
         // EXPL: We update the user's social Id just in case they didn't have one yet
         if (request.pre.user.facebookId) { update.facebookId = request.pre.user.facebookId }
         if (request.pre.user.googleId) { update.googleId = request.pre.user.googleId }
+        if (request.pre.user.githubId) { update.githubId = request.pre.user.githubId }
 
         return RestHapi.update(User, _id, update, Log)
             .then(function(user) {
@@ -288,6 +290,134 @@ module.exports = function (server, mongoose, logger) {
         validate: {
         },
         pre: googleAuthPre,
+        plugins: {
+          'hapi-swagger': {
+            responseMessages: [
+              { code: 200, message: 'Success' },
+              { code: 400, message: 'Bad Request' },
+              { code: 404, message: 'Not Found' },
+              { code: 500, message: 'Internal Server Error' }
+            ]
+          }
+        }
+      },
+    });
+  }());
+
+    // Github Auth Endpoint
+    (function () {
+    const Log = logger.bind(Chalk.magenta("Github Auth"));
+    const Session = mongoose.model('session');
+    const User = mongoose.model('user');
+    const Role = mongoose.model('role');
+
+    Log.note("Generating Github Auth endpoint");
+
+    const githubAuthPre = [
+      {
+        assign: 'user',
+        method: function (request, reply) {
+
+          const githubProfile = request.auth.credentials.profile;
+
+          let user = {};
+          let password = {};
+
+          let promises = [];
+          //EXPL: if the user does not exist, we create one with the github account data
+          promises.push(User.findOne({ email: githubProfile.email }))
+          promises.push(User.findOne({ githubId: githubProfile.id }))
+          return Q.all(promises)
+            .then(function (result) {
+              user = result[0] ? result[0] : result[1];
+              if (user) {
+                user.githubId = githubProfile.id;
+                reply(user);
+
+                throw 'Found User';
+              }
+              else {
+                return RestHapi.list(Role, { name: USER_ROLES.USER }, Log)
+              }
+            })
+            .then(function(role) {
+              role = role.docs[0];
+
+              let name = githubProfile.displayName.split(' ');
+              let firstName = name[0];
+              let lastName = name[name.length - 1];
+
+              password = Uuid.v4();
+              user = {
+                isActive: true,
+                email: githubProfile.email || 'noreply@appy.io',
+                firstName,
+                lastName,
+                profileImageUrl:  githubProfile.raw.avatar_url,
+                password: password,
+                githubId: githubProfile.id.toString(),
+                role: role._id,
+              };
+
+              // EXPL: We use the actual endpoint to take advantage of policies. Specifically in this case we need to
+              // take advantage of duplicate fields so that roleName and roleRank are populated.
+              // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
+              let request = {
+                method: 'POST',
+                url: '/user',
+                params: {},
+                query: {},
+                payload: user,
+                credentials: {scope: ['root', USER_ROLES.SUPER_ADMIN]},
+                headers: {authorization: 'Bearer'}
+              }
+
+              let injectOptions = RestHapi.testHelper.mockInjection(request)
+
+              return server.inject(injectOptions)
+            })
+            .then(function(result) {
+              user = result.result;
+
+              user.password = password;
+
+              return reply(user);
+            })
+            .catch(function (error) {
+              if (error === 'Found User') {
+                return
+              }
+              Log.error(error);
+              return reply(Boom.gatewayTimeout('An error occurred.'));
+            });
+        }
+      },
+      {
+        assign: 'keyHash',
+        method: function (request, reply) {
+          Session.generateKeyHash(Log)
+            .then(function (result) {
+              return reply(result)
+            })
+            .catch(function (error) {
+              Log.error(error);
+              return reply(Boom.gatewayTimeout('An error occurred.'));
+            });
+        }
+      }
+    ];
+
+    server.route({
+      method: 'GET',
+      path: '/auth/github',
+      config: {
+        handler: socialAuthHandler,
+        auth: 'github',
+        description: 'Github auth.',
+        tags: ['api', 'Github', 'Auth'],
+        validate: {
+        },
+        pre: githubAuthPre,
         plugins: {
           'hapi-swagger': {
             responseMessages: [

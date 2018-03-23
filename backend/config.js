@@ -83,10 +83,12 @@ const config = {
     production: {
       facebook: process.env.FACEBOOK_ID,
       google: process.env.GOOGLE_ID,
+      github: process.env.GITHUB_ID,
     },
     $default: {
       facebook: process.env.FACEBOOK_ID,
       google: process.env.GOOGLE_ID,
+      github: process.env.GITHUB_ID,
     }
   },
   socialSecrets: {
@@ -94,10 +96,12 @@ const config = {
     production: {
       facebook: process.env.FACEBOOK_SECRET,
       google: process.env.GOOGLE_SECRET,
+      github: process.env.GITHUB_SECRET,
     },
     $default: {
       facebook: process.env.FACEBOOK_SECRET,
       google: process.env.GOOGLE_SECRET,
+      github: process.env.GITHUB_SECRET,
     }
   },
   socialSecure: {
