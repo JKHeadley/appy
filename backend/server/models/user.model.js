@@ -25,7 +25,7 @@ module.exports = function (mongoose) {
     email: {
       type: Types.String,
       required: true,
-      // stringType: 'email'
+      stringType: 'email'
     },
     title: {
       type: Types.String
@@ -72,6 +72,10 @@ module.exports = function (mongoose) {
       allowOnUpdate: false
     },
     googleId: {
+      type: Types.String,
+      allowOnUpdate: false
+    },
+    githubId: {
       type: Types.String,
       allowOnUpdate: false
     },
@@ -215,7 +219,7 @@ module.exports = function (mongoose) {
         },
         post: function (document, request, result, Log) {
           const User = mongoose.model('user');
-          if (!result.profileImageUrl) {
+          if (!document.profileImageUrl) {
             let profileImageUrl = 'https://www.gravatar.com/avatar/' + document._id + '?r=PG&d=robohash'
             return RestHapi.update(User, document._id, { profileImageUrl }, Log)
               .then(function(result) {

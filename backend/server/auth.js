@@ -213,6 +213,20 @@ internals.applyGoogleStrategy = function (server, next) {
   server.auth.strategy('google', 'bell', googleOptions);
 };
 
+internals.applyGithubStrategy = function (server, next) {
+  const googleOptions = {
+    provider: 'github',
+    password: socialPassword,
+    clientId: socialIds.github,
+    clientSecret: socialSecrets.github,
+    forceHttps: isSecure,
+    isSecure //Should be set to true (which is the default) in production
+  };
+
+  //Setup the social GitHub login strategy
+  server.auth.strategy('github', 'bell', googleOptions);
+};
+
 internals.customForbiddenMessage = function (server) {
   server.ext('onPreResponse', (request, reply) => {
 
@@ -234,6 +248,7 @@ exports.register = function (server, options, next) {
 
   internals.applyFacebookStrategy(server, next);
   internals.applyGoogleStrategy(server, next);
+  internals.applyGithubStrategy(server, next);
 
   switch (authStrategy) {
     case AUTH_STRATEGIES.TOKEN:
