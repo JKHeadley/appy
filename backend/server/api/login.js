@@ -307,14 +307,17 @@ module.exports = function (server, mongoose, logger) {
 
             const conditions = {};
 
-            if (request.pre.decoded.email) {
-              conditions.email = request.pre.decoded.email;
-            }
-            else if (request.pre.decoded.facebookId) {
+            if (request.pre.decoded.facebookId) {
               conditions.facebookId = request.pre.decoded.facebookId;
             }
             else if (request.pre.decoded.googleId) {
               conditions.googleId = request.pre.decoded.googleId;
+            }
+            else if (request.pre.decoded.githubId) {
+              conditions.githubId = request.pre.decoded.githubId;
+            }
+            else if (request.pre.decoded.email) {
+              conditions.email = request.pre.decoded.email;
             }
 
             conditions.isDeleted = false

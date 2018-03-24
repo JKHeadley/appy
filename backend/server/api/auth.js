@@ -25,14 +25,16 @@ module.exports = function (server, mongoose, logger) {
             return reply(Boom.unauthorized('Authentication failed: ' + request.auth.error.message));
         }
 
+        const tokenPayload = {
+          email: request.pre.user.email,
+          facebookId: request.pre.user.facebookId,
+          googelId: request.pre.user.googelId,
+          githubId: request.pre.user.githubId,
+          key: request.pre.keyHash.key
+        };
+
         // NOTE: this token has a very short lifespan as it should be used immediately under correct conditions
-        const token = Jwt.sign({
-            email: request.pre.user.email,
-            facebookId: request.pre.user.facebookId,
-            googelId: request.pre.user.googelId,
-            githubId: request.pre.user.githubId,
-            key: request.pre.keyHash.key
-        }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "5m" });
+        const token = Jwt.sign(tokenPayload, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "1m" });
 
         const _id = request.pre.user._id;
 
