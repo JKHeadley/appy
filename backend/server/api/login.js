@@ -446,8 +446,7 @@ module.exports = function (server, mongoose, logger) {
         return Bcrypt.compare(key, hash)
           .then(function (keyMatch) {
             if (!keyMatch) {
-              reply(Boom.unauthorized('Invalid email or key.'));
-              throw 'Invalid email or key.'
+              throw Boom.unauthorized('Invalid email or key.')
             }
 
             const _id = request.pre.user._id;
