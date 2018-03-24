@@ -17,12 +17,15 @@ const authStrategy = Config.get('/restHapiConfig/authStrategy');
 
 const rankAuth = require('../policies/roleAuth').rankAuth;
 
+const enableDemoAuth = Config.get('/enableDemoAuth');
+const demoAuth = enableDemoAuth ? 'demoAuth' : null;
+
 const headersValidation = Joi.object({
     'authorization': Joi.string().required()
 }).options({ allowUnknown: true });
 
 module.exports = function (server, mongoose, logger) {
-    
+
     // Check Email Endpoint
     // NOTE: For more secure applications, this endpoint should either be disabled or authenticated. For more information
     // as to why, refer to the links below:
@@ -489,7 +492,7 @@ module.exports = function (server, mongoose, logger) {
                             { code: 500, message: 'Internal Server Error' }
                         ]
                     },
-                  'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id")]
+                  'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id"), demoAuth]
                 }
             }
         });
@@ -550,7 +553,7 @@ module.exports = function (server, mongoose, logger) {
                             { code: 500, message: 'Internal Server Error' }
                         ]
                     },
-                  'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id")]
+                  'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id"), demoAuth]
                 }
             }
         });
@@ -611,7 +614,7 @@ module.exports = function (server, mongoose, logger) {
                 { code: 500, message: 'Internal Server Error' }
               ]
             },
-            'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id")]
+            'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id"), demoAuth]
           }
         }
       });
@@ -672,7 +675,7 @@ module.exports = function (server, mongoose, logger) {
                 { code: 500, message: 'Internal Server Error' }
               ]
             },
-            'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id")]
+            'policies': [auditLog(mongoose, {}, Log), rankAuth(mongoose, "_id"), demoAuth]
           }
         }
       });
