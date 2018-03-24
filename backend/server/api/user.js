@@ -19,6 +19,7 @@ const rankAuth = require('../policies/roleAuth').rankAuth;
 
 const enableDemoAuth = Config.get('/enableDemoAuth');
 const demoAuth = enableDemoAuth ? 'demoAuth' : null;
+const demoUser = enableDemoAuth ? 'demoUser' : null;
 
 const headersValidation = Joi.object({
     'authorization': Joi.string().required()
@@ -216,7 +217,7 @@ module.exports = function (server, mongoose, logger) {
                 { code: 500, message: 'Internal Server Error' }
               ]
             },
-            'policies': [auditLog(mongoose, { payloadFilter: [] }, Log)]
+            'policies': [auditLog(mongoose, { payloadFilter: [] }, Log), demoUser]
           }
         }
       });
@@ -283,7 +284,7 @@ module.exports = function (server, mongoose, logger) {
               { code: 500, message: 'Internal Server Error' }
             ]
           },
-          'policies': [auditLog(mongoose, { payloadFilter: [] }, Log)]
+          'policies': [auditLog(mongoose, { payloadFilter: [] }, Log), demoUser]
         }
       }
     });
@@ -378,7 +379,7 @@ module.exports = function (server, mongoose, logger) {
               { code: 500, message: 'Internal Server Error' }
             ]
           },
-          'policies': [auditLog(mongoose, {}, Log)]
+          'policies': [auditLog(mongoose, {}, Log), demoUser]
         }
       }
     });
@@ -431,7 +432,7 @@ module.exports = function (server, mongoose, logger) {
               { code: 500, message: 'Internal Server Error' }
             ]
           },
-          'policies': [auditLog(mongoose, {}, Log)]
+          'policies': [auditLog(mongoose, {}, Log), demoUser]
         }
       }
     });
