@@ -25,6 +25,9 @@ module.exports = function (server, mongoose, logger) {
       promises.push(RestHapi.list(Document, { isDeleted: false, $count: true }, Log))
       promises.push(RestHapi.list(Image, { isDeleted: false, $count: true }, Log))
       promises.push(RestHapi.list(Message, { isDeleted: false, $count: true }, Log))
+      promises.push(RestHapi.list(User, { isDeleted: false, $where: { facebookId: { $exists: true } }, $count: true }, Log))
+      promises.push(RestHapi.list(User, { isDeleted: false, $where: { googleId: { $exists: true } }, $count: true }, Log))
+      promises.push(RestHapi.list(User, { isDeleted: false, $where: { githubId: { $exists: true } }, $count: true }, Log))
       promises.push(RestHapi.list(Visitor, { isDeleted: false, $count: true }, Log))
 
       return Q.all(promises)
@@ -34,7 +37,10 @@ module.exports = function (server, mongoose, logger) {
             documentCount: result[1],
             imageCount: result[2],
             messageCount: result[3],
-            visitorCount: result[4]
+            facebookUserCount: result[4],
+            googleUserCount: result[5],
+            githubUserCount: result[6],
+            visitorCount: result[7]
           }
 
           promises = [];
