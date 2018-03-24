@@ -6,6 +6,8 @@ const Config = require('../../config');
 const permissionAuth = require('../policies/permissionAuth');
 const rankAuth = require('../policies/roleAuth').rankAuth;
 
+const enableDemoAuth = Config.get('/enableDemoAuth');
+const demoAuth = enableDemoAuth ? 'demoAuth' : null;
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 
 module.exports = function (mongoose) {
@@ -28,12 +30,14 @@ module.exports = function (mongoose) {
       type: Types.String
     },
   }, { collection: modelName });
-    
+
   Schema.statics = {
     collectionName:modelName,
     routeOptions: {
       policies: {
-        associatePolicies: [rankAuth(mongoose, "child"), permissionAuth(mongoose, false)]
+        associatePolicies: [rankAuth(mongoose, "child"), permissionAuth(mongoose, false), demoAuth],
+        updatePolicies: [demoAuth],
+        deletePolicies: [demoAuth]
       },
       associations: {
         users: {
