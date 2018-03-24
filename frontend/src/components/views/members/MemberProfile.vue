@@ -297,10 +297,10 @@
                       <h3 class="timeline-header"><a href="#">Mina Lee</a> uploaded new photos</h3>
 
                       <div class="timeline-body">
-                        <img src="http://placehold.it/150x100" alt="..." class="margin">
-                        <img src="http://placehold.it/150x100" alt="..." class="margin">
-                        <img src="http://placehold.it/150x100" alt="..." class="margin">
-                        <img src="http://placehold.it/150x100" alt="..." class="margin">
+                        <img src="https://placehold.it/150x100" alt="..." class="margin">
+                        <img src="https://placehold.it/150x100" alt="..." class="margin">
+                        <img src="https://placehold.it/150x100" alt="..." class="margin">
+                        <img src="https://placehold.it/150x100" alt="..." class="margin">
                       </div>
                     </div>
                   </li>
