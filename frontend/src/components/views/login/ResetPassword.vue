@@ -21,7 +21,7 @@
           </div>
 
           <div v-if="!passwordReset" class="col-md-4 col-md-offset-4">
-            <vue-form :state="formstate" @submit.prevent="resetPassword" class="row">
+            <vue-form :state="formstate" class="row">
 
               <validate auto-label class="form-group" :class="fieldClassName(formstate.newPassword)" :debounce="250" :custom="{ notStrong: passwordScoreValidator }">
                 <vue-form-input
@@ -66,8 +66,8 @@
               </validate>
 
               <div class="content-centered">
-                <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 15px;"
-                        :disabled="formstate.$pristine || formstate.$invalid || passwordScoreUpdating">Reset Password</button>
+                <button class="btn btn-primary btn-lg" style="margin-top: 15px;"
+                        :disabled="formstate.$pristine || formstate.$invalid || passwordScoreUpdating" @click="resetPassword()">Reset Password</button>
 
                 <router-link to="/login" v-if="error">
                   <button class="btn btn-primary btn-lg" style="margin-top: 15px;">
