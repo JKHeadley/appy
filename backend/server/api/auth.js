@@ -32,7 +32,7 @@ module.exports = function (server, mongoose, logger) {
             googelId: request.pre.user.googelId,
             githubId: request.pre.user.githubId,
             key: request.pre.keyHash.key
-        }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "1m" });
+        }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: "5m" });
 
         const _id = request.pre.user._id;
 
