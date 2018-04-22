@@ -13,11 +13,11 @@
 
     <div class="row vertical-10p">
       <div class="container">
-        <img src="/static/img/logo.png" class="center-block logo">
+        <img src="/static/img/white_logo_transparent_no_container_no_slogan.png" class="center-block login logo">
 
-        <div class="page-header">
-          <h1 style="text-align: center;">Login to appy</h1>
-        </div>
+        <!--<div class="page-header">-->
+          <!--<h1 style="text-align: center;">Login to appy</h1>-->
+        <!--</div>-->
 
         <div v-if="loading" class="content content-centered">
           <pulse-loader></pulse-loader>
@@ -229,8 +229,8 @@
   .vertical-10p {
     padding-top: 10%;
   }
-  .logo {
-    width: 15em;
+  .login.logo {
+    width: 20em;
     padding: 3em;
   }
   .loginForm .input-group {
