@@ -206,6 +206,10 @@
             }
           })
       }
+    },
+    created () {
+      this.email = this.$route.query.email || ''
+      this.password = this.$route.query.password || ''
     }
   }
 </script>
