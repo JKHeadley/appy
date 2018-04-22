@@ -1,14 +1,12 @@
-<img src="https://user-images.githubusercontent.com/12631935/39099920-eaab3d3e-4636-11e8-9955-b53be05e1c13.png" alt="Drawing" style="width: 200px;"/>
+<p align="center"><a href="https://appyapp.io" target="_blank" rel="noopener noreferrer"><img width="300" height="300" src="https://user-images.githubusercontent.com/12631935/39099920-eaab3d3e-4636-11e8-9955-b53be05e1c13.png" alt="appy logo"></a></p>
 
-**CoPilot** is a fully responsive admin template that is forked from [AdminLTE](https://almsaeedstudio.com). The difference here is that this repo is tailored to use with [Vue.js](https://vuejs.org). The UI is based on the [Bootstrap 3](https://github.com/twbs/bootstrap) framework. Highly customizable and easy to use. Fits many screen resolutions from small mobile devices to large desktops.
-
-<a href="https://copilot.misterGF.io" target="_blank">✈️️ Take it for a spin.</a>
+**appy** is a full featured boilerplate web app designed as an end to end solution for mvp development. The front end is built on [Vue.js](https://vuejs.org) and utilizes the [AdminLTE](https://almsaeedstudio.com) UI template. The backend implements a hapi server (via [rest-hapi](https://github.com/JKHeadley/rest-hapi)) with a MongoDB datastore. 
 
 
 [![Build Status](https://travis-ci.org/misterGF/CoPilot.svg?branch=master)](https://travis-ci.org/misterGF/CoPilot)
 [![Build status](https://ci.appveyor.com/api/projects/status/wenct56narbt6r1l?svg=true)](https://ci.appveyor.com/project/misterGF/copilot)
 
-!["CoPilot Screenshot"](http://res.cloudinary.com/gatec21/image/upload/v1489954238/copilot-march-2017_ifdrlj.png)
+![appy-screenshot_3](https://user-images.githubusercontent.com/12631935/39100444-944b8242-463f-11e8-8972-59ab9ceea6a4.png)
 
 In an attempt to keep the project clean I have not included every plugin/feature that AdminLTE offers. You simply need to add the plugin in the /static/js/plugin folder to include them or use npm. I've included the popular ones.
 
