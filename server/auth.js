@@ -12,6 +12,7 @@ const socialPassword = Config.get('/socialPassword');
 const socialIds = Config.get('/socialIds');
 const socialSecrets = Config.get('/socialSecrets');
 const expirationPeriod = Config.get('/expirationPeriod');
+const isSecure = Config.get('/socialSecure')
 
 const logger = RestHapi.getLogger('appy');
 
@@ -190,35 +191,40 @@ internals.applyFacebookStrategy = function (server, next) {
     password: socialPassword,
     clientId: socialIds.facebook,
     clientSecret: socialSecrets.facebook,
-    isSecure: false //Should be set to true (which is the default) in production
+    forceHttps: isSecure,
+    isSecure //Should be set to true (which is the default) in production
   };
 
   //Setup the social Facebook login strategy
   server.auth.strategy('facebook', 'bell', facebookOptions);
+};
 
-  // const verifyFacebookToken = function(token, next) {
-  //   let uri = 'https://graph.facebook.com/v2.3/me';
-  //
-  //   uri += "?fields=email,name";
-  //
-  //   let options = {
-  //     uri: uri,
-  //     headers: {
-  //       Authorization: "Bearer " + token
-  //     },
-  //   };
-  //
-  //   rp(options)
-  //     .then(function (response) {
-  //       next(null, JSON.parse(response));
-  //     })
-  //     .catch(function (err) {
-  //       next(err, null);
-  //     });
-  // };
-  //
-  // server.method('verifyFacebookToken', verifyFacebookToken, {});
+internals.applyGoogleStrategy = function (server, next) {
+  const googleOptions = {
+    provider: 'google',
+    password: socialPassword,
+    clientId: socialIds.google,
+    clientSecret: socialSecrets.google,
+    forceHttps: isSecure,
+    isSecure //Should be set to true (which is the default) in production
+  };
 
+  //Setup the social Google login strategy
+  server.auth.strategy('google', 'bell', googleOptions);
+};
+
+internals.applyGithubStrategy = function (server, next) {
+  const googleOptions = {
+    provider: 'github',
+    password: socialPassword,
+    clientId: socialIds.github,
+    clientSecret: socialSecrets.github,
+    forceHttps: isSecure,
+    isSecure //Should be set to true (which is the default) in production
+  };
+
+  //Setup the social GitHub login strategy
+  server.auth.strategy('github', 'bell', googleOptions);
 };
 
 internals.customForbiddenMessage = function (server) {
@@ -241,6 +247,8 @@ exports.register = function (server, options, next) {
   internals.customForbiddenMessage(server);
 
   internals.applyFacebookStrategy(server, next);
+  internals.applyGoogleStrategy(server, next);
+  internals.applyGithubStrategy(server, next);
 
   switch (authStrategy) {
     case AUTH_STRATEGIES.TOKEN:
@@ -256,6 +264,14 @@ exports.register = function (server, options, next) {
       next();
       break;
   }
+
+  // EXPL: Add helper method to get request ip
+  const getIP = function(request) {
+    // EXPL: We check the headers first in case the server is behind a reverse proxy.
+    // see: https://ypereirareis.github.io/blog/2017/02/15/nginx-real-ip-behind-nginx-reverse-proxy/
+    return request.headers[ 'x-real-ip' ] || request.headers[ 'x-forwarded-for'] || request.info.remoteAddress;
+  };
+  server.method('getIP', getIP, {});
 
 };
 

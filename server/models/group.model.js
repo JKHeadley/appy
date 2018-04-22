@@ -4,6 +4,11 @@ const permissionAuth = require('../policies/permissionAuth');
 const groupAuth = require('../policies/groupAuth');
 const rankAuth = require('../policies/roleAuth').rankAuth;
 
+const Config = require('../../config');
+
+const enableDemoAuth = Config.get('/enableDemoAuth');
+const demoAuth = enableDemoAuth ? 'demoAuth' : null;
+
 module.exports = function (mongoose) {
   var modelName = "group";
   var Types = mongoose.Schema.Types;
@@ -17,12 +22,14 @@ module.exports = function (mongoose) {
       type: Types.String
     }
   }, { collection: modelName });
-  
+
   Schema.statics = {
     collectionName:modelName,
     routeOptions: {
       policies: {
-        associatePolicies: [rankAuth(mongoose, "child"), permissionAuth(mongoose, false), groupAuth(mongoose, true)]
+        associatePolicies: [rankAuth(mongoose, "child"), permissionAuth(mongoose, false), groupAuth(mongoose, true), demoAuth],
+        updatePolicies: [demoAuth],
+        deletePolicies: [demoAuth]
       },
       associations: {
         users: {
@@ -39,6 +46,6 @@ module.exports = function (mongoose) {
       }
     }
   };
-  
+
   return Schema;
 };

@@ -82,19 +82,32 @@ const config = {
     $filter: 'env',
     production: {
       facebook: process.env.FACEBOOK_ID,
+      google: process.env.GOOGLE_ID,
+      github: process.env.GITHUB_ID,
     },
     $default: {
       facebook: process.env.FACEBOOK_ID,
+      google: process.env.GOOGLE_ID,
+      github: process.env.GITHUB_ID,
     }
   },
   socialSecrets: {
     $filter: 'env',
     production: {
       facebook: process.env.FACEBOOK_SECRET,
+      google: process.env.GOOGLE_SECRET,
+      github: process.env.GITHUB_SECRET,
     },
     $default: {
       facebook: process.env.FACEBOOK_SECRET,
+      google: process.env.GOOGLE_SECRET,
+      github: process.env.GITHUB_SECRET,
     }
+  },
+  socialSecure: {
+    $filter: 'env',
+    production: true,
+    $default: false
   },
   nodemailer: {
     $filter: 'env',
@@ -143,6 +156,12 @@ const config = {
     local: 'http://localhost:8080',
     production: process.env.CLIENT_URI,
     $default: 'http://localhost:8080'
+  },
+  // EXPL: If true, the 'demoAuth' policy is used to restrict certain actions.
+  enableDemoAuth: {
+    $filter: 'env',
+    production: true,
+    $default: true
   },
   restHapiConfig: {
     appTitle: constants.APP_TITLE,
@@ -219,6 +238,11 @@ const config = {
         local: true,
         $default: true
     },
+    enableSwaggerHttps: {
+      $filter: 'env',
+      production: true,
+      $default: false
+    },
     generateScopes: {
       $filter: 'env',
       local: true,
@@ -237,7 +261,8 @@ const config = {
     loglevel: {
       $filter: 'env',
       local: "DEBUG",
-      $default: "ERROR"
+      production: "DEBUG",
+      $default: "DEBUG"
     }
 
   }

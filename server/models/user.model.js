@@ -10,6 +10,11 @@ const groupAuth = require('../policies/groupAuth');
 const rankAuth = require('../policies/roleAuth').rankAuth;
 const promoteAuth = require('../policies/roleAuth').promoteAuth;
 
+const Config = require('../../config');
+
+const enableDemoAuth = Config.get('/enableDemoAuth');
+const demoAuth = enableDemoAuth ? 'demoAuth' : null;
+
 module.exports = function (mongoose) {
   const modelName = "user";
   const Types = mongoose.Schema.Types;
@@ -25,7 +30,7 @@ module.exports = function (mongoose) {
     email: {
       type: Types.String,
       required: true,
-      // stringType: 'email'
+      stringType: 'email'
     },
     title: {
       type: Types.String
@@ -68,6 +73,14 @@ module.exports = function (mongoose) {
       allowOnUpdate: false
     },
     facebookId: {
+      type: Types.String,
+      allowOnUpdate: false
+    },
+    googleId: {
+      type: Types.String,
+      allowOnUpdate: false
+    },
+    githubId: {
       type: Types.String,
       allowOnUpdate: false
     },
@@ -114,9 +127,9 @@ module.exports = function (mongoose) {
     routeOptions: {
       authorizeDocumentCreator: false,
       policies: {
-        associatePolicies: [rankAuth(mongoose, "ownerId"), permissionAuth(mongoose, false), groupAuth(mongoose, false)],
-        updatePolicies: [rankAuth(mongoose, "_id"), promoteAuth(mongoose)],
-        deletePolicies: [rankAuth(mongoose, "_id")]
+        associatePolicies: [rankAuth(mongoose, "ownerId"), permissionAuth(mongoose, false), groupAuth(mongoose, false), demoAuth],
+        updatePolicies: [rankAuth(mongoose, "_id"), promoteAuth(mongoose), demoAuth],
+        deletePolicies: [rankAuth(mongoose, "_id"), demoAuth]
       },
       routeScope: {
         // EXPL: Users can access their own Notifications
@@ -211,15 +224,15 @@ module.exports = function (mongoose) {
         },
         post: function (document, request, result, Log) {
           const User = mongoose.model('user');
-          if (!result.profileImageUrl) {
+          if (!document.profileImageUrl) {
             let profileImageUrl = 'https://www.gravatar.com/avatar/' + document._id + '?r=PG&d=robohash'
             return RestHapi.update(User, document._id, { profileImageUrl }, Log)
-              .then(function(result) {
-                return result
+              .then(function(user) {
+                return user
               })
           }
           else {
-            return result
+            return document
           }
         }
       }
