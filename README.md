@@ -1,3 +1,5 @@
+<img src="https://user-images.githubusercontent.com/12631935/39099920-eaab3d3e-4636-11e8-9955-b53be05e1c13.png" alt="Drawing" style="width: 200px;"/>
+
 **CoPilot** is a fully responsive admin template that is forked from [AdminLTE](https://almsaeedstudio.com). The difference here is that this repo is tailored to use with [Vue.js](https://vuejs.org). The UI is based on the [Bootstrap 3](https://github.com/twbs/bootstrap) framework. Highly customizable and easy to use. Fits many screen resolutions from small mobile devices to large desktops.
 
 <a href="https://copilot.misterGF.io" target="_blank">✈️️ Take it for a spin.</a>
