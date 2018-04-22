@@ -2,7 +2,7 @@
   <div class="container container-table">
       <div class="row vertical-10p">
         <div class="container">
-          <img src="/static/img/logo.png" class="center-block logo">
+          <img src="/static/img/white_logo_transparent_no_container_no_slogan.png" class="center-block login logo">
 
           <div class="page-header">
             <h1 style="text-align: center;">Account Activation</h1>

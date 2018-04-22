@@ -91,7 +91,7 @@
           <div class="callout callout-info">
             <h4>Coming Soon!</h4>
 
-            <p>Live Activity and Timeline will be included in future versions of Appy.</p>
+            <p>Live Activity and Timeline will be included in future versions of appy.</p>
           </div>
         </div>
         <div>
