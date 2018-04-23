@@ -124,13 +124,27 @@ var router = new VueRouter({
 
 // EXPL: Some middleware to help us ensure the user is authenticated.
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth) && (!router.app.$store.state.token || router.app.$store.state.token === 'null')) {
+  if (to.matched.some(record => record.meta.requiresAuth) &&
+    (!router.app.$store.state.auth.accessToken || router.app.$store.state.auth.accessToken === 'null')) {
     // EXPL: This route requires auth, check if logged in
     // if not, redirect to login page.
     window.console.log('Not authenticated')
     next({
       path: '/login',
       query: { redirect: to.fullPath }
+    })
+  } else {
+    next()
+  }
+})
+
+// EXPL: Redirect authenticated users away from login views, etc.
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresUnauth) && router.app.$store.state.auth.accessToken) {
+    // EXPL: Redirect authenticated users to the dashboard.
+    window.console.log('Authenticated')
+    next({
+      path: '/dashboard'
     })
   } else {
     next()
