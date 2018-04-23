@@ -1,6 +1,6 @@
 <template>
   <modal :adaptive="true"
-         :draggable="true"
+         :draggable="false"
          :clickToClose="false"
          :height="370"
          :width="400"
@@ -370,6 +370,11 @@
           this.$store.commit('SET_CONVERSATIONS', this.conversations)
           this.ready = true
         })
+        .catch((error) => {
+          this.ready = true
+          console.error('ChatBox.created-error:', error)
+        })
+
       eventBus.$on(EVENTS.OPEN_CHAT, this.openChat)
       eventBus.$on(EVENTS.CLOSE_CHAT, this.closeChat)
       eventBus.$on(EVENTS.MARK_CONVERSATION_AS_READ, (conversation) => { this.markConversation(conversation, true) })
