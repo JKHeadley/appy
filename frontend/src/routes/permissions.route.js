@@ -7,7 +7,7 @@ const routes = [
     path: 'permissions',
     component: Permissions,
     name: 'Permissions',
-    meta: { description: 'List of appy permissions', title: 'Permissions' }
+    meta: { description: 'List of appy permissions', title: 'Permissions', requiresAuth: true }
   }, {
     path: '/permissions/:_id',
     beforeEnter: (to, from, next) => {
@@ -15,12 +15,12 @@ const routes = [
     },
     component: PermissionDetails,
     name: 'PermissionDetails',
-    meta: { description: 'Details for the selected permission', title: 'Permission Details' }
+    meta: { description: 'Details for the selected permission', title: 'Permission Details', requiresAuth: true }
   }, {
     path: '/permission/create',
     component: PermissionCreate,
     name: 'PermissionCreate',
-    meta: { description: 'Create a new permission', title: 'Permission Create' }
+    meta: { description: 'Create a new permission', title: 'Permission Create', requiresAuth: true }
   }
 ]
 

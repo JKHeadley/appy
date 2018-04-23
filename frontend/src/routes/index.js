@@ -15,15 +15,18 @@ const routes = [
   {
     path: '/login',
     component: Login,
-    name: 'Login'
+    name: 'Login',
+    meta: { requiresUnauth: true }
   }, {
     path: '/login/social',
     component: LoginSocial,
-    name: 'LoginSocial'
+    name: 'LoginSocial',
+    meta: { requiresUnauth: true }
   }, {
     path: '/login/forgot',
     component: ForgotPassword,
-    name: 'ForgotPassword'
+    name: 'ForgotPassword',
+    meta: { requiresUnauth: true }
   }, {
     path: '/login/reset',
     component: ResetPassword,
@@ -35,7 +38,8 @@ const routes = [
   }, {
     path: '/register',
     component: Register,
-    name: 'Register'
+    name: 'Register',
+    meta: { requiresUnauth: true }
   }, {
     // not found handler
     path: '*',

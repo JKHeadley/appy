@@ -26,12 +26,12 @@ const routes = [
         alias: '',
         component: Dashboard,
         name: 'Dashboard',
-        meta: { description: 'Overview of app', title: 'Dashboard' }
+        meta: { description: 'Overview of app', title: 'Dashboard', requiresAuth: true }
       }, {
         path: 'profile',
         component: Profile,
         name: 'Profile',
-        meta: { description: 'Profile details', title: 'Profile' }
+        meta: { description: 'Profile details', title: 'Profile', requiresAuth: true }
       },
       ...userRoutes,
       ...roleRoutes,

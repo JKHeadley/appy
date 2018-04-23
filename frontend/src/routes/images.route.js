@@ -6,12 +6,12 @@ const routes = [
     path: 'images',
     component: Images,
     name: 'Images',
-    meta: { description: 'Your images', title: 'Images' }
+    meta: { description: 'Your images', title: 'Images', requiresAuth: true }
   }, {
     path: '/images/create',
     component: ImageCreate,
     name: 'ImageCreate',
-    meta: { description: 'Create a new image', title: 'Image' }
+    meta: { description: 'Create a new image', title: 'Image', requiresAuth: true }
   }
 ]
 

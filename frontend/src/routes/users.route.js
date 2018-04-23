@@ -7,7 +7,7 @@ const routes = [
     path: 'users',
     component: Users,
     name: 'Users',
-    meta: { description: 'List of appy users', title: 'Users' }
+    meta: { description: 'List of appy users', title: 'Users', requiresAuth: true }
   }, {
     path: '/users/:_id',
     beforeEnter: (to, from, next) => {
@@ -15,12 +15,12 @@ const routes = [
     },
     component: UserDetails,
     name: 'UserDetails',
-    meta: { description: 'Details for the selected user', title: 'User Details' }
+    meta: { description: 'Details for the selected user', title: 'User Details', requiresAuth: true }
   }, {
     path: '/users/create',
     component: UserCreate,
     name: 'UserCreate',
-    meta: { description: 'Create a new user', title: 'User Create' }
+    meta: { description: 'Create a new user', title: 'User Create', requiresAuth: true }
   }
 ]
 

@@ -6,7 +6,7 @@ const routes = [
     path: 'members',
     component: Members,
     name: 'Members',
-    meta: { description: 'List of appy members', title: 'Members' }
+    meta: { description: 'List of appy members', title: 'Members', requiresAuth: true }
   }, {
     path: '/members/:_id',
     beforeEnter: (to, from, next) => {
@@ -14,7 +14,7 @@ const routes = [
     },
     component: MemberProfile,
     name: 'MemberProfile',
-    meta: { description: 'Profile for the selected member', title: 'Member Profile' }
+    meta: { description: 'Profile for the selected member', title: 'Member Profile', requiresAuth: true }
   }
 ]
 
