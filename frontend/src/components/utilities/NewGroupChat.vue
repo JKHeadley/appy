@@ -1,6 +1,6 @@
 <template>
   <modal :adaptive="true"
-         :draggable="true"
+         :draggable="false"
          :clickToClose="true"
          :resizable="false"
          :height="600"
