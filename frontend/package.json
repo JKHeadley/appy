@@ -1,7 +1,7 @@
 {
   "name": "appy",
   "version": "0.1.0",
-  "description": "A fully functional website and user system to bootsrapp your app",
+  "description": "A fully featured boilerplate web app.",
   "author": "Justin Headley <headley.justin@gmail.com>",
   "repository": "https://github.com/JKHeadley/appy",
   "license": "MIT",

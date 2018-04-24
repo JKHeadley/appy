@@ -1,7 +1,10 @@
 {
-  "name": "appy",
+  "name": "appy-backend",
   "version": "1.0.0",
   "description": "A user system leveraging rest-hapi to bootstrap your app.",
+  "author": "Justin Headley <headley.justin@gmail.com>",
+  "repository": "https://github.com/JKHeadley/appy-backend",
+  "license": "MIT",
   "scripts": {
     "start": "gulp",
     "test": "gulp test"
