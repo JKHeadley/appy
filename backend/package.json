@@ -7,8 +7,8 @@
     "test": "gulp test"
   },
   "engines": {
-    "node": "5.0.0",
-    "npm": "3.8.1"
+    "node": ">=8.10.0",
+    "npm": ">=3.8.1"
   },
   "dependencies": {
     "aws-sdk": "^2.175.0",

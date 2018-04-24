@@ -1,5 +1,7 @@
 'use strict'
 
+process.env.NODE_ENV = 'local'
+
 const gulp = require('gulp')
 const exit = require('gulp-exit')
 const Q = require('q')

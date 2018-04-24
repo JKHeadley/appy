@@ -153,7 +153,7 @@ const config = {
   },
   clientURL: {
     $filter: 'env',
-    local: 'http://localhost:8080',
+    local: process.env.CLIENT_URI,
     production: process.env.CLIENT_URI,
     $default: 'http://localhost:8080'
   },
@@ -168,7 +168,7 @@ const config = {
     mongo: {
       URI: {
         $filter: 'env',
-        local: 'mongodb://localhost:27017/appy',
+        local: process.env.MONGODB_URI,
         production: process.env.MONGODB_URI,
         $default: 'mongodb://localhost:27017/appy',
       }
@@ -181,8 +181,8 @@ const config = {
     modelPath: __dirname + '/server/models',
     absoluteApiPath: true,
     apiPath: __dirname + '/server/api',
-      absolutePolicyPath: true,
-      policyPath: __dirname + '/server/policies',
+    absolutePolicyPath: true,
+    policyPath: __dirname + '/server/policies',
     authStrategy: {
       $filter: 'env',
       local: constants.AUTH_STRATEGIES.REFRESH,
@@ -219,24 +219,24 @@ const config = {
       $default: true
     },
     enablePolicies: {
-        $filter: 'env',
-        local: true,
-        $default: true
+      $filter: 'env',
+      local: true,
+      $default: true
     },
     enableDuplicateFields: {
-        $filter: 'env',
-        local: true,
-        $default: true
+      $filter: 'env',
+      local: true,
+      $default: true
     },
     trackDuplicatedFields: {
-        $filter: 'env',
-        local: true,
-        $default: true
+      $filter: 'env',
+      local: true,
+      $default: true
     },
     enableDocumentScopes: {
-        $filter: 'env',
-        local: true,
-        $default: true
+      $filter: 'env',
+      local: true,
+      $default: true
     },
     enableSwaggerHttps: {
       $filter: 'env',
