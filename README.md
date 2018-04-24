@@ -6,6 +6,7 @@
 
 ![appy-dashboard](https://user-images.githubusercontent.com/12631935/39155220-f691c77e-4705-11e8-9b83-2129a07c6d35.png)
 
+Just want an API server? Try [appy-backend](https://github.com/JKHeadley/appy-backend)
 
 ## Requirements
 
