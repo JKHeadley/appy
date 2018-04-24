@@ -23,21 +23,21 @@ $ cd appy
 
 Install dependencies:
 
-### Backend
+#### Backend
 
 ``` bash
 $ cd backend
 $ npm install
 ```
 
-### Frontend
+#### Frontend
 
 ``` bash
 $ cd frontend
 $ npm install
 ```
 
-## Backend Configuration
+### Backend Configuration
 Rename `.env-sample` to `.env`. Update values as needed. **Never commit .env to your repo**
 
 Also, update values in `config.js` as needed.
@@ -54,9 +54,9 @@ $ gulp seed
 NOTE: The password for all seed users is ``root``.
 
 
-## Running appy
+### Running appy
 
-### Backend
+#### Backend
 
 ``` bash
 $ gulp
@@ -64,7 +64,7 @@ $ gulp
 
 Point your browser to http://localhost:8125/ to view the Swagger docs.
 
-### Frontend
+#### Frontend
 
 ``` bash
 $ npm run dev
