@@ -9,7 +9,7 @@
 
 ## Requirements
 
-You need [Node.js](https://nodejs.org/en/) installed (>=5.0.0 for backend and >=8.10.0 for frontend) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
+You need [Node.js](https://nodejs.org/en/) installed (>=8.10.0) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
 
 
 ## Getting Started
