@@ -6,44 +6,80 @@
 
 ![appy-dashboard](https://user-images.githubusercontent.com/12631935/39155220-f691c77e-4705-11e8-9b83-2129a07c6d35.png)
 
-Installation
-------------
+
+## Requirements
+
+You need [Node.js](https://nodejs.org/en/) installed (>=5.0.0 for backend and >=8.10.0 for frontend) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
 
 
-#### Download:
+## Getting Started
 
-Download from Github
+Download from GitHub:
 
-#### Using The Command Line:
-
+```bash
+$ git clone https://github.com/JKHeadley/appy.git
+$ cd appy
 ```
-git clone 
-```
 
+Install dependencies:
 
-#### Build Setup
+### Backend
 
 ``` bash
-# install dependencies
-sudo npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
+$ cd backend
+$ npm install
 ```
 
-For detailed explanation on how things work, checkout the [guide](https://github.com/vuejs-templates/webpack#vue-webpack-boilerplate) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+### Frontend
+
+``` bash
+$ cd frontend
+$ npm install
+```
+
+## Backend Configuration
+Rename `.env-sample` to `.env`. Update values as needed. **Never commit .env to your repo**
+
+Also, update values in `config.js` as needed.
+
+### First time setup
+**WARNING**: This will clear all data in the MongoDB database defined in ``restHapiConfig.mongo.URI`` (default ``mongodb://localhost/appy``).
+
+To seed your database with some data, run:
+
+```
+$ gulp seed
+```
+
+NOTE: The password for all seed users is ``root``.
+
+
+## Running appy
+
+### Backend
+
+``` bash
+$ gulp
+```
+
+Point your browser to http://localhost:8125/ to view the Swagger docs.
+
+### Frontend
+
+``` bash
+$ npm run dev
+```
+
+Point your browser to http://localhost:8080/ to view the app, or click on one of the test accounts below to login:
+
+**[User](http://localhost:8080/login?email=test@user.com&password=root)**
+
+**[Admin](http://localhost:8080/login?email=test@admin.com&password=root)**
+
+**[Super Admin](http://localhost:8080/login?email=test@superadmin.com&password=root)**
+
+
+...have fun!
 
 
 Documentation
