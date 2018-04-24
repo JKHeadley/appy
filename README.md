@@ -78,7 +78,9 @@ Point your browser to http://localhost:8080/ to view the app, or click on one of
 
 **<a href="http://localhost:8080/login?email=test@superadmin.com&password=root" target="_blank">Super Admin</a>**
 
-...have fun!
+
+
+...that's it, have fun!
 
 
 Documentation
