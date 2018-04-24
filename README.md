@@ -72,12 +72,11 @@ $ npm run dev
 
 Point your browser to http://localhost:8080/ to view the app, or click on one of the test accounts below to login:
 
-**[User](http://localhost:8080/login?email=test@user.com&password=root)**
+**<a href="http://localhost:8080/login?email=test@user.com&password=root" target="_blank">User</a>**
 
-**[Admin](http://localhost:8080/login?email=test@admin.com&password=root)**
+**<a href="http://localhost:8080/login?email=test@admin.com&password=root" target="_blank">Admin</a>**
 
-**[Super Admin](http://localhost:8080/login?email=test@superadmin.com&password=root)**
-
+**<a href="http://localhost:8080/login?email=test@superadmin.com&password=root" target="_blank">Super Admin</a>**
 
 ...have fun!
 
