@@ -387,6 +387,5 @@ Temporary Items
 
 =======
 # Local
-frontend/node_modules
-docker-compose.yml
+**/node_modules
 .env
