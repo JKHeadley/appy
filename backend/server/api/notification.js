@@ -3,7 +3,7 @@
 const Chalk = require('chalk');
 const _ = require('lodash');
 
-const Config = require('../../config');
+const Config = require('../config/config');
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 

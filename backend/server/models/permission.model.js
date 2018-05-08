@@ -3,7 +3,7 @@
 const RestHapi = require('rest-hapi');
 const Q = require('q');
 const _ = require('lodash');
-const Config = require('../../config');
+const Config = require('../config/config');
 
 const permissionAuth = require('../policies/permissionAuth');
 const rankAuth = require('../policies/roleAuth').rankAuth;

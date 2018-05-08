@@ -7,8 +7,8 @@ const Chalk = require('chalk');
 const Jwt = require('jsonwebtoken');
 const RestHapi = require('rest-hapi');
 
-const Config = require('../../config');
-const Token = require('../token');
+const Config = require('../config/config');
+const Token = require('../utilities/token');
 const auditLog = require('../policies/audit-log')
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');

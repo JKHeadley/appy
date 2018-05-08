@@ -4,7 +4,7 @@ const Joi = require('joi');
 const Boom = require('boom');
 const Chalk = require('chalk');
 
-const Config = require('../../config');
+const Config = require('../config/config');
 
 const authStrategy = Config.get('/restHapiConfig/authStrategy');
 

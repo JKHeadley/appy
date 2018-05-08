@@ -2,7 +2,7 @@
 
 const RestHapi = require('rest-hapi');
 const _ = require('lodash');
-const Config = require('../../config');
+const Config = require('../config/config');
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
 const CHAT_TYPES = Config.get('/constants/CHAT_TYPES');
@@ -25,7 +25,7 @@ module.exports = function (mongoose) {
       enum: _.values(CHAT_TYPES)
     },
   }, { collection: modelName });
-    
+
   Schema.statics = {
     collectionName:modelName,
     routeOptions: {

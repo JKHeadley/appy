@@ -2,7 +2,7 @@
 
 const RestHapi = require('rest-hapi');
 
-const Config = require('../../config');
+const Config = require('../config/config');
 
 const NOTIFICATION_TYPES = Config.get('/constants/NOTIFICATION_TYPES');
 
@@ -24,7 +24,7 @@ module.exports = function (mongoose) {
       allowOnCreate: false,
     },
   }, { collection: modelName });
-    
+
   Schema.statics = {
     collectionName:modelName,
     routeOptions: {

@@ -11,7 +11,7 @@ const faker = require('faker')
 const iplocation = require('iplocation');
 const Composer = require('../index')
 
-const Config = require('../config')
+const Config = require('../server/config/config')
 
 const restHapiConfig = Config.get('/restHapiConfig')
 const USER_ROLES = Config.get('/constants/USER_ROLES')
@@ -351,8 +351,11 @@ gulp.task('seed', [], function () {
                 return RestHapi.create(models.visitor, visitor, Log);
               }
 
+              //EXPL: Specify the iplocation hosts to prevent issues (Ex: docker cant ping "https://ipaip.co/" by default)
+              let hosts = ['freegeoip.net', 'ipapi.co'];
+
               for (let i = 0; i <= 367; i++) {
-                promises.push(iplocation(faker.internet.ip()).then(addVisitor))
+                promises.push(iplocation(faker.internet.ip(), hosts).then(addVisitor))
               }
 
               return Q.all(promises)
