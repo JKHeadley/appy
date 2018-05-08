@@ -1,5 +1,0 @@
-node_modules
-/geckodriver*
-!/*/geckodriver
-*.tar.gz
-*.log
