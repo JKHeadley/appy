@@ -9,7 +9,7 @@ const Bcrypt = require('bcryptjs');
 const _ = require('lodash');
 const GeneratePassword = require('password-generator');
 
-const Config = require('../../config');
+const Config = require('../config/config');
 const auditLog = require('../policies/audit-log')
 
 const USER_ROLES = Config.get('/constants/USER_ROLES');
@@ -186,7 +186,7 @@ module.exports = function (server, mongoose, logger) {
 
     var headersValidation = Joi.object({
       'authorization': Joi.string()
-    }).options({allowUnknown: true}); 
+    }).options({allowUnknown: true});
 
     const optionalAuth = authStrategy === false ? false : { mode: 'try', strategy: authStrategy };
 

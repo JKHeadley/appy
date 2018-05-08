@@ -9,7 +9,7 @@ const iplocation = require('iplocation');
 const useragent = require('useragent');
 const faker = require('faker')
 
-const Config = require('../../config');
+const Config = require('../config/config');
 const auditLog = require('../policies/audit-log');
 
 const authStrategy = Config.get('/restHapiConfig/authStrategy');
@@ -24,7 +24,10 @@ module.exports = function (server, mongoose, logger) {
     Log.note("Generating Record Visitor endpoint");
 
     const recordVisitorHandler = function (request, reply) {
-      iplocation(server.methods.getIP(request))
+      //EXPL: Specify the iplocation hosts to prevent issues (Ex: docker cant ping "https://ipaip.co/" by default)
+      let hosts = ['freegeoip.net', 'ipapi.co'];
+
+      iplocation(server.methods.getIP(request), hosts)
         .then(function(result) {
           const agent = useragent.parse(request.headers['user-agent']);
 

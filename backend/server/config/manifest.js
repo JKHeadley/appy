@@ -2,16 +2,9 @@
 const Confidence = require('confidence');
 const Config = require('./config');
 
-
 const criteria = {
   env: process.env.NODE_ENV
 };
-
-console.log("ENV:", process.env.NODE_ENV)
-console.log("EMAIL:", Config.get('/defaultEmail'))
-console.log("URL:", Config.get('/clientURL'))
-console.log("SMTP_PASSWORD:", process.env.SMTP_PASSWORD)
-
 
 const manifest = {
   $meta: 'This file defines the server.',
@@ -37,16 +30,16 @@ const manifest = {
       plugin: 'bell'
     },
     {
-      plugin: './server/mailer'
+      plugin: './server/plugins/mailer'
     },
     {
-      plugin: './server/auth'
+      plugin: './server/plugins/auth'
     },
     {
-      plugin: './server/sockets'
+      plugin: './server/plugins/sockets'
     },
     {
-      plugin: './server/api'
+      plugin: './server/plugins/api'
     },
   ]
 };

@@ -2,7 +2,7 @@
 
 const Jwt = require('jsonwebtoken');
 const Mongoose = require('mongoose');
-const Config = require('../config');
+const Config = require('../config/config');
 
 function createToken(user, session, scope, expirationPeriod, Log) {
   Log = Log.bind("token");

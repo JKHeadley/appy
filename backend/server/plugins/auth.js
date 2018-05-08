@@ -4,8 +4,8 @@ const Mongoose = require('mongoose');
 const Boom = require('boom');
 const RestHapi = require('rest-hapi');
 
-const Config = require('../config');
-const Token = require('./token');
+const Config = require('../config/config');
+const Token = require('../utilities/token');
 
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES');
 const socialPassword = Config.get('/socialPassword');

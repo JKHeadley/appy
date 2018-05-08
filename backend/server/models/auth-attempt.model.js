@@ -1,6 +1,6 @@
 'use strict';
 
-const Config = require('../../config');
+const Config = require('../config/config');
 
 module.exports = function (mongoose) {
   const modelName = "authAttempt";

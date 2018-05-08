@@ -3,7 +3,7 @@
 const Mongoose = require('mongoose');
 const RestHapi = require('rest-hapi');
 
-const Config = require('../config');
+const Config = require('../config/config');
 
 exports.register = function (server, options, next) {
   RestHapi.config = Config.get('/restHapiConfig');

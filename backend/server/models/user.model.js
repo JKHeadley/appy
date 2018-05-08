@@ -10,7 +10,7 @@ const groupAuth = require('../policies/groupAuth');
 const rankAuth = require('../policies/roleAuth').rankAuth;
 const promoteAuth = require('../policies/roleAuth').promoteAuth;
 
-const Config = require('../../config');
+const Config = require('../config/config');
 
 const enableDemoAuth = Config.get('/enableDemoAuth');
 const demoAuth = enableDemoAuth ? 'demoAuth' : null;

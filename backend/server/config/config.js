@@ -178,11 +178,11 @@ const config = {
       additionalExposedHeaders: ['X-Access-Token', 'X-Refresh-Token']
     },
     absoluteModelPath: true,
-    modelPath: __dirname + '/server/models',
+    modelPath: __dirname + '/../models',
     absoluteApiPath: true,
-    apiPath: __dirname + '/server/api',
+    apiPath: __dirname + '/../api',
     absolutePolicyPath: true,
-    policyPath: __dirname + '/server/policies',
+    policyPath: __dirname + '/../policies',
     authStrategy: {
       $filter: 'env',
       local: constants.AUTH_STRATEGIES.REFRESH,

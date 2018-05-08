@@ -11,7 +11,7 @@ const fs = require('fs');
 
 const AWS = require('aws-sdk');
 
-const Config = require('../../config');
+const Config = require('../config/config');
 
 const authStrategy = Config.get('/restHapiConfig/authStrategy');
 const USER_ROLES = Config.get('/constants/USER_ROLES');
