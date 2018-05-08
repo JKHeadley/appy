@@ -1,0 +1,50 @@
+version: "3"
+
+volumes:
+  mongo_data:
+
+networks:
+  backend:
+  frontend:
+
+services:
+
+  mongo:
+    image: mongo:3.6.4
+    ports:
+      - 27018:27017
+    volumes:
+      - "mongo_data:/data/db"
+    networks:
+      - backend
+    restart: always
+
+  api:
+    build: backend/
+    ports:
+      - 8125:8125
+    volumes:
+      # Share the entire project except "node_modules". This prevents us from having to COPY the project files
+      #   in the Dockerfile, while still keeping separate node dependency files.
+      - "./backend:/backend"
+      - "/backend/node_modules"
+    networks:
+      - backend
+    depends_on:
+      - mongo
+    env_file:
+      - ./backend/.env
+
+  web:
+    build: frontend/
+    ports:
+      - 8080:8080
+    volumes:
+      # Share the entire project except "node_modules". This prevents us from having to COPY the project files
+      #   in the Dockerfile, while still keeping separate node dependency files.
+      - "./frontend:/frontend"
+      - "/frontend/node_modules"
+    networks:
+      - frontend
+    depends_on:
+      - api
