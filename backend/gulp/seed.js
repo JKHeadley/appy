@@ -9,7 +9,8 @@ const Mongoose = require('mongoose')
 const RestHapi = require('rest-hapi')
 const faker = require('faker')
 const iplocation = require('iplocation');
-const Composer = require('../index')
+const Glue = require('glue');
+const Manifest = require('../server/config/manifest');
 
 const Config = require('../server/config/config')
 
@@ -30,6 +31,12 @@ gulp.task('seed', [], function () {
   return RestHapi.generateModels(Mongoose)
     .then(function (result) {
       models = result
+
+      const composeOptions = {
+        relativeTo: __dirname + '/../'
+      };
+
+      const Composer = Glue.compose.bind(Glue, Manifest.get('/'), composeOptions);
 
       return Composer((err, server) => {
 
