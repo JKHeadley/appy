@@ -33,7 +33,7 @@ services:
     depends_on:
       - mongo
     env_file:
-      - ./backend/.env
+      - ./backend/.env-docker
 
   web:
     build: frontend/
