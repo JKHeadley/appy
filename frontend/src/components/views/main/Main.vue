@@ -30,8 +30,7 @@
 <script>
 import faker from 'faker'
 import { mapState } from 'vuex'
-import config, { EVENTS } from '../../../config'
-import { eventBus } from '../../../services'
+import config from '../../../config'
 
 import MainHeader from './MainHeader.vue'
 import ContentHeader from './ContentHeader.vue'

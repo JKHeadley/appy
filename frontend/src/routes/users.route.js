@@ -7,20 +7,34 @@ const routes = [
     path: 'users',
     component: Users,
     name: 'Users',
-    meta: { description: 'List of appy users', title: 'Users', requiresAuth: true }
-  }, {
+    meta: {
+      description: 'List of appy users',
+      title: 'Users',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/users/:_id',
     beforeEnter: (to, from, next) => {
       to.params._id === 'create' ? next({ name: 'UserCreate' }) : next()
     },
     component: UserDetails,
     name: 'UserDetails',
-    meta: { description: 'Details for the selected user', title: 'User Details', requiresAuth: true }
-  }, {
+    meta: {
+      description: 'Details for the selected user',
+      title: 'User Details',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/users/create',
     component: UserCreate,
     name: 'UserCreate',
-    meta: { description: 'Create a new user', title: 'User Create', requiresAuth: true }
+    meta: {
+      description: 'Create a new user',
+      title: 'User Create',
+      requiresAuth: true
+    }
   }
 ]
 

@@ -17,7 +17,7 @@ export default new Vuex.Store({
   actions,
   mutations: Object.assign(mutations, generateMutations(state)),
   modules: {
-    auth,
+    auth
     // websocket
   },
   plugins: [createPersistedState()]

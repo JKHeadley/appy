@@ -11,12 +11,11 @@ internals.getDashboardStats = () => {
     promises.push(http.get('/stats/dashboard'))
     promises.push(vm.$visitorRepository.list())
 
-    return Promise.all(promises)
-      .then(result => {
-        let stats = result[0].data.stats
-        stats.visitorData = result[1].data.docs
-        return stats
-      })
+    return Promise.all(promises).then(result => {
+      let stats = result[0].data.stats
+      stats.visitorData = result[1].data.docs
+      return stats
+    })
   } else {
     return new Promise(resolve => {
       setTimeout(() => {

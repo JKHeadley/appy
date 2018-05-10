@@ -77,8 +77,6 @@
   import { groupService, formService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
 
-  import _ from 'lodash'
-
   export default {
     name: 'GroupCreate',
     components: {

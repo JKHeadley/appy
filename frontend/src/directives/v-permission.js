@@ -28,16 +28,24 @@ internals.bind = (el, binding, vnode) => {
   const userScope = store.state.auth.scope
   const permissions = binding.value
 
-  let forbidden = !!permissions.filter(permission => userScope.indexOf('-' + permission) > -1)[0]
+  let forbidden = !!permissions.filter(
+    permission => userScope.indexOf('-' + permission) > -1
+  )[0]
 
-  let requiredPermissions = permissions.filter(permission => permission[0] === '+')
+  let requiredPermissions = permissions.filter(
+    permission => permission[0] === '+'
+  )
 
   let hasRequired = true
   if (requiredPermissions[0]) {
-    hasRequired = !!userScope.filter(scope => requiredPermissions.indexOf('+' + scope) > -1)[0]
+    hasRequired = !!userScope.filter(
+      scope => requiredPermissions.indexOf('+' + scope) > -1
+    )[0]
   }
 
-  let hasPermission = !!userScope.filter(scope => permissions.indexOf(scope) > -1)[0]
+  let hasPermission = !!userScope.filter(
+    scope => permissions.indexOf(scope) > -1
+  )[0]
 
   // EXPL: Root users always have access
   if (userScope.indexOf('root') > -1) {
@@ -54,7 +62,8 @@ internals.bind = (el, binding, vnode) => {
       el.style.position = 'relative'
 
       const TooltipComponent = Vue.extend({
-        template: '<span v-tooltip="\'Need Permissions\'" style="position: absolute; top: 0px; bottom: 0px; right: 0px; left: 0px;"></span>'
+        template:
+          '<span v-tooltip="\'Need Permissions\'" style="position: absolute; top: 0px; bottom: 0px; right: 0px; left: 0px;"></span>'
       })
 
       const tooltipComponent = new TooltipComponent().$mount()
@@ -65,7 +74,7 @@ internals.bind = (el, binding, vnode) => {
       // EXPL: Replace HTMLElement with comment node
       const comment = document.createComment(' ')
       Object.defineProperty(comment, 'setAttribute', {
-        value: () => undefined,
+        value: () => undefined
       })
       vnode.elm = comment
       vnode.text = ' '

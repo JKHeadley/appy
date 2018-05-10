@@ -5,7 +5,11 @@ const routes = [
     path: 'audit-logs',
     component: AuditLogs,
     name: 'AuditLogs',
-    meta: { description: 'List of audit logs', title: 'AuditLogs', requiresAuth: true }
+    meta: {
+      description: 'List of audit logs',
+      title: 'AuditLogs',
+      requiresAuth: true
+    }
   }
 ]
 

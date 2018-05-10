@@ -7,20 +7,34 @@ const routes = [
     path: 'groups',
     component: Groups,
     name: 'Groups',
-    meta: { description: 'List of appy groups', title: 'Groups', requiresAuth: true }
-  }, {
+    meta: {
+      description: 'List of appy groups',
+      title: 'Groups',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/groups/:_id',
     beforeEnter: (to, from, next) => {
       to.params._id === 'create' ? next({ name: 'GroupCreate' }) : next()
     },
     component: GroupDetails,
     name: 'GroupDetails',
-    meta: { description: 'Details for the selected group', title: 'Group Details', requiresAuth: true }
-  }, {
+    meta: {
+      description: 'Details for the selected group',
+      title: 'Group Details',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/groups/create',
     component: GroupCreate,
     name: 'GroupCreate',
-    meta: { description: 'Create a new group', title: 'Group Create', requiresAuth: true }
+    meta: {
+      description: 'Create a new group',
+      title: 'Group Create',
+      requiresAuth: true
+    }
   }
 ]
 

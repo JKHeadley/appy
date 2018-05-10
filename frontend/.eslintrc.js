@@ -10,10 +10,11 @@ module.exports = {
     browser: true,
   },
   // https://github.com/feross/standard/blob/master/RULES.md#javascript-standard-style
-  extends: 'standard',
+  extends: ['prettier-standard'],
   // required to lint *.vue files
   plugins: [
-    'html'
+    'html',
+    'prettier'
   ],
   // add your custom rules here
   'rules': {
@@ -23,5 +24,10 @@ module.exports = {
     'generator-star-spacing': 0,
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
+  },
+  "globals": {
+    "$": false,
+    "ClassicEditor": false,
+    "Chart": false
   }
 }

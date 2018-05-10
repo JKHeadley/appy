@@ -1,20 +1,19 @@
 import changeCase from 'change-case'
 import _ from 'lodash'
 
-const generateMutations = function (initialState) {
-
+const generateMutations = function(initialState) {
   const mutations = {}
 
   for (const prop in initialState) {
-    mutations['SET_' + changeCase.constantCase(prop)] = function (state, data) {
+    mutations['SET_' + changeCase.constantCase(prop)] = function(state, data) {
       state[prop] = data
     }
 
-    mutations['DELETE_' + changeCase.constantCase(prop)] = function (state) {
+    mutations['DELETE_' + changeCase.constantCase(prop)] = function(state) {
       state[prop] = null
     }
 
-    mutations['CLEAR_' + changeCase.constantCase(prop)] = function (state) {
+    mutations['CLEAR_' + changeCase.constantCase(prop)] = function(state) {
       if (_.isString(state[prop])) {
         state[prop] = ''
       }
@@ -33,11 +32,17 @@ const generateMutations = function (initialState) {
     }
 
     if (_.isArray(initialState[prop])) {
-      mutations['ADD_' + changeCase.constantCase(prop)] = function (state, data) {
+      mutations['ADD_' + changeCase.constantCase(prop)] = function(
+        state,
+        data
+      ) {
         state[prop].push(data)
       }
 
-      mutations['REMOVE_' + changeCase.constantCase(prop)] = function (state, data) {
+      mutations['REMOVE_' + changeCase.constantCase(prop)] = function(
+        state,
+        data
+      ) {
         const index = state[prop].indexOf(data)
 
         if (index !== -1) {

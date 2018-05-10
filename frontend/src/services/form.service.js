@@ -8,7 +8,7 @@ internals.minlengthValidator = (input, minlength) => {
   return input.length >= minlength
 }
 
-internals.emailValidator = (email) => {
+internals.emailValidator = email => {
   return validator.isEmail(email)
 }
 
@@ -21,11 +21,12 @@ internals.emailUniqueValidator = (email, originalEmail) => {
     if (email === originalEmail) {
       resolve(true)
     } else {
-      http.post(API.USER + '/check-email', { email })
-        .then(function (result) {
+      http
+        .post(API.USER + '/check-email', { email })
+        .then(function(result) {
           resolve(!result.data)
         })
-        .catch(function (error) {
+        .catch(function(error) {
           console.error('formService.emailUniqueValidator-error:\n', error)
           reject(error)
         })
@@ -33,7 +34,7 @@ internals.emailUniqueValidator = (email, originalEmail) => {
   })
 }
 
-internals.passwordScoreValidator = (passwordScore) => {
+internals.passwordScoreValidator = passwordScore => {
   return passwordScore >= REQUIRED_PASSWORD_STRENGTH
 }
 
@@ -41,7 +42,7 @@ internals.passwordConfirmValidator = (newPassword, confirmPassword) => {
   return newPassword === confirmPassword
 }
 
-internals.fieldClassName = (field) => {
+internals.fieldClassName = field => {
   if (!field) {
     return ''
   }

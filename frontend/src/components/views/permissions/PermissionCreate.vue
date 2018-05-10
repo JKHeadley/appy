@@ -74,8 +74,6 @@
   import { permissionService, formService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
 
-  import _ from 'lodash'
-
   export default {
     name: 'PermissionCreate',
     components: {

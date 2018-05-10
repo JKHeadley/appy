@@ -1,10 +1,8 @@
-import _ from 'lodash'
-
 import vm from '../main'
 
 const internals = {}
 
-internals.updateDocument = function (document) {
+internals.updateDocument = function(document) {
   document = Object.assign({}, document)
 
   delete document.users
@@ -14,7 +12,7 @@ internals.updateDocument = function (document) {
   return vm.$documentRepository.update(document._id, document)
 }
 
-internals.updateDocumentUsers = function (documentId, usersToInvite) {
+internals.updateDocumentUsers = function(documentId, usersToInvite) {
   return vm.$documentRepository.addManyUsers(documentId, usersToInvite)
 }
 

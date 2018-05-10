@@ -118,6 +118,7 @@
 
   import swal from 'sweetalert2'
   import faker from 'faker'
+  import _ from 'lodash'
 
   export default {
     name: 'DocumentDetails',
