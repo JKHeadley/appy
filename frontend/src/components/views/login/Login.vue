@@ -129,7 +129,7 @@
       }
     },
     computed: {
-      // EXPL: The '/auth/{social}' endpoint will first authenticate the user using the third party
+      // The '/auth/{social}' endpoint will first authenticate the user using the third party
       // social authentication, then the appy server will redirect us to the '/login/social/' view
       loginFacebookURI () {
         return config.serverURI + '/auth/facebook'

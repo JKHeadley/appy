@@ -227,7 +227,7 @@
       closeModal () {
         this.$emit('exit')
       },
-      // EXPL: This makes sure the "Edit" and "View" checkboxes aren't both checked at the same time
+      // This makes sure the "Edit" and "View" checkboxes aren't both checked at the same time
       removeDuplicate (item) {
         this.usersToInvite = this.usersToInvite.filter((currentItem) => {
           if (currentItem.childId === item.childId && currentItem.canEdit !== item.canEdit) {

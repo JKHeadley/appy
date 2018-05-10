@@ -234,7 +234,7 @@
         return formService.emailUniqueValidator(email, this.oldProfile.email)
       },
       minlengthValidator (minlength) {
-        // EXPL: the masked input comes with '_' chars, so we need to remove those before checking the length
+        // the masked input comes with '_' chars, so we need to remove those before checking the length
         return (input) => { return formService.minlengthValidator(input.split('_')[0], minlength) }
       },
       passwordScoreValidator () {
@@ -257,7 +257,7 @@
             this.loading = false
             this.formstate._reset()
             this.oldProfile = _.cloneDeep(this.newProfile)
-            // EXPL: Update the global user object
+            // Update the global user object
             const user = Object.assign(this.$store.state.auth.user, this.newProfile)
             user.profileImageUrl = this.profileImageUrl
             this.$store.commit('auth/SET_USER', user)
@@ -277,7 +277,7 @@
             this.newPassword = ''
             this.confirmPassword = ''
             this.passwordFormstate._reset()
-            // EXPL: Update the global user object
+            // Update the global user object
             const user = Object.assign(this.$store.state.auth.user, { passwordUpdateRequired: false })
             this.$store.commit('auth/SET_USER', user)
             this.$snotify.success('Password updated', 'Success!')
@@ -294,7 +294,7 @@
           .then((response) => {
             this.loading = false
             this.pinFormstate._reset()
-            // EXPL: Update the global user object
+            // Update the global user object
             const user = Object.assign(this.$store.state.auth.user, { pinUpdateRequired: false })
             this.$store.commit('auth/SET_USER', user)
             this.$snotify.success('PIN updated', 'Success!')
@@ -343,14 +343,14 @@
       }
     },
     created () {
-      // EXPL: Filter out unneeded user properties for the profile
+      // Filter out unneeded user properties for the profile
       this.newProfile = (({ email, firstName, lastName, title, education, location, bio }) => {
         return { email, firstName, lastName, title, education, location, bio }
       })(this.$store.state.auth.user)
 
       this.oldProfile = _.cloneDeep(this.newProfile)
 
-      // EXPL: Set the active tab
+      // Set the active tab
       if (this.$route.query.details) {
         this.detailsActive = 'active'
       } else if (this.$route.query.settings) {
@@ -358,7 +358,7 @@
       } else {
         this.pictureActive = 'active'
       }
-      // EXPL: Notify the user of any required updates
+      // Notify the user of any required updates
       if (this.$store.state.auth.user.passwordUpdateRequired && this.$store.state.auth.user.pinUpdateRequired) {
         this.updateRequiredMessage = 'You must update your password and PIN to continue.'
       } else if (this.$store.state.auth.user.passwordUpdateRequired) {

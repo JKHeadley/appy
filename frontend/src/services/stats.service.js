@@ -6,7 +6,7 @@ const internals = {}
 internals.getDashboardStats = () => {
   let promises = []
 
-  // EXPL: This function sometimes gets called before the global vm is ready
+  // This function sometimes gets called before the global vm is ready
   if (vm) {
     promises.push(http.get('/stats/dashboard'))
     promises.push(vm.$visitorRepository.list())

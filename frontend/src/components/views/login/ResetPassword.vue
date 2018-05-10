@@ -118,7 +118,7 @@
       fieldClassName: formService.fieldClassName,
       emailValidator: formService.emailValidator,
       minlengthValidator (minlength) {
-        // EXPL: the masked input comes with '_' chars, so we need to remove those before checking the length
+        // the masked input comes with '_' chars, so we need to remove those before checking the length
         return (input) => { return formService.minlengthValidator(input.split('_')[0], minlength) }
       },
       passwordScoreValidator () {
@@ -164,7 +164,7 @@
       }
     },
     created () {
-      // EXPL: If the user was directed here via a link with a key, then activate their account
+      // If the user was directed here via a link with a key, then activate their account
       this.pinRequired = this.$route.query.pinRequired === 'true'
       if (!this.$route.query.token) {
         console.error('ResetPassword.init-error:', 'no token')

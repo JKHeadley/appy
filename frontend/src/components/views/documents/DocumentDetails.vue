@@ -180,7 +180,7 @@
       },
       resetDocument () {
         this.clearDocument()
-        // EXPL: This is a hack to refresh the body property
+        // This is a hack to refresh the body property
         setTimeout(() => {
           this.newDocument = _.cloneDeep(this.oldDocument)
         }, 1)

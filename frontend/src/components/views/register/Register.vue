@@ -155,7 +155,7 @@
       emailValidator: formService.emailValidator,
       emailUniqueValidator: formService.emailUniqueValidator,
       minlengthValidator (minlength) {
-        // EXPL: the masked input comes with '_' chars, so we need to remove those before checking the length
+        // the masked input comes with '_' chars, so we need to remove those before checking the length
         return (input) => { return formService.minlengthValidator(input.split('_')[0], minlength) }
       },
       passwordScoreValidator () {

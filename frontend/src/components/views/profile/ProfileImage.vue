@@ -137,7 +137,7 @@
               this.profileloading = false
               this.fileChosen = false
               this.percentCompleted = 0
-              // EXPL: Update the global user object
+              // Update the global user object
               const user = this.$store.state.auth.user
               user.profileImageUrl = this.profileImageUrl
               this.$store.commit('auth/SET_USER', user)
@@ -156,7 +156,7 @@
         return userService.updateUserProfile({ profileImageUrl: this.profileImageUrl })
           .then((response) => {
             this.loading = false
-            // EXPL: Update the global user object
+            // Update the global user object
             const user = this.$store.state.auth.user
             user.profileImageUrl = this.profileImageUrl
             this.$store.commit('auth/SET_USER', user)

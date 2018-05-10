@@ -68,7 +68,7 @@ internals.updatePermission = function(newPermission, oldPermission) {
 }
 
 internals.updatePermissionUsers = function(permissionId, newUsers, oldUsers) {
-  // EXPL: Add any new users or updated users who's state has changed for this permission.
+  // Add any new users or updated users who's state has changed for this permission.
   let usersToAdd = newUsers
     .filter(newUser => {
       return !oldUsers.find(oldUser => {
@@ -108,7 +108,7 @@ internals.updatePermissionGroups = function(
   newGroups,
   oldGroups
 ) {
-  // EXPL: Add any new groups or updated groups who's state has changed for this permission.
+  // Add any new groups or updated groups who's state has changed for this permission.
   let groupsToAdd = newGroups
     .filter(newGroup => {
       return !oldGroups.find(oldGroup => {

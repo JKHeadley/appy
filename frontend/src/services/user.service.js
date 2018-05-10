@@ -11,7 +11,7 @@ internals.updateUser = function(newUser, oldUser) {
   oldUser = Object.assign({}, oldUser)
   newUser.role = newUser.role._id
 
-  // EXPL: Filter out properties not needed
+  // Filter out properties not needed
   newUser = (({ email, firstName, lastName, role, groups, permissions }) => {
     return { email, firstName, lastName, role, groups, permissions }
   })(newUser)
@@ -71,7 +71,7 @@ internals.updateUserPermissions = function(
   newPermissions,
   oldPermissions
 ) {
-  // EXPL: Add any new permissions or updated permissions who's state has changed.
+  // Add any new permissions or updated permissions who's state has changed.
   let permissionsToAdd = newPermissions
     .filter(newPermission => {
       return !oldPermissions.find(oldPermission => {
@@ -163,10 +163,10 @@ internals.getConnectionStats = function(userId) {
  * @returns {Array|*|resources.user.associations.permissions|{alias}|resources.role.associations.permissions|resources.group.associations.permissions}
  */
 internals.getEffectivePermissions = (role, groups, permissions) => {
-  // EXPL: base permissions are set by the user's role
+  // base permissions are set by the user's role
   const effectivePermissions = role.permissions.concat([])
 
-  // EXPL: group permissions override role permissions
+  // group permissions override role permissions
   for (let group of groups) {
     for (let groupPermission of group.group.permissions) {
       let matchIndex = -1
@@ -185,7 +185,7 @@ internals.getEffectivePermissions = (role, groups, permissions) => {
     }
   }
 
-  // EXPL: user permissions override group permissions
+  // user permissions override group permissions
   for (let userPermission of permissions) {
     let matchIndex = -1
     effectivePermissions.find((permission, index) => {
