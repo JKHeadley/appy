@@ -1,8 +1,9 @@
-var fs = require('fs')
+// var fs = require('fs')
 
 let prodEnv, devEnv
 
-// EXPL: We don't commit env vars, so these lines are required for CI deployments
+// We don't commit env vars, so these lines are required for CI deployments
+
 // fs.stat('./frontend/config/prod.env', function (err, stat) {
 //   if (err == null) {
 //     console.log("NO PROD")
@@ -23,7 +24,7 @@ let prodEnv, devEnv
 //   }
 // })
 
-// EXPL: We don't commit env vars, so these lines are required for CI deployments
+// We don't commit env vars, so these lines are required for CI deployments
 try {
   prodEnv = require('./prod.env')
 } catch (error) {
@@ -52,7 +53,7 @@ module.exports = {
     // Before setting to `true`, make sure to:
     // npm install --save-dev compression-webpack-plugin
     productionGzip: false,
-    productionGzipExtensions: ['js', 'css'],
+    productionGzipExtensions: ['js', 'css']
   },
   dev: {
     env: devEnv,

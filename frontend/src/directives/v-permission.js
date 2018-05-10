@@ -47,16 +47,16 @@ internals.bind = (el, binding, vnode) => {
     scope => permissions.indexOf(scope) > -1
   )[0]
 
-  // EXPL: Root users always have access
+  // Root users always have access
   if (userScope.indexOf('root') > -1) {
     hasPermission = true
     forbidden = false
     hasRequired = true
   }
 
-  // EXPL: Restrict access if the user does not have permission
+  // Restrict access if the user does not have permission
   if (!hasPermission || !hasRequired || forbidden) {
-    // EXPL: '.enabled' disables the element if the user does not have permission
+    // '.enabled' disables the element if the user does not have permission
     if (binding.modifiers.enable) {
       el.disabled = true
       el.style.position = 'relative'
@@ -69,9 +69,9 @@ internals.bind = (el, binding, vnode) => {
       const tooltipComponent = new TooltipComponent().$mount()
       el.appendChild(tooltipComponent.$el)
 
-      // EXPL: '.if' removes the element if the user does not have permission
+      // '.if' removes the element if the user does not have permission
     } else {
-      // EXPL: Replace HTMLElement with comment node
+      // Replace HTMLElement with comment node
       const comment = document.createComment(' ')
       Object.defineProperty(comment, 'setAttribute', {
         value: () => undefined

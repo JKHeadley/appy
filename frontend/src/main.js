@@ -1,17 +1,17 @@
-// EXPL: Import ES6 Promise
+// Import ES6 Promise
 import 'es6-promise/auto'
 
-// EXPL: Import global styles
+// Import global styles
 // import '../static/css/imported/bootstrap.min.css'
 import '../static/css/Custom.scss'
 import 'vue-snotify/styles/material.css'
 import 'vue-croppa/dist/vue-croppa.css'
 
-// EXPL: Import global js files
+// Import global js files
 // import '../static/js/plugins/bootstrap/bootstrap.min'
 // import 'jquery'
 
-// EXPL: Import System requirements
+// Import System requirements
 import Vue from 'vue'
 
 import { sync } from 'vuex-router-sync'
@@ -24,13 +24,13 @@ import axios from 'axios'
 import qs from 'querystring'
 import config, { resources } from './config'
 
-// EXPL: Import plugins
+// Import plugins
 import VueRouter from 'vue-router'
 import RestHapiRepository from './plugins/repository-plugin'
 import Snotify, { SnotifyPosition } from 'vue-snotify'
 import VueMoment from 'vue-moment'
 
-// EXPL: Import global components
+// Import global components
 import { ServerTable } from 'vue-tables-2'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 import VueForm from 'vue-form'
@@ -51,10 +51,10 @@ import NewGroupChat from './components/utilities/NewGroupChat.vue'
 import VueEditor from './components/utilities/VueEditor.vue'
 import VistorMap from './components/utilities/VisitorMap.vue'
 
-// EXPL: Import global directives
+// Import global directives
 import vPermission from './directives/v-permission'
 
-// EXPL: Import Helpers for filters
+// Import Helpers for filters
 import {
   domain,
   count,
@@ -64,10 +64,10 @@ import {
   userList
 } from './filters'
 
-// EXPL: Import Views - Top level
+// Import Views - Top level
 import AppView from './components/App.vue'
 
-// EXPL: Import Install and register helper items
+// Import Install and register helper items
 Vue.filter('count', count)
 Vue.filter('domain', domain)
 Vue.filter('prettyDate', prettyDate)
@@ -77,12 +77,12 @@ Vue.filter('userList', userList)
 
 axios.defaults.baseURL = config.serverURI
 
-// EXPL: Replace default serializer with one that works with Joi validation
+// Replace default serializer with one that works with Joi validation
 axios.defaults.paramsSerializer = function(params) {
   return qs.stringify(params)
 }
 
-// EXPL: Register global components and plugins
+// Register global components and plugins
 Vue.component('box', Box)
 Vue.component('vue-form-input', VueFormInput)
 Vue.component('chat-box', ChatBox)
@@ -116,10 +116,10 @@ Vue.use(Croppa)
 Vue.use(Carousel3d)
 Vue.use(VTooltip)
 
-// EXPL: Register global directives
+// Register global directives
 Vue.directive('permission', vPermission)
 
-// EXPL: Routing logic
+// Routing logic
 var router = new VueRouter({
   routes: routes,
   mode: 'history',
@@ -129,14 +129,14 @@ var router = new VueRouter({
   }
 })
 
-// EXPL: Some middleware to help us ensure the user is authenticated.
+// Some middleware to help us ensure the user is authenticated.
 router.beforeEach((to, from, next) => {
   if (
     to.matched.some(record => record.meta.requiresAuth) &&
     (!router.app.$store.state.auth.accessToken ||
       router.app.$store.state.auth.accessToken === 'null')
   ) {
-    // EXPL: This route requires auth, check if logged in
+    // This route requires auth, check if logged in
     // if not, redirect to login page.
     window.console.log('Not authenticated')
     next({
@@ -148,13 +148,13 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-// EXPL: Redirect authenticated users away from login views, etc.
+// Redirect authenticated users away from login views, etc.
 router.beforeEach((to, from, next) => {
   if (
     to.matched.some(record => record.meta.requiresUnauth) &&
     router.app.$store.state.auth.accessToken
   ) {
-    // EXPL: Redirect authenticated users to the dashboard.
+    // Redirect authenticated users to the dashboard.
     window.console.log('Authenticated')
     next({
       path: '/dashboard'
@@ -164,7 +164,7 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-// EXPL: Force users to update their password or PIN if needed.
+// Force users to update their password or PIN if needed.
 // This mainly applies to users that have been invited to the system.
 router.beforeEach((to, from, next) => {
   if (
@@ -181,7 +181,7 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-// EXPL: Manage breadcrumbs
+// Manage breadcrumbs
 router.beforeEach((to, from, next) => {
   store.dispatch('setBreadcrumbs', { currentPath: to.path })
   next()
@@ -189,22 +189,22 @@ router.beforeEach((to, from, next) => {
 
 sync(store, router)
 
-// EXPL: Set up websockets
+// Set up websockets
 // store.dispatch('websocket/init')
 if (store.state.auth.accessToken) {
   wsClient.connect()
 }
 
-// EXPL: Add a response interceptor
+// Add a response interceptor
 axios.interceptors.response.use(function(response) {
   return Promise.resolve(response)
 }, authInterceptor.responseError)
 
-// EXPL: Initialize auth header
+// Initialize auth header
 axios.defaults.headers.common.Authorization =
   'Bearer ' + store.state.auth.accessToken
 
-// EXPL: Post to visitor endpoint to record visit
+// Post to visitor endpoint to record visit
 statsService.postVisit()
 
 // Start our app!

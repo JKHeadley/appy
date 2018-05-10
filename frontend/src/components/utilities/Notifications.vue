@@ -79,10 +79,10 @@
     created () {
       this.currentUser = this.$store.state.auth.user
       const promises = []
-      // EXPL: Get all of the user's current notifications
+      // Get all of the user's current notifications
       promises.push(this.$userRepository.getNotifications(this.currentUser._id, { $embed: ['actingUser'], $sort: ['-createdAt'] }))
 
-      // EXPL: Listen for any new notifications
+      // Listen for any new notifications
       wsClient.subscribe('/notification/' + this.currentUser._id, this.notificationRecieved)
 
       Promise.all(promises)

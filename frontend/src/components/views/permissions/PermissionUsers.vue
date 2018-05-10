@@ -275,7 +275,7 @@
           params.$searchFields = ['firstName', 'lastName', 'email']
         }
         if (!_.isEmpty(permissionUserIds)) {
-          // EXPL: Exclude the current permission users from the list of available users
+          // Exclude the current permission users from the list of available users
           params.$exclude = permissionUserIds
         }
         return this.$userRepository.list(params)

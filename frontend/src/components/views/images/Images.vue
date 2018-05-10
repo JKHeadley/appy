@@ -178,7 +178,7 @@
         this.$imageRepository.deleteOne(imageToRemove._id)
           .then((result) => {
             this.images.splice(this.images.indexOf(imageToRemove), 1)
-            // EXPL: This is a hack to rerender the carousel component
+            // This is a hack to rerender the carousel component
             this.enableCarousel = false
             setTimeout(() => {
               this.loading = false

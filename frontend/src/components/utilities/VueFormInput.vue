@@ -68,7 +68,7 @@
       }
     },
     methods: {
-      // EXPL: Make sure to debounce the password score update
+      // Make sure to debounce the password score update
       updateScore: _.debounce(function (password, userInputs) {
         this.$emit('input', password)
         eventBus.$emit(EVENTS.UPDATING_PASSWORD_SCORE)

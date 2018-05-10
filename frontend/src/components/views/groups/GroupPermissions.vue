@@ -276,7 +276,7 @@
           params.$searchFields = ['name']
         }
         if (!_.isEmpty(groupPermissionIds)) {
-          // EXPL: Exclude the current group permissions from the list of available permissions
+          // Exclude the current group permissions from the list of available permissions
           params.$exclude = groupPermissionIds
         }
         return userService.getAvailablePermissions(params)

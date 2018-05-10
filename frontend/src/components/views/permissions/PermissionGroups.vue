@@ -274,7 +274,7 @@
           params.$searchFields = ['name']
         }
         if (!_.isEmpty(permissionGroupIds)) {
-          // EXPL: Exclude the current permission groups from the list of available groups
+          // Exclude the current permission groups from the list of available groups
           params.$exclude = permissionGroupIds
         }
         return this.$groupRepository.list(params)

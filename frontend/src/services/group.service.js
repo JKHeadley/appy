@@ -102,7 +102,7 @@ internals.updateGroupPermissions = function(
   newPermissions,
   oldPermissions
 ) {
-  // EXPL: Add any new permissions or updated permissions who's state has changed.
+  // Add any new permissions or updated permissions who's state has changed.
   let permissionsToAdd = newPermissions
     .filter(newPermission => {
       return !oldPermissions.find(oldPermission => {

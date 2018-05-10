@@ -256,7 +256,7 @@
               this.updateConversationOrder(conversation)
 
               if (this.currentConversation && this.currentConversation._id === conversation._id) {
-                // EXPL: Message belongs to the current conversation, so mark as read and add to the message list
+                // Message belongs to the current conversation, so mark as read and add to the message list
                 this.messages.push(message)
                 this.markConversation(conversation, true)
               } else {
@@ -309,7 +309,7 @@
       },
       scrollToEnd () {
         this.$nextTick(function () {
-          // EXPL: Try catch to silence scrollHeight errors
+          // Try catch to silence scrollHeight errors
           try {
             let container = this.$el.querySelector('#messages')
             container.scrollTop = container.scrollHeight
@@ -358,10 +358,10 @@
     created () {
       this.currentUser = this.$store.state.auth.user
       const promises = []
-      // EXPL: Get all of the user's current conversations
+      // Get all of the user's current conversations
       promises.push(chatService.getConversations())
 
-      // EXPL: Listen for any chat messages
+      // Listen for any chat messages
       wsClient.subscribe('/chat/' + this.currentUser._id, this.messageRecieved)
 
       Promise.all(promises)
