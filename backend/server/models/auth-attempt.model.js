@@ -1,6 +1,6 @@
 'use strict'
 
-const Config = require('../config/config')
+const Config = require('../../config/config')
 
 module.exports = function(mongoose) {
   const modelName = 'authAttempt'
@@ -46,9 +46,9 @@ module.exports = function(mongoose) {
     abuseDetected: function(ip, email, Log) {
       const self = this
 
-      const lockOutPeriod = Config.get('/lockOutPeriod')
-      const expirationDate = lockOutPeriod
-        ? { $gt: Date.now() - lockOutPeriod * 60000 }
+      const LOCKOUT_PERIOD = Config.get('/constants/LOCKOUT_PERIOD')
+      const expirationDate = LOCKOUT_PERIOD
+        ? { $gt: Date.now() - LOCKOUT_PERIOD * 60000 }
         : { $lt: Date.now() }
 
       let abusiveIpCount = {}
@@ -75,10 +75,10 @@ module.exports = function(mongoose) {
         .then(function(result) {
           abusiveIpUserCount = result
 
-          const authAttemptsConfig = Config.get('/authAttempts')
-          const ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp
+          const AUTH_ATTEMPTS = Config.get('/constants/AUTH_ATTEMPTS')
+          const ipLimitReached = abusiveIpCount >= AUTH_ATTEMPTS.FOR_IP
           const ipUserLimitReached =
-            abusiveIpUserCount >= authAttemptsConfig.forIpAndUser
+            abusiveIpUserCount >= AUTH_ATTEMPTS.FOR_IP_AND_USER
 
           return ipLimitReached || ipUserLimitReached
         })

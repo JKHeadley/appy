@@ -11,9 +11,9 @@ const RestHapi = require('rest-hapi')
 const faker = require('faker')
 const iplocation = require('iplocation')
 const Glue = require('glue')
-const Manifest = require('../server/config/manifest')
+const Manifest = require('../config/manifest')
 
-const Config = require('../server/config/config')
+const Config = require('../config/config')
 
 const restHapiConfig = Config.get('/restHapiConfig')
 const USER_ROLES = Config.get('/constants/USER_ROLES')

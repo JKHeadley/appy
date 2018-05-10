@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const Config = require('../config/config')
+const Config = require('../../config/config')
 
 const permissionAuth = require('../policies/permissionAuth')
 const rankAuth = require('../policies/roleAuth').rankAuth

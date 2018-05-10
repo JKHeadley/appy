@@ -4,7 +4,7 @@ const Joi = require('joi')
 const Chalk = require('chalk')
 const RestHapi = require('rest-hapi')
 
-const Config = require('../config/config')
+const Config = require('../../config/config')
 
 const authStrategy = Config.get('/restHapiConfig/authStrategy')
 
