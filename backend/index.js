@@ -1,7 +1,7 @@
 'use strict'
 const Glue = require('glue')
 const RestHapi = require('rest-hapi')
-const Manifest = require('./server/config/manifest')
+const Manifest = require('./config/manifest')
 
 const composeOptions = {
   relativeTo: __dirname

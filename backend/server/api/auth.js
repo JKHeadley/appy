@@ -7,7 +7,7 @@ const Uuid = require('node-uuid')
 const Q = require('q')
 const RestHapi = require('rest-hapi')
 
-const Config = require('../config/config')
+const Config = require('../../config/config')
 
 const USER_ROLES = Config.get('/constants/USER_ROLES')
 const clientURL = Config.get('/clientURL')

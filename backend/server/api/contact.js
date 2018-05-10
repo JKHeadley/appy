@@ -3,7 +3,7 @@
 const Joi = require('joi')
 const Chalk = require('chalk')
 
-const Config = require('../config/config')
+const Config = require('../../config/config')
 
 module.exports = function(server, mongoose, logger) {
   // Contact Endpoint

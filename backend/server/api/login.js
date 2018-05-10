@@ -7,12 +7,13 @@ const Chalk = require('chalk')
 const Jwt = require('jsonwebtoken')
 const RestHapi = require('rest-hapi')
 
-const Config = require('../config/config')
+const Config = require('../../config/config')
 const Token = require('../utilities/token')
 const auditLog = require('../policies/audit-log')
 
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES')
-const expirationPeriod = Config.get('/expirationPeriod')
+const EXPIRATION_PERIOD = Config.get('/constants/EXPIRATION_PERIOD')
+const WEB_TITLE = Config.get('/constants/WEB_TITLE')
 const authStrategy = Config.get('/restHapiConfig/authStrategy')
 
 module.exports = function(server, mongoose, logger) {
@@ -155,7 +156,7 @@ module.exports = function(server, mongoose, logger) {
                   request.pre.user,
                   null,
                   request.pre.scope,
-                  expirationPeriod.long,
+                  EXPIRATION_PERIOD.LONG,
                   Log
                 )
               )
@@ -169,7 +170,7 @@ module.exports = function(server, mongoose, logger) {
                   request.pre.user,
                   null,
                   request.pre.scope,
-                  expirationPeriod.short,
+                  EXPIRATION_PERIOD.SHORT,
                   Log
                 )
               )
@@ -192,7 +193,7 @@ module.exports = function(server, mongoose, logger) {
                   null,
                   request.pre.session,
                   request.pre.scope,
-                  expirationPeriod.long,
+                  EXPIRATION_PERIOD.LONG,
                   Log
                 )
               )
@@ -221,7 +222,7 @@ module.exports = function(server, mongoose, logger) {
                   null,
                   request.pre.session,
                   request.pre.scope,
-                  expirationPeriod.long,
+                  EXPIRATION_PERIOD.LONG,
                   Log
                 )
               )
@@ -422,7 +423,7 @@ module.exports = function(server, mongoose, logger) {
                     request.pre.user,
                     null,
                     request.pre.scope,
-                    expirationPeriod.long,
+                    EXPIRATION_PERIOD.LONG,
                     Log
                   )
                 )
@@ -436,7 +437,7 @@ module.exports = function(server, mongoose, logger) {
                     request.pre.user,
                     null,
                     request.pre.scope,
-                    expirationPeriod.short,
+                    EXPIRATION_PERIOD.SHORT,
                     Log
                   )
                 )
@@ -459,7 +460,7 @@ module.exports = function(server, mongoose, logger) {
                     null,
                     request.pre.session,
                     request.pre.scope,
-                    expirationPeriod.long,
+                    EXPIRATION_PERIOD.LONG,
                     Log
                   )
                 )
@@ -488,7 +489,7 @@ module.exports = function(server, mongoose, logger) {
                     null,
                     request.pre.session,
                     request.pre.scope,
-                    expirationPeriod.long,
+                    EXPIRATION_PERIOD.LONG,
                     Log
                   )
                 )
@@ -665,7 +666,7 @@ module.exports = function(server, mongoose, logger) {
             const lastName = user.lastName ? user.lastName : null
 
             const emailOptions = {
-              subject: 'Reset your ' + Config.get('/websiteName') + ' password',
+              subject: 'Reset your ' + WEB_TITLE + ' password',
               to: {
                 name: firstName + ' ' + lastName,
                 address: request.payload.email
@@ -680,12 +681,12 @@ module.exports = function(server, mongoose, logger) {
                 key: keyHash.key
               },
               Config.get('/jwtSecret'),
-              { algorithm: 'HS256', expiresIn: expirationPeriod.medium }
+              { algorithm: 'HS256', expiresIn: EXPIRATION_PERIOD.MEDIUM }
             )
 
             const context = {
               clientURL: Config.get('/clientURL'),
-              websiteName: Config.get('/websiteName'),
+              websiteName: WEB_TITLE,
               key: token,
               pinRequired
             }

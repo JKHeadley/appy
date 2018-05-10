@@ -2,7 +2,7 @@
 
 const RestHapi = require('rest-hapi')
 
-const Config = require('../config/config')
+const Config = require('../../config/config')
 
 const NOTIFICATION_TYPES = Config.get('/constants/NOTIFICATION_TYPES')
 

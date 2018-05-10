@@ -1,7 +1,7 @@
 'use strict'
 
 const _ = require('lodash')
-const Config = require('../config/config')
+const Config = require('../../config/config')
 
 const CHAT_TYPES = Config.get('/constants/CHAT_TYPES')
 

@@ -10,7 +10,7 @@ const fs = require('fs')
 
 const AWS = require('aws-sdk')
 
-const Config = require('../config/config')
+const Config = require('../../config/config')
 
 const authStrategy = Config.get('/restHapiConfig/authStrategy')
 const S3BucketName = Config.get('/S3BucketName')

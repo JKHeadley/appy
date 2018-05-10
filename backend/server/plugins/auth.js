@@ -4,14 +4,14 @@ const Mongoose = require('mongoose')
 const Boom = require('boom')
 const RestHapi = require('rest-hapi')
 
-const Config = require('../config/config')
+const Config = require('../../config/config')
 const Token = require('../utilities/token')
 
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES')
 const socialPassword = Config.get('/socialPassword')
 const socialIds = Config.get('/socialIds')
 const socialSecrets = Config.get('/socialSecrets')
-const expirationPeriod = Config.get('/expirationPeriod')
+const EXPIRATION_PERIOD = Config.get('/constants/EXPIRATION_PERIOD')
 const isSecure = Config.get('/socialSecure')
 
 const logger = RestHapi.getLogger('appy')
@@ -45,7 +45,7 @@ internals.applySessionStrategy = function(server, next) {
     if (creds && request.response.header) {
       request.response.header(
         'X-Access-Token',
-        Token(null, creds.session, creds.scope, expirationPeriod.long, Log)
+        Token(null, creds.session, creds.scope, EXPIRATION_PERIOD.LONG, Log)
       )
     }
 
@@ -112,11 +112,11 @@ internals.applyRefreshStrategy = function(server, next) {
     if (creds && creds.session && request.response.header) {
       request.response.header(
         'X-Access-Token',
-        Token(creds.user, null, creds.scope, expirationPeriod.short, Log)
+        Token(creds.user, null, creds.scope, EXPIRATION_PERIOD.SHORT, Log)
       )
       request.response.header(
         'X-Refresh-Token',
-        Token(null, creds.session, creds.scope, expirationPeriod.long, Log)
+        Token(null, creds.session, creds.scope, EXPIRATION_PERIOD.LONG, Log)
       )
     }
 

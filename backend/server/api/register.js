@@ -9,12 +9,13 @@ const Bcrypt = require('bcryptjs')
 const _ = require('lodash')
 const GeneratePassword = require('password-generator')
 
-const Config = require('../config/config')
+const Config = require('../../config/config')
 const auditLog = require('../policies/audit-log')
 
 const USER_ROLES = Config.get('/constants/USER_ROLES')
+const WEB_TITLE = Config.get('/constants/WEB_TITLE')
 const authStrategy = Config.get('/restHapiConfig/authStrategy')
-const expirationPeriod = Config.get('/expirationPeriod')
+const EXPIRATION_PERIOD = Config.get('/constants/EXPIRATION_PERIOD')
 
 module.exports = function(server, mongoose, logger) {
   // Registration endpoint
@@ -119,7 +120,7 @@ module.exports = function(server, mongoose, logger) {
           if (request.payload.registerType === 'Register') {
             const emailOptions = {
               subject:
-                'Activate your ' + Config.get('/websiteName') + ' account',
+                'Activate your ' + WEB_TITLE + ' account',
               to: {
                 name:
                   request.payload.firstName + ' ' + request.payload.lastName,
@@ -139,7 +140,7 @@ module.exports = function(server, mongoose, logger) {
 
             const context = {
               clientURL: Config.get('/clientURL'),
-              websiteName: Config.get('/websiteName'),
+              websiteName: WEB_TITLE,
               key: token
             }
 
@@ -153,7 +154,7 @@ module.exports = function(server, mongoose, logger) {
               })
           } else if (request.payload.registerType === 'Invite') {
             const emailOptions = {
-              subject: 'Invitation to ' + Config.get('/websiteName'),
+              subject: 'Invitation to ' + WEB_TITLE,
               to: {
                 name:
                   request.payload.firstName + ' ' + request.payload.lastName,
@@ -180,7 +181,7 @@ module.exports = function(server, mongoose, logger) {
 
             const context = {
               clientURL: Config.get('/clientURL'),
-              websiteName: Config.get('/websiteName'),
+              websiteName: WEB_TITLE,
               inviteeName: invitee.firstName + ' ' + invitee.lastName,
               email: request.payload.user.email,
               password: originalPassword,
@@ -328,7 +329,7 @@ module.exports = function(server, mongoose, logger) {
           const lastName = user.lastName ? user.lastName : null
 
           const emailOptions = {
-            subject: 'Activate your ' + Config.get('/websiteName') + ' account',
+            subject: 'Activate your ' + WEB_TITLE + ' account',
             to: {
               name: firstName + ' ' + lastName,
               address: request.payload.email
@@ -342,7 +343,7 @@ module.exports = function(server, mongoose, logger) {
               key: keyHash.key
             },
             Config.get('/jwtSecret'),
-            { algorithm: 'HS256', expiresIn: expirationPeriod.medium }
+            { algorithm: 'HS256', expiresIn: EXPIRATION_PERIOD.MEDIUM }
           )
 
           const context = {
