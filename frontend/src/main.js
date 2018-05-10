@@ -55,7 +55,14 @@ import VistorMap from './components/utilities/VisitorMap.vue'
 import vPermission from './directives/v-permission'
 
 // EXPL: Import Helpers for filters
-import { domain, count, prettyDate, pluralize, shortMessage, userList } from './filters'
+import {
+  domain,
+  count,
+  prettyDate,
+  pluralize,
+  shortMessage,
+  userList
+} from './filters'
 
 // EXPL: Import Views - Top level
 import AppView from './components/App.vue'
@@ -71,7 +78,7 @@ Vue.filter('userList', userList)
 axios.defaults.baseURL = config.serverURI
 
 // EXPL: Replace default serializer with one that works with Joi validation
-axios.defaults.paramsSerializer = function (params) {
+axios.defaults.paramsSerializer = function(params) {
   return qs.stringify(params)
 }
 
@@ -110,22 +117,25 @@ Vue.use(Carousel3d)
 Vue.use(VTooltip)
 
 // EXPL: Register global directives
-Vue.directive('permission', vPermission);
+Vue.directive('permission', vPermission)
 
 // EXPL: Routing logic
 var router = new VueRouter({
   routes: routes,
   mode: 'history',
   linkExactActiveClass: 'active',
-  scrollBehavior: function (to, from, savedPosition) {
+  scrollBehavior: function(to, from, savedPosition) {
     return savedPosition || { x: 0, y: 0 }
   }
 })
 
 // EXPL: Some middleware to help us ensure the user is authenticated.
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth) &&
-    (!router.app.$store.state.auth.accessToken || router.app.$store.state.auth.accessToken === 'null')) {
+  if (
+    to.matched.some(record => record.meta.requiresAuth) &&
+    (!router.app.$store.state.auth.accessToken ||
+      router.app.$store.state.auth.accessToken === 'null')
+  ) {
     // EXPL: This route requires auth, check if logged in
     // if not, redirect to login page.
     window.console.log('Not authenticated')
@@ -140,7 +150,10 @@ router.beforeEach((to, from, next) => {
 
 // EXPL: Redirect authenticated users away from login views, etc.
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresUnauth) && router.app.$store.state.auth.accessToken) {
+  if (
+    to.matched.some(record => record.meta.requiresUnauth) &&
+    router.app.$store.state.auth.accessToken
+  ) {
     // EXPL: Redirect authenticated users to the dashboard.
     window.console.log('Authenticated')
     next({
@@ -154,8 +167,11 @@ router.beforeEach((to, from, next) => {
 // EXPL: Force users to update their password or PIN if needed.
 // This mainly applies to users that have been invited to the system.
 router.beforeEach((to, from, next) => {
-  if ((store.state.auth.user.passwordUpdateRequired || store.state.auth.user.pinUpdateRequired) &&
-    to.fullPath !== '/profile?settings=true') {
+  if (
+    (store.state.auth.user.passwordUpdateRequired ||
+      store.state.auth.user.pinUpdateRequired) &&
+    to.fullPath !== '/profile?settings=true'
+  ) {
     next({
       path: '/profile',
       query: { settings: true }
@@ -180,12 +196,13 @@ if (store.state.auth.accessToken) {
 }
 
 // EXPL: Add a response interceptor
-axios.interceptors.response.use(function (response) {
+axios.interceptors.response.use(function(response) {
   return Promise.resolve(response)
 }, authInterceptor.responseError)
 
 // EXPL: Initialize auth header
-axios.defaults.headers.common.Authorization = 'Bearer ' + store.state.auth.accessToken
+axios.defaults.headers.common.Authorization =
+  'Bearer ' + store.state.auth.accessToken
 
 // EXPL: Post to visitor endpoint to record visit
 statsService.postVisit()

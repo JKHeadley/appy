@@ -231,7 +231,7 @@
             this.$snotify.error('Mark as read failed', 'Error!')
           })
       },
-      //TODO: test group chats and add group chat icon next to titles
+      // TODO: test group chats and add group chat icon next to titles
       messageRecieved (message, flags) {
         console.log("MESSAGE:", message._id)
         if (this.currentConversation && this.currentConversation.lastMessage) {

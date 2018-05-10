@@ -7,11 +7,16 @@ const routes = [
     component: Images,
     name: 'Images',
     meta: { description: 'Your images', title: 'Images', requiresAuth: true }
-  }, {
+  },
+  {
     path: '/images/create',
     component: ImageCreate,
     name: 'ImageCreate',
-    meta: { description: 'Create a new image', title: 'Image', requiresAuth: true }
+    meta: {
+      description: 'Create a new image',
+      title: 'Image',
+      requiresAuth: true
+    }
   }
 ]
 

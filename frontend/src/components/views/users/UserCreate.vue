@@ -138,8 +138,6 @@
   import { userService, authService, formService, eventBus } from '../../../services'
   import { EVENTS, USER_ROLES } from '../../../config'
 
-  import _ from 'lodash'
-
   export default {
     name: 'UserCreate',
     components: {

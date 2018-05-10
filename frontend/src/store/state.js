@@ -3,7 +3,7 @@ export default {
   conversations: [],
   notifications: [],
   userInfo: {
-    messages: [{1: 'test', 2: 'test'}],
+    messages: [{ 1: 'test', 2: 'test' }],
     notifications: [],
     tasks: []
   }

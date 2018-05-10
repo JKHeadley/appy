@@ -72,8 +72,6 @@
   import { roleService, formService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
 
-  import _ from 'lodash'
-
   export default {
     name: 'RoleCreate',
     components: {

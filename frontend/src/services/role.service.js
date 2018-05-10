@@ -4,32 +4,35 @@ import vm from '../main'
 
 const internals = {}
 
-internals.createRole = function (role) {
+internals.createRole = function(role) {
   role = Object.assign({}, role)
 
-  const permissions = (role.permissions || []).concat([]).map((permission) => {
+  const permissions = (role.permissions || []).concat([]).map(permission => {
     return { childId: permission.permission._id, state: permission.state }
   })
 
   delete role.permissions
 
   const promises = []
-  return vm.$roleRepository.create(role)
-    .then((result) => {
+  return vm.$roleRepository
+    .create(role)
+    .then(result => {
       role = result.data
       if (!_.isEmpty(permissions)) {
-        promises.push(vm.$roleRepository.addManyPermissions(role._id, permissions))
+        promises.push(
+          vm.$roleRepository.addManyPermissions(role._id, permissions)
+        )
       }
 
       return Promise.all(promises)
     })
-    .catch((error) => {
+    .catch(error => {
       console.error('roleService.createRole-error:\n', error)
       throw error
     })
 }
 
-internals.updateRole = function (newRole, oldRole) {
+internals.updateRole = function(newRole, oldRole) {
   newRole = Object.assign({}, newRole)
   oldRole = Object.assign({}, oldRole)
 
@@ -40,31 +43,54 @@ internals.updateRole = function (newRole, oldRole) {
 
   const promises = []
   promises.push(vm.$roleRepository.update(newRole._id, newRole))
-  promises.push(internals.updateRolePermissions(newRole._id, newPermissions, oldPermissions))
+  promises.push(
+    internals.updateRolePermissions(newRole._id, newPermissions, oldPermissions)
+  )
 
   return Promise.all(promises)
 }
 
-internals.updateRolePermissions = function (roleId, newPermissions, oldPermissions) {
+internals.updateRolePermissions = function(
+  roleId,
+  newPermissions,
+  oldPermissions
+) {
   // EXPL: Add any new permissions or updated permissions who's state has changed.
-  let permissionsToAdd = newPermissions.filter((newPermission) => {
-    return !oldPermissions.find((oldPermission) => {
-      return oldPermission.permission._id === newPermission.permission._id && oldPermission.state === newPermission.state
+  let permissionsToAdd = newPermissions
+    .filter(newPermission => {
+      return !oldPermissions.find(oldPermission => {
+        return (
+          oldPermission.permission._id === newPermission.permission._id &&
+          oldPermission.state === newPermission.state
+        )
+      })
     })
-  }).map((permission) => { return { childId: permission.permission._id, state: permission.state } })
-
-  let permissionsToRemove = oldPermissions.filter((oldPermission) => {
-    return !newPermissions.find((newPermission) => {
-      return oldPermission.permission._id === newPermission.permission._id && oldPermission.state === newPermission.state
+    .map(permission => {
+      return { childId: permission.permission._id, state: permission.state }
     })
-  }).map((permission) => { return permission.permission._id })
 
-  let promise = _.isEmpty(permissionsToAdd) ? Promise.resolve() : vm.$roleRepository.addManyPermissions(roleId, permissionsToAdd)
-
-  return promise
-    .then(() => {
-      return _.isEmpty(permissionsToRemove) ? Promise.resolve() : vm.$roleRepository.removeManyPermissions(roleId, permissionsToRemove)
+  let permissionsToRemove = oldPermissions
+    .filter(oldPermission => {
+      return !newPermissions.find(newPermission => {
+        return (
+          oldPermission.permission._id === newPermission.permission._id &&
+          oldPermission.state === newPermission.state
+        )
+      })
     })
+    .map(permission => {
+      return permission.permission._id
+    })
+
+  let promise = _.isEmpty(permissionsToAdd)
+    ? Promise.resolve()
+    : vm.$roleRepository.addManyPermissions(roleId, permissionsToAdd)
+
+  return promise.then(() => {
+    return _.isEmpty(permissionsToRemove)
+      ? Promise.resolve()
+      : vm.$roleRepository.removeManyPermissions(roleId, permissionsToRemove)
+  })
 }
 
 export default internals

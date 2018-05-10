@@ -5,8 +5,6 @@
   import { wsClient, eventBus } from '../../services'
   import { EVENTS, NOTIFICATION_TYPES } from '../../config'
 
-  import _ from 'lodash'
-
   export default {
     name: 'Notification',
     props: [],

@@ -200,6 +200,8 @@
   import { EVENTS } from '../../../config'
   import swal from 'sweetalert2'
 
+  import _ from 'lodash'
+
   export default {
     name: 'Profile',
     components: {

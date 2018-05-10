@@ -4,7 +4,7 @@ import { RESPONSE_MESSAGES } from '../config'
 
 const internals = {}
 
-internals.get = function (url, params, options) {
+internals.get = function(url, params, options) {
   let config = {
     method: 'GET',
     url: url,
@@ -12,13 +12,13 @@ internals.get = function (url, params, options) {
   }
   config = Object.assign(config, options)
   return axios(config)
-    .then(function (response) {
+    .then(function(response) {
       if (response.headers['x-access-token']) {
         internals.updateTokens(response.headers)
       }
       return response
     })
-    .catch(function (error) {
+    .catch(function(error) {
       if (error === RESPONSE_MESSAGES.EXPIRED_ACCESS_TOKEN) {
         store.dispatch('auth/useRefreshToken')
         return internals.get(url, params, options)
@@ -28,7 +28,7 @@ internals.get = function (url, params, options) {
     })
 }
 
-internals.put = function (url, payload, options) {
+internals.put = function(url, payload, options) {
   let config = {
     method: 'PUT',
     url: url,
@@ -36,13 +36,13 @@ internals.put = function (url, payload, options) {
   }
   config = Object.assign(config, options)
   return axios(config)
-    .then(function (response) {
+    .then(function(response) {
       if (response.headers['x-access-token']) {
         internals.updateTokens(response.headers)
       }
       return response
     })
-    .catch(function (error) {
+    .catch(function(error) {
       if (error === RESPONSE_MESSAGES.EXPIRED_ACCESS_TOKEN) {
         store.dispatch('auth/useRefreshToken')
         return internals.put(url, payload, options)
@@ -52,7 +52,7 @@ internals.put = function (url, payload, options) {
     })
 }
 
-internals.post = function (url, payload, options) {
+internals.post = function(url, payload, options) {
   let config = {
     method: 'POST',
     url: url,
@@ -60,13 +60,13 @@ internals.post = function (url, payload, options) {
   }
   config = Object.assign(config, options)
   return axios(config)
-    .then(function (response) {
+    .then(function(response) {
       if (response.headers['x-access-token']) {
         internals.updateTokens(response.headers)
       }
       return response
     })
-    .catch(function (error) {
+    .catch(function(error) {
       if (error === RESPONSE_MESSAGES.EXPIRED_ACCESS_TOKEN) {
         store.dispatch('auth/useRefreshToken')
         return internals.post(url, payload, options)
@@ -76,7 +76,7 @@ internals.post = function (url, payload, options) {
     })
 }
 
-internals.delete = function (url, payload, options) {
+internals.delete = function(url, payload, options) {
   let config = {
     method: 'DELETE',
     url: url,
@@ -84,13 +84,13 @@ internals.delete = function (url, payload, options) {
   }
   config = Object.assign(config, options)
   return axios(config)
-    .then(function (response) {
+    .then(function(response) {
       if (response.headers['x-access-token']) {
         internals.updateTokens(response.headers)
       }
       return response
     })
-    .catch(function (error) {
+    .catch(function(error) {
       if (error === RESPONSE_MESSAGES.EXPIRED_ACCESS_TOKEN) {
         store.dispatch('auth/useRefreshToken')
         return internals.delete(url, payload, options)
@@ -100,7 +100,7 @@ internals.delete = function (url, payload, options) {
     })
 }
 
-internals.updateTokens = function (headers) {
+internals.updateTokens = function(headers) {
   const tokens = {
     accessToken: headers['x-access-token'],
     refreshToken: headers['x-refresh-token']

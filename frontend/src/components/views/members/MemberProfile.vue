@@ -327,7 +327,6 @@
   import { userService, eventBus } from '../../../services'
   import { EVENTS } from '../../../config'
 
-  import _ from 'lodash'
   import faker from 'faker'
 
   export default {
@@ -525,4 +524,3 @@
 
 <style lang="scss">
 </style>
-

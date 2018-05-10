@@ -74,7 +74,7 @@
 </template>
 
 <script>
-  import { eventBus, fileService } from '../../../services'
+  import { fileService } from '../../../services'
   import { EVENTS } from '../../../config'
 
   export default {
