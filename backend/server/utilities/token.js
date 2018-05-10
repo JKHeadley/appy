@@ -1,24 +1,26 @@
-'use strict';
+'use strict'
 
-const Jwt = require('jsonwebtoken');
-const Mongoose = require('mongoose');
-const Config = require('../config/config');
+const Jwt = require('jsonwebtoken')
+const Config = require('../config/config')
 
 function createToken(user, session, scope, expirationPeriod, Log) {
-  Log = Log.bind("token");
+  Log = Log.bind('token')
 
-  let token = {};
+  let token = {}
 
   if (session) {
-    token = Jwt.sign({
-      sessionId: session._id,
-      sessionKey: session.key,
-      passwordHash: session.passwordHash,
-      scope: scope
-    }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
-  }
-  else {
-    const tokenUser ={
+    token = Jwt.sign(
+      {
+        sessionId: session._id,
+        sessionKey: session.key,
+        passwordHash: session.passwordHash,
+        scope: scope
+      },
+      Config.get('/jwtSecret'),
+      { algorithm: 'HS256', expiresIn: expirationPeriod }
+    )
+  } else {
+    const tokenUser = {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -28,15 +30,19 @@ function createToken(user, session, scope, expirationPeriod, Log) {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       _id: user._id
-    };
+    }
 
-    token = Jwt.sign({
-      user: tokenUser,
-      scope: scope
-    }, Config.get('/jwtSecret'), { algorithm: 'HS256', expiresIn: expirationPeriod });
+    token = Jwt.sign(
+      {
+        user: tokenUser,
+        scope: scope
+      },
+      Config.get('/jwtSecret'),
+      { algorithm: 'HS256', expiresIn: expirationPeriod }
+    )
   }
 
-  return token;
+  return token
 }
 
-module.exports = createToken;
+module.exports = createToken

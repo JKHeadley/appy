@@ -1,10 +1,10 @@
-'use strict';
-const Confidence = require('confidence');
-const Config = require('./config');
+'use strict'
+const Confidence = require('confidence')
+const Config = require('./config')
 
 const criteria = {
   env: process.env.NODE_ENV
-};
+}
 
 const manifest = {
   $meta: 'This file defines the server.',
@@ -19,9 +19,11 @@ const manifest = {
       }
     }
   },
-  connections: [{
-    port: Config.get('/port')
-  }],
+  connections: [
+    {
+      port: Config.get('/port')
+    }
+  ],
   registrations: [
     {
       plugin: 'hapi-auth-jwt2'
@@ -40,21 +42,16 @@ const manifest = {
     },
     {
       plugin: './server/plugins/api'
-    },
+    }
   ]
-};
+}
 
+const store = new Confidence.Store(manifest)
 
-const store = new Confidence.Store(manifest);
+exports.get = function(key) {
+  return store.get(key, criteria)
+}
 
-
-exports.get = function (key) {
-
-  return store.get(key, criteria);
-};
-
-
-exports.meta = function (key) {
-
-  return store.meta(key, criteria);
-};
+exports.meta = function(key) {
+  return store.meta(key, criteria)
+}

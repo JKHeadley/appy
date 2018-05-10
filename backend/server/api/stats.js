@@ -1,34 +1,72 @@
-'use strict';
+'use strict'
 
-const Chalk = require('chalk');
-const Q = require('q');
-const RestHapi = require('rest-hapi');
+const Chalk = require('chalk')
+const Q = require('q')
+const RestHapi = require('rest-hapi')
 
-module.exports = function (server, mongoose, logger) {
-
+module.exports = function(server, mongoose, logger) {
   // Dashboard Stats Endpoint
-  (function() {
-    const Log = logger.bind(Chalk.magenta("Dashboard Stats"));
-    const User = mongoose.model('user');
-    const Document = mongoose.model('document');
-    const Image = mongoose.model('image');
-    const Message = mongoose.model('message');
-    const Visitor = mongoose.model('visitor');
+  ;(function() {
+    const Log = logger.bind(Chalk.magenta('Dashboard Stats'))
+    const User = mongoose.model('user')
+    const Document = mongoose.model('document')
+    const Image = mongoose.model('image')
+    const Message = mongoose.model('message')
+    const Visitor = mongoose.model('visitor')
 
-    Log.note("Generating Dashboard Stats endpoint");
+    Log.note('Generating Dashboard Stats endpoint')
 
-    const dashboardStatsHandler = function (request, reply) {
-
-      let promises = [];
-      let stats = {};
-      promises.push(RestHapi.list(User, { isDeleted: false, $count: true }, Log))
-      promises.push(RestHapi.list(Document, { isDeleted: false, $count: true }, Log))
-      promises.push(RestHapi.list(Image, { isDeleted: false, $count: true }, Log))
-      promises.push(RestHapi.list(Message, { isDeleted: false, $count: true }, Log))
-      promises.push(RestHapi.list(User, { isDeleted: false, $where: { facebookId: { $exists: true } }, $count: true }, Log))
-      promises.push(RestHapi.list(User, { isDeleted: false, $where: { googleId: { $exists: true } }, $count: true }, Log))
-      promises.push(RestHapi.list(User, { isDeleted: false, $where: { githubId: { $exists: true } }, $count: true }, Log))
-      promises.push(RestHapi.list(Visitor, { isDeleted: false, $count: true }, Log))
+    const dashboardStatsHandler = function(request, reply) {
+      let promises = []
+      let stats = {}
+      promises.push(
+        RestHapi.list(User, { isDeleted: false, $count: true }, Log)
+      )
+      promises.push(
+        RestHapi.list(Document, { isDeleted: false, $count: true }, Log)
+      )
+      promises.push(
+        RestHapi.list(Image, { isDeleted: false, $count: true }, Log)
+      )
+      promises.push(
+        RestHapi.list(Message, { isDeleted: false, $count: true }, Log)
+      )
+      promises.push(
+        RestHapi.list(
+          User,
+          {
+            isDeleted: false,
+            $where: { facebookId: { $exists: true } },
+            $count: true
+          },
+          Log
+        )
+      )
+      promises.push(
+        RestHapi.list(
+          User,
+          {
+            isDeleted: false,
+            $where: { googleId: { $exists: true } },
+            $count: true
+          },
+          Log
+        )
+      )
+      promises.push(
+        RestHapi.list(
+          User,
+          {
+            isDeleted: false,
+            $where: { githubId: { $exists: true } },
+            $count: true
+          },
+          Log
+        )
+      )
+      promises.push(
+        RestHapi.list(Visitor, { isDeleted: false, $count: true }, Log)
+      )
 
       return Q.all(promises)
         .then(function(result) {
@@ -43,108 +81,108 @@ module.exports = function (server, mongoose, logger) {
             visitorCount: result[7]
           }
 
-          promises = [];
-          let step = {};
+          promises = []
+          let step = {}
 
           // MONGO AGGREGATION PIPELINE EXAMPLE
 
           // region BUILD TOTAL VISITORS PER COUNTRY QUERY
 
-          const visitorsPerCountryQuery = [];
+          const visitorsPerCountryQuery = []
 
           // EXPL: Group and count visitors from each country
-          step = {};
+          step = {}
 
           step.$group = {
             _id: '$country_code',
             visitorCount: { $sum: 1 }
-          };
-
-          visitorsPerCountryQuery.push(step);
-
-          // EXPL: Format the data for the next step
-          step = {};
-
-          step.$group = {
-            _id: null,
-            totalVisitorsPerCountry: { $push: { k: '$_id', v: '$visitorCount' }}
-          };
-
-          visitorsPerCountryQuery.push(step);
-
-
-          // EXPL: Transform data from array to object
-          step = {};
-
-          step.$project= {
-            _id: 0,
-            totalVisitorsPerCountry: { $arrayToObject: "$totalVisitorsPerCountry" }
           }
 
           visitorsPerCountryQuery.push(step)
 
+          // EXPL: Format the data for the next step
+          step = {}
 
-          promises.push(Visitor.aggregate(visitorsPerCountryQuery));
+          step.$group = {
+            _id: null,
+            totalVisitorsPerCountry: {
+              $push: { k: '$_id', v: '$visitorCount' }
+            }
+          }
+
+          visitorsPerCountryQuery.push(step)
+
+          // EXPL: Transform data from array to object
+          step = {}
+
+          step.$project = {
+            _id: 0,
+            totalVisitorsPerCountry: {
+              $arrayToObject: '$totalVisitorsPerCountry'
+            }
+          }
+
+          visitorsPerCountryQuery.push(step)
+
+          promises.push(Visitor.aggregate(visitorsPerCountryQuery))
 
           // endregion
 
-
-
           // region BUILD TOTAL VISITORS PER BROWSER QUERY
 
-          const visitorsPerBrowserQuery = [];
+          const visitorsPerBrowserQuery = []
 
           // EXPL: Group and count each browser
-          step = {};
+          step = {}
 
           step.$group = {
             _id: '$browser',
             visitorCount: { $sum: 1 }
-          };
+          }
 
-          visitorsPerBrowserQuery.push(step);
+          visitorsPerBrowserQuery.push(step)
 
           // EXPL: Format the data for the next step
-          step = {};
+          step = {}
 
           step.$group = {
             _id: null,
-            totalVisitorsPerBrowser: { $push: { k: '$_id', v: '$visitorCount' }}
-          };
-
-          visitorsPerBrowserQuery.push(step);
-
-
-          // EXPL: Transform data from array to object
-          step = {};
-
-          step.$project= {
-            _id: 0,
-            totalVisitorsPerBrowser: { $arrayToObject: "$totalVisitorsPerBrowser" }
+            totalVisitorsPerBrowser: {
+              $push: { k: '$_id', v: '$visitorCount' }
+            }
           }
 
-          visitorsPerBrowserQuery.push(step);
+          visitorsPerBrowserQuery.push(step)
 
-          promises.push(Visitor.aggregate(visitorsPerBrowserQuery));
+          // EXPL: Transform data from array to object
+          step = {}
+
+          step.$project = {
+            _id: 0,
+            totalVisitorsPerBrowser: {
+              $arrayToObject: '$totalVisitorsPerBrowser'
+            }
+          }
+
+          visitorsPerBrowserQuery.push(step)
+
+          promises.push(Visitor.aggregate(visitorsPerBrowserQuery))
 
           // endregion
-
 
           return Q.all(promises)
         })
         .then(function(result) {
-          stats.totalVisitorsPerCountry = result[0][0].totalVisitorsPerCountry;
-          stats.totalVisitorsPerBrowser = result[1][0].totalVisitorsPerBrowser;
+          stats.totalVisitorsPerCountry = result[0][0].totalVisitorsPerCountry
+          stats.totalVisitorsPerBrowser = result[1][0].totalVisitorsPerBrowser
 
-          return reply({ stats });
+          return reply({ stats })
         })
         .catch(function(error) {
-          Log.error(error);
-          return reply(RestHapi.errorHelper.formatResponse(error));
-        });
-
-
-    };
+          Log.error(error)
+          return reply(RestHapi.errorHelper.formatResponse(error))
+        })
+    }
 
     server.route({
       method: 'GET',
@@ -154,8 +192,7 @@ module.exports = function (server, mongoose, logger) {
         auth: null,
         description: 'Get stats for the dashboard.',
         tags: ['api', 'Stats', 'Dashboard'],
-        validate: {
-        },
+        validate: {},
         plugins: {
           'hapi-swagger': {
             responseMessages: [
@@ -167,7 +204,6 @@ module.exports = function (server, mongoose, logger) {
           }
         }
       }
-    });
-  }());
-
-};
+    })
+  })()
+}

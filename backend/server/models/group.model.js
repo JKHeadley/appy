@@ -1,51 +1,59 @@
-'use strict';
+'use strict'
 
-const permissionAuth = require('../policies/permissionAuth');
-const groupAuth = require('../policies/groupAuth');
-const rankAuth = require('../policies/roleAuth').rankAuth;
+const permissionAuth = require('../policies/permissionAuth')
+const groupAuth = require('../policies/groupAuth')
+const rankAuth = require('../policies/roleAuth').rankAuth
 
-const Config = require('../config/config');
+const Config = require('../config/config')
 
-const enableDemoAuth = Config.get('/enableDemoAuth');
-const demoAuth = enableDemoAuth ? 'demoAuth' : null;
+const enableDemoAuth = Config.get('/enableDemoAuth')
+const demoAuth = enableDemoAuth ? 'demoAuth' : null
 
-module.exports = function (mongoose) {
-  var modelName = "group";
-  var Types = mongoose.Schema.Types;
-  var Schema = new mongoose.Schema({
-    name: {
-      type: Types.String,
-      required: true,
-      unique: true
+module.exports = function(mongoose) {
+  var modelName = 'group'
+  var Types = mongoose.Schema.Types
+  var Schema = new mongoose.Schema(
+    {
+      name: {
+        type: Types.String,
+        required: true,
+        unique: true
+      },
+      description: {
+        type: Types.String
+      }
     },
-    description: {
-      type: Types.String
-    }
-  }, { collection: modelName });
+    { collection: modelName }
+  )
 
   Schema.statics = {
-    collectionName:modelName,
+    collectionName: modelName,
     routeOptions: {
       policies: {
-        associatePolicies: [rankAuth(mongoose, "child"), permissionAuth(mongoose, false), groupAuth(mongoose, true), demoAuth],
+        associatePolicies: [
+          rankAuth(mongoose, 'child'),
+          permissionAuth(mongoose, false),
+          groupAuth(mongoose, true),
+          demoAuth
+        ],
         updatePolicies: [demoAuth],
         deletePolicies: [demoAuth]
       },
       associations: {
         users: {
-          type: "MANY_MANY",
-          alias: "user",
-          model: "user"
+          type: 'MANY_MANY',
+          alias: 'user',
+          model: 'user'
         },
         permissions: {
-          type: "MANY_MANY",
-          alias: "permission",
-          model: "permission",
-          linkingModel: "group_permission"
+          type: 'MANY_MANY',
+          alias: 'permission',
+          model: 'permission',
+          linkingModel: 'group_permission'
         }
       }
     }
-  };
+  }
 
-  return Schema;
-};
+  return Schema
+}
