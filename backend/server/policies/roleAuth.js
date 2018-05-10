@@ -18,7 +18,7 @@ internals.rankAuth = function(mongoose, userIdParam) {
     let Log = request.logger.bind('rankAuth')
 
     try {
-      // EXPL: Return next if this isn't a user association
+      // Return next if this isn't a user association
       if (!request.path.includes('user')) {
         return next(null, true)
       }
@@ -30,7 +30,7 @@ internals.rankAuth = function(mongoose, userIdParam) {
               return internals.formatResponse(canEdit, next, Log)
             })
         }
-        // EXPL: Multiple users are being updated.
+        // Multiple users are being updated.
         else {
           const userIds = request.payload.map(
             object => object.childId || object
@@ -41,7 +41,7 @@ internals.rankAuth = function(mongoose, userIdParam) {
           )
 
           return Q.all(promises).then(function(result) {
-            // EXPL: If any of the checks fail, then an error is returned
+            // If any of the checks fail, then an error is returned
             let canEdit =
               result.filter(canEdit => canEdit === false)[0] === undefined
 

@@ -41,7 +41,7 @@ module.exports = function(mongoose) {
     collectionName: modelName,
     routeOptions: {
       policies: {
-        // EXPL: only the primaryUser can update a connection
+        // only the primaryUser can update a connection
         updatePolicies: [connectionUpdateAuth(mongoose)]
       },
       associations: {
@@ -58,7 +58,7 @@ module.exports = function(mongoose) {
         pre: function(payload, request, Log) {
           const Connection = mongoose.model('connection')
           const Notification = mongoose.model('notification')
-          // EXPL: Connections must be made both ways
+          // Connections must be made both ways
           if (!payload.isSecondary) {
             const secondaryPayload = {
               isSecondary: true
@@ -101,7 +101,7 @@ module.exports = function(mongoose) {
           const Connection = mongoose.model('connection')
           const Notification = mongoose.model('notification')
           let primaryConnection = {}
-          // EXPL: Connections must be updated both ways
+          // Connections must be updated both ways
           if (!payload.isSecondary) {
             const secondaryPayload = {
               isSecondary: true
@@ -167,7 +167,7 @@ module.exports = function(mongoose) {
     }
   }
 
-  // EXPL: This model acts as a one-way association between two users
+  // This model acts as a one-way association between two users
   Schema.index({ primaryUser: 1, connectedUser: 1 }, { unique: true })
 
   return Schema

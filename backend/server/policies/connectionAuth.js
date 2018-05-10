@@ -21,7 +21,7 @@ internals.connectionUpdateAuth = function(mongoose) {
 
       return RestHapi.find(Connection, request.params._id, {}, Log).then(
         function(result) {
-          // EXPL: Only the primary user and those with root permissions can update the connection
+          // Only the primary user and those with root permissions can update the connection
           if (
             userId === result.primaryUser.toString() ||
             request.auth.credentials.scope.includes('root')

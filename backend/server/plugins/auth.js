@@ -41,7 +41,7 @@ internals.applySessionStrategy = function(server, next) {
   server.ext('onPostHandler', function(request, reply) {
     const creds = request.auth.credentials
 
-    // EXPL: send a fresh token in the response
+    // send a fresh token in the response
     if (creds && request.response.header) {
       request.response.header(
         'X-Access-Token',
@@ -108,7 +108,7 @@ internals.applyRefreshStrategy = function(server, next) {
   server.ext('onPostHandler', function(request, reply) {
     const creds = request.auth.credentials
 
-    // EXPL: if the auth credentials contain session info (i.e. a refresh token), respond with a fresh set of tokens in the header.
+    // if the auth credentials contain session info (i.e. a refresh token), respond with a fresh set of tokens in the header.
     if (creds && creds.session && request.response.header) {
       request.response.header(
         'X-Access-Token',
@@ -127,7 +127,7 @@ internals.applyRefreshStrategy = function(server, next) {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'], ignoreExpiration: true },
     validateFunc: function(decodedToken, request, callback) {
-      // EXPL: if the token is expired, respond with token type so the client can switch to refresh token if necessary
+      // if the token is expired, respond with token type so the client can switch to refresh token if necessary
       if (decodedToken.exp < Math.floor(Date.now() / 1000)) {
         if (decodedToken.user) {
           return callback(
@@ -145,13 +145,13 @@ internals.applyRefreshStrategy = function(server, next) {
       let user = {}
       let session = {}
 
-      // EXPL: if the token does not contain session info, then simply authenticate and continue
+      // if the token does not contain session info, then simply authenticate and continue
       if (decodedToken.user) {
         user = decodedToken.user
 
         callback(null, Boolean(user), { user, scope: decodedToken.scope })
       }
-      // EXPL: if the token does contain session info (i.e. a refresh token), then use the session to
+      // if the token does contain session info (i.e. a refresh token), then use the session to
       // authenticate and respond with a fresh set of tokens in the header
       else if (decodedToken.sessionId) {
         const Session = Mongoose.model('session')
@@ -284,9 +284,9 @@ exports.register = function(server, options, next) {
       break
   }
 
-  // EXPL: Add helper method to get request ip
+  // Add helper method to get request ip
   const getIP = function(request) {
-    // EXPL: We check the headers first in case the server is behind a reverse proxy.
+    // We check the headers first in case the server is behind a reverse proxy.
     // see: https://ypereirareis.github.io/blog/2017/02/15/nginx-real-ip-behind-nginx-reverse-proxy/
     return (
       request.headers['x-real-ip'] ||

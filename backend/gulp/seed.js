@@ -362,7 +362,7 @@ gulp.task('seed', [], function() {
               return RestHapi.create(models.visitor, visitor, Log)
             }
 
-            // EXPL: Specify the iplocation hosts to prevent issues (Ex: docker cant ping "https://ipaip.co/" by default)
+            // Specify the iplocation hosts to prevent issues (Ex: docker cant ping "https://ipaip.co/" by default)
             let hosts = ['freegeoip.net', 'ipapi.co']
 
             for (let i = 0; i <= 367; i++) {
@@ -406,7 +406,7 @@ gulp.task('seed', [], function() {
 
               let userDocumentPermissions = permissions
                 .filter(function(p) {
-                  // EXPL: We start with permissions Admins can assign so that they can edit the user permissions
+                  // We start with permissions Admins can assign so that they can edit the user permissions
                   return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
                 })
                 .filter(function(p) {
@@ -421,7 +421,7 @@ gulp.task('seed', [], function() {
 
               let userImagePermissions = permissions
                 .filter(function(p) {
-                  // EXPL: We start with permissions Admins can assign so that they can edit the user permissions
+                  // We start with permissions Admins can assign so that they can edit the user permissions
                   return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
                 })
                 .filter(function(p) {
@@ -446,7 +446,7 @@ gulp.task('seed', [], function() {
                 .concat(userDocumentPermissions)
                 .concat(userImagePermissions)
 
-              // EXPL: initial User role permissions
+              // initial User role permissions
               promises.push(
                 RestHapi.addMany(
                   models.role,
@@ -462,7 +462,7 @@ gulp.task('seed', [], function() {
                 .then(function(result) {
                   promises = []
 
-                  // EXPL: Admins have access to any permission they can assign.
+                  // Admins have access to any permission they can assign.
                   adminPermissions = permissions
                     .filter(function(p) {
                       return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
@@ -474,7 +474,7 @@ gulp.task('seed', [], function() {
                       }
                     })
 
-                  // EXPL: Initial Admin role permissions
+                  // Initial Admin role permissions
                   promises.push(
                     RestHapi.addMany(
                       models.role,
@@ -491,7 +491,7 @@ gulp.task('seed', [], function() {
                 .then(function(result) {
                   promises = []
 
-                  // EXPL: Initial Super Admin role permissions
+                  // Initial Super Admin role permissions
                   promises.push(
                     RestHapi.addMany(
                       models.role,
@@ -515,10 +515,10 @@ gulp.task('seed', [], function() {
                 .then(function(result) {
                   promises = []
 
-                  // EXPL: Read Only group permissions
+                  // Read Only group permissions
                   let readOnlyExcludedPermissions = permissions
                     .filter(function(p) {
-                      // EXPL: We start with permissions Admins can assign so that they will also be able to assign the group
+                      // We start with permissions Admins can assign so that they will also be able to assign the group
                       return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
                     })
                     .filter(function(p) {
@@ -549,10 +549,10 @@ gulp.task('seed', [], function() {
                 .then(function(result) {
                   promises = []
 
-                  // EXPL: Editor group permissions
+                  // Editor group permissions
                   let createForbiddenPermission = permissions
                     .filter(function(p) {
-                      // EXPL: We start with permissions Admins can assign so that they will also be able to assign the group
+                      // We start with permissions Admins can assign so that they will also be able to assign the group
                       return p.assignScope.indexOf(USER_ROLES.ADMIN) > -1
                     })
                     .filter(function(p) {
@@ -581,7 +581,7 @@ gulp.task('seed', [], function() {
                 .then(function(result) {
                   promises = []
 
-                  // EXPL: Super User group permissions
+                  // Super User group permissions
                   let includedPermissions = permissionNames
                     .filter(function(permissionName) {
                       return permissionName !== 'root'
@@ -611,7 +611,7 @@ gulp.task('seed', [], function() {
                 .then(function(result) {
                   promises = []
 
-                  // EXPL: Assign groups to users
+                  // Assign groups to users
                   promises.push(
                     RestHapi.addMany(
                       models.user,

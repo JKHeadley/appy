@@ -61,9 +61,9 @@ module.exports = function(mongoose) {
             return RestHapi.find(Document, request.params.ownerId, {}, Log)
               .then(function(document) {
                 const scope = document.scope
-                // EXPL: Add permissions for shared users to either edit or view the document
+                // Add permissions for shared users to either edit or view the document
                 payload.forEach(function(userDocument) {
-                  // EXPL: Remove any previous permissions before adding new ones
+                  // Remove any previous permissions before adding new ones
                   Document.removeDocumentPermissions(
                     scope,
                     userDocument.childId
@@ -75,7 +75,7 @@ module.exports = function(mongoose) {
                   scope.readScope = scope.readScope || []
                   scope.readScope.push('user-' + userDocument.childId)
 
-                  // EXPL: Create a notification for the user that is gaining access
+                  // Create a notification for the user that is gaining access
                   let notification = {
                     primaryUser: userDocument.childId,
                     actingUser: document.owner,
@@ -114,7 +114,7 @@ module.exports = function(mongoose) {
       }
     },
     removeDocumentPermissions: function(scope, userId) {
-      // EXPL: Remove document permissions for user
+      // Remove document permissions for user
       scope.updateScope = scope.updateScope || []
       scope.updateScope = scope.updateScope.filter(function(value) {
         return value !== 'user-' + userId

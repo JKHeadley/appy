@@ -40,7 +40,7 @@ internals.formatImage = function(image, Log) {
       let width = 350
       let height = 350
 
-      // EXPL: Resize any profile images to 256x256
+      // Resize any profile images to 256x256
       im.resize(
         {
           srcPath: image.name,
@@ -87,7 +87,7 @@ module.exports = function(server, mongoose, logger) {
       let fileExtenstion = data.name ? data.name.split('.').pop() : 'png'
 
       return internals.formatImage(data, Log).then(function(data) {
-        // EXPL: The filenames should be unique but also tied to the user
+        // The filenames should be unique but also tied to the user
         var key =
           request.auth.credentials.user._id +
           '_' +
@@ -176,7 +176,7 @@ module.exports = function(server, mongoose, logger) {
 
       // return internals.formatImage(data, Log)
       return Q.when(data).then(function(data) {
-        // EXPL: The filenames should be unique but also tied to the user
+        // The filenames should be unique but also tied to the user
         var key =
           request.auth.credentials.user._id +
           '_' +
