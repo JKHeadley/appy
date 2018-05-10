@@ -1,22 +1,24 @@
-'use strict';
-const Glue = require('glue');
-const RestHapi = require('rest-hapi');
-const Manifest = require('./server/config/manifest');
-
+'use strict'
+const Glue = require('glue')
+const RestHapi = require('rest-hapi')
+const Manifest = require('./server/config/manifest')
 
 const composeOptions = {
-    relativeTo: __dirname
-};
+  relativeTo: __dirname
+}
 
-const Composer = Glue.compose.bind(Glue, Manifest.get('/'), composeOptions);
+const Composer = Glue.compose.bind(Glue, Manifest.get('/'), composeOptions)
 
 Composer((err, server) => {
-
   if (err) {
-    throw err;
+    throw err
   }
 
   server.start(() => {
-    RestHapi.logUtil.logActionComplete(RestHapi.logger, "Server Initialized", server.info);
-  });
-});
+    RestHapi.logUtil.logActionComplete(
+      RestHapi.logger,
+      'Server Initialized',
+      server.info
+    )
+  })
+})

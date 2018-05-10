@@ -1,41 +1,44 @@
-'use strict';
+'use strict'
 
-const RestHapi = require('rest-hapi');
+const RestHapi = require('rest-hapi')
 
-const connectionUpdateAuth = require('../policies/connectionAuth');
+const connectionUpdateAuth = require('../policies/connectionAuth')
 
-module.exports = function (mongoose) {
-  var modelName = "connection";
-  var Types = mongoose.Schema.Types;
-  var Schema = new mongoose.Schema({
-    primaryUser: {
-      type: Types.ObjectId,
-      ref: "user",
-      allowOnUpdate: false,
-      required: true
+module.exports = function(mongoose) {
+  var modelName = 'connection'
+  var Types = mongoose.Schema.Types
+  var Schema = new mongoose.Schema(
+    {
+      primaryUser: {
+        type: Types.ObjectId,
+        ref: 'user',
+        allowOnUpdate: false,
+        required: true
+      },
+      connectedUser: {
+        type: Types.ObjectId,
+        ref: 'user',
+        allowOnUpdate: false,
+        required: true
+      },
+      isFollowing: {
+        type: Types.Boolean,
+        default: false
+      },
+      isFollowed: {
+        type: Types.Boolean,
+        default: false
+      },
+      isContact: {
+        type: Types.Boolean,
+        default: false
+      }
     },
-    connectedUser: {
-      type: Types.ObjectId,
-      ref: "user",
-      allowOnUpdate: false,
-      required: true
-    },
-    isFollowing: {
-      type: Types.Boolean,
-      default: false
-    },
-    isFollowed: {
-      type: Types.Boolean,
-      default: false
-    },
-    isContact: {
-      type: Types.Boolean,
-      default: false
-    }
-  }, { collection: modelName });
-    
+    { collection: modelName }
+  )
+
   Schema.statics = {
-    collectionName:modelName,
+    collectionName: modelName,
     routeOptions: {
       policies: {
         // EXPL: only the primaryUser can update a connection
@@ -43,90 +46,129 @@ module.exports = function (mongoose) {
       },
       associations: {
         primaryUser: {
-          type: "MANY_ONE",
-          model: "user",
+          type: 'MANY_ONE',
+          model: 'user'
         },
         connectedUser: {
-          type: "ONE_ONE",
-          model: "user",
-        },
+          type: 'ONE_ONE',
+          model: 'user'
+        }
       },
       create: {
-        pre: function (payload, request, Log) {
-          const Connection = mongoose.model('connection');
-          const Notification = mongoose.model('notification');
+        pre: function(payload, request, Log) {
+          const Connection = mongoose.model('connection')
+          const Notification = mongoose.model('notification')
           // EXPL: Connections must be made both ways
           if (!payload.isSecondary) {
             const secondaryPayload = {
               isSecondary: true
             }
-            if (payload.connectedUser) { secondaryPayload.primaryUser = payload.connectedUser }
-            if (payload.primaryUser) { secondaryPayload.connectedUser = payload.primaryUser }
-            if (payload.isContact) { secondaryPayload.isContact = payload.isContact }
-            if (payload.isFollowed) { secondaryPayload.isFollowing = payload.isFollowed }
-            if (payload.isFollowing) { secondaryPayload.isFollowed = payload.isFollowing }
+            if (payload.connectedUser) {
+              secondaryPayload.primaryUser = payload.connectedUser
+            }
+            if (payload.primaryUser) {
+              secondaryPayload.connectedUser = payload.primaryUser
+            }
+            if (payload.isContact) {
+              secondaryPayload.isContact = payload.isContact
+            }
+            if (payload.isFollowed) {
+              secondaryPayload.isFollowing = payload.isFollowed
+            }
+            if (payload.isFollowing) {
+              secondaryPayload.isFollowed = payload.isFollowing
+            }
 
-            return RestHapi.create(Connection, secondaryPayload, Log)
-              .then(function (result) {
-                Notification.createConnectionNotification(payload, payload, request.server, Log)
+            return RestHapi.create(Connection, secondaryPayload, Log).then(
+              function(result) {
+                Notification.createConnectionNotification(
+                  payload,
+                  payload,
+                  request.server,
+                  Log
+                )
                 return payload
-              })
-          }
-          else {
+              }
+            )
+          } else {
             delete payload.isSecondary
             return payload
           }
-        },
+        }
       },
       update: {
-        pre: function (_id, payload, request, Log) {
-          const Connection = mongoose.model('connection');
-          const Notification = mongoose.model('notification');
+        pre: function(_id, payload, request, Log) {
+          const Connection = mongoose.model('connection')
+          const Notification = mongoose.model('notification')
           let primaryConnection = {}
           // EXPL: Connections must be updated both ways
           if (!payload.isSecondary) {
             const secondaryPayload = {
               isSecondary: true
             }
-            if (payload.connectedUser) { secondaryPayload.primaryUser = payload.connectedUser }
-            if (payload.primaryUser) { secondaryPayload.connectedUser = payload.primaryUser }
-            if (payload.isContact) { secondaryPayload.isContact = payload.isContact }
-            if (payload.isFollowed) { secondaryPayload.isFollowing = payload.isFollowed }
-            if (payload.isFollowing) { secondaryPayload.isFollowed = payload.isFollowing }
+            if (payload.connectedUser) {
+              secondaryPayload.primaryUser = payload.connectedUser
+            }
+            if (payload.primaryUser) {
+              secondaryPayload.connectedUser = payload.primaryUser
+            }
+            if (payload.isContact) {
+              secondaryPayload.isContact = payload.isContact
+            }
+            if (payload.isFollowed) {
+              secondaryPayload.isFollowing = payload.isFollowed
+            }
+            if (payload.isFollowing) {
+              secondaryPayload.isFollowed = payload.isFollowing
+            }
 
             return RestHapi.find(Connection, _id, {}, Log)
-              .then(function (result) {
+              .then(function(result) {
                 if (!result) {
-                  throw "Connection not found."
+                  // TODO: Use actual error once rest-hapi supports it.
+                  throw 'Connection not found.' // eslint-disable-line no-throw-literal
                 }
-                primaryConnection = result;
-                return RestHapi.list(Connection, {
-                  primaryUser: primaryConnection.connectedUser,
-                  connectedUser: primaryConnection.primaryUser
-                }, Log)
+                primaryConnection = result
+                return RestHapi.list(
+                  Connection,
+                  {
+                    primaryUser: primaryConnection.connectedUser,
+                    connectedUser: primaryConnection.primaryUser
+                  },
+                  Log
+                )
               })
-              .then(function (result) {
+              .then(function(result) {
                 if (!result.docs[0]) {
-                  throw "Secondary connection not found."
+                  // TODO: Use actual error once rest-hapi supports it.
+                  throw 'Secondary connection not found.' // eslint-disable-line no-throw-literal
                 }
-                return RestHapi.update(Connection, result.docs[0]._id, secondaryPayload, Log)
-                  .then(function (result) {
-                    Notification.createConnectionNotification(primaryConnection, payload, request.server, Log)
-                    return payload
-                  })
+                return RestHapi.update(
+                  Connection,
+                  result.docs[0]._id,
+                  secondaryPayload,
+                  Log
+                ).then(function(result) {
+                  Notification.createConnectionNotification(
+                    primaryConnection,
+                    payload,
+                    request.server,
+                    Log
+                  )
+                  return payload
+                })
               })
-          }
-          else {
+          } else {
             delete payload.isSecondary
             return payload
           }
         }
       }
     }
-  };
+  }
 
   // EXPL: This model acts as a one-way association between two users
-  Schema.index({ primaryUser: 1, connectedUser: 1 }, { unique: true });
+  Schema.index({ primaryUser: 1, connectedUser: 1 }, { unique: true })
 
-  return Schema;
-};
+  return Schema
+}

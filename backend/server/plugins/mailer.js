@@ -1,88 +1,82 @@
-'use strict';
+'use strict'
 
-const Fs = require('fs');
-const Q = require('q');
-const Handlebars = require('handlebars');
-const Hoek = require('hoek');
-const Markdown = require('nodemailer-markdown').markdown;
-const Nodemailer = require('nodemailer');
+const path = require('path')
+const Fs = require('fs')
+const Q = require('q')
+const Handlebars = require('handlebars')
+const Hoek = require('hoek')
+const Markdown = require('nodemailer-markdown').markdown
+const Nodemailer = require('nodemailer')
 
-const Config = require('../config/config');
+const Config = require('../config/config')
 
-const internals = {};
+const internals = {}
 
+internals.transport = Nodemailer.createTransport(Config.get('/nodemailer'))
+internals.transport.use('compile', Markdown({ useEmbeddedImages: true }))
 
-internals.transport = Nodemailer.createTransport(Config.get('/nodemailer'));
-internals.transport.use('compile', Markdown({ useEmbeddedImages: true }));
+internals.templateCache = {}
 
-
-internals.templateCache = {};
-
-
-internals.renderTemplate = function (signature, context, Log) {
-
-  const deferred = Q.defer();
+internals.renderTemplate = function(signature, context, Log) {
+  const deferred = Q.defer()
 
   if (internals.templateCache[signature]) {
-    deferred.resolve(internals.templateCache[signature](context));
+    deferred.resolve(internals.templateCache[signature](context))
   }
 
-  const filePath = __dirname + '/emails/' + signature + '.hbs.md';
-  const options = { encoding: 'utf-8' };
+  const filePath = path(__dirname, '/emails/', signature, '.hbs.md')
+  const options = { encoding: 'utf-8' }
 
   Fs.readFile(filePath, options, (err, source) => {
-
     if (err) {
-      Log.debug("File Read Error:", err);
-      deferred.reject(err);
+      Log.debug('File Read Error:', err)
+      deferred.reject(err)
     }
 
+    internals.templateCache[signature] = Handlebars.compile(source)
+    deferred.resolve(internals.templateCache[signature](context))
+  })
 
-    internals.templateCache[signature] = Handlebars.compile(source);
-    deferred.resolve(internals.templateCache[signature](context));
-  });
+  return deferred.promise
+}
 
-  return deferred.promise;
-};
+internals.sendEmail = function(options, template, context, Log) {
+  return internals
+    .renderTemplate(template, context, Log)
+    .then(function(content) {
+      const defaultEmail = Config.get('/defaultEmail')
 
-
-internals.sendEmail = function (options, template, context, Log) {
-
-  return internals.renderTemplate(template, context, Log)
-    .then(function (content) {
-
-      const defaultEmail = Config.get('/defaultEmail');
-
-      //EXPL: send to the default email address if it exists
-      if (!(Object.keys(defaultEmail).length === 0 && defaultEmail.constructor === Object)) {
-        options.to.address = defaultEmail;
+      // EXPL: send to the default email address if it exists
+      if (
+        !(
+          Object.keys(defaultEmail).length === 0 &&
+          defaultEmail.constructor === Object
+        )
+      ) {
+        options.to.address = defaultEmail
       }
 
       options = Hoek.applyToDefaults(options, {
         from: Config.get('/system/fromAddress'),
         markdown: content
-      });
+      })
 
-      return internals.transport.sendMail(options);
+      return internals.transport.sendMail(options)
     })
-    .catch(function (error) {
-      throw error;
-    });
-};
+    .catch(function(error) {
+      throw error
+    })
+}
 
+exports.register = function(server, options, next) {
+  server.expose('sendEmail', internals.sendEmail)
+  server.expose('transport', internals.transport)
 
-exports.register = function (server, options, next) {
+  next()
+}
 
-  server.expose('sendEmail', internals.sendEmail);
-  server.expose('transport', internals.transport);
-
-  next();
-};
-
-
-exports.sendEmail = internals.sendEmail;
-
+exports.sendEmail = internals.sendEmail
 
 exports.register.attributes = {
   name: 'mailer'
-};
+}

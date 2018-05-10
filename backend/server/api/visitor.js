@@ -1,48 +1,39 @@
-'use strict';
+'use strict'
 
-const Joi = require('joi');
-const Boom = require('boom');
-const Chalk = require('chalk');
-const RestHapi = require('rest-hapi');
+const Chalk = require('chalk')
+const RestHapi = require('rest-hapi')
 
-const iplocation = require('iplocation');
-const useragent = require('useragent');
-const faker = require('faker')
+const iplocation = require('iplocation')
+const useragent = require('useragent')
 
-const Config = require('../config/config');
-const auditLog = require('../policies/audit-log');
-
-const authStrategy = Config.get('/restHapiConfig/authStrategy');
-
-module.exports = function (server, mongoose, logger) {
-
+module.exports = function(server, mongoose, logger) {
   // Record Visitor Endpoint
-  (function() {
-    const Visitor = mongoose.model('visitor');
-    const Log = logger.bind(Chalk.magenta("Visitor"));
+  ;(function() {
+    const Visitor = mongoose.model('visitor')
+    const Log = logger.bind(Chalk.magenta('Visitor'))
 
-    Log.note("Generating Record Visitor endpoint");
+    Log.note('Generating Record Visitor endpoint')
 
-    const recordVisitorHandler = function (request, reply) {
-      //EXPL: Specify the iplocation hosts to prevent issues (Ex: docker cant ping "https://ipaip.co/" by default)
-      let hosts = ['freegeoip.net', 'ipapi.co'];
+    const recordVisitorHandler = function(request, reply) {
+      // EXPL: Specify the iplocation hosts to prevent issues (Ex: docker cant ping "https://ipaip.co/" by default)
+      let hosts = ['freegeoip.net', 'ipapi.co']
 
       iplocation(server.methods.getIP(request), hosts)
         .then(function(result) {
-          const agent = useragent.parse(request.headers['user-agent']);
+          const agent = useragent.parse(request.headers['user-agent'])
 
-          const visitor = Object.assign(result, {browser: agent.family});
+          const visitor = Object.assign(result, { browser: agent.family })
 
           return RestHapi.create(Visitor, visitor, Log)
         })
         .then(function(result) {
-          return reply();
+          return reply()
         })
         .catch(function(error) {
-          Log.error(error);
-          return reply(RestHapi.errorHelper.formatResponse(error));
-        });
-    };
+          Log.error(error)
+          return reply(RestHapi.errorHelper.formatResponse(error))
+        })
+    }
 
     server.route({
       method: 'POST',
@@ -52,8 +43,7 @@ module.exports = function (server, mongoose, logger) {
         auth: null,
         description: 'Create a new visitor record.',
         tags: ['api', 'Visitor'],
-        validate: {
-        },
+        validate: {},
         plugins: {
           'hapi-swagger': {
             responseMessages: [
@@ -65,7 +55,6 @@ module.exports = function (server, mongoose, logger) {
           }
         }
       }
-    });
-  }());
-
-};
+    })
+  })()
+}

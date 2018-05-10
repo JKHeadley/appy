@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
-const Gulp = require('gulp');
+const Gulp = require('gulp')
 
 Gulp.paths = {
   src: './'
-};
+}
 
-require('require-dir')('./gulp');
+require('require-dir')('./gulp')
 
-Gulp.task('default', function () {
-  Gulp.start('serve:local');
-});
+Gulp.task('default', function() {
+  Gulp.start('serve:local')
+})

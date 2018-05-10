@@ -1,13 +1,12 @@
-var mongoose = require("mongoose");
+var mongoose = require('mongoose')
 
-const _ = require('lodash');
-const Config = require('../../config/config');
+const _ = require('lodash')
+const Config = require('../../config/config')
 
-const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES');
+const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES')
 
-module.exports = function () {
-
-  var Types = mongoose.Schema.Types;
+module.exports = function() {
+  var Types = mongoose.Schema.Types
 
   var Model = {
     Schema: {
@@ -18,8 +17,8 @@ module.exports = function () {
         default: PERMISSION_STATES.INCLUDED
       }
     },
-    modelName: "role_permission"
-  };
+    modelName: 'role_permission'
+  }
 
-  return Model;
-};
+  return Model
+}

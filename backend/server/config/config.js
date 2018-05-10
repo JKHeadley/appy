@@ -1,28 +1,29 @@
-'use strict';
+'use strict'
 
-const Confidence = require('confidence');
-const Dotenv = require('dotenv');
+const Confidence = require('confidence')
+const Dotenv = require('dotenv')
+const path = require('path')
 
-Dotenv.config({ silent: true });
+Dotenv.config({ silent: true })
 
 const criteria = {
   env: process.env.NODE_ENV
-};
+}
 
 const constants = {
   USER_ROLES: {
     USER: 'User',
     ADMIN: 'Admin',
-    SUPER_ADMIN: 'Super Admin',
+    SUPER_ADMIN: 'Super Admin'
   },
   PERMISSION_STATES: {
     INCLUDED: 'Included',
     EXCLUDED: 'Excluded',
-    FORBIDDEN: 'Forbidden',
+    FORBIDDEN: 'Forbidden'
   },
   CHAT_TYPES: {
     DIRECT: 'direct',
-    GROUP: 'group',
+    GROUP: 'group'
   },
   NOTIFICATION_TYPES: {
     SHARED_DOCUMENT: 'shared-document',
@@ -37,11 +38,11 @@ const constants = {
   REQUIRED_PASSWORD_STRENGTH: {
     USER: 3,
     ADMIN: 4,
-    SUPER_ADMIN: 4,
+    SUPER_ADMIN: 4
   },
   PORT: 8125,
   APP_TITLE: 'appy API'
-};
+}
 
 const config = {
   $meta: 'This file configures the appy API.',
@@ -54,8 +55,8 @@ const config = {
   },
   S3BucketName: {
     $filter: 'env',
-    production: "appy-cdn",
-    $default: "appy-cdn"
+    production: 'appy-cdn',
+    $default: 'appy-cdn'
   },
   constants: constants,
   expirationPeriod: {
@@ -67,7 +68,7 @@ const config = {
     forIp: 50,
     forIpAndUser: 5
   },
-  lockOutPeriod: 30, //in units of minutes
+  lockOutPeriod: 30, // in units of minutes
   jwtSecret: {
     $filter: 'env',
     production: process.env.JWT_SECRET,
@@ -83,12 +84,12 @@ const config = {
     production: {
       facebook: process.env.FACEBOOK_ID,
       google: process.env.GOOGLE_ID,
-      github: process.env.GITHUB_ID,
+      github: process.env.GITHUB_ID
     },
     $default: {
       facebook: process.env.FACEBOOK_ID,
       google: process.env.GOOGLE_ID,
-      github: process.env.GITHUB_ID,
+      github: process.env.GITHUB_ID
     }
   },
   socialSecrets: {
@@ -96,12 +97,12 @@ const config = {
     production: {
       facebook: process.env.FACEBOOK_SECRET,
       google: process.env.GOOGLE_SECRET,
-      github: process.env.GITHUB_SECRET,
+      github: process.env.GITHUB_SECRET
     },
     $default: {
       facebook: process.env.FACEBOOK_SECRET,
       google: process.env.GOOGLE_SECRET,
-      github: process.env.GITHUB_SECRET,
+      github: process.env.GITHUB_SECRET
     }
   },
   socialSecure: {
@@ -170,7 +171,7 @@ const config = {
         $filter: 'env',
         local: process.env.MONGODB_URI,
         production: process.env.MONGODB_URI,
-        $default: 'mongodb://localhost:27017/appy',
+        $default: 'mongodb://localhost:27017/appy'
       }
     },
     cors: {
@@ -178,11 +179,11 @@ const config = {
       additionalExposedHeaders: ['X-Access-Token', 'X-Refresh-Token']
     },
     absoluteModelPath: true,
-    modelPath: __dirname + '/../models',
+    modelPath: path.join(__dirname, '/../models'),
     absoluteApiPath: true,
-    apiPath: __dirname + '/../api',
+    apiPath: path.join(__dirname, '/../api'),
     absolutePolicyPath: true,
-    policyPath: __dirname + '/../policies',
+    policyPath: path.join(__dirname, '/../policies'),
     authStrategy: {
       $filter: 'env',
       local: constants.AUTH_STRATEGIES.REFRESH,
@@ -260,25 +261,19 @@ const config = {
     },
     loglevel: {
       $filter: 'env',
-      local: "DEBUG",
-      production: "DEBUG",
-      $default: "DEBUG"
+      local: 'DEBUG',
+      production: 'DEBUG',
+      $default: 'DEBUG'
     }
-
   }
-};
+}
 
+const store = new Confidence.Store(config)
 
-const store = new Confidence.Store(config);
+exports.get = function(key) {
+  return store.get(key, criteria)
+}
 
-
-exports.get = function (key) {
-
-  return store.get(key, criteria);
-};
-
-
-exports.meta = function (key) {
-
-  return store.meta(key, criteria);
-};
+exports.meta = function(key) {
+  return store.meta(key, criteria)
+}
