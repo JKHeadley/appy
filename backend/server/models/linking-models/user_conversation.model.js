@@ -5,7 +5,7 @@ module.exports = function() {
 
   var Model = {
     Schema: {
-      // EXPL: This property is true if the user has read all the messages, false if there are new messages that
+      // This property is true if the user has read all the messages, false if there are new messages that
       // the user hasn't read
       hasRead: {
         type: Types.Boolean,

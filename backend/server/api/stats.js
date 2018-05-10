@@ -90,7 +90,7 @@ module.exports = function(server, mongoose, logger) {
 
           const visitorsPerCountryQuery = []
 
-          // EXPL: Group and count visitors from each country
+          // Group and count visitors from each country
           step = {}
 
           step.$group = {
@@ -100,7 +100,7 @@ module.exports = function(server, mongoose, logger) {
 
           visitorsPerCountryQuery.push(step)
 
-          // EXPL: Format the data for the next step
+          // Format the data for the next step
           step = {}
 
           step.$group = {
@@ -112,7 +112,7 @@ module.exports = function(server, mongoose, logger) {
 
           visitorsPerCountryQuery.push(step)
 
-          // EXPL: Transform data from array to object
+          // Transform data from array to object
           step = {}
 
           step.$project = {
@@ -132,7 +132,7 @@ module.exports = function(server, mongoose, logger) {
 
           const visitorsPerBrowserQuery = []
 
-          // EXPL: Group and count each browser
+          // Group and count each browser
           step = {}
 
           step.$group = {
@@ -142,7 +142,7 @@ module.exports = function(server, mongoose, logger) {
 
           visitorsPerBrowserQuery.push(step)
 
-          // EXPL: Format the data for the next step
+          // Format the data for the next step
           step = {}
 
           step.$group = {
@@ -154,7 +154,7 @@ module.exports = function(server, mongoose, logger) {
 
           visitorsPerBrowserQuery.push(step)
 
-          // EXPL: Transform data from array to object
+          // Transform data from array to object
           step = {}
 
           step.$project = {

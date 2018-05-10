@@ -229,7 +229,7 @@ module.exports = function(server, mongoose, logger) {
         $embed: ['messages.user', 'users', 'userData', 'lastMessage.user']
       }
 
-      // EXPL: Find the conversation by _id if provided
+      // Find the conversation by _id if provided
       if (request.query.conversation) {
         promise = RestHapi.find(
           Conversation,
@@ -244,7 +244,7 @@ module.exports = function(server, mongoose, logger) {
           return reply(Boom.badRequest('No chatting with yourself.'))
         }
 
-        // EXPL: The query below searches for the direct chat conversation between the current user and the user provided
+        // The query below searches for the direct chat conversation between the current user and the user provided
         query.$where = {
           $and: [
             {
@@ -282,7 +282,7 @@ module.exports = function(server, mongoose, logger) {
             }
             return result
           } else {
-            // EXPL: If the conversation doesn't exist, create it
+            // If the conversation doesn't exist, create it
             if (!result.docs[0]) {
               newConversation = true
               let promises = []
@@ -315,7 +315,7 @@ module.exports = function(server, mongoose, logger) {
         })
         .then(function(result) {
           if (newConversation) {
-            // EXPL: Add the user docs to the new conversation object
+            // Add the user docs to the new conversation object
             conversation = result[0]
             conversation.users = result[1].docs
             return conversation
@@ -326,7 +326,7 @@ module.exports = function(server, mongoose, logger) {
         .then(function(result) {
           conversation = result
           if (newConversation) {
-            // EXPL: Associate the user data with the new conversation
+            // Associate the user data with the new conversation
             let users = conversation.users.map(function(user) {
               return user._id
             })
@@ -458,7 +458,7 @@ module.exports = function(server, mongoose, logger) {
   })()
 
   const formatConversation = function(request, conversation) {
-    // EXPL: Remove the current user from the list of users since it's implied
+    // Remove the current user from the list of users since it's implied
     conversation.users = conversation.users.filter(function(user) {
       return (
         user._id.toString() !== request.auth.credentials.user._id.toString()

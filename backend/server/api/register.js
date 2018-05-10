@@ -105,7 +105,7 @@ module.exports = function(server, mongoose, logger) {
           user.isActive = false
           user.activateAccountHash = keyHash.hash
 
-          // EXPL: Invited users are forced to update their PIN and password when they first login
+          // Invited users are forced to update their PIN and password when they first login
           if (request.payload.registerType === 'Invite') {
             user.passwordUpdateRequired = true
             user.pinUpdateRequired = true

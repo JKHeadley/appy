@@ -46,7 +46,7 @@ internals.sendEmail = function(options, template, context, Log) {
     .then(function(content) {
       const defaultEmail = Config.get('/defaultEmail')
 
-      // EXPL: send to the default email address if it exists
+      // send to the default email address if it exists
       if (
         !(
           Object.keys(defaultEmail).length === 0 &&

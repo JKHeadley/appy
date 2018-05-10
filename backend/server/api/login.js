@@ -788,7 +788,7 @@ module.exports = function(server, mongoose, logger) {
       {
         assign: 'checkPIN',
         method: function(request, reply) {
-          // EXPL: A PIN is not required if the SuperAdmin initiated the password reset
+          // A PIN is not required if the SuperAdmin initiated the password reset
           if (request.pre.user.resetPassword.pinRequired) {
             if (!request.payload.pin) {
               return reply(Boom.unauthorized('PIN required.'))

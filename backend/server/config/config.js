@@ -158,7 +158,7 @@ const config = {
     production: process.env.CLIENT_URI,
     $default: 'http://localhost:8080'
   },
-  // EXPL: If true, the 'demoAuth' policy is used to restrict certain actions.
+  // If true, the 'demoAuth' policy is used to restrict certain actions.
   enableDemoAuth: {
     $filter: 'env',
     production: true,

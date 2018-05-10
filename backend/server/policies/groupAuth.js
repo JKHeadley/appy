@@ -17,13 +17,13 @@ internals.groupAuth = function(mongoose, isOwner) {
     let Log = request.logger.bind('groupAuth')
 
     try {
-      // EXPL: Return next if this isn't a group association
+      // Return next if this isn't a group association
       if (!isOwner && !request.path.includes('group')) {
         return next(null, true)
       }
       let userScope = request.auth.credentials.scope
 
-      // EXPL: Always allow root
+      // Always allow root
       if (userScope.indexOf('root') > -1) {
         return next(null, true)
       }
@@ -41,7 +41,7 @@ internals.groupAuth = function(mongoose, isOwner) {
             return internals.formatResponse(canAssign, next, Log)
           })
       }
-      // EXPL: Multiple groups are being assigned so we need to check each one.
+      // Multiple groups are being assigned so we need to check each one.
       else {
         const groupIds = request.payload.map(object => object.childId || object)
         let promises = []
@@ -50,7 +50,7 @@ internals.groupAuth = function(mongoose, isOwner) {
         )
 
         return Q.all(promises).then(function(result) {
-          // EXPL: If any of the checks fail, then an error is returned
+          // If any of the checks fail, then an error is returned
           let canAssign =
             result.filter(canAssign => canAssign === false)[0] === undefined
 
@@ -79,7 +79,7 @@ internals.canAssign = function(groupId, userScope, mongoose, Log) {
   )
     .then(function(result) {
       for (let permission of result.permissions) {
-        // EXPL: Check if the user scope intersects (contains values of) the assign scope.
+        // Check if the user scope intersects (contains values of) the assign scope.
         if (
           !userScope.filter(
             scope => permission.assignScope.indexOf(scope) > -1

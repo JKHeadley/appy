@@ -85,10 +85,10 @@ module.exports = function(mongoose) {
       ).then(function(result) {
         let user = result
 
-        // EXPL: base permissions are set by the user's role
+        // base permissions are set by the user's role
         const permissions = user.role.permissions
 
-        // EXPL: group permissions override role permissions
+        // group permissions override role permissions
         user.groups.forEach(function(group) {
           group.group.permissions.forEach(function(groupPermission) {
             let matchIndex = -1
@@ -110,7 +110,7 @@ module.exports = function(mongoose) {
           })
         })
 
-        // EXPL: user permissions override group permissions
+        // user permissions override group permissions
         user.permissions.forEach(function(userPermission) {
           let matchIndex = -1
           permissions.find(function(permission, index) {

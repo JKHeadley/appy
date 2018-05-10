@@ -42,7 +42,7 @@ module.exports = function(mongoose) {
     collectionName: modelName,
     routeOptions: {
       policies: {
-        // EXPL: only the primaryUser can update a notification
+        // only the primaryUser can update a notification
         updatePolicies: [notificationUpdateAuth(mongoose)]
       },
       associations: {

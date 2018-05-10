@@ -144,15 +144,15 @@ module.exports = function(mongoose) {
         deletePolicies: [rankAuth(mongoose, '_id'), demoAuth]
       },
       routeScope: {
-        // EXPL: Users can access their own Notifications
+        // Users can access their own Notifications
         getUserNotificationsScope: 'user-{params.ownerId}',
-        // EXPL: Users can access their own Connections
+        // Users can access their own Connections
         getUserConnectionsScope: 'user-{params.ownerId}',
-        // EXPL: Users can access their own Documents
+        // Users can access their own Documents
         getUserDocumentsScope: 'user-{params.ownerId}',
-        // EXPL: Users can access their own Shared Documents
+        // Users can access their own Shared Documents
         getUserSharedDocumentsScope: 'user-{params.ownerId}',
-        // EXPL: Users can access their own Images
+        // Users can access their own Images
         getUserImagesScope: 'user-{params.ownerId}'
       },
       associations: {

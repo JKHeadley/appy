@@ -48,7 +48,7 @@ module.exports = function(server, mongoose, logger) {
       socialLoginHash: request.pre.keyHash.hash
     }
 
-    // EXPL: We update the user's social Id just in case they didn't have one yet
+    // We update the user's social Id just in case they didn't have one yet
     if (request.pre.user.facebookId) {
       update.facebookId = request.pre.user.facebookId
     }
@@ -89,7 +89,7 @@ module.exports = function(server, mongoose, logger) {
           let password = {}
 
           let promises = []
-          // EXPL: if the user does not exist, we create one with the facebook account data
+          // if the user does not exist, we create one with the facebook account data
           promises.push(User.findOne({ email: facebookProfile.email }))
           promises.push(User.findOne({ facebookId: facebookProfile.id }))
           return Q.all(promises)
@@ -122,7 +122,7 @@ module.exports = function(server, mongoose, logger) {
                 role: role._id
               }
 
-              // EXPL: We use the actual endpoint to take advantage of policies. Specifically in this case we need to
+              // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
               // take advantage of duplicate fields so that roleName and roleRank are populated.
               // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
               let request = {
@@ -213,7 +213,7 @@ module.exports = function(server, mongoose, logger) {
           let password = {}
 
           let promises = []
-          // EXPL: if the user does not exist, we create one with the google account data
+          // if the user does not exist, we create one with the google account data
           promises.push(User.findOne({ email: googleProfile.email }))
           promises.push(User.findOne({ googleId: googleProfile.id }))
           return Q.all(promises)
@@ -243,7 +243,7 @@ module.exports = function(server, mongoose, logger) {
                 role: role._id
               }
 
-              // EXPL: We use the actual endpoint to take advantage of policies. Specifically in this case we need to
+              // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
               // take advantage of duplicate fields so that roleName and roleRank are populated.
               // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
               let request = {
@@ -335,7 +335,7 @@ module.exports = function(server, mongoose, logger) {
           let password = {}
 
           let promises = []
-          // EXPL: if the user does not exist, we create one with the github account data
+          // if the user does not exist, we create one with the github account data
           promises.push(User.findOne({ email: githubProfile.email }))
           promises.push(User.findOne({ githubId: githubProfile.id }))
           return Q.all(promises)
@@ -369,7 +369,7 @@ module.exports = function(server, mongoose, logger) {
                 role: role._id
               }
 
-              // EXPL: We use the actual endpoint to take advantage of policies. Specifically in this case we need to
+              // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
               // take advantage of duplicate fields so that roleName and roleRank are populated.
               // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
               let request = {

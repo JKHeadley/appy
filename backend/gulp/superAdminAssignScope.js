@@ -3,7 +3,7 @@
  */
 
 module.exports = [
-  // EXPL: User permissions
+  // User permissions
   'addUserConnections',
   'addUserConversations',
   'addUserDocuments',
@@ -22,7 +22,7 @@ module.exports = [
   'removeUserImages',
   'removeUserNotifications',
   'removeUserSharedDocuments',
-  // EXPL: Role permissions
+  // Role permissions
   'addRolePermissions',
   'addRoleUsers',
   'createRole',
@@ -30,17 +30,17 @@ module.exports = [
   'removeRolePermissions',
   'removeRoleUsers',
   'updateRole',
-  // EXPL: Group permissions
+  // Group permissions
   'deleteGroup',
-  // EXPL: Permission permissions
+  // Permission permissions
   'addPermissionRoles',
   'createPermission',
   'deletePermission',
   'removePermissionRoles',
   'updatePermission',
-  // EXPL: Connection permissions
+  // Connection permissions
   'deleteConnection',
-  // EXPL: Conversation permissions
+  // Conversation permissions
   'addConversationMessages',
   'addConversationUserData',
   'deleteConversation',
@@ -50,27 +50,27 @@ module.exports = [
   'removeConversationMessages',
   'removeConversationUserData',
   'updateConversation',
-  // EXPL: Message permissions
+  // Message permissions
   'createMessage',
   'deleteMessage',
   'readMessage',
   'updateMessage',
-  // EXPL: Notification permissions
+  // Notification permissions
   'createNotification',
   'deleteNotification',
   'readNotification',
-  // EXPL: AuthAttempt permissions
+  // AuthAttempt permissions
   'associateAuthAttempt',
   'createAuthAttempt',
   'deleteAuthAttempt',
   'readAuthAttempt',
   'updateAuthAttempt',
-  // EXPL: Session permissions
+  // Session permissions
   'createSession',
   'deleteSession',
   'readSession',
   'updateSession',
-  // EXPL: AuditLog permissions
+  // AuditLog permissions
   'deleteAuditLog',
   'updateAuditLog'
 ]

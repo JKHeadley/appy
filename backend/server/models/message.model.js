@@ -43,7 +43,7 @@ module.exports = function(mongoose) {
       create: {
         post: function(document, request, result, Log) {
           const Conversation = mongoose.model('conversation')
-          // EXPL: Every new message is set as the latest message in the conversation
+          // Every new message is set as the latest message in the conversation
           return RestHapi.update(
             Conversation,
             document.conversation,

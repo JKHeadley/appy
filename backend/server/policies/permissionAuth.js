@@ -17,13 +17,13 @@ internals.permissionAuth = function(mongoose, isOwner) {
     let Log = request.logger.bind('permissionAuth')
 
     try {
-      // EXPL: Return next if this isn't a permission association
+      // Return next if this isn't a permission association
       if (!isOwner && !request.path.includes('permission')) {
         return next(null, true)
       }
       let userScope = request.auth.credentials.scope
 
-      // EXPL: Always allow root
+      // Always allow root
       if (userScope.indexOf('root') > -1) {
         return next(null, true)
       }
@@ -41,7 +41,7 @@ internals.permissionAuth = function(mongoose, isOwner) {
             return internals.formatResponse(canAssign, next, Log)
           })
       }
-      // EXPL: Multiple permissions are being assigned so we need to check each one.
+      // Multiple permissions are being assigned so we need to check each one.
       else {
         const permissionIds = request.payload.map(
           object => object.childId || object
@@ -54,7 +54,7 @@ internals.permissionAuth = function(mongoose, isOwner) {
         )
 
         return Q.all(promises).then(function(result) {
-          // EXPL: If any of the checks fail, then an error is returned
+          // If any of the checks fail, then an error is returned
           let canAssign =
             result.filter(canAssign => canAssign === false)[0] === undefined
 
@@ -78,7 +78,7 @@ internals.canAssign = function(permissionId, userScope, mongoose, Log) {
   return RestHapi.find(Permission, permissionId, {}, Log)
     .then(function(result) {
       let assignScope = result.assignScope
-      // EXPL: Check if the user scope intersects (contains values of) the assign scope.
+      // Check if the user scope intersects (contains values of) the assign scope.
       let canAssign = !!userScope.filter(
         scope => assignScope.indexOf(scope) > -1
       )[0]
