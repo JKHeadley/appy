@@ -463,19 +463,10 @@
           labels: browsers
         }
 
-
-        // var pieChart = new Chart(pieChartCanvas, {
-        //   type: 'doughnut',
-        //   data: data
-        // });
-        Chart(pieChartCanvas, {
+        new Chart(pieChartCanvas, { // eslint-disable-line no-new
           type: 'doughnut',
           data: data
         });
-        // Create pie or douhnut chart
-        // You can switch between pie and douhnut using the method below.
-//      console.log("PIC:", pieChart)
-//      pieChart.Doughnut(PieData, pieOptions);
         // -----------------
         // - END PIE CHART -
         // -----------------
