@@ -81,8 +81,6 @@ module.exports = function(server, mongoose, logger) {
             visitorCount: result[7]
           }
 
-          Log.debug("STATS:", stats);
-
           promises = []
           let step = {}
 
@@ -114,17 +112,32 @@ module.exports = function(server, mongoose, logger) {
 
           visitorsPerCountryQuery.push(step)
 
-          // // Transform data from array to object
-          // step = {}
-          //
-          // step.$project = {
-          //   _id: 0,
-          //   totalVisitorsPerCountry: {
-          //     $arrayToObject: '$totalVisitorsPerCountry'
-          //   }
-          // }
-          //
-          // visitorsPerCountryQuery.push(step)
+          // Remove null values since they cause errors in the next step
+          step = {}
+
+          step.$project = {
+            totalVisitorsPerCountry: {
+              $filter: {
+                input: '$totalVisitorsPerCountry',
+                as: 'data',
+                cond: { $ne: [ '$$data.k', null ] }
+              }
+            }
+          }
+
+          visitorsPerCountryQuery.push(step)
+
+          // Transform data from array to object
+          step = {}
+
+          step.$project = {
+            _id: 0,
+            totalVisitorsPerCountry: {
+              $arrayToObject: '$totalVisitorsPerCountry'
+            }
+          }
+
+          visitorsPerCountryQuery.push(step)
 
           promises.push(Visitor.aggregate(visitorsPerCountryQuery))
 
@@ -156,17 +169,32 @@ module.exports = function(server, mongoose, logger) {
 
           visitorsPerBrowserQuery.push(step)
 
-          // // Transform data from array to object
-          // step = {}
-          //
-          // step.$project = {
-          //   _id: 0,
-          //   totalVisitorsPerBrowser: {
-          //     $arrayToObject: '$totalVisitorsPerBrowser'
-          //   }
-          // }
-          //
-          // visitorsPerBrowserQuery.push(step)
+          // Remove null values since they cause errors in the next step
+          step = {}
+
+          step.$project = {
+            totalVisitorsPerCountry: {
+              $filter: {
+                input: '$totalVisitorsPerCountry',
+                as: 'data',
+                cond: { $ne: [ '$$data.k', null ] }
+              }
+            }
+          }
+
+          visitorsPerCountryQuery.push(step)
+
+          // Transform data from array to object
+          step = {}
+
+          step.$project = {
+            _id: 0,
+            totalVisitorsPerBrowser: {
+              $arrayToObject: '$totalVisitorsPerBrowser'
+            }
+          }
+
+          visitorsPerBrowserQuery.push(step)
 
           promises.push(Visitor.aggregate(visitorsPerBrowserQuery))
 
@@ -175,8 +203,6 @@ module.exports = function(server, mongoose, logger) {
           return Q.all(promises)
         })
         .then(function(result) {
-
-          Log.debug("RESULT:", result)
 
           stats.totalVisitorsPerCountry = result[0][0].totalVisitorsPerCountry
           stats.totalVisitorsPerBrowser = result[1][0].totalVisitorsPerBrowser
