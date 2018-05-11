@@ -24,7 +24,7 @@ internals.renderTemplate = function(signature, context, Log) {
     deferred.resolve(internals.templateCache[signature](context))
   }
 
-  const filePath = path(__dirname, '/emails/', signature, '.hbs.md')
+  const filePath = path.join(__dirname, '/../emails/', signature + '.hbs.md')
   const options = { encoding: 'utf-8' }
 
   Fs.readFile(filePath, options, (err, source) => {
