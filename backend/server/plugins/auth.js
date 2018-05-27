@@ -18,27 +18,32 @@ const logger = RestHapi.getLogger('appy')
 
 const internals = {}
 
-internals.applyTokenStrategy = function(server, next) {
+module.exports = {
+  plugin: {
+    name: 'auth',
+    register
+  }
+}
+
+internals.applyTokenStrategy = function(server) {
   // const Log = logger.bind('auth/standard-jwt')
 
   server.auth.strategy(AUTH_STRATEGIES.TOKEN, 'jwt', {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'] },
 
-    validateFunc: function(decodedToken, request, callback) {
+    validate: function(decodedToken, request, callback) {
       let user = decodedToken.user
 
       callback(null, Boolean(user), { user, scope: decodedToken.scope })
     }
   })
-
-  next()
 }
 
-internals.applySessionStrategy = function(server, next) {
+internals.applySessionStrategy = function(server) {
   const Log = logger.bind('auth/session')
 
-  server.ext('onPostHandler', function(request, reply) {
+  server.ext('onPostHandler', function(request, h) {
     const creds = request.auth.credentials
 
     // send a fresh token in the response
@@ -49,14 +54,14 @@ internals.applySessionStrategy = function(server, next) {
       )
     }
 
-    return reply.continue()
+    return h.continue
   })
 
   server.auth.strategy(AUTH_STRATEGIES.SESSION, 'jwt', {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'] },
 
-    validateFunc: function(decodedToken, request, callback) {
+    validate: function(decodedToken, request, callback) {
       const Session = Mongoose.model('session')
       const User = Mongoose.model('user')
 
@@ -98,14 +103,12 @@ internals.applySessionStrategy = function(server, next) {
         })
     }
   })
-
-  next()
 }
 
-internals.applyRefreshStrategy = function(server, next) {
+internals.applyRefreshStrategy = function(server) {
   const Log = logger.bind('auth/refresh')
 
-  server.ext('onPostHandler', function(request, reply) {
+  server.ext('onPostHandler', function(request, h) {
     const creds = request.auth.credentials
 
     // if the auth credentials contain session info (i.e. a refresh token), respond with a fresh set of tokens in the header.
@@ -120,13 +123,13 @@ internals.applyRefreshStrategy = function(server, next) {
       )
     }
 
-    return reply.continue()
+    return h.continue
   })
 
   server.auth.strategy(AUTH_STRATEGIES.REFRESH, 'jwt', {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'], ignoreExpiration: true },
-    validateFunc: function(decodedToken, request, callback) {
+    validate: function(decodedToken, request, callback) {
       // if the token is expired, respond with token type so the client can switch to refresh token if necessary
       if (decodedToken.exp < Math.floor(Date.now() / 1000)) {
         if (decodedToken.user) {
@@ -197,11 +200,9 @@ internals.applyRefreshStrategy = function(server, next) {
       }
     }
   })
-
-  next()
 }
 
-internals.applyFacebookStrategy = function(server, next) {
+internals.applyFacebookStrategy = function(server) {
   const facebookOptions = {
     provider: 'facebook',
     password: socialPassword,
@@ -215,7 +216,7 @@ internals.applyFacebookStrategy = function(server, next) {
   server.auth.strategy('facebook', 'bell', facebookOptions)
 }
 
-internals.applyGoogleStrategy = function(server, next) {
+internals.applyGoogleStrategy = function(server) {
   const googleOptions = {
     provider: 'google',
     password: socialPassword,
@@ -229,7 +230,7 @@ internals.applyGoogleStrategy = function(server, next) {
   server.auth.strategy('google', 'bell', googleOptions)
 }
 
-internals.applyGithubStrategy = function(server, next) {
+internals.applyGithubStrategy = function(server) {
   const googleOptions = {
     provider: 'github',
     password: socialPassword,
@@ -244,7 +245,7 @@ internals.applyGithubStrategy = function(server, next) {
 }
 
 internals.customForbiddenMessage = function(server) {
-  server.ext('onPreResponse', (request, reply) => {
+  server.ext('onPreResponse', (request, h) => {
     const response = request.response
 
     if (
@@ -256,31 +257,30 @@ internals.customForbiddenMessage = function(server) {
       response.output.payload.message = 'Insufficient permissions'
     }
 
-    return reply.continue()
+    return h.continue
   })
 }
 
-exports.register = function(server, options, next) {
+async function register(server, options) {
   const authStrategy = Config.get('/restHapiConfig/authStrategy')
 
   internals.customForbiddenMessage(server)
 
-  internals.applyFacebookStrategy(server, next)
-  internals.applyGoogleStrategy(server, next)
-  internals.applyGithubStrategy(server, next)
+  internals.applyFacebookStrategy(server)
+  internals.applyGoogleStrategy(server)
+  internals.applyGithubStrategy(server)
 
   switch (authStrategy) {
     case AUTH_STRATEGIES.TOKEN:
-      internals.applyTokenStrategy(server, next)
+      internals.applyTokenStrategy(server)
       break
     case AUTH_STRATEGIES.SESSION:
-      internals.applySessionStrategy(server, next)
+      internals.applySessionStrategy(server)
       break
     case AUTH_STRATEGIES.REFRESH:
-      internals.applyRefreshStrategy(server, next)
+      internals.applyRefreshStrategy(server)
       break
     default:
-      next()
       break
   }
 
@@ -295,8 +295,4 @@ exports.register = function(server, options, next) {
     )
   }
   server.method('getIP', getIP, {})
-}
-
-exports.register.attributes = {
-  name: 'auth'
 }

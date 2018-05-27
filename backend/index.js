@@ -7,18 +7,22 @@ const composeOptions = {
   relativeTo: __dirname
 }
 
-const Composer = Glue.compose.bind(Glue, Manifest.get('/'), composeOptions)
+const startServer = async function() {
+  try {
+    const manifest = Manifest.get('/')
+    const server = await Glue.compose(manifest, composeOptions)
 
-Composer((err, server) => {
-  if (err) {
-    throw err
-  }
+    await server.start()
 
-  server.start(() => {
     RestHapi.logUtil.logActionComplete(
-      RestHapi.logger,
+      RestHapi.Log,
       'Server Initialized',
       server.info
     )
-  })
-})
+  } catch (err) {
+    console.error(err)
+    process.exit(1)
+  }
+}
+
+startServer()

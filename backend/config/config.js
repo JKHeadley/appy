@@ -178,7 +178,7 @@ const config = {
   clientURL: {
     $filter: 'env',
     production: process.env.CLIENT_URI,
-    $default: process.env.CLIENT_URI,
+    $default: process.env.CLIENT_URI
   },
   // If true, the 'demoAuth' policy is used to restrict certain actions.
   enableDemoAuth: {
@@ -194,7 +194,7 @@ const config = {
       URI: {
         $filter: 'env',
         production: process.env.MONGODB_URI,
-        $default: process.env.MONGODB_URI,
+        $default: process.env.MONGODB_URI
       }
     },
     cors: {

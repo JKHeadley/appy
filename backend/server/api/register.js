@@ -119,8 +119,7 @@ module.exports = function(server, mongoose, logger) {
 
           if (request.payload.registerType === 'Register') {
             const emailOptions = {
-              subject:
-                'Activate your ' + WEB_TITLE + ' account',
+              subject: 'Activate your ' + WEB_TITLE + ' account',
               to: {
                 name:
                   request.payload.firstName + ' ' + request.payload.lastName,
