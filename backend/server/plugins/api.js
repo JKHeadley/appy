@@ -1,30 +1,27 @@
 'use strict'
 
-const Mongoose = require('mongoose')
+const mongoose = require('mongoose')
 const RestHapi = require('rest-hapi')
 
 const Config = require('../../config/config')
 
-exports.register = function(server, options, next) {
-  RestHapi.config = Config.get('/restHapiConfig')
-
-  server.register(
-    {
-      register: RestHapi,
-      options: {
-        mongoose: Mongoose
-      }
-    },
-    function(err) {
-      if (err) {
-        console.error('Failed to load plugin:', err)
-      }
-
-      next()
-    }
-  )
+module.exports = {
+  plugin: {
+    name: 'api',
+    register
+  }
 }
 
-exports.register.attributes = {
-  name: 'api'
+async function register(server, options) {
+  try {
+    await server.register({
+      plugin: RestHapi,
+      options: {
+        mongoose,
+        config: Config.get('/restHapiConfig')
+      }
+    })
+  } catch (err) {
+    console.error('Failed to load plugin:', err)
+  }
 }

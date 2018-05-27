@@ -12,6 +12,13 @@ const Config = require('../../config/config')
 
 const internals = {}
 
+module.exports = {
+  plugin: {
+    name: 'mailer',
+    register
+  }
+}
+
 internals.transport = Nodemailer.createTransport(Config.get('/nodemailer'))
 internals.transport.use('compile', Markdown({ useEmbeddedImages: true }))
 
@@ -68,15 +75,9 @@ internals.sendEmail = function(options, template, context, Log) {
     })
 }
 
-exports.register = function(server, options, next) {
+async function register(server, options) {
   server.expose('sendEmail', internals.sendEmail)
   server.expose('transport', internals.transport)
-
-  next()
 }
 
-exports.sendEmail = internals.sendEmail
-
-exports.register.attributes = {
-  name: 'mailer'
-}
+module.exports.sendEmail = internals.sendEmail

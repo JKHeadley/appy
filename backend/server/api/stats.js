@@ -120,7 +120,7 @@ module.exports = function(server, mongoose, logger) {
               $filter: {
                 input: '$totalVisitorsPerCountry',
                 as: 'data',
-                cond: { $ne: [ '$$data.k', null ] }
+                cond: { $ne: ['$$data.k', null] }
               }
             }
           }
@@ -177,7 +177,7 @@ module.exports = function(server, mongoose, logger) {
               $filter: {
                 input: '$totalVisitorsPerCountry',
                 as: 'data',
-                cond: { $ne: [ '$$data.k', null ] }
+                cond: { $ne: ['$$data.k', null] }
               }
             }
           }
@@ -203,7 +203,6 @@ module.exports = function(server, mongoose, logger) {
           return Q.all(promises)
         })
         .then(function(result) {
-
           stats.totalVisitorsPerCountry = result[0][0].totalVisitorsPerCountry
           stats.totalVisitorsPerBrowser = result[1][0].totalVisitorsPerBrowser
 

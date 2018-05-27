@@ -9,41 +9,44 @@ const criteria = {
 const manifest = {
   $meta: 'This file defines the server.',
   server: {
-    debug: {
-      request: ['error']
-    },
-    connections: {
-      routes: {
-        security: true,
-        cors: true
-      }
-    }
+    // debug: {
+    //   request: ['error']
+    // },
+    port: Config.get('/port')
+    // connections: {
+    //   routes: {
+    //     security: true,
+    //     cors: true
+    //   }
+    // }
   },
-  connections: [
-    {
-      port: Config.get('/port')
-    }
-  ],
-  registrations: [
-    {
-      plugin: 'hapi-auth-jwt2'
-    },
-    {
-      plugin: 'bell'
-    },
-    {
-      plugin: './server/plugins/mailer'
-    },
-    {
-      plugin: './server/plugins/auth'
-    },
-    {
-      plugin: './server/plugins/sockets'
-    },
-    {
-      plugin: './server/plugins/api'
-    }
-  ]
+  // connections: [
+  //   {
+  //     port: Config.get('/port')
+  //   }
+  // ],
+  register: {
+    plugins: [
+      {
+        plugin: 'hapi-auth-jwt2'
+      },
+      {
+        plugin: 'bell'
+      },
+      {
+        plugin: './server/plugins/mailer'
+      },
+      {
+        plugin: './server/plugins/auth'
+      },
+      {
+        plugin: './server/plugins/sockets'
+      },
+      {
+        plugin: './server/plugins/api'
+      }
+    ]
+  }
 }
 
 const store = new Confidence.Store(manifest)
