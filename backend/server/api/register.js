@@ -8,6 +8,7 @@ const RestHapi = require('rest-hapi')
 const Bcrypt = require('bcryptjs')
 const _ = require('lodash')
 const GeneratePassword = require('password-generator')
+const errorHelper = require('../utilities/errorHelper')
 
 const Config = require('../../config/config')
 const auditLog = require('../policies/audit-log')
@@ -30,179 +31,157 @@ module.exports = function(server, mongoose, logger) {
     const registerPre = [
       {
         assign: 'emailCheck',
-        method: function(request, reply) {
-          const conditions = {
-            email: request.payload.user.email,
-            isDeleted: false
+        method: async function(request, h) {
+          try {
+            const conditions = {
+              email: request.payload.user.email,
+              isDeleted: false
+            }
+
+            let user = await User.findOne(conditions)
+            if (user) {
+              throw Boom.conflict('Email already in use.')
+            }
+
+            return true
+          } catch (err) {
+            errorHelper.handleError(err, Log)
           }
-
-          User.findOne(conditions)
-            .then(function(user) {
-              if (user) {
-                return reply(Boom.conflict('Email already in use.'))
-              }
-
-              return reply(true)
-            })
-            .catch(function(error) {
-              Log.error(error)
-              return reply(
-                Boom.badImplementation(
-                  'There was an error accessing the database.'
-                )
-              )
-            })
         }
       },
       {
         assign: 'role',
-        method: function(request, reply) {
-          const conditions = {
-            name: request.payload.user.role
+        method: async function(request, h) {
+          try {
+            const conditions = {
+              name: request.payload.user.role
+            }
+
+            let role = await Role.findOne(conditions)
+            if (!role) {
+              throw Boom.badRequest("Role doesn't exist.")
+            }
+
+            return role
+          } catch (err) {
+            errorHelper.handleError(err, Log)
           }
-
-          Role.findOne(conditions)
-            .then(function(role) {
-              if (!role) {
-                return reply(Boom.badRequest("Role doesn't exist."))
-              }
-
-              return reply(role)
-            })
-            .catch(function(error) {
-              Log.error(error)
-              return reply(
-                Boom.badImplementation(
-                  'There was an error accessing the database.'
-                )
-              )
-            })
         }
       }
     ]
 
-    const registerHandler = function(request, reply) {
-      const mailer = request.server.plugins.mailer
+    const registerHandler = async function(request, h) {
+      try {
+        const mailer = request.server.plugins.mailer
 
-      let keyHash = {}
-      let user = {}
-      let originalPassword = ''
+        let keyHash = {}
+        let user = {}
+        let originalPassword = ''
 
-      Session.generateKeyHash(Log)
-        .then(function(result) {
-          keyHash = result
+        keyHash = await Session.generateKeyHash(Log)
 
-          user = request.payload.user
+        user = request.payload.user
 
-          if (user.password) {
-            originalPassword = user.password
-          } else {
-            originalPassword = user.password = GeneratePassword(10, false)
+        if (user.password) {
+          originalPassword = user.password
+        } else {
+          originalPassword = user.password = GeneratePassword(10, false)
+        }
+
+        user.role = request.pre.role._id
+        user.roleName = request.pre.role.name
+
+        user.isActive = false
+        user.activateAccountHash = keyHash.hash
+
+        // Invited users are forced to update their PIN and password when they first login
+        if (request.payload.registerType === 'Invite') {
+          user.passwordUpdateRequired = true
+          user.pinUpdateRequired = true
+        }
+
+        user = await RestHapi.create(User, user, Log)
+
+        if (request.payload.registerType === 'Register') {
+          const emailOptions = {
+            subject: 'Activate your ' + WEB_TITLE + ' account',
+            to: {
+              name:
+              request.payload.firstName + ' ' + request.payload.lastName,
+              address: user.email
+            }
+          }
+          const template = 'welcome'
+
+          const token = Jwt.sign(
+            {
+              email: user.email,
+              key: keyHash.key
+            },
+            Config.get('/jwtSecret'),
+            { algorithm: 'HS256', expiresIn: '24h' }
+          )
+
+          const context = {
+            clientURL: Config.get('/clientURL'),
+            websiteName: WEB_TITLE,
+            key: token
           }
 
-          user.role = request.pre.role._id
-          user.roleName = request.pre.role.name
+          try {
+            await mailer.sendEmail(emailOptions, template, context, Log)
+          } catch (err) {
+            Log.error('sending registration email failed:', err)
+            throw err
+          }
+        } else if (request.payload.registerType === 'Invite') {
+          const emailOptions = {
+            subject: 'Invitation to ' + WEB_TITLE,
+            to: {
+              name:
+              request.payload.firstName + ' ' + request.payload.lastName,
+              address: user.email
+            }
+          }
+          const template = 'invite'
 
-          user.isActive = false
-          user.activateAccountHash = keyHash.hash
+          const token = Jwt.sign(
+            {
+              email: user.email,
+              key: keyHash.key
+            },
+            Config.get('/jwtSecret'),
+            { algorithm: 'HS256', expiresIn: '24h' }
+          )
 
-          // Invited users are forced to update their PIN and password when they first login
-          if (request.payload.registerType === 'Invite') {
-            user.passwordUpdateRequired = true
-            user.pinUpdateRequired = true
+          const invitee = request.auth.credentials
+            ? request.auth.credentials.user
+            : {
+              firstName: 'appy',
+              lastName: 'Admin'
+            }
+
+          const context = {
+            clientURL: Config.get('/clientURL'),
+            websiteName: WEB_TITLE,
+            inviteeName: invitee.firstName + ' ' + invitee.lastName,
+            email: request.payload.user.email,
+            password: originalPassword,
+            key: token
           }
 
-          return RestHapi.create(User, user, Log)
-        })
-        .then(function(result) {
-          user = result
-
-          if (request.payload.registerType === 'Register') {
-            const emailOptions = {
-              subject: 'Activate your ' + WEB_TITLE + ' account',
-              to: {
-                name:
-                  request.payload.firstName + ' ' + request.payload.lastName,
-                address: user.email
-              }
-            }
-            const template = 'welcome'
-
-            const token = Jwt.sign(
-              {
-                email: user.email,
-                key: keyHash.key
-              },
-              Config.get('/jwtSecret'),
-              { algorithm: 'HS256', expiresIn: '24h' }
-            )
-
-            const context = {
-              clientURL: Config.get('/clientURL'),
-              websiteName: WEB_TITLE,
-              key: token
-            }
-
-            mailer
-              .sendEmail(emailOptions, template, context, Log)
-              .catch(function(error) {
-                Log.error('sending welcome email failed:', error)
-                return reply(
-                  Boom.badImplementation('Sending registration email failed.')
-                )
-              })
-          } else if (request.payload.registerType === 'Invite') {
-            const emailOptions = {
-              subject: 'Invitation to ' + WEB_TITLE,
-              to: {
-                name:
-                  request.payload.firstName + ' ' + request.payload.lastName,
-                address: user.email
-              }
-            }
-            const template = 'invite'
-
-            const token = Jwt.sign(
-              {
-                email: user.email,
-                key: keyHash.key
-              },
-              Config.get('/jwtSecret'),
-              { algorithm: 'HS256', expiresIn: '24h' }
-            )
-
-            const invitee = request.auth.credentials
-              ? request.auth.credentials.user
-              : {
-                  firstName: 'appy',
-                  lastName: 'Admin'
-                }
-
-            const context = {
-              clientURL: Config.get('/clientURL'),
-              websiteName: WEB_TITLE,
-              inviteeName: invitee.firstName + ' ' + invitee.lastName,
-              email: request.payload.user.email,
-              password: originalPassword,
-              key: token
-            }
-
-            mailer
-              .sendEmail(emailOptions, template, context, Log)
-              .catch(function(error) {
-                Log.error('sending invite email failed:', error)
-                return reply(
-                  Boom.gatewayTimeout('Sending registration email failed.')
-                )
-              })
+          try {
+            await mailer.sendEmail(emailOptions, template, context, Log)
+          } catch (err) {
+            Log.error('sending registration email failed:', err)
+            throw err
           }
+        }
 
-          return reply(user)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return user
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     var headersValidation = Joi.object({
@@ -283,88 +262,74 @@ module.exports = function(server, mongoose, logger) {
     const sendActivationEmailPre = [
       {
         assign: 'user',
-        method: function(request, reply) {
-          const email = request.payload.email
+        method: async function(request, h) {
+          try {
+            const email = request.payload.email
 
-          User.findOne({ email: email })
-            .then(function(user) {
-              if (!user) {
-                return reply(Boom.notFound('User not found.'))
-              }
-              return reply(user)
-            })
-            .catch(function(error) {
-              Log.error(error)
-              return reply(
-                Boom.badImplementation(
-                  'There was an error accessing the database.'
-                )
-              )
-            })
+            let user = await User.findOne({ email: email })
+            if (!user) {
+              throw Boom.notFound('User not found.')
+            }
+            return user
+          } catch (err) {
+            errorHelper.handleError(err, Log)
+          }
         }
       }
     ]
 
-    const sendActivationEmailHandler = function(request, reply) {
-      const mailer = request.server.plugins.mailer
+    const sendActivationEmailHandler = async function(request, h) {
+      try {
+        const mailer = request.server.plugins.mailer
 
-      let keyHash = {}
-      let user = {}
+        let keyHash = {}
+        let user = {}
 
-      Session.generateKeyHash(Log)
-        .then(function(result) {
-          keyHash = result
+        keyHash = await Session.generateKeyHash(Log)
 
-          const update = {
-            activateAccountHash: keyHash.hash
+        const update = {
+          activateAccountHash: keyHash.hash
+        }
+
+        user = await RestHapi.update(User, request.pre.user._id, update)
+
+        const firstName = user.firstName ? user.firstName : null
+        const lastName = user.lastName ? user.lastName : null
+
+        const emailOptions = {
+          subject: 'Activate your ' + WEB_TITLE + ' account',
+          to: {
+            name: firstName + ' ' + lastName,
+            address: request.payload.email
           }
+        }
+        const template = 'welcome'
 
-          return RestHapi.update(User, request.pre.user._id, update)
-        })
-        .then(function(result) {
-          user = result
+        const token = Jwt.sign(
+          {
+            email: request.payload.email,
+            key: keyHash.key
+          },
+          Config.get('/jwtSecret'),
+          { algorithm: 'HS256', expiresIn: EXPIRATION_PERIOD.MEDIUM }
+        )
 
-          const firstName = user.firstName ? user.firstName : null
-          const lastName = user.lastName ? user.lastName : null
+        const context = {
+          clientURL: Config.get('/clientURL'),
+          key: token
+        }
 
-          const emailOptions = {
-            subject: 'Activate your ' + WEB_TITLE + ' account',
-            to: {
-              name: firstName + ' ' + lastName,
-              address: request.payload.email
-            }
-          }
-          const template = 'welcome'
+        try {
+          await mailer.sendEmail(emailOptions, template, context, Log)
+        } catch (err) {
+          Log.error('sending registration email failed:', err)
+          throw err
+        }
 
-          const token = Jwt.sign(
-            {
-              email: request.payload.email,
-              key: keyHash.key
-            },
-            Config.get('/jwtSecret'),
-            { algorithm: 'HS256', expiresIn: EXPIRATION_PERIOD.MEDIUM }
-          )
-
-          const context = {
-            clientURL: Config.get('/clientURL'),
-            key: token
-          }
-
-          mailer
-            .sendEmail(emailOptions, template, context, Log)
-            .catch(function(error) {
-              Log.error('sending activation email failed:', error)
-            })
-
-          return reply('Activation email sent.')
-        })
-        .catch(function(error) {
-          if (error.isBoom) {
-            return reply(error)
-          }
-          Log.error(error)
-          return reply(Boom.gatewayTimeout('An error occurred.'))
-        })
+        return { message: 'Activation email sent.' }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -408,79 +373,76 @@ module.exports = function(server, mongoose, logger) {
     const accountActivationPre = [
       {
         assign: 'decoded',
-        method: function(request, reply) {
-          Jwt.verify(request.payload.token, Config.get('/jwtSecret'), function(
-            err,
-            decoded
-          ) {
-            if (err) {
-              Log.error(err)
-              return reply(Boom.badRequest('Invalid token.'))
-            }
+        method: async function(request, h) {
+          try {
+            let promise = new Promise((resolve, reject) => {
+              Jwt.verify(
+                request.payload.token,
+                Config.get('/jwtSecret'),
+                function(err, decoded) {
+                  if (err) {
+                    Log.error(err)
+                    reject(Boom.unauthorized('Invalid token.'))
+                  }
 
-            return reply(decoded)
-          })
+                  resolve(decoded)
+                }
+              )
+            })
+
+            return await promise
+          } catch (err) {
+            errorHelper.handleError(err, Log)
+          }
         }
       },
       {
         assign: 'user',
-        method: function(request, reply) {
-          const conditions = {
-            email: request.pre.decoded.email,
-            isDeleted: false
-          }
+        method: async function(request, h) {
+          try {
+            const conditions = {
+              email: request.pre.decoded.email,
+              isDeleted: false
+            }
 
-          User.findOne(conditions)
-            .then(function(user) {
-              if (!user) {
-                return reply(Boom.badRequest('Invalid email or key.'))
-              }
-              return reply(user)
-            })
-            .catch(function(error) {
-              Log.error(error)
-              return reply(
-                Boom.badImplementation(
-                  'There was an error accessing the database.'
-                )
-              )
-            })
+            let user = await User.findOne(conditions)
+            if (!user) {
+              throw Boom.badRequest('Invalid email or key.')
+            }
+            return user
+          } catch (err) {
+            errorHelper.handleError(err, Log)
+          }
         }
       }
     ]
 
-    const accountActivationHandler = function(request, reply) {
-      const key = request.pre.decoded.key
-      const hash = request.pre.user.activateAccountHash
+    const accountActivationHandler = async function(request, h) {
+      try {
+        const key = request.pre.decoded.key
+        const hash = request.pre.user.activateAccountHash
 
-      Bcrypt.compare(key, hash)
-        .then(function(keyMatch) {
-          if (!keyMatch) {
-            throw Boom.badRequest('Invalid email or key.')
-          }
+        let keyMatch = await Bcrypt.compare(key, hash)
+        if (!keyMatch) {
+          throw Boom.badRequest('Invalid email or key.')
+        }
 
-          const _id = request.pre.user._id.toString()
-          const update = {
-            $set: {
-              isActive: true
-            },
-            $unset: {
-              activateAccountHash: undefined
-            }
+        const _id = request.pre.user._id.toString()
+        const update = {
+          $set: {
+            isActive: true
+          },
+          $unset: {
+            activateAccountHash: undefined
           }
+        }
 
-          return RestHapi.update(User, _id, update)
-        })
-        .then(function(result) {
-          return reply({ message: 'Success.' })
-        })
-        .catch(function(error) {
-          if (error.isBoom) {
-            return reply(error)
-          }
-          Log.error(error)
-          return reply(Boom.gatewayTimeout('An error occurred.'))
-        })
+        await RestHapi.update(User, _id, update)
+
+        return { message: 'Success.' }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
