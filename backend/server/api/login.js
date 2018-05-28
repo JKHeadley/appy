@@ -701,7 +701,7 @@ module.exports = function(server, mongoose, logger) {
             )
           })
 
-          return await promise
+          return promise
         }
       },
       {

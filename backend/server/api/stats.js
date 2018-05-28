@@ -1,7 +1,6 @@
 'use strict'
 
 const Chalk = require('chalk')
-const Q = require('q')
 const RestHapi = require('rest-hapi')
 const errorHelper = require('../utilities/errorHelper')
 

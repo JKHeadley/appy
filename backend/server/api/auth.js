@@ -4,7 +4,6 @@ const Boom = require('boom')
 const Chalk = require('chalk')
 const Jwt = require('jsonwebtoken')
 const Uuid = require('node-uuid')
-const Q = require('q')
 const RestHapi = require('rest-hapi')
 
 const Config = require('../../config/config')
@@ -22,8 +21,8 @@ module.exports = function(server, mongoose, logger) {
 
     if (!request.auth.isAuthenticated) {
       throw Boom.unauthorized(
-          'Authentication failed: ' + request.auth.error.message
-        )
+        'Authentication failed: ' + request.auth.error.message
+      )
     }
 
     const tokenPayload = {
@@ -64,7 +63,7 @@ module.exports = function(server, mongoose, logger) {
       })
       .catch(function(error) {
         Log.error(error)
-       throw Boom.gatewayTimeout('An error occurred.')
+        throw Boom.gatewayTimeout('An error occurred.')
       })
   }
 
@@ -112,9 +111,9 @@ module.exports = function(server, mongoose, logger) {
               firstName: facebookProfile.name.first,
               lastName: facebookProfile.name.last,
               profileImageUrl:
-              'https://graph.facebook.com/' +
-              facebookProfile.id +
-              '/picture?type=large',
+                'https://graph.facebook.com/' +
+                facebookProfile.id +
+                '/picture?type=large',
               password: password,
               facebookId: facebookProfile.id,
               role: role._id
@@ -142,7 +141,7 @@ module.exports = function(server, mongoose, logger) {
             user.password = password
 
             return user
-          } catch(err) {
+          } catch (err) {
             Log.error(err)
             throw Boom.badImplementation(err)
           }
@@ -202,6 +201,7 @@ module.exports = function(server, mongoose, logger) {
             const googleProfile = request.auth.credentials.profile
 
             let user = {}
+            let role = {}
             let password = {}
 
             let promises = []
@@ -255,7 +255,7 @@ module.exports = function(server, mongoose, logger) {
             user.password = password
 
             return user
-          } catch(err) {
+          } catch (err) {
             Log.error(err)
             throw Boom.badImplementation(err)
           }
@@ -315,6 +315,7 @@ module.exports = function(server, mongoose, logger) {
             const githubProfile = request.auth.credentials.profile
 
             let user = {}
+            let role = {}
             let password = {}
 
             let promises = []
@@ -372,7 +373,7 @@ module.exports = function(server, mongoose, logger) {
             user.password = password
 
             return user
-          } catch(err) {
+          } catch (err) {
             Log.error(err)
             throw Boom.badImplementation(err)
           }

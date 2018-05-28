@@ -16,9 +16,7 @@ module.exports = function(server, mongoose, logger) {
         entity: 'user',
         index: true
       },
-      onSubscribe: function(socket, path, params) {
-        return
-      }
+      onSubscribe: function(socket, path, params) {}
     })
   })()
 }

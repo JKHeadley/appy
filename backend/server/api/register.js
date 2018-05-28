@@ -106,8 +106,7 @@ module.exports = function(server, mongoose, logger) {
           const emailOptions = {
             subject: 'Activate your ' + WEB_TITLE + ' account',
             to: {
-              name:
-              request.payload.firstName + ' ' + request.payload.lastName,
+              name: request.payload.firstName + ' ' + request.payload.lastName,
               address: user.email
             }
           }
@@ -138,8 +137,7 @@ module.exports = function(server, mongoose, logger) {
           const emailOptions = {
             subject: 'Invitation to ' + WEB_TITLE,
             to: {
-              name:
-              request.payload.firstName + ' ' + request.payload.lastName,
+              name: request.payload.firstName + ' ' + request.payload.lastName,
               address: user.email
             }
           }
@@ -157,9 +155,9 @@ module.exports = function(server, mongoose, logger) {
           const invitee = request.auth.credentials
             ? request.auth.credentials.user
             : {
-              firstName: 'appy',
-              lastName: 'Admin'
-            }
+                firstName: 'appy',
+                lastName: 'Admin'
+              }
 
           const context = {
             clientURL: Config.get('/clientURL'),
