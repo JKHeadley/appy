@@ -4,6 +4,7 @@ const Joi = require('joi')
 const Boom = require('boom')
 const Chalk = require('chalk')
 const RestHapi = require('rest-hapi')
+const errorHelper = require('../utilities/errorHelper')
 
 const Config = require('../../config/config')
 const auditLog = require('../policies/audit-log')
@@ -22,25 +23,24 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Logout endpoint')
 
-    const logoutHandler = function(request, reply) {
-      const credentials = request.auth.credentials || { session: null }
-      const session = credentials.session
+    const logoutHandler = async function(request, h) {
+      try {
+        const credentials = request.auth.credentials || { session: null }
+        const session = credentials.session
 
-      if (session) {
-        Session.findByIdAndRemove(session._id)
-          .then(function(sessionDoc) {
+        if (session) {
+          let sessionDoc = await Session.findByIdAndRemove(session._id)
             if (!sessionDoc) {
-              return reply(Boom.notFound('Session not found'))
+              throw Boom.notFound('Session not found')
             }
 
-            return reply({ message: 'Success' })
-          })
-          .catch(function(error) {
-            Log.error(error)
-            return reply(RestHapi.errorHelper.formatResponse(error))
-          })
-      } else {
-        return reply(Boom.badRequest('Requires refresh token for auth header'))
+            return { message: 'Success' }
+
+        } else {
+          throw Boom.badRequest('Refresh token required in auth header to log out')
+        }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
       }
     }
 
