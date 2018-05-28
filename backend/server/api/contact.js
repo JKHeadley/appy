@@ -2,6 +2,7 @@
 
 const Joi = require('joi')
 const Chalk = require('chalk')
+const errorHelper = require('../utilities/errorHelper')
 
 const Config = require('../../config/config')
 
@@ -12,27 +13,25 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Contact endpoint')
 
-    const contactHandler = function(request, reply) {
-      const mailer = request.server.plugins.mailer
-      const emailOptions = {
-        subject: Config.get('/projectName') + ' contact form',
-        to: Config.get('/system/toAddress'),
-        replyTo: {
-          name: request.payload.name,
-          address: request.payload.email
+    const contactHandler = async function(request, h) {
+      try {
+        const mailer = request.server.plugins.mailer
+        const emailOptions = {
+          subject: Config.get('/projectName') + ' contact form',
+          to: Config.get('/system/toAddress'),
+          replyTo: {
+            name: request.payload.name,
+            address: request.payload.email
+          }
         }
-      }
-      const template = 'contact'
+        const template = 'contact'
 
-      mailer
-        .sendEmail(emailOptions, template, request.payload, Log)
-        .then(function() {
-          return reply({ message: 'Success.' })
-        })
-        .catch(function(error) {
-          Log.error('sending contact email failed:', error)
-          return reply(error)
-        })
+        await mailer.sendEmail(emailOptions, template, request.payload, Log)
+
+        return { message: 'Success' }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({

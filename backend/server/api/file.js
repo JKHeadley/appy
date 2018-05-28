@@ -5,8 +5,8 @@ const Boom = require('boom')
 const Chalk = require('chalk')
 const Uuid = require('node-uuid')
 const im = require('imagemagick')
-const Q = require('q')
 const fs = require('fs')
+const errorHelper = require('../utilities/errorHelper')
 
 const AWS = require('aws-sdk')
 
@@ -27,46 +27,44 @@ const internals = {}
  * @param Log
  */
 internals.formatImage = function(image, Log) {
-  let deferred = Q.defer()
+  return new Promise((resolve, reject) => {
+    fs.writeFileSync(image.name, image.file)
 
-  fs.writeFileSync(image.name, image.file)
+    im.identify(image.name, function(err, features) {
+      if (err) {
+        Log.error(err)
+        reject(err)
+      } else {
+        Log.debug('Original size:', features.width, features.height)
+        let width = 350
+        let height = 350
 
-  im.identify(image.name, function(err, features) {
-    if (err) {
-      Log.error(err)
-      deferred.reject(err)
-    } else {
-      Log.debug('Original size:', features.width, features.height)
-      let width = 350
-      let height = 350
-
-      // Resize any profile images to 256x256
-      im.resize(
-        {
-          srcPath: image.name,
-          dstPath: image.name,
-          width: width,
-          height: height,
-          quality: 1
-        },
-        function(err, stdout, stderr) {
-          if (err) {
-            Log.error(err)
-            deferred.reject(err)
-          } else {
-            let resizedImage = {
-              name: image.name,
-              file: fs.readFileSync(image.name)
+        // Resize any profile images to 256x256
+        im.resize(
+          {
+            srcPath: image.name,
+            dstPath: image.name,
+            width: width,
+            height: height,
+            quality: 1
+          },
+          function(err, stdout, stderr) {
+            if (err) {
+              Log.error(err)
+              reject(err)
+            } else {
+              let resizedImage = {
+                name: image.name,
+                file: fs.readFileSync(image.name)
+              }
+              fs.unlink(image.name)
+              resolve(resizedImage)
             }
-            fs.unlink(image.name)
-            deferred.resolve(resizedImage)
           }
-        }
-      )
-    }
+        )
+      }
+    })
   })
-
-  return deferred.promise
 }
 
 module.exports = function(server, mongoose, logger) {
@@ -79,43 +77,51 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Upload File endpoint')
 
-    const uploadHandler = function(request, reply) {
-      var data = request.payload
+    const uploadHandler = async function(request, h) {
+      try {
+        let data = request.payload
 
-      Log.log('Uploading File:', data)
+        Log.log('Uploading File:', data)
 
-      let fileExtenstion = data.name ? data.name.split('.').pop() : 'png'
+        let fileExtenstion = data.name ? data.name.split('.').pop() : 'png'
 
-      return internals.formatImage(data, Log).then(function(data) {
+        data = await internals.formatImage(data, Log)
         // The filenames should be unique but also tied to the user
-        var key =
+        let key =
           request.auth.credentials.user._id +
           '_' +
           Uuid.v4() +
           '.' +
           fileExtenstion
 
-        var s3 = new AWS.S3()
-        var params = {
+        let s3 = new AWS.S3()
+        let params = {
           Bucket: S3BucketName,
           Key: key,
           Body: data.file
         }
-        s3.putObject(params, function(err, res) {
-          if (err) {
-            Log.error(err)
-            return reply(Boom.badData('There was an error uploading the file.'))
-          } else {
-            Log.log('Upload complete for:', data.name)
-            return reply(
-              'https://s3-us-west-2.amazonaws.com/' +
+
+        let promise = new Promise((resolve, reject) => {
+          s3.putObject(params, function(err, res) {
+            if (err) {
+              Log.error(err)
+              reject(Boom.badData('There was an error uploading the file.'))
+            } else {
+              Log.log('Upload complete for:', data.name)
+              resolve(
+                'https://s3-us-west-2.amazonaws.com/' +
                 params.Bucket +
                 '/' +
                 params.Key
-            )
-          }
+              )
+            }
+          })
         })
-      })
+
+        return await promise
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -167,44 +173,50 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Upload File endpoint')
 
-    const uploadHandler = function(request, reply) {
-      var data = request.payload
+    const uploadHandler = async function(request, h) {
+      try {
+        var data = request.payload
 
-      Log.log('Uploading File:', data)
+        Log.log('Uploading File:', data)
 
-      let fileExtenstion = data.name ? data.name.split('.').pop() : 'png'
+        let fileExtenstion = data.name ? data.name.split('.').pop() : 'png'
 
-      // return internals.formatImage(data, Log)
-      return Q.when(data).then(function(data) {
         // The filenames should be unique but also tied to the user
-        var key =
+        let key =
           request.auth.credentials.user._id +
           '_' +
           Uuid.v4() +
           '.' +
           fileExtenstion
 
-        var s3 = new AWS.S3()
-        var params = {
+        let s3 = new AWS.S3()
+        let params = {
           Bucket: S3BucketName,
           Key: key,
           Body: data.file
         }
-        s3.putObject(params, function(err, res) {
-          if (err) {
-            Log.error(err)
-            return reply(Boom.badData('There was an error uploading the file.'))
-          } else {
-            Log.log('Upload complete for:', data.name)
-            return reply(
-              'https://s3-us-west-2.amazonaws.com/' +
+
+        let promise = new Promise((resolve, reject) => {
+          s3.putObject(params, function(err, res) {
+            if (err) {
+              Log.error(err)
+              reject(Boom.badData('There was an error uploading the file.'))
+            } else {
+              Log.log('Upload complete for:', data.name)
+              resolve(
+                'https://s3-us-west-2.amazonaws.com/' +
                 params.Bucket +
                 '/' +
                 params.Key
-            )
-          }
+              )
+            }
+          })
         })
-      })
+
+        return await promise
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
