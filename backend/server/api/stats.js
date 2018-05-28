@@ -3,6 +3,7 @@
 const Chalk = require('chalk')
 const Q = require('q')
 const RestHapi = require('rest-hapi')
+const errorHelper = require('../utilities/errorHelper')
 
 module.exports = function(server, mongoose, logger) {
   // Dashboard Stats Endpoint
@@ -16,202 +17,200 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Dashboard Stats endpoint')
 
-    const dashboardStatsHandler = function(request, reply) {
-      let promises = []
-      let stats = {}
-      promises.push(
-        RestHapi.list(User, { isDeleted: false, $count: true }, Log)
-      )
-      promises.push(
-        RestHapi.list(Document, { isDeleted: false, $count: true }, Log)
-      )
-      promises.push(
-        RestHapi.list(Image, { isDeleted: false, $count: true }, Log)
-      )
-      promises.push(
-        RestHapi.list(Message, { isDeleted: false, $count: true }, Log)
-      )
-      promises.push(
-        RestHapi.list(
-          User,
-          {
-            isDeleted: false,
-            $where: { facebookId: { $exists: true } },
-            $count: true
-          },
-          Log
+    const dashboardStatsHandler = async function(request, h) {
+      try {
+        let promises = []
+        let stats = {}
+        promises.push(
+          RestHapi.list(User, { isDeleted: false, $count: true }, Log)
         )
-      )
-      promises.push(
-        RestHapi.list(
-          User,
-          {
-            isDeleted: false,
-            $where: { googleId: { $exists: true } },
-            $count: true
-          },
-          Log
+        promises.push(
+          RestHapi.list(Document, { isDeleted: false, $count: true }, Log)
         )
-      )
-      promises.push(
-        RestHapi.list(
-          User,
-          {
-            isDeleted: false,
-            $where: { githubId: { $exists: true } },
-            $count: true
-          },
-          Log
+        promises.push(
+          RestHapi.list(Image, { isDeleted: false, $count: true }, Log)
         )
-      )
-      promises.push(
-        RestHapi.list(Visitor, { isDeleted: false, $count: true }, Log)
-      )
+        promises.push(
+          RestHapi.list(Message, { isDeleted: false, $count: true }, Log)
+        )
+        promises.push(
+          RestHapi.list(
+            User,
+            {
+              isDeleted: false,
+              $where: { facebookId: { $exists: true } },
+              $count: true
+            },
+            Log
+          )
+        )
+        promises.push(
+          RestHapi.list(
+            User,
+            {
+              isDeleted: false,
+              $where: { googleId: { $exists: true } },
+              $count: true
+            },
+            Log
+          )
+        )
+        promises.push(
+          RestHapi.list(
+            User,
+            {
+              isDeleted: false,
+              $where: { githubId: { $exists: true } },
+              $count: true
+            },
+            Log
+          )
+        )
+        promises.push(
+          RestHapi.list(Visitor, { isDeleted: false, $count: true }, Log)
+        )
 
-      return Q.all(promises)
-        .then(function(result) {
-          stats = {
-            userCount: result[0],
-            documentCount: result[1],
-            imageCount: result[2],
-            messageCount: result[3],
-            facebookUserCount: result[4],
-            googleUserCount: result[5],
-            githubUserCount: result[6],
-            visitorCount: result[7]
+        let result = await Promise.all(promises)
+
+        stats = {
+          userCount: result[0],
+          documentCount: result[1],
+          imageCount: result[2],
+          messageCount: result[3],
+          facebookUserCount: result[4],
+          googleUserCount: result[5],
+          githubUserCount: result[6],
+          visitorCount: result[7]
+        }
+
+        promises = []
+        let step = {}
+
+        // MONGO AGGREGATION PIPELINE EXAMPLE
+
+        // region BUILD TOTAL VISITORS PER COUNTRY QUERY
+
+        const visitorsPerCountryQuery = []
+
+        // Group and count visitors from each country
+        step = {}
+
+        step.$group = {
+          _id: '$country_code',
+          visitorCount: { $sum: 1 }
+        }
+
+        visitorsPerCountryQuery.push(step)
+
+        // Format the data for the next step
+        step = {}
+
+        step.$group = {
+          _id: null,
+          totalVisitorsPerCountry: {
+            $push: { k: '$_id', v: '$visitorCount' }
           }
+        }
 
-          promises = []
-          let step = {}
+        visitorsPerCountryQuery.push(step)
 
-          // MONGO AGGREGATION PIPELINE EXAMPLE
+        // Remove null values since they cause errors in the next step
+        step = {}
 
-          // region BUILD TOTAL VISITORS PER COUNTRY QUERY
-
-          const visitorsPerCountryQuery = []
-
-          // Group and count visitors from each country
-          step = {}
-
-          step.$group = {
-            _id: '$country_code',
-            visitorCount: { $sum: 1 }
-          }
-
-          visitorsPerCountryQuery.push(step)
-
-          // Format the data for the next step
-          step = {}
-
-          step.$group = {
-            _id: null,
-            totalVisitorsPerCountry: {
-              $push: { k: '$_id', v: '$visitorCount' }
+        step.$project = {
+          totalVisitorsPerCountry: {
+            $filter: {
+              input: '$totalVisitorsPerCountry',
+              as: 'data',
+              cond: { $ne: ['$$data.k', null] }
             }
           }
+        }
 
-          visitorsPerCountryQuery.push(step)
+        visitorsPerCountryQuery.push(step)
 
-          // Remove null values since they cause errors in the next step
-          step = {}
+        // Transform data from array to object
+        step = {}
 
-          step.$project = {
-            totalVisitorsPerCountry: {
-              $filter: {
-                input: '$totalVisitorsPerCountry',
-                as: 'data',
-                cond: { $ne: ['$$data.k', null] }
-              }
+        step.$project = {
+          _id: 0,
+          totalVisitorsPerCountry: {
+            $arrayToObject: '$totalVisitorsPerCountry'
+          }
+        }
+
+        visitorsPerCountryQuery.push(step)
+
+        promises.push(Visitor.aggregate(visitorsPerCountryQuery))
+
+        // endregion
+
+        // region BUILD TOTAL VISITORS PER BROWSER QUERY
+
+        const visitorsPerBrowserQuery = []
+
+        // Group and count each browser
+        step = {}
+
+        step.$group = {
+          _id: '$browser',
+          visitorCount: { $sum: 1 }
+        }
+
+        visitorsPerBrowserQuery.push(step)
+
+        // Format the data for the next step
+        step = {}
+
+        step.$group = {
+          _id: null,
+          totalVisitorsPerBrowser: {
+            $push: { k: '$_id', v: '$visitorCount' }
+          }
+        }
+
+        visitorsPerBrowserQuery.push(step)
+
+        // Remove null values since they cause errors in the next step
+        step = {}
+
+        step.$project = {
+          totalVisitorsPerCountry: {
+            $filter: {
+              input: '$totalVisitorsPerCountry',
+              as: 'data',
+              cond: { $ne: ['$$data.k', null] }
             }
           }
+        }
 
-          visitorsPerCountryQuery.push(step)
+        visitorsPerCountryQuery.push(step)
 
-          // Transform data from array to object
-          step = {}
+        // Transform data from array to object
+        step = {}
 
-          step.$project = {
-            _id: 0,
-            totalVisitorsPerCountry: {
-              $arrayToObject: '$totalVisitorsPerCountry'
-            }
+        step.$project = {
+          _id: 0,
+          totalVisitorsPerBrowser: {
+            $arrayToObject: '$totalVisitorsPerBrowser'
           }
+        }
 
-          visitorsPerCountryQuery.push(step)
+        visitorsPerBrowserQuery.push(step)
 
-          promises.push(Visitor.aggregate(visitorsPerCountryQuery))
+        promises.push(Visitor.aggregate(visitorsPerBrowserQuery))
 
-          // endregion
+        // endregion
 
-          // region BUILD TOTAL VISITORS PER BROWSER QUERY
+        result = Promise.all(promises)
 
-          const visitorsPerBrowserQuery = []
+        stats.totalVisitorsPerCountry = result[0][0].totalVisitorsPerCountry
+        stats.totalVisitorsPerBrowser = result[1][0].totalVisitorsPerBrowser
 
-          // Group and count each browser
-          step = {}
-
-          step.$group = {
-            _id: '$browser',
-            visitorCount: { $sum: 1 }
-          }
-
-          visitorsPerBrowserQuery.push(step)
-
-          // Format the data for the next step
-          step = {}
-
-          step.$group = {
-            _id: null,
-            totalVisitorsPerBrowser: {
-              $push: { k: '$_id', v: '$visitorCount' }
-            }
-          }
-
-          visitorsPerBrowserQuery.push(step)
-
-          // Remove null values since they cause errors in the next step
-          step = {}
-
-          step.$project = {
-            totalVisitorsPerCountry: {
-              $filter: {
-                input: '$totalVisitorsPerCountry',
-                as: 'data',
-                cond: { $ne: ['$$data.k', null] }
-              }
-            }
-          }
-
-          visitorsPerCountryQuery.push(step)
-
-          // Transform data from array to object
-          step = {}
-
-          step.$project = {
-            _id: 0,
-            totalVisitorsPerBrowser: {
-              $arrayToObject: '$totalVisitorsPerBrowser'
-            }
-          }
-
-          visitorsPerBrowserQuery.push(step)
-
-          promises.push(Visitor.aggregate(visitorsPerBrowserQuery))
-
-          // endregion
-
-          return Q.all(promises)
-        })
-        .then(function(result) {
-          stats.totalVisitorsPerCountry = result[0][0].totalVisitorsPerCountry
-          stats.totalVisitorsPerBrowser = result[1][0].totalVisitorsPerBrowser
-
-          return reply({ stats })
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return { stats }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
