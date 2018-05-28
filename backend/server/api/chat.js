@@ -5,6 +5,7 @@ const Boom = require('boom')
 const Chalk = require('chalk')
 const Q = require('q')
 const RestHapi = require('rest-hapi')
+const errorHelper = require('../utilities/errorHelper')
 
 const Config = require('../../config/config')
 
@@ -21,16 +22,16 @@ module.exports = function(server, mongoose, logger) {
     // const Log = logger.bind(Chalk.magenta('Chat Subscription'))
 
     server.subscription('/chat/{userId}', {
-      filter: function(path, message, options, next) {
-        next(true)
+      filter: function(path, message, options) {
+        return true
       },
       auth: {
         scope: ['root', 'receiveChatMessages', '!-receiveChatMessages'],
         entity: 'user',
         index: true
       },
-      onSubscribe: function(socket, path, params, next) {
-        next()
+      onSubscribe: function(socket, path, params) {
+        return
       }
     })
   })(
@@ -40,25 +41,22 @@ module.exports = function(server, mongoose, logger) {
 
       Log.note('Generating Mark Conversation As Read Endpoint for Chat')
 
-      const markAsReadHandler = function(request, reply) {
-        const Conversation = mongoose.model('conversation')
-        const User = mongoose.model('user')
+      const markAsReadHandler = async function(request, h) {
+        try {
+          const Conversation = mongoose.model('conversation')
+          const User = mongoose.model('user')
 
-        return RestHapi.addOne(
-          Conversation,
-          request.params._id,
-          User,
-          request.auth.credentials.user._id,
-          'userData',
-          { hasRead: true }
-        )
-          .then(function(result) {
-            return reply(result)
-          })
-          .catch(function(error) {
-            Log.error(error)
-            return reply(RestHapi.errorHelper.formatResponse(error))
-          })
+          return await RestHapi.addOne(
+            Conversation,
+            request.params._id,
+            User,
+            request.auth.credentials.user._id,
+            'userData',
+            { hasRead: true }
+          )
+        } catch (err) {
+          errorHelper.handleError(err, Log)
+        }
       }
 
       server.route({
@@ -100,25 +98,22 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Mark Conversation As Unread Endpoint for Chat')
 
-    const markAsUnreadHandler = function(request, reply) {
-      const Conversation = mongoose.model('conversation')
-      const User = mongoose.model('user')
+    const markAsUnreadHandler = async function(request, h) {
+      try {
+        const Conversation = mongoose.model('conversation')
+        const User = mongoose.model('user')
 
-      return RestHapi.addOne(
-        Conversation,
-        request.params._id,
-        User,
-        request.auth.credentials.user._id,
-        'userData',
-        { hasRead: false }
-      )
-        .then(function(result) {
-          return reply(result)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return await RestHapi.addOne(
+          Conversation,
+          request.params._id,
+          User,
+          request.auth.credentials.user._id,
+          'userData',
+          { hasRead: false }
+        )
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -159,28 +154,28 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Get Current User Conversations Endpoint for Chat')
 
-    const getConversationsHandler = function(request, reply) {
-      const Conversation = mongoose.model('conversation')
-      const query = {
-        $where: {
-          users: { $elemMatch: { $eq: request.auth.credentials.user._id } }
+    const getConversationsHandler = async function(request, h) {
+      try {
+        const Conversation = mongoose.model('conversation')
+        const query = {
+          $where: {
+            users: { $elemMatch: { $eq: request.auth.credentials.user._id } }
+          }
         }
+
+        query.$embed = ['users', 'lastMessage.user', 'userData']
+        query.$sort = ['-updatedAt']
+
+        let result = await RestHapi.list(Conversation, query, Log)
+
+        result.docs.forEach(function(conversation) {
+          formatConversation(request, conversation)
+        })
+
+        return result
+      } catch (err) {
+        errorHelper.handleError(err, Log)
       }
-
-      query.$embed = ['users', 'lastMessage.user', 'userData']
-      query.$sort = ['-updatedAt']
-
-      return RestHapi.list(Conversation, query, Log)
-        .then(function(result) {
-          result.docs.forEach(function(conversation) {
-            formatConversation(request, conversation)
-          })
-          return reply(result)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
     }
 
     server.route({
@@ -217,138 +212,124 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Get Current User Conversation Endpoint for Chat')
 
-    const getConversationHandler = function(request, reply) {
-      const Conversation = mongoose.model('conversation')
-      const User = mongoose.model('user')
+    const getConversationHandler = async function(request, h) {
+      try {
+        const Conversation = mongoose.model('conversation')
+        const User = mongoose.model('user')
 
-      let promise = {}
-      let conversation = {}
-      let newConversation = false
+        let promise = {}
+        let conversation = {}
+        let newConversation = false
 
-      const query = {
-        $embed: ['messages.user', 'users', 'userData', 'lastMessage.user']
-      }
-
-      // Find the conversation by _id if provided
-      if (request.query.conversation) {
-        promise = RestHapi.find(
-          Conversation,
-          request.query.conversation,
-          query,
-          Log
-        )
-      } else if (request.query.user) {
-        if (
-          request.query.user === request.auth.credentials.user._id.toString()
-        ) {
-          return reply(Boom.badRequest('No chatting with yourself.'))
+        const query = {
+          $embed: ['messages.user', 'users', 'userData', 'lastMessage.user']
         }
 
-        // The query below searches for the direct chat conversation between the current user and the user provided
-        query.$where = {
-          $and: [
-            {
-              users: { $elemMatch: { $eq: request.auth.credentials.user._id } }
-            },
-            { users: { $elemMatch: { $eq: request.query.user } } },
-            { chatType: { $eq: CHAT_TYPES.DIRECT } }
-          ]
-        }
-
-        promise = RestHapi.list(Conversation, query, Log)
-      } else {
-        return reply(
-          Boom.badRequest(
-            'Must provide either conversation or user query params.'
+        // Find the conversation by _id if provided
+        if (request.query.conversation) {
+          promise = RestHapi.find(
+            Conversation,
+            request.query.conversation,
+            query,
+            Log
           )
-        )
-      }
+        } else if (request.query.user) {
+          if (
+            request.query.user === request.auth.credentials.user._id.toString()
+          ) {
+            throw Boom.badRequest('No chatting with yourself.')
+          }
 
-      return promise
-        .then(function(result) {
-          if (request.query.conversation) {
-            let me = result.users.find(function(user) {
-              return (
-                user._id.toString() ===
-                request.auth.credentials.user._id.toString()
-              )
-            })
-            if (!me) {
-              return reply(
-                Boom.badRequest(
-                  'Current user is not part of this conversation.'
-                )
-              )
-            }
-            return result
-          } else {
-            // If the conversation doesn't exist, create it
-            if (!result.docs[0]) {
-              newConversation = true
-              let promises = []
-              let users = [
-                request.auth.credentials.user._id,
-                request.query.user
-              ]
-              promises.push(
-                RestHapi.create(
-                  Conversation,
-                  { users, chatType: CHAT_TYPES.DIRECT },
-                  Log
-                )
-              )
-              promises.push(
-                RestHapi.list(
-                  User,
-                  {
-                    _id: users,
-                    $select: ['_id', 'firstName', 'lastName', 'profileImageUrl']
-                  },
-                  Log
-                )
-              )
-              return Q.all(promises)
-            } else {
-              return result.docs[0]
-            }
+          // The query below searches for the direct chat conversation between the current user and the user provided
+          query.$where = {
+            $and: [
+              {
+                users: { $elemMatch: { $eq: request.auth.credentials.user._id } }
+              },
+              { users: { $elemMatch: { $eq: request.query.user } } },
+              { chatType: { $eq: CHAT_TYPES.DIRECT } }
+            ]
           }
-        })
-        .then(function(result) {
-          if (newConversation) {
-            // Add the user docs to the new conversation object
-            conversation = result[0]
-            conversation.users = result[1].docs
-            return conversation
-          } else {
-            return result
-          }
-        })
-        .then(function(result) {
-          conversation = result
-          if (newConversation) {
-            // Associate the user data with the new conversation
-            let users = conversation.users.map(function(user) {
-              return user._id
-            })
-            conversation.hasRead = false
-            return RestHapi.addMany(
-              Conversation,
-              conversation._id,
-              User,
-              'userData',
-              users,
-              Log
+
+          promise = RestHapi.list(Conversation, query, Log)
+        } else {
+          throw Boom.badRequest('Must provide either conversation or user query params.')
+        }
+
+        let result = await promise
+
+        if (request.query.conversation) {
+          let me = result.users.find(function(user) {
+            return (
+              user._id.toString() ===
+              request.auth.credentials.user._id.toString()
             )
+          })
+          if (!me) {
+            throw Boom.badRequest('Current user is not part of this conversation.')
           }
-        })
-        .then(function() {
-          formatConversation(request, conversation)
-          return reply(conversation)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+          return result
+        } else {
+          // If the conversation doesn't exist, create it
+          if (!result.docs[0]) {
+            newConversation = true
+            let promises = []
+            let users = [
+              request.auth.credentials.user._id,
+              request.query.user
+            ]
+            promises.push(
+              RestHapi.create(
+                Conversation,
+                { users, chatType: CHAT_TYPES.DIRECT },
+                Log
+              )
+            )
+            promises.push(
+              RestHapi.list(
+                User,
+                {
+                  _id: users,
+                  $select: ['_id', 'firstName', 'lastName', 'profileImageUrl']
+                },
+                Log
+              )
+            )
+            result = await Promise.all(promises)
+          } else {
+            result = result.docs[0]
+          }
+        }
+
+        if (newConversation) {
+          // Add the user docs to the new conversation object
+          conversation = result[0]
+          conversation.users = result[1].docs
+          result = conversation
+        }
+
+        conversation = result
+        if (newConversation) {
+          // Associate the user data with the new conversation
+          let users = conversation.users.map(function(user) {
+            return user._id
+          })
+          conversation.hasRead = false
+          await RestHapi.addMany(
+            Conversation,
+            conversation._id,
+            User,
+            'userData',
+            users,
+            Log
+          )
+        }
+
+        formatConversation(request, conversation)
+        return conversation
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -390,35 +371,34 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Post Message endpoint for Chat')
 
-    const postMessageHandler = function(request, reply) {
-      const Message = mongoose.model('message')
-      const Conversation = mongoose.model('conversation')
+    const postMessageHandler = async function(request, h) {
+      try {
+        const Message = mongoose.model('message')
+        const Conversation = mongoose.model('conversation')
 
-      const promises = []
+        const promises = []
 
-      const payload = {
-        text: request.payload.text,
-        conversation: request.params.conversationId,
-        user: request.auth.credentials.user._id
+        const payload = {
+          text: request.payload.text,
+          conversation: request.params.conversationId,
+          user: request.auth.credentials.user._id
+        }
+
+        promises.push(RestHapi.find(Conversation, payload.conversation, {}, Log))
+        promises.push(RestHapi.create(Message, payload, Log))
+
+        let result = await Promise.all(promises)
+
+        let conversation = result[0]
+        let message = result[1]
+        Log.debug('MESSAGE:', message)
+        conversation.users.forEach(function(userId) {
+          server.publish('/chat/' + userId, message)
+        })
+        return 'published'
+      } catch (err) {
+        errorHelper.handleError(err, Log)
       }
-
-      promises.push(RestHapi.find(Conversation, payload.conversation, {}, Log))
-      promises.push(RestHapi.create(Message, payload, Log))
-
-      return Q.all(promises)
-        .then(function(result) {
-          let conversation = result[0]
-          let message = result[1]
-          Log.debug('MESSAGE:', message)
-          conversation.users.forEach(function(userId) {
-            server.publish('/chat/' + userId, message)
-          })
-          return reply('published')
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
     }
 
     // TODO: Authorize correct users for posting to a conversation

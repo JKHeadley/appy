@@ -16,16 +16,14 @@ module.exports = function(server, mongoose, logger) {
   /**
    * Shared handler for social auth endpoints. First endpoint to hit for social login with web.
    */
-  const socialAuthHandler = function(request, reply) {
+  const socialAuthHandler = function(request, h) {
     const Log = logger.bind(Chalk.magenta('Social Auth'))
     const User = mongoose.model('user')
 
     if (!request.auth.isAuthenticated) {
-      return reply(
-        Boom.unauthorized(
+      throw Boom.unauthorized(
           'Authentication failed: ' + request.auth.error.message
         )
-      )
     }
 
     const tokenPayload = {
@@ -62,11 +60,11 @@ module.exports = function(server, mongoose, logger) {
     return RestHapi.update(User, _id, update, Log)
       .then(function(user) {
         const redirectUrl = clientURL + '/login/social'
-        return reply.redirect(redirectUrl + '/?token=' + token)
+        return h.redirect(redirectUrl + '/?token=' + token)
       })
       .catch(function(error) {
         Log.error(error)
-        return reply(Boom.gatewayTimeout('An error occurred.'))
+       throw Boom.gatewayTimeout('An error occurred.')
       })
   }
 
@@ -82,90 +80,83 @@ module.exports = function(server, mongoose, logger) {
     const facebookAuthPre = [
       {
         assign: 'user',
-        method: function(request, reply) {
-          const facebookProfile = request.auth.credentials.profile
+        method: async function(request, h) {
+          try {
+            const facebookProfile = request.auth.credentials.profile
 
-          let user = {}
-          let password = {}
+            let user = {}
+            let password = {}
+            let role = {}
 
-          let promises = []
-          // if the user does not exist, we create one with the facebook account data
-          promises.push(User.findOne({ email: facebookProfile.email }))
-          promises.push(User.findOne({ facebookId: facebookProfile.id }))
-          return Q.all(promises)
-            .then(function(result) {
-              user = result[0] ? result[0] : result[1]
-              if (user) {
-                user.facebookId = facebookProfile.id
-                reply(user)
+            let promises = []
+            // if the user does not exist, we create one with the facebook account data
+            promises.push(User.findOne({ email: facebookProfile.email }))
+            promises.push(User.findOne({ facebookId: facebookProfile.id }))
 
-                throw new Error('Found User')
-              } else {
-                return RestHapi.list(Role, { name: USER_ROLES.USER }, Log)
-              }
-            })
-            .then(function(role) {
-              role = role.docs[0]
+            let result = await Promise.all(promises)
 
-              password = Uuid.v4()
-              user = {
-                isActive: true,
-                email: facebookProfile.email,
-                firstName: facebookProfile.name.first,
-                lastName: facebookProfile.name.last,
-                profileImageUrl:
-                  'https://graph.facebook.com/' +
-                  facebookProfile.id +
-                  '/picture?type=large',
-                password: password,
-                facebookId: facebookProfile.id,
-                role: role._id
-              }
+            user = result[0] ? result[0] : result[1]
+            if (user) {
+              user.facebookId = facebookProfile.id
+              return user
+            } else {
+              result = await RestHapi.list(Role, { name: USER_ROLES.USER }, Log)
+            }
 
-              // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
-              // take advantage of duplicate fields so that roleName and roleRank are populated.
-              // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
-              let request = {
-                method: 'POST',
-                url: '/user',
-                params: {},
-                query: {},
-                payload: user,
-                credentials: { scope: ['root', USER_ROLES.SUPER_ADMIN] },
-                headers: { authorization: 'Bearer' }
-              }
+            role = result.docs[0]
 
-              let injectOptions = RestHapi.testHelper.mockInjection(request)
+            password = Uuid.v4()
+            user = {
+              isActive: true,
+              email: facebookProfile.email,
+              firstName: facebookProfile.name.first,
+              lastName: facebookProfile.name.last,
+              profileImageUrl:
+              'https://graph.facebook.com/' +
+              facebookProfile.id +
+              '/picture?type=large',
+              password: password,
+              facebookId: facebookProfile.id,
+              role: role._id
+            }
 
-              return server.inject(injectOptions)
-            })
-            .then(function(result) {
-              user = result.result
+            // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
+            // take advantage of duplicate fields so that roleName and roleRank are populated.
+            // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
+            let request = {
+              method: 'POST',
+              url: '/user',
+              params: {},
+              query: {},
+              payload: user,
+              credentials: { scope: ['root', USER_ROLES.SUPER_ADMIN] },
+              headers: { authorization: 'Bearer' }
+            }
 
-              user.password = password
+            let injectOptions = RestHapi.testHelper.mockInjection(request)
 
-              return reply(user)
-            })
-            .catch(function(error) {
-              if (error.message === 'Found User') {
-                return
-              }
-              Log.error(error)
-              return reply(Boom.gatewayTimeout('An error occurred.'))
-            })
+            result = await server.inject(injectOptions)
+
+            user = result.result
+
+            user.password = password
+
+            return user
+          } catch(err) {
+            Log.error(err)
+            throw Boom.badImplementation(err)
+          }
         }
       },
       {
         assign: 'keyHash',
-        method: function(request, reply) {
-          Session.generateKeyHash(Log)
-            .then(function(result) {
-              return reply(result)
-            })
-            .catch(function(error) {
-              Log.error(error)
-              return reply(Boom.gatewayTimeout('An error occurred.'))
-            })
+        method: async function(request, h) {
+          try {
+            return await Session.generateKeyHash(Log)
+          } catch (err) {
+            Log.error(err)
+            throw Boom.badImplementation(err)
+          }
         }
       }
     ]
@@ -206,88 +197,79 @@ module.exports = function(server, mongoose, logger) {
     const googleAuthPre = [
       {
         assign: 'user',
-        method: function(request, reply) {
-          const googleProfile = request.auth.credentials.profile
+        method: async function(request, h) {
+          try {
+            const googleProfile = request.auth.credentials.profile
 
-          let user = {}
-          let password = {}
+            let user = {}
+            let password = {}
 
-          let promises = []
-          // if the user does not exist, we create one with the google account data
-          promises.push(User.findOne({ email: googleProfile.email }))
-          promises.push(User.findOne({ googleId: googleProfile.id }))
-          return Q.all(promises)
-            .then(function(result) {
-              user = result[0] ? result[0] : result[1]
-              if (user) {
-                user.googleId = googleProfile.id
-                reply(user)
+            let promises = []
+            // if the user does not exist, we create one with the google account data
+            promises.push(User.findOne({ email: googleProfile.email }))
+            promises.push(User.findOne({ googleId: googleProfile.id }))
 
-                throw new Error('Found User')
-              } else {
-                return RestHapi.list(Role, { name: USER_ROLES.USER }, Log)
-              }
-            })
-            .then(function(role) {
-              role = role.docs[0]
+            let result = await Promise.all(promises)
 
-              password = Uuid.v4()
-              user = {
-                isActive: true,
-                email: googleProfile.email,
-                firstName: googleProfile.name.given_name,
-                lastName: googleProfile.name.family_name,
-                profileImageUrl: googleProfile.raw.picture,
-                password: password,
-                googleId: googleProfile.id,
-                role: role._id
-              }
+            user = result[0] ? result[0] : result[1]
+            if (user) {
+              user.googleId = googleProfile.id
+              return user
+            } else {
+              result = await RestHapi.list(Role, { name: USER_ROLES.USER }, Log)
+            }
 
-              // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
-              // take advantage of duplicate fields so that roleName and roleRank are populated.
-              // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
-              let request = {
-                method: 'POST',
-                url: '/user',
-                params: {},
-                query: {},
-                payload: user,
-                credentials: { scope: ['root', USER_ROLES.SUPER_ADMIN] },
-                headers: { authorization: 'Bearer' }
-              }
+            role = result.docs[0]
 
-              let injectOptions = RestHapi.testHelper.mockInjection(request)
+            password = Uuid.v4()
+            user = {
+              isActive: true,
+              email: googleProfile.email,
+              firstName: googleProfile.name.given_name,
+              lastName: googleProfile.name.family_name,
+              profileImageUrl: googleProfile.raw.picture,
+              password: password,
+              googleId: googleProfile.id,
+              role: role._id
+            }
 
-              return server.inject(injectOptions)
-            })
-            .then(function(result) {
-              user = result.result
+            // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
+            // take advantage of duplicate fields so that roleName and roleRank are populated.
+            // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
+            let request = {
+              method: 'POST',
+              url: '/user',
+              params: {},
+              query: {},
+              payload: user,
+              credentials: { scope: ['root', USER_ROLES.SUPER_ADMIN] },
+              headers: { authorization: 'Bearer' }
+            }
 
-              user.password = password
+            let injectOptions = RestHapi.testHelper.mockInjection(request)
 
-              return reply(user)
-            })
-            .catch(function(error) {
-              Log.debug('ERROR:', error)
-              if (error.message === 'Found User') {
-                return
-              }
-              Log.error(error)
-              return reply(Boom.gatewayTimeout('An error occurred.'))
-            })
+            result = await server.inject(injectOptions)
+
+            user = result.result
+
+            user.password = password
+
+            return user
+          } catch(err) {
+            Log.error(err)
+            throw Boom.badImplementation(err)
+          }
         }
       },
       {
         assign: 'keyHash',
-        method: function(request, reply) {
-          Session.generateKeyHash(Log)
-            .then(function(result) {
-              return reply(result)
-            })
-            .catch(function(error) {
-              Log.error(error)
-              return reply(Boom.gatewayTimeout('An error occurred.'))
-            })
+        method: async function(request, h) {
+          try {
+            return await Session.generateKeyHash(Log)
+          } catch (err) {
+            Log.error(err)
+            throw Boom.badImplementation(err)
+          }
         }
       }
     ]
@@ -328,91 +310,83 @@ module.exports = function(server, mongoose, logger) {
     const githubAuthPre = [
       {
         assign: 'user',
-        method: function(request, reply) {
-          const githubProfile = request.auth.credentials.profile
+        method: async function(request, h) {
+          try {
+            const githubProfile = request.auth.credentials.profile
 
-          let user = {}
-          let password = {}
+            let user = {}
+            let password = {}
 
-          let promises = []
-          // if the user does not exist, we create one with the github account data
-          promises.push(User.findOne({ email: githubProfile.email }))
-          promises.push(User.findOne({ githubId: githubProfile.id }))
-          return Q.all(promises)
-            .then(function(result) {
-              user = result[0] ? result[0] : result[1]
-              if (user) {
-                user.githubId = githubProfile.id
-                reply(user)
+            let promises = []
+            // if the user does not exist, we create one with the github account data
+            promises.push(User.findOne({ email: githubProfile.email }))
+            promises.push(User.findOne({ githubId: githubProfile.id }))
 
-                throw new Error('Found User')
-              } else {
-                return RestHapi.list(Role, { name: USER_ROLES.USER }, Log)
-              }
-            })
-            .then(function(role) {
-              role = role.docs[0]
+            let result = Promise.all(promises)
 
-              let name = githubProfile.displayName.split(' ')
-              let firstName = name[0]
-              let lastName = name[name.length - 1]
+            user = result[0] ? result[0] : result[1]
+            if (user) {
+              user.githubId = githubProfile.id
+              return user
+            } else {
+              result = await RestHapi.list(Role, { name: USER_ROLES.USER }, Log)
+            }
 
-              password = Uuid.v4()
-              user = {
-                isActive: true,
-                email: githubProfile.email || 'noreply@appy.io',
-                firstName,
-                lastName,
-                profileImageUrl: githubProfile.raw.avatar_url,
-                password: password,
-                githubId: githubProfile.id.toString(),
-                role: role._id
-              }
+            role = result.docs[0]
 
-              // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
-              // take advantage of duplicate fields so that roleName and roleRank are populated.
-              // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
-              let request = {
-                method: 'POST',
-                url: '/user',
-                params: {},
-                query: {},
-                payload: user,
-                credentials: { scope: ['root', USER_ROLES.SUPER_ADMIN] },
-                headers: { authorization: 'Bearer' }
-              }
+            let name = githubProfile.displayName.split(' ')
+            let firstName = name[0]
+            let lastName = name[name.length - 1]
 
-              let injectOptions = RestHapi.testHelper.mockInjection(request)
+            password = Uuid.v4()
+            user = {
+              isActive: true,
+              email: githubProfile.email || 'noreply@appy.io',
+              firstName,
+              lastName,
+              profileImageUrl: githubProfile.raw.avatar_url,
+              password: password,
+              githubId: githubProfile.id.toString(),
+              role: role._id
+            }
 
-              return server.inject(injectOptions)
-            })
-            .then(function(result) {
-              user = result.result
+            // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
+            // take advantage of duplicate fields so that roleName and roleRank are populated.
+            // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
+            let request = {
+              method: 'POST',
+              url: '/user',
+              params: {},
+              query: {},
+              payload: user,
+              credentials: { scope: ['root', USER_ROLES.SUPER_ADMIN] },
+              headers: { authorization: 'Bearer' }
+            }
 
-              user.password = password
+            let injectOptions = RestHapi.testHelper.mockInjection(request)
 
-              return reply(user)
-            })
-            .catch(function(error) {
-              if (error.message === 'Found User') {
-                return
-              }
-              Log.error(error)
-              return reply(Boom.gatewayTimeout('An error occurred.'))
-            })
+            result = await server.inject(injectOptions)
+
+            user = result.result
+
+            user.password = password
+
+            return user
+          } catch(err) {
+            Log.error(err)
+            throw Boom.badImplementation(err)
+          }
         }
       },
       {
         assign: 'keyHash',
-        method: function(request, reply) {
-          Session.generateKeyHash(Log)
-            .then(function(result) {
-              return reply(result)
-            })
-            .catch(function(error) {
-              Log.error(error)
-              return reply(Boom.gatewayTimeout('An error occurred.'))
-            })
+        method: async function(request, h) {
+          try {
+            return await Session.generateKeyHash(Log)
+          } catch (err) {
+            Log.error(err)
+            throw Boom.badImplementation(err)
+          }
         }
       }
     ]
