@@ -1,6 +1,7 @@
 'use strict'
 
 const RestHapi = require('rest-hapi')
+const errorHelper = require('../utilities/errorHelper')
 
 const Config = require('../../config/config')
 
@@ -48,67 +49,73 @@ module.exports = function(mongoose) {
         }
       },
       create: {
-        pre: function(payload, request, Log) {
-          payload.owner = request.auth.credentials.user._id
-          return payload
+        pre: async function(payload, request, logger) {
+          const Log = logger.bind()
+          try {
+            payload.owner = request.auth.credentials.user._id
+            return payload
+          } catch (err) {
+            errorHelper.handleError(err, Log)
+          }
         }
       },
       add: {
         users: {
-          pre: function(payload, request, Log) {
-            const Document = mongoose.model('document')
-            const Notification = mongoose.model('notification')
-            return RestHapi.find(Document, request.params.ownerId, {}, Log)
-              .then(function(document) {
-                const scope = document.scope
-                // Add permissions for shared users to either edit or view the document
-                payload.forEach(function(userDocument) {
-                  // Remove any previous permissions before adding new ones
-                  Document.removeDocumentPermissions(
-                    scope,
-                    userDocument.childId
-                  )
-                  if (userDocument.canEdit) {
-                    scope.updateScope = scope.updateScope || []
-                    scope.updateScope.push('user-' + userDocument.childId)
-                  }
-                  scope.readScope = scope.readScope || []
-                  scope.readScope.push('user-' + userDocument.childId)
+          pre: async function(payload, request, Log) {
+            try {
+              const Document = mongoose.model('document')
+              const Notification = mongoose.model('notification')
+              let document = await RestHapi.find(Document, request.params.ownerId, {}, Log)
+              const scope = document.scope
+              // Add permissions for shared users to either edit or view the document
+              payload.forEach(function(userDocument) {
+                // Remove any previous permissions before adding new ones
+                Document.removeDocumentPermissions(
+                  scope,
+                  userDocument.childId
+                )
+                if (userDocument.canEdit) {
+                  scope.updateScope = scope.updateScope || []
+                  scope.updateScope.push('user-' + userDocument.childId)
+                }
+                scope.readScope = scope.readScope || []
+                scope.readScope.push('user-' + userDocument.childId)
 
-                  // Create a notification for the user that is gaining access
-                  let notification = {
-                    primaryUser: userDocument.childId,
-                    actingUser: document.owner,
-                    type: NOTIFICATION_TYPES.SHARED_DOCUMENT
-                  }
-                  Notification.createDocumentNotification(
-                    notification,
-                    request.server,
-                    Log
-                  )
-                })
-                return RestHapi.update(Document, document._id, { scope }, Log)
+                // Create a notification for the user that is gaining access
+                let notification = {
+                  primaryUser: userDocument.childId,
+                  actingUser: document.owner,
+                  type: NOTIFICATION_TYPES.SHARED_DOCUMENT
+                }
+                Notification.createDocumentNotification(
+                  notification,
+                  request.server,
+                  Log
+                )
               })
-              .then(function() {
-                return payload
-              })
+              await RestHapi.update(Document, document._id, { scope }, Log)
+
+              return payload
+            } catch (err) {
+              errorHelper.handleError(err, Log)
+            }
           }
         }
       },
       remove: {
         users: {
-          pre: function(payload, request, Log) {
-            const Document = mongoose.model('document')
-            return RestHapi.find(Document, request.params.ownerId, {}, Log)
-              .then(function(document) {
-                const scope = document.scope
-                const userId = request.params.childId
-                Document.removeDocumentPermissions(scope, userId)
-                return RestHapi.update(Document, document._id, { scope }, Log)
-              })
-              .then(function() {
-                return payload
-              })
+          pre: async function(payload, request, Log) {
+            try {
+              const Document = mongoose.model('document')
+              let document = await RestHapi.find(Document, request.params.ownerId, {}, Log)
+              const scope = document.scope
+              const userId = request.params.childId
+              Document.removeDocumentPermissions(scope, userId)
+              await RestHapi.update(Document, document._id, { scope }, Log)
+              return payload
+            } catch (err) {
+              errorHelper.handleError(err, Log)
+            }
           }
         }
       }
