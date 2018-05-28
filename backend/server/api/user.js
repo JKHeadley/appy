@@ -5,7 +5,6 @@ const Boom = require('boom')
 const Chalk = require('chalk')
 const _ = require('lodash')
 const zxcvbn = require('zxcvbn')
-const Q = require('q')
 const RestHapi = require('rest-hapi')
 const errorHelper = require('../utilities/errorHelper')
 
@@ -163,7 +162,8 @@ module.exports = function(server, mongoose, logger) {
                 requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.ADMIN
                 break
               case USER_ROLES.SUPER_ADMIN:
-                requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.SUPER_ADMIN
+                requiredPasswordStrength =
+                  REQUIRED_PASSWORD_STRENGTH.SUPER_ADMIN
                 break
             }
 
@@ -179,7 +179,10 @@ module.exports = function(server, mongoose, logger) {
         assign: 'password',
         method: async function(request, h) {
           try {
-            let hashedPassword = await User.generateHash(request.payload.password, Log)
+            let hashedPassword = await User.generateHash(
+              request.payload.password,
+              Log
+            )
             return hashedPassword
           } catch (err) {
             errorHelper.handleError(err, Log)
@@ -195,7 +198,10 @@ module.exports = function(server, mongoose, logger) {
         return await RestHapi.update(
           User,
           _id,
-          { password: request.pre.password.hash, passwordUpdateRequired: false },
+          {
+            password: request.pre.password.hash,
+            passwordUpdateRequired: false
+          },
           Log
         )
       } catch (err) {
@@ -328,7 +334,7 @@ module.exports = function(server, mongoose, logger) {
             if (
               !request.payload.profile.email ||
               request.payload.profile.email ===
-              request.auth.credentials.user.email
+                request.auth.credentials.user.email
             ) {
               return true
             }

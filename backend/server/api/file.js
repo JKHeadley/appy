@@ -110,9 +110,9 @@ module.exports = function(server, mongoose, logger) {
               Log.log('Upload complete for:', data.name)
               resolve(
                 'https://s3-us-west-2.amazonaws.com/' +
-                params.Bucket +
-                '/' +
-                params.Key
+                  params.Bucket +
+                  '/' +
+                  params.Key
               )
             }
           })
@@ -205,9 +205,9 @@ module.exports = function(server, mongoose, logger) {
               Log.log('Upload complete for:', data.name)
               resolve(
                 'https://s3-us-west-2.amazonaws.com/' +
-                params.Bucket +
-                '/' +
-                params.Key
+                  params.Bucket +
+                  '/' +
+                  params.Key
               )
             }
           })

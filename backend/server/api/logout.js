@@ -3,7 +3,6 @@
 const Joi = require('joi')
 const Boom = require('boom')
 const Chalk = require('chalk')
-const RestHapi = require('rest-hapi')
 const errorHelper = require('../utilities/errorHelper')
 
 const Config = require('../../config/config')
@@ -30,14 +29,15 @@ module.exports = function(server, mongoose, logger) {
 
         if (session) {
           let sessionDoc = await Session.findByIdAndRemove(session._id)
-            if (!sessionDoc) {
-              throw Boom.notFound('Session not found')
-            }
+          if (!sessionDoc) {
+            throw Boom.notFound('Session not found')
+          }
 
-            return { message: 'Success' }
-
+          return { message: 'Success' }
         } else {
-          throw Boom.badRequest('Refresh token required in auth header to log out')
+          throw Boom.badRequest(
+            'Refresh token required in auth header to log out'
+          )
         }
       } catch (err) {
         errorHelper.handleError(err, Log)

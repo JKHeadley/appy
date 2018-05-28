@@ -3,7 +3,6 @@
 const Joi = require('joi')
 const Boom = require('boom')
 const Chalk = require('chalk')
-const Q = require('q')
 const RestHapi = require('rest-hapi')
 const errorHelper = require('../utilities/errorHelper')
 
@@ -30,9 +29,7 @@ module.exports = function(server, mongoose, logger) {
         entity: 'user',
         index: true
       },
-      onSubscribe: function(socket, path, params) {
-        return
-      }
+      onSubscribe: function(socket, path, params) {}
     })
   })(
     // Mark conversation as read
@@ -244,7 +241,9 @@ module.exports = function(server, mongoose, logger) {
           query.$where = {
             $and: [
               {
-                users: { $elemMatch: { $eq: request.auth.credentials.user._id } }
+                users: {
+                  $elemMatch: { $eq: request.auth.credentials.user._id }
+                }
               },
               { users: { $elemMatch: { $eq: request.query.user } } },
               { chatType: { $eq: CHAT_TYPES.DIRECT } }
@@ -253,7 +252,9 @@ module.exports = function(server, mongoose, logger) {
 
           promise = RestHapi.list(Conversation, query, Log)
         } else {
-          throw Boom.badRequest('Must provide either conversation or user query params.')
+          throw Boom.badRequest(
+            'Must provide either conversation or user query params.'
+          )
         }
 
         let result = await promise
@@ -266,7 +267,9 @@ module.exports = function(server, mongoose, logger) {
             )
           })
           if (!me) {
-            throw Boom.badRequest('Current user is not part of this conversation.')
+            throw Boom.badRequest(
+              'Current user is not part of this conversation.'
+            )
           }
           return result
         } else {
@@ -274,10 +277,7 @@ module.exports = function(server, mongoose, logger) {
           if (!result.docs[0]) {
             newConversation = true
             let promises = []
-            let users = [
-              request.auth.credentials.user._id,
-              request.query.user
-            ]
+            let users = [request.auth.credentials.user._id, request.query.user]
             promises.push(
               RestHapi.create(
                 Conversation,
@@ -384,7 +384,9 @@ module.exports = function(server, mongoose, logger) {
           user: request.auth.credentials.user._id
         }
 
-        promises.push(RestHapi.find(Conversation, payload.conversation, {}, Log))
+        promises.push(
+          RestHapi.find(Conversation, payload.conversation, {}, Log)
+        )
         promises.push(RestHapi.create(Message, payload, Log))
 
         let result = await Promise.all(promises)
