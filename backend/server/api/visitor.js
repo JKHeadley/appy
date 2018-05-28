@@ -5,6 +5,7 @@ const RestHapi = require('rest-hapi')
 
 const iplocation = require('iplocation')
 const useragent = require('useragent')
+const errorHelper = require('../utilities/errorHelper')
 
 module.exports = function(server, mongoose, logger) {
   // Record Visitor Endpoint
@@ -14,25 +15,20 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Record Visitor endpoint')
 
-    const recordVisitorHandler = function(request, reply) {
-      // Specify the iplocation hosts to prevent issues (Ex: docker cant ping "https://ipaip.co/" by default)
-      let hosts = ['freegeoip.net', 'ipapi.co']
+    const recordVisitorHandler = async function(request, h) {
+      try {
+        // Specify the iplocation hosts to prevent issues (Ex: docker cant ping "https://ipaip.co/" by default)
+        let hosts = ['freegeoip.net', 'ipapi.co']
 
-      iplocation(server.methods.getIP(request), hosts)
-        .then(function(result) {
-          const agent = useragent.parse(request.headers['user-agent'])
+        let result = await iplocation(server.methods.getIP(request), hosts)
+        const agent = useragent.parse(request.headers['user-agent'])
 
-          const visitor = Object.assign(result, { browser: agent.family })
+        const visitor = Object.assign(result, { browser: agent.family })
 
-          return RestHapi.create(Visitor, visitor, Log)
-        })
-        .then(function(result) {
-          return reply()
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        await RestHapi.create(Visitor, visitor, Log)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
