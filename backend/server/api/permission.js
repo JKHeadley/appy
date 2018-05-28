@@ -3,6 +3,7 @@
 const Joi = require('joi')
 const Chalk = require('chalk')
 const RestHapi = require('rest-hapi')
+const errorHelper = require('../utilities/errorHelper')
 
 const Config = require('../../config/config')
 
@@ -20,25 +21,22 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Get Available Permissions endpoint')
 
-    const getAvailablePermissionsHandler = function(request, reply) {
-      Log.log('query(%s)', JSON.stringify(request.query))
+    const getAvailablePermissionsHandler = async function(request, h) {
+      try {
+        Log.log('query(%s)', JSON.stringify(request.query))
 
-      const roleName = request.auth.credentials.user.roleName
+        const roleName = request.auth.credentials.user.roleName
 
-      const where = {
-        assignScope: { $elemMatch: { $eq: roleName } }
+        const where = {
+          assignScope: { $elemMatch: { $eq: roleName } }
+        }
+
+        request.query.$where = Object.assign(where, request.query.$where)
+
+        return await RestHapi.list(Permission, request.query, Log)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
       }
-
-      request.query.$where = Object.assign(where, request.query.$where)
-
-      return RestHapi.list(Permission, request.query, Log)
-        .then(function(result) {
-          reply(result)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
     }
 
     const queryModel = RestHapi.joiHelper.generateJoiListQueryModel(

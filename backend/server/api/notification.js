@@ -8,16 +8,16 @@ module.exports = function(server, mongoose, logger) {
     // const Log = logger.bind(Chalk.magenta('Notification Subscription'))
 
     server.subscription('/notification/{userId}', {
-      filter: function(path, message, options, next) {
-        next(true)
+      filter: function(path, message, options) {
+        return true
       },
       auth: {
         scope: ['root', 'receiveNotifications', '!-receiveNotifications'],
         entity: 'user',
         index: true
       },
-      onSubscribe: function(socket, path, params, next) {
-        next()
+      onSubscribe: function(socket, path, params) {
+        return
       }
     })
   })()
