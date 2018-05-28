@@ -7,6 +7,7 @@ const _ = require('lodash')
 const zxcvbn = require('zxcvbn')
 const Q = require('q')
 const RestHapi = require('rest-hapi')
+const errorHelper = require('../utilities/errorHelper')
 
 const Config = require('../../config/config')
 const auditLog = require('../policies/audit-log')
@@ -41,21 +42,19 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Check Email endpoint for ' + collectionName)
 
-    const checkEmailHandler = function(request, reply) {
-      User.findOne({ email: request.payload.email })
-        .then(function(result) {
-          if (result) {
-            Log.log('Email already exists.')
-            return reply(true)
-          } else {
-            Log.log("Email doesn't exist.")
-            return reply(false)
-          }
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+    const checkEmailHandler = async function(request, h) {
+      try {
+        let result = await User.findOne({ email: request.payload.email })
+        if (result) {
+          Log.log('Email already exists.')
+          return true
+        } else {
+          Log.log("Email doesn't exist.")
+          return false
+        }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -96,13 +95,17 @@ module.exports = function(server, mongoose, logger) {
       'Generating Check Password Strength endpoint for ' + collectionName
     )
 
-    const checkPasswordHandler = function(request, reply) {
-      const results = zxcvbn(request.payload.password)
+    const checkPasswordHandler = async function(request, h) {
+      try {
+        const results = zxcvbn(request.payload.password)
 
-      return reply({
-        score: results.score,
-        suggestions: results.feedback.suggestions
-      })
+        return {
+          score: results.score,
+          suggestions: results.feedback.suggestions
+        }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -146,58 +149,58 @@ module.exports = function(server, mongoose, logger) {
     const updateCurrentUserPasswordPre = [
       {
         assign: 'passwordCheck',
-        method: function(request, reply) {
-          const results = zxcvbn(request.payload.password)
+        method: async function(request, h) {
+          try {
+            const results = zxcvbn(request.payload.password)
 
-          let requiredPasswordStrength = 4
+            let requiredPasswordStrength = 4
 
-          switch (request.auth.credentials.user.roleName) {
-            case USER_ROLES.USER:
-              requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.USER
-              break
-            case USER_ROLES.ADMIN:
-              requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.ADMIN
-              break
-            case USER_ROLES.SUPER_ADMIN:
-              requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.SUPER_ADMIN
-              break
-          }
+            switch (request.auth.credentials.user.roleName) {
+              case USER_ROLES.USER:
+                requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.USER
+                break
+              case USER_ROLES.ADMIN:
+                requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.ADMIN
+                break
+              case USER_ROLES.SUPER_ADMIN:
+                requiredPasswordStrength = REQUIRED_PASSWORD_STRENGTH.SUPER_ADMIN
+                break
+            }
 
-          if (results.score >= requiredPasswordStrength) {
-            return reply()
-          } else {
-            return reply(Boom.badRequest('Stronger password required.'))
+            if (results.score < requiredPasswordStrength) {
+              throw Boom.badRequest('Stronger password required.')
+            }
+          } catch (err) {
+            errorHelper.handleError(err, Log)
           }
         }
       },
       {
         assign: 'password',
-        method: function(request, reply) {
-          return User.generateHash(request.payload.password, Log).then(function(
-            hashedPassword
-          ) {
-            return reply(hashedPassword)
-          })
+        method: async function(request, h) {
+          try {
+            let hashedPassword = await User.generateHash(request.payload.password, Log)
+            return hashedPassword
+          } catch (err) {
+            errorHelper.handleError(err, Log)
+          }
         }
       }
     ]
 
-    const updateCurrentUserPasswordHandler = function(request, reply) {
-      const _id = request.auth.credentials.user._id
+    const updateCurrentUserPasswordHandler = async function(request, h) {
+      try {
+        const _id = request.auth.credentials.user._id
 
-      return RestHapi.update(
-        User,
-        _id,
-        { password: request.pre.password.hash, passwordUpdateRequired: false },
-        Log
-      )
-        .then(function(user) {
-          return reply(user)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return await RestHapi.update(
+          User,
+          _id,
+          { password: request.pre.password.hash, passwordUpdateRequired: false },
+          Log
+        )
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -247,32 +250,30 @@ module.exports = function(server, mongoose, logger) {
     const updateCurrentUserPINPre = [
       {
         assign: 'pin',
-        method: function(request, reply) {
-          return User.generateHash(request.payload.pin, Log).then(function(
-            hashedPassword
-          ) {
-            return reply(hashedPassword)
-          })
+        method: async function(request, h) {
+          try {
+            let hashedPin = await User.generateHash(request.payload.pin, Log)
+            return hashedPin
+          } catch (err) {
+            errorHelper.handleError(err, Log)
+          }
         }
       }
     ]
 
-    const updateCurrentUserPINHandler = function(request, reply) {
-      const _id = request.auth.credentials.user._id
+    const updateCurrentUserPINHandler = async function(request, h) {
+      try {
+        const _id = request.auth.credentials.user._id
 
-      return RestHapi.update(
-        User,
-        _id,
-        { pin: request.pre.pin.hash, pinUpdateRequired: false },
-        Log
-      )
-        .then(function(user) {
-          return reply(user)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return await RestHapi.update(
+          User,
+          _id,
+          { pin: request.pre.pin.hash, pinUpdateRequired: false },
+          Log
+        )
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -322,47 +323,42 @@ module.exports = function(server, mongoose, logger) {
     const updateCurrentUserProfilePre = [
       {
         assign: 'emailCheck',
-        method: function(request, reply) {
-          if (
-            !request.payload.profile.email ||
-            request.payload.profile.email ===
+        method: async function(request, h) {
+          try {
+            if (
+              !request.payload.profile.email ||
+              request.payload.profile.email ===
               request.auth.credentials.user.email
-          ) {
-            return reply(true)
+            ) {
+              return true
+            }
+
+            const conditions = {
+              email: request.payload.profile.email,
+              isDeleted: false
+            }
+
+            let user = await User.findOne(conditions)
+            if (user) {
+              throw Boom.conflict('Email already in use.')
+            }
+
+            return true
+          } catch (err) {
+            errorHelper.handleError(err, Log)
           }
-
-          const conditions = {
-            email: request.payload.profile.email,
-            isDeleted: false
-          }
-
-          User.findOne(conditions)
-            .then(function(user) {
-              if (user) {
-                return reply(Boom.conflict('Email already in use.'))
-              }
-
-              return reply(true)
-            })
-            .catch(function(error) {
-              Log.error(error)
-              return reply(RestHapi.errorHelper.formatResponse(error))
-            })
         }
       }
     ]
 
-    const updateCurrentUserProfileHandler = function(request, reply) {
-      const _id = request.auth.credentials.user._id
+    const updateCurrentUserProfileHandler = async function(request, h) {
+      try {
+        const _id = request.auth.credentials.user._id
 
-      return RestHapi.update(User, _id, request.payload.profile, Log)
-        .then(function(user) {
-          return reply(user)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(error)
-        })
+        return await RestHapi.update(User, _id, request.payload.profile, Log)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -416,17 +412,14 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Delete Current User endpoint for ' + collectionName)
 
-    const deleteCurrentUserHandler = function(request, reply) {
-      const _id = request.auth.credentials.user._id
+    const deleteCurrentUserHandler = async function(request, h) {
+      try {
+        const _id = request.auth.credentials.user._id
 
-      return RestHapi.deleteOne(User, _id, {}, Log)
-        .then(function(user) {
-          return reply(user)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return await RestHapi.deleteOne(User, _id, {}, Log)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -467,21 +460,14 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Enable Account endpoint for ' + collectionName)
 
-    const enableAccountHandler = function(request, reply) {
-      const _id = request.params._id
+    const enableAccountHandler = async function(request, h) {
+      try {
+        const _id = request.params._id
 
-      return RestHapi.update(User, _id, { isEnabled: true }, Log)
-        .then(function(user) {
-          if (!user) {
-            return reply(Boom.notFound('Document not found. That is strange.'))
-          }
-
-          return reply(user)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return await RestHapi.update(User, _id, { isEnabled: true }, Log)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -529,21 +515,14 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Disable Account endpoint for ' + collectionName)
 
-    const disableAccountHandler = function(request, reply) {
-      const _id = request.params._id
+    const disableAccountHandler = async function(request, h) {
+      try {
+        const _id = request.params._id
 
-      return RestHapi.update(User, _id, { isEnabled: false }, Log)
-        .then(function(user) {
-          if (!user) {
-            return reply(Boom.notFound('Document not found. That is strange.'))
-          }
-
-          return reply(user)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return await RestHapi.update(User, _id, { isEnabled: false }, Log)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -591,21 +570,14 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Activate Account endpoint for ' + collectionName)
 
-    const activateAccountHandler = function(request, reply) {
-      const _id = request.params._id
+    const activateAccountHandler = async function(request, h) {
+      try {
+        const _id = request.params._id
 
-      return RestHapi.update(User, _id, { isActive: true }, Log)
-        .then(function(user) {
-          if (!user) {
-            return reply(Boom.notFound('Document not found. That is strange.'))
-          }
-
-          return reply(user)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return await RestHapi.update(User, _id, { isActive: true }, Log)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -653,21 +625,14 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Deactivate Account endpoint for ' + collectionName)
 
-    const deactivateAccountHandler = function(request, reply) {
-      const _id = request.params._id
+    const deactivateAccountHandler = async function(request, h) {
+      try {
+        const _id = request.params._id
 
-      return RestHapi.update(User, _id, { isActive: false }, Log)
-        .then(function(user) {
-          if (!user) {
-            return reply(Boom.notFound('Document not found. That is strange.'))
-          }
-
-          return reply(user)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return await RestHapi.update(User, _id, { isActive: false }, Log)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -716,15 +681,12 @@ module.exports = function(server, mongoose, logger) {
 
     Log.note('Generating Get User Scope endpoint for ' + collectionName)
 
-    const getUserScopeHandler = function(request, reply) {
-      return Permission.getScope({ _id: request.params._id }, Log)
-        .then(function(permissions) {
-          return reply(permissions)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+    const getUserScopeHandler = async function(request, h) {
+      try {
+        return await Permission.getScope({ _id: request.params._id }, Log)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
@@ -769,54 +731,52 @@ module.exports = function(server, mongoose, logger) {
       'Generating Get User Connection Stats endpoint for ' + collectionName
     )
 
-    const getUserConnectionStatsHandler = function(request, reply) {
-      const promises = []
+    const getUserConnectionStatsHandler = async function(request, h) {
+      try {
+        const promises = []
 
-      promises.push(
-        RestHapi.getAll(
-          User,
-          request.params._id,
-          Connection,
-          'connections',
-          { isFollowed: true, $count: true },
-          Log
+        promises.push(
+          RestHapi.getAll(
+            User,
+            request.params._id,
+            Connection,
+            'connections',
+            { isFollowed: true, $count: true },
+            Log
+          )
         )
-      )
-      promises.push(
-        RestHapi.getAll(
-          User,
-          request.params._id,
-          Connection,
-          'connections',
-          { isFollowing: true, $count: true },
-          Log
+        promises.push(
+          RestHapi.getAll(
+            User,
+            request.params._id,
+            Connection,
+            'connections',
+            { isFollowing: true, $count: true },
+            Log
+          )
         )
-      )
-      promises.push(
-        RestHapi.getAll(
-          User,
-          request.params._id,
-          Connection,
-          'connections',
-          { isContact: true, $count: true },
-          Log
+        promises.push(
+          RestHapi.getAll(
+            User,
+            request.params._id,
+            Connection,
+            'connections',
+            { isContact: true, $count: true },
+            Log
+          )
         )
-      )
 
-      return Q.all(promises)
-        .then(function(result) {
-          const connectionStats = {
-            followers: result[0],
-            following: result[1],
-            contacts: result[2]
-          }
+        let result = await Promise.all(promises)
+        const connectionStats = {
+          followers: result[0],
+          following: result[1],
+          contacts: result[2]
+        }
 
-          return reply(connectionStats)
-        })
-        .catch(function(error) {
-          Log.error(error)
-          return reply(RestHapi.errorHelper.formatResponse(error))
-        })
+        return connectionStats
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
 
     server.route({
