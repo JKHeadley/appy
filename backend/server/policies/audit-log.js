@@ -2,6 +2,7 @@
 
 const _ = require('lodash')
 const pickDeep = require('lodash-pickdeep')
+const errorHelper = require('../utilities/errorHelper')
 
 _.mixin({ pickDeep: pickDeep }, { chain: true })
 
@@ -11,13 +12,13 @@ const internals = {}
  * Policy to log actions.
  * @param mongoose
  * @param options
- * @param Log
+ * @param logger
  * @returns {auditLog}
  */
-internals.auditLog = function(mongoose, options, Log) {
-  Log = Log.bind('auditLog')
+internals.auditLog = function(mongoose, options, logger) {
+  const Log = logger.bind('auditLog')
 
-  const auditLog = function auditLog(request, reply, next) {
+  const auditLog = async function auditLog(request, h) {
     try {
       const AuditLog = mongoose.model('auditLog')
 
@@ -52,17 +53,11 @@ internals.auditLog = function(mongoose, options, Log) {
         ipAddress
       }
 
-      return AuditLog.create(document)
-        .then(function(result) {
-          next(null, true)
-        })
-        .catch(function(err) {
-          Log.error('ERROR:', err)
-          next(null, true)
-        })
+      await AuditLog.create(document)
+
+      return h.continue
     } catch (err) {
-      Log.error('ERROR:', err)
-      return next(null, true)
+      errorHelper.handleError(err, Log)
     }
   }
 
