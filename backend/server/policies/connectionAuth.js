@@ -2,6 +2,7 @@
 
 const Boom = require('boom')
 const RestHapi = require('rest-hapi')
+const errorHelper = require('../utilities/errorHelper')
 
 const internals = {}
 
@@ -11,30 +12,26 @@ const internals = {}
  * @returns {connectionUpdateAuth}
  */
 internals.connectionUpdateAuth = function(mongoose) {
-  const connectionUpdateAuth = function connectionAuth(request, reply, next) {
-    let Log = request.logger.bind('connectionAuth')
+  const connectionUpdateAuth = async function connectionAuth(request, h) {
+    const Log = request.logger.bind('connectionAuth')
 
     try {
       const Connection = mongoose.model('connection')
 
       let userId = request.auth.credentials.user._id
 
-      return RestHapi.find(Connection, request.params._id, {}, Log).then(
-        function(result) {
-          // Only the primary user and those with root permissions can update the connection
-          if (
-            userId === result.primaryUser.toString() ||
-            request.auth.credentials.scope.includes('root')
-          ) {
-            return next(null, true)
-          } else {
-            return next(Boom.forbidden('Not primary user'), false)
-          }
-        }
-      )
+      let result = await RestHapi.find(Connection, request.params._id, {}, Log)
+      // Only the primary user and those with root permissions can update the connection
+      if (
+        userId === result.primaryUser.toString() ||
+        request.auth.credentials.scope.includes('root')
+      ) {
+        return h.continue
+      } else {
+        throw Boom.forbidden('Not primary user')
+      }
     } catch (err) {
-      Log.error('ERROR:', err)
-      return next(null, true)
+      errorHelper.handleError(err, Log)
     }
   }
 

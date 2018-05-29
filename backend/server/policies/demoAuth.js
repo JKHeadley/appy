@@ -1,24 +1,22 @@
 'use strict'
 
 const Boom = require('boom')
+const errorHelper = require('../utilities/errorHelper')
 
 const internals = {}
 
 /**
  * Policy to restrict certain action for the live demo (such as super admins deleting users).
  * @param request
- * @param reply
- * @param next
+ * @param h
  * @returns {*}
  */
-internals.demoAuth = function(request, reply, next) {
+internals.demoAuth = function(request, h) {
   let Log = request.logger.bind('demoAuth')
-
   try {
-    return next(Boom.forbidden('Action not allowed for demo'), false)
+    throw Boom.forbidden('Action not allowed for demo')
   } catch (err) {
-    Log.error('ERROR:', err)
-    return next(null, true)
+    errorHelper.handleError(err, Log)
   }
 }
 internals.demoAuth.applyPoint = 'onPreHandler'
@@ -26,24 +24,22 @@ internals.demoAuth.applyPoint = 'onPreHandler'
 /**
  * Policy to restrict certain action for the live demo (such as super admins deleting users).
  * @param request
- * @param reply
- * @param next
+ * @param h
  * @returns {*}
  */
-internals.demoUser = function(request, reply, next) {
+internals.demoUser = async function(request, h) {
   let Log = request.logger.bind('demoUser')
 
   try {
     let user = request.auth.credentials.user
 
     if (internals.demoUsers.includes(user.email)) {
-      return next(Boom.forbidden('Cannot edit demo user'), false)
-    } else {
-      return next(null, true)
+      throw Boom.forbidden('Cannot edit demo user')
     }
+
+    return h.continue
   } catch (err) {
-    Log.error('ERROR:', err, internals.demoUsers)
-    return next(null, true)
+    errorHelper.handleError(err, Log)
   }
 }
 internals.demoUser.applyPoint = 'onPreHandler'

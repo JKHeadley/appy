@@ -2,7 +2,7 @@
 
 const Boom = require('boom')
 const RestHapi = require('rest-hapi')
-const Q = require('q')
+const errorHelper = require('../utilities/errorHelper')
 
 const internals = {}
 
@@ -13,33 +13,27 @@ const internals = {}
  * @returns {permissionAuth}
  */
 internals.permissionAuth = function(mongoose, isOwner) {
-  const permissionAuth = function permissionAuth(request, reply, next) {
+  const permissionAuth = async function permissionAuth(request, h) {
     let Log = request.logger.bind('permissionAuth')
 
     try {
       // Return next if this isn't a permission association
       if (!isOwner && !request.path.includes('permission')) {
-        return next(null, true)
+        return h.continue
       }
       let userScope = request.auth.credentials.scope
 
       // Always allow root
       if (userScope.indexOf('root') > -1) {
-        return next(null, true)
+        return h.continue
       }
 
       if (isOwner) {
-        return internals
-          .canAssign(request.params.ownerId, userScope, mongoose, Log)
-          .then(function(canAssign) {
-            return internals.formatResponse(canAssign, next, Log)
-          })
+        let canAssign = await internals.canAssign(request.params.ownerId, userScope, mongoose, Log)
+        return internals.formatResponse(canAssign, h, Log)
       } else if (request.params.childId) {
-        return internals
-          .canAssign(request.params.childId, userScope, mongoose, Log)
-          .then(function(canAssign) {
-            return internals.formatResponse(canAssign, next, Log)
-          })
+        let canAssign = await internals.canAssign(request.params.childId, userScope, mongoose, Log)
+        return internals.formatResponse(canAssign, h, Log)
       }
       // Multiple permissions are being assigned so we need to check each one.
       else {
@@ -53,17 +47,15 @@ internals.permissionAuth = function(mongoose, isOwner) {
           )
         )
 
-        return Q.all(promises).then(function(result) {
-          // If any of the checks fail, then an error is returned
-          let canAssign =
-            result.filter(canAssign => canAssign === false)[0] === undefined
+        let result = await Promise.all(promises)
+        // If any of the checks fail, then an error is returned
+        let canAssign =
+          result.filter(canAssign => canAssign === false)[0] === undefined
 
-          return internals.formatResponse(canAssign, next, Log)
-        })
+        return internals.formatResponse(canAssign, h, Log)
       }
     } catch (err) {
-      Log.error('ERROR:', err)
-      return next(null, true)
+      errorHelper.handleError(err, Log)
     }
   }
 
@@ -72,37 +64,40 @@ internals.permissionAuth = function(mongoose, isOwner) {
 }
 internals.permissionAuth.applyPoint = 'onPreHandler'
 
-internals.canAssign = function(permissionId, userScope, mongoose, Log) {
-  const Permission = mongoose.model('permission')
+internals.canAssign = async function(permissionId, userScope, mongoose, logger) {
+  const Log = logger.bind()
 
-  return RestHapi.find(Permission, permissionId, {}, Log)
-    .then(function(result) {
-      let assignScope = result.assignScope
-      // Check if the user scope intersects (contains values of) the assign scope.
-      let canAssign = !!userScope.filter(
-        scope => assignScope.indexOf(scope) > -1
-      )[0]
+  try {
+    const Permission = mongoose.model('permission')
 
-      return canAssign
-    })
-    .catch(function(error) {
-      Log.error('ERROR:', error)
-      return Boom.badRequest(error)
-    })
+    let result = await RestHapi.find(Permission, permissionId, {}, Log)
+    let assignScope = result.assignScope
+    // Check if the user scope intersects (contains values of) the assign scope.
+    let canAssign = !!userScope.filter(
+      scope => assignScope.indexOf(scope) > -1
+    )[0]
+
+    return canAssign
+  } catch (err) {
+    errorHelper.handleError(err, Log)
+  }
 }
 
-internals.formatResponse = function(canAssign, next, Log) {
-  if (canAssign.isBoom) {
-    return next(canAssign, false)
-  }
+internals.formatResponse = function(canAssign, h, logger) {
+  const Log = logger.bind()
 
-  if (canAssign) {
-    return next(null, true)
-  } else {
-    return next(
-      Boom.forbidden('Higher role required to assign permission'),
-      false
-    )
+  try {
+    if (canAssign.isBoom) {
+      throw canAssign
+    }
+
+    if (canAssign) {
+      return h.continue
+    } else {
+      throw Boom.forbidden('Higher role required to assign permission')
+    }
+  } catch (err) {
+    errorHelper.handleError(err, Log)
   }
 }
 

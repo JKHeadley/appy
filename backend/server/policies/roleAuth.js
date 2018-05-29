@@ -2,7 +2,7 @@
 
 const Boom = require('boom')
 const RestHapi = require('rest-hapi')
-const Q = require('q')
+const errorHelper = require('../utilities/errorHelper')
 
 const internals = {}
 
@@ -14,21 +14,18 @@ const internals = {}
  * @returns {rankAuth}
  */
 internals.rankAuth = function(mongoose, userIdParam) {
-  const rankAuth = function rankAuth(request, reply, next) {
-    let Log = request.logger.bind('rankAuth')
+  const rankAuth = async function rankAuth(request, h) {
+    const Log = request.logger.bind('rankAuth')
 
     try {
-      // Return next if this isn't a user association
+      // Continue if this isn't a user association
       if (!request.path.includes('user')) {
-        return next(null, true)
+        return h.continue
       }
       if (userIdParam === 'child') {
         if (request.params.childId) {
-          return internals
-            .canEdit(request.params.childId, request, mongoose, Log)
-            .then(function(canEdit) {
-              return internals.formatResponse(canEdit, next, Log)
-            })
+          let canEdit = await internals.canEdit(request.params.childId, request, mongoose, Log)
+          return internals.formatResponse(canEdit, h, Log)
         }
         // Multiple users are being updated.
         else {
@@ -40,24 +37,18 @@ internals.rankAuth = function(mongoose, userIdParam) {
             promises.push(internals.canEdit(userId, request, mongoose, Log))
           )
 
-          return Q.all(promises).then(function(result) {
+          let result = await Promise.all(promises)
             // If any of the checks fail, then an error is returned
-            let canEdit =
-              result.filter(canEdit => canEdit === false)[0] === undefined
+          let canEdit = result.filter(canEdit => canEdit === false)[0] === undefined
 
-            return internals.formatResponse(canEdit, next, Log)
-          })
+          return internals.formatResponse(canEdit, h, Log)
         }
       } else {
-        return internals
-          .canEdit(request.params[userIdParam], request, mongoose, Log)
-          .then(function(canEdit) {
-            return internals.formatResponse(canEdit, next, Log)
-          })
+        let canEdit = await internals.canEdit(request.params[userIdParam], request, mongoose, Log)
+        return internals.formatResponse(canEdit, h, Log)
       }
     } catch (err) {
-      Log.error('ERROR:', err)
-      return next(null, true)
+      errorHelper.handleError(err, Log)
     }
   }
 
@@ -72,34 +63,27 @@ internals.rankAuth.applyPoint = 'onPreHandler'
  * @returns {promoteAuth}
  */
 internals.promoteAuth = function(mongoose) {
-  const promoteAuth = function promoteAuth(request, reply, next) {
-    let Log = request.logger.bind('promoteAuth')
+  const promoteAuth = async function promoteAuth(request, h) {
+    const Log = request.logger.bind('promoteAuth')
 
     try {
       const Role = mongoose.model('role')
 
       if (request.payload.role) {
-        return RestHapi.find(Role, request.payload.role, {}, Log).then(function(
-          result
-        ) {
-          let updatedRank = result.rank
-          let currentRank = request.auth.credentials.user.roleRank
+        let role = await RestHapi.find(Role, request.payload.role, {}, Log)
+        let updatedRank = role.rank
+        let currentRank = request.auth.credentials.user.roleRank
 
-          if (updatedRank < currentRank) {
-            return next(
-              Boom.forbidden("Can't promote user to a higher role than yours"),
-              false
-            )
-          } else {
-            return next(null, true)
-          }
-        })
+        if (updatedRank < currentRank) {
+          throw Boom.forbidden("Can't promote user to a higher role than yours")
+        } else {
+          return h.continue
+        }
       } else {
-        return next(null, true)
+        return h.continue
       }
     } catch (err) {
-      Log.error('ERROR:', err)
-      return next(null, true)
+      errorHelper.handleError(err, Log)
     }
   }
 
@@ -108,34 +92,35 @@ internals.promoteAuth = function(mongoose) {
 }
 internals.promoteAuth.applyPoint = 'onPreHandler'
 
-internals.canEdit = function(userId, request, mongoose, Log) {
-  const User = mongoose.model('user')
+internals.canEdit = async function(userId, request, mongoose, logger) {
+  const Log = logger.bind()
+  try {
+    const User = mongoose.model('user')
 
-  return RestHapi.find(User, userId, {}, Log)
-    .then(function(result) {
-      const currentUserRank = request.auth.credentials.user.roleRank
-      const affectedUserRank = result.roleRank
+    let user = await RestHapi.find(User, userId, {}, Log)
+    const currentUserRank = request.auth.credentials.user.roleRank
+    const affectedUserRank = user.roleRank
 
-      return currentUserRank < affectedUserRank
-    })
-    .catch(function(error) {
-      Log.error('ERROR:', error)
-      return Boom.badRequest(error)
-    })
+    return currentUserRank < affectedUserRank
+  } catch (err) {
+    errorHelper.handleError(err, Log)
+  }
 }
 
-internals.formatResponse = function(canEdit, next, Log) {
-  if (canEdit.isBoom) {
-    return next(canEdit, false)
-  }
+internals.formatResponse = function(canEdit, h, logger) {
+  const Log = logger.bind()
+  try {
+    if (canEdit.isBoom) {
+      throw canEdit
+    }
 
-  if (canEdit) {
-    return next(null, true)
-  } else {
-    return next(
-      Boom.forbidden('Can only update users with a lower role'),
-      false
-    )
+    if (canEdit) {
+      return h.continue
+    } else {
+      throw Boom.forbidden('Can only update users with a lower role')
+    }
+  } catch (err) {
+    errorHelper.handleError(err, Log)
   }
 }
 
