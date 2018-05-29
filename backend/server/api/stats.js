@@ -201,7 +201,7 @@ module.exports = function(server, mongoose, logger) {
 
         // endregion
 
-        result = Promise.all(promises)
+        result = await Promise.all(promises)
 
         stats.totalVisitorsPerCountry = result[0][0].totalVisitorsPerCountry
         stats.totalVisitorsPerBrowser = result[1][0].totalVisitorsPerBrowser

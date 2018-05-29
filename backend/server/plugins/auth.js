@@ -3,6 +3,7 @@
 const Mongoose = require('mongoose')
 const Boom = require('boom')
 const RestHapi = require('rest-hapi')
+const errorHelper = require('../utilities/errorHelper')
 
 const Config = require('../../config/config')
 const Token = require('../utilities/token')
@@ -129,74 +130,63 @@ internals.applyRefreshStrategy = function(server) {
   server.auth.strategy(AUTH_STRATEGIES.REFRESH, 'jwt', {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'], ignoreExpiration: true },
-    validate: function(decodedToken, request, callback) {
-      // if the token is expired, respond with token type so the client can switch to refresh token if necessary
-      if (decodedToken.exp < Math.floor(Date.now() / 1000)) {
-        if (decodedToken.user) {
-          return callback(
-            Boom.unauthorized('Expired Access Token', 'Token', null),
-            false
-          )
-        } else {
-          return callback(
-            Boom.unauthorized('Expired Refresh Token', 'Token', null),
-            false
-          )
+    validate: async function(decodedToken, request) {
+      try {
+        // if the token is expired, respond with token type so the client can switch to refresh token if necessary
+        if (decodedToken.exp < Math.floor(Date.now() / 1000)) {
+          if (decodedToken.user) {
+            throw Boom.unauthorized('Expired Access Token', 'Token', null)
+          } else {
+            throw Boom.unauthorized('Expired Refresh Token', 'Token', null)
+          }
         }
-      }
 
-      let user = {}
-      let session = {}
+        let user = {}
+        let session = {}
 
-      // if the token does not contain session info, then simply authenticate and continue
-      if (decodedToken.user) {
-        user = decodedToken.user
+        // If the token does not contain session info, then simply authenticate and continue
+        if (decodedToken.user) {
+          user = decodedToken.user
 
-        callback(null, Boolean(user), { user, scope: decodedToken.scope })
-      }
-      // if the token does contain session info (i.e. a refresh token), then use the session to
-      // authenticate and respond with a fresh set of tokens in the header
-      else if (decodedToken.sessionId) {
-        const Session = Mongoose.model('session')
-        const User = Mongoose.model('user')
+          return { user, scope: decodedToken.scope }
+        }
+        // If the token does contain session info (i.e. a refresh token), then use the session to
+        // authenticate and respond with a fresh set of tokens in the header
+        else if (decodedToken.sessionId) {
+          const Session = Mongoose.model('session')
+          const User = Mongoose.model('user')
 
-        Session.findByCredentials(
-          decodedToken.sessionId,
-          decodedToken.sessionKey,
-          Log
-        )
-          .then(function(result) {
-            session = result
+          session = await Session.findByCredentials(
+            decodedToken.sessionId,
+            decodedToken.sessionKey,
+            Log
+          )
+          if (!session) {
+            throw Boom.unauthorized()
+          }
 
-            if (!session) {
-              return callback(null, false)
-            }
+          let result = await User.findById(session.user)
+          if (result === false) {
+            return result
+          }
+          user = result
 
-            return User.findById(session.user)
-          })
-          .then(function(result) {
-            if (result === false) {
-              return result
-            }
-            user = result
+          if (!user) {
+            throw Boom.unauthorized()
+          }
 
-            if (!user) {
-              return callback(null, false)
-            }
+          if (user.password !== decodedToken.passwordHash) {
+            throw Boom.unauthorized()
+          }
 
-            if (user.password !== decodedToken.passwordHash) {
-              return callback(null, false)
-            }
-
-            callback(null, Boolean(user), {
-              user,
-              session,
-              scope: decodedToken.scope
-            })
-          })
-          .catch(function(error) {
-            Log.error(error)
-          })
+          return {
+            user,
+            session,
+            scope: decodedToken.scope
+          }
+        }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
       }
     }
   })

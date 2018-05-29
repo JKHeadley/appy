@@ -42,6 +42,8 @@ module.exports = function(server, mongoose, logger) {
                 'Maximum number of auth attempts reached. Please try again later.'
               )
             }
+
+            return h.continue
           } catch (err) {
             errorHelper.handleError(err, Log)
           }
@@ -65,7 +67,7 @@ module.exports = function(server, mongoose, logger) {
         method: async function(request, h) {
           try {
             if (request.pre.user) {
-              return
+              return h.continue
             }
             const ip = server.methods.getIP(request)
             const email = request.payload.email
@@ -84,6 +86,7 @@ module.exports = function(server, mongoose, logger) {
           if (!request.pre.user.isActive) {
             throw Boom.unauthorized('Account is inactive.')
           }
+          return h.continue
         }
       },
       {
@@ -92,6 +95,7 @@ module.exports = function(server, mongoose, logger) {
           if (!request.pre.user.isEnabled) {
             throw Boom.unauthorized('Account is disabled.')
           }
+          return h.continue
         }
       },
       {
@@ -102,6 +106,7 @@ module.exports = function(server, mongoose, logger) {
           if (user.isDeleted) {
             throw Boom.badRequest('Account is deleted.')
           }
+          return h.continue
         }
       },
       {
@@ -109,9 +114,9 @@ module.exports = function(server, mongoose, logger) {
         method: async function(request, h) {
           try {
             if (authStrategy === AUTH_STRATEGIES.TOKEN) {
-              return null
+              return h.continue
             } else {
-              return await Session.createInstance(request.pre.user)
+              return await Session.createInstance(request.pre.user, Log)
             }
           } catch (err) {
             errorHelper.handleError(err, Log)
@@ -151,7 +156,7 @@ module.exports = function(server, mongoose, logger) {
                 Log
               )
             default:
-              break
+              return h.continue
           }
         }
       },
@@ -172,7 +177,7 @@ module.exports = function(server, mongoose, logger) {
             case AUTH_STRATEGIES.REFRESH:
               return null
             default:
-              break
+              return h.continue
           }
         }
       },
@@ -193,7 +198,7 @@ module.exports = function(server, mongoose, logger) {
                 Log
               )
             default:
-              break
+              return h.continue
           }
         }
       }
@@ -233,7 +238,7 @@ module.exports = function(server, mongoose, logger) {
           }
           break
         default:
-          break
+          return h.continue
       }
 
       return response
@@ -365,7 +370,7 @@ module.exports = function(server, mongoose, logger) {
               if (authStrategy === AUTH_STRATEGIES.TOKEN) {
                 return null
               } else {
-                return await Session.createInstance(request.pre.user)
+                return await Session.createInstance(request.pre.user, Log)
               }
             } catch (err) {
               errorHelper.handleError(err, Log)

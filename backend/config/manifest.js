@@ -12,13 +12,18 @@ const manifest = {
     // debug: {
     //   request: ['error']
     // },
-    port: Config.get('/port')
+    port: Config.get('/port'),
     // connections: {
     //   routes: {
     //     security: true,
     //     cors: true
     //   }
     // }
+    routes: {
+      cors: {
+        origin: ['*']
+      }
+    }
   },
   // connections: [
   //   {
