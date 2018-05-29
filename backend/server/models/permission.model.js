@@ -79,7 +79,7 @@ module.exports = function(mongoose) {
       try {
         const User = mongoose.model('user')
 
-        let user = await RestHapi.find(
+        user = await RestHapi.find(
           User,
           user._id,
           { $embed: ['permissions', 'role.permissions', 'groups.permissions'] },
@@ -148,7 +148,7 @@ module.exports = function(mongoose) {
       try {
         const User = mongoose.model('user')
 
-        let user = await RestHapi.find(User, user._id, {}, Log)
+        user = await RestHapi.find(User, user._id, {}, Log)
 
         const scope = []
 
