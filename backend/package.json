@@ -6,8 +6,10 @@
   "repository": "https://github.com/JKHeadley/appy-backend",
   "license": "MIT",
   "scripts": {
-    "start": "gulp",
-    "test": "gulp test",
+    "start": "npm run start:local",
+    "start:local": "NODE_ENV=local nodemon index.js",
+    "start:dev": "NODE_ENV=development nodemon index.js",
+    "start:prod": "NODE_ENV=production node index.js",
     "precommit": "lint-staged",
     "lint": "eslint --fix **/*.js ./"
   },
@@ -53,7 +55,7 @@
     "q": "^1.4.1",
     "request-promise": "^4.2.2",
     "require-dir": "^0.3.2",
-    "rest-hapi": "^1.0.2",
+    "rest-hapi": "^1.2.0",
     "useragent": "^2.3.0",
     "zxcvbn": "^4.4.2"
   },
@@ -70,6 +72,7 @@
     "eslint-plugin-standard": "^3.1.0",
     "husky": "^0.14.3",
     "lint-staged": "^7.1.0",
+    "nodemon": "^1.17.5",
     "prettier": "1.12.1"
   }
 }
