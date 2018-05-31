@@ -15,7 +15,7 @@ const startServer = async function() {
     await server.start()
 
     RestHapi.logUtil.logActionComplete(
-      RestHapi.Log,
+      RestHapi.logger,
       'Server Initialized',
       server.info
     )

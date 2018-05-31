@@ -77,7 +77,7 @@ module.exports = function(server, mongoose, logger) {
         response: {
           schema: Joi.object({
             docs: Joi.array().items(
-              RestHapi.joiHelper.generateJoiReadModel(Permission)
+              RestHapi.joiHelper.generateJoiReadModel(Permission, Log)
             ),
             pages: Joi.any(),
             items: Joi.any()
