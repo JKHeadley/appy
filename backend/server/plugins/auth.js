@@ -130,7 +130,7 @@ internals.applyRefreshStrategy = function(server) {
   server.auth.strategy(AUTH_STRATEGIES.REFRESH, 'jwt', {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'], ignoreExpiration: true },
-    validate: async function(decodedToken, request) {
+    validate: async function(decodedToken, request, h) {
       try {
         // if the token is expired, respond with token type so the client can switch to refresh token if necessary
         if (decodedToken.exp < Math.floor(Date.now() / 1000)) {
@@ -148,7 +148,10 @@ internals.applyRefreshStrategy = function(server) {
         if (decodedToken.user) {
           user = decodedToken.user
 
-          return { user, scope: decodedToken.scope }
+          return {
+            isValid: true,
+            credentials: { user, scope: decodedToken.scope }
+          }
         }
         // If the token does contain session info (i.e. a refresh token), then use the session to
         // authenticate and respond with a fresh set of tokens in the header
@@ -162,27 +165,26 @@ internals.applyRefreshStrategy = function(server) {
             Log
           )
           if (!session) {
-            throw Boom.unauthorized()
+            return { isValid: false }
           }
 
-          let result = await User.findById(session.user)
-          if (result === false) {
-            return result
-          }
-          user = result
+          let user = await User.findById(session.user)
 
           if (!user) {
-            throw Boom.unauthorized()
+            return { isValid: false }
           }
 
           if (user.password !== decodedToken.passwordHash) {
-            throw Boom.unauthorized()
+            return { isValid: false }
           }
 
           return {
-            user,
-            session,
-            scope: decodedToken.scope
+            isValid: true,
+            credentials: {
+              user,
+              session,
+              scope: decodedToken.scope
+            }
           }
         }
       } catch (err) {
