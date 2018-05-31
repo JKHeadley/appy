@@ -29,10 +29,20 @@ internals.groupAuth = function(mongoose, isOwner) {
       }
 
       if (isOwner) {
-        let canAssign = await internals.canAssign(request.params.ownerId, userScope, mongoose, Log)
+        let canAssign = await internals.canAssign(
+          request.params.ownerId,
+          userScope,
+          mongoose,
+          Log
+        )
         return internals.formatResponse(canAssign, h, Log)
       } else if (request.params.childId) {
-        let canAssign = await internals.canAssign(request.params.childId, userScope, mongoose, Log)
+        let canAssign = await internals.canAssign(
+          request.params.childId,
+          userScope,
+          mongoose,
+          Log
+        )
         return internals.formatResponse(canAssign, h, Log)
       }
       // Multiple groups are being assigned so we need to check each one.

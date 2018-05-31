@@ -128,7 +128,12 @@ module.exports = function(mongoose) {
                 secondaryPayload.isFollowed = payload.isFollowing
               }
 
-              let primaryConnection = await RestHapi.find(Connection, _id, {}, Log)
+              let primaryConnection = await RestHapi.find(
+                Connection,
+                _id,
+                {},
+                Log
+              )
               if (!primaryConnection) {
                 throw Boom.badRequest('Connection not found.')
               }

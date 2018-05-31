@@ -65,15 +65,17 @@ module.exports = function(mongoose) {
             try {
               const Document = mongoose.model('document')
               const Notification = mongoose.model('notification')
-              let document = await RestHapi.find(Document, request.params.ownerId, {}, Log)
+              let document = await RestHapi.find(
+                Document,
+                request.params.ownerId,
+                {},
+                Log
+              )
               const scope = document.scope
               // Add permissions for shared users to either edit or view the document
               payload.forEach(function(userDocument) {
                 // Remove any previous permissions before adding new ones
-                Document.removeDocumentPermissions(
-                  scope,
-                  userDocument.childId
-                )
+                Document.removeDocumentPermissions(scope, userDocument.childId)
                 if (userDocument.canEdit) {
                   scope.updateScope = scope.updateScope || []
                   scope.updateScope.push('user-' + userDocument.childId)
@@ -107,7 +109,12 @@ module.exports = function(mongoose) {
           pre: async function(payload, request, Log) {
             try {
               const Document = mongoose.model('document')
-              let document = await RestHapi.find(Document, request.params.ownerId, {}, Log)
+              let document = await RestHapi.find(
+                Document,
+                request.params.ownerId,
+                {},
+                Log
+              )
               const scope = document.scope
               const userId = request.params.childId
               Document.removeDocumentPermissions(scope, userId)
