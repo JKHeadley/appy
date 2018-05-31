@@ -65,7 +65,12 @@ module.exports = function(mongoose) {
      * @param server
      * @param logger
      */
-    async createConnectionNotification(connnection, connectionPayload, server, logger) {
+    async createConnectionNotification(
+      connnection,
+      connectionPayload,
+      server,
+      logger
+    ) {
       const Log = logger.bind()
       try {
         const Notification = mongoose.model('notification')

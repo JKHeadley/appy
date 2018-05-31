@@ -24,7 +24,12 @@ internals.rankAuth = function(mongoose, userIdParam) {
       }
       if (userIdParam === 'child') {
         if (request.params.childId) {
-          let canEdit = await internals.canEdit(request.params.childId, request, mongoose, Log)
+          let canEdit = await internals.canEdit(
+            request.params.childId,
+            request,
+            mongoose,
+            Log
+          )
           return internals.formatResponse(canEdit, h, Log)
         }
         // Multiple users are being updated.
@@ -38,13 +43,19 @@ internals.rankAuth = function(mongoose, userIdParam) {
           )
 
           let result = await Promise.all(promises)
-            // If any of the checks fail, then an error is returned
-          let canEdit = result.filter(canEdit => canEdit === false)[0] === undefined
+          // If any of the checks fail, then an error is returned
+          let canEdit =
+            result.filter(canEdit => canEdit === false)[0] === undefined
 
           return internals.formatResponse(canEdit, h, Log)
         }
       } else {
-        let canEdit = await internals.canEdit(request.params[userIdParam], request, mongoose, Log)
+        let canEdit = await internals.canEdit(
+          request.params[userIdParam],
+          request,
+          mongoose,
+          Log
+        )
         return internals.formatResponse(canEdit, h, Log)
       }
     } catch (err) {

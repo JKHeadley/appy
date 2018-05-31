@@ -29,10 +29,20 @@ internals.permissionAuth = function(mongoose, isOwner) {
       }
 
       if (isOwner) {
-        let canAssign = await internals.canAssign(request.params.ownerId, userScope, mongoose, Log)
+        let canAssign = await internals.canAssign(
+          request.params.ownerId,
+          userScope,
+          mongoose,
+          Log
+        )
         return internals.formatResponse(canAssign, h, Log)
       } else if (request.params.childId) {
-        let canAssign = await internals.canAssign(request.params.childId, userScope, mongoose, Log)
+        let canAssign = await internals.canAssign(
+          request.params.childId,
+          userScope,
+          mongoose,
+          Log
+        )
         return internals.formatResponse(canAssign, h, Log)
       }
       // Multiple permissions are being assigned so we need to check each one.
@@ -64,7 +74,12 @@ internals.permissionAuth = function(mongoose, isOwner) {
 }
 internals.permissionAuth.applyPoint = 'onPreHandler'
 
-internals.canAssign = async function(permissionId, userScope, mongoose, logger) {
+internals.canAssign = async function(
+  permissionId,
+  userScope,
+  mongoose,
+  logger
+) {
   const Log = logger.bind()
 
   try {
