@@ -10,7 +10,7 @@ const _ = require('lodash')
 const GeneratePassword = require('password-generator')
 const errorHelper = require('../utilities/errorHelper')
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 const auditLog = require('../policies/audit-log')
 
 const USER_ROLES = Config.get('/constants/USER_ROLES')

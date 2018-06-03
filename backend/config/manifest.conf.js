@@ -1,6 +1,6 @@
 'use strict'
 const Confidence = require('confidence')
-const Config = require('./config')
+const Config = require('./index')
 
 const criteria = {
   env: process.env.NODE_ENV

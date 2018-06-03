@@ -5,7 +5,7 @@ const Boom = require('boom')
 const RestHapi = require('rest-hapi')
 const errorHelper = require('../utilities/errorHelper')
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 const Token = require('../utilities/token')
 
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES')

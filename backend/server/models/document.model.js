@@ -3,7 +3,7 @@
 const RestHapi = require('rest-hapi')
 const errorHelper = require('../utilities/errorHelper')
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 
 const NOTIFICATION_TYPES = Config.get('/constants/NOTIFICATION_TYPES')
 

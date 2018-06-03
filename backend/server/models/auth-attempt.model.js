@@ -1,6 +1,6 @@
 'use strict'
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 const errorHelper = require('../utilities/errorHelper')
 
 module.exports = function(mongoose) {

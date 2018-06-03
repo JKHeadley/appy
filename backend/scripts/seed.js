@@ -12,7 +12,7 @@ const updatePermissions = require('../utilities/update-permissions.utility')
 const dropCollections = require('../utilities/drop-collections.utility')
 const Manifest = require('../config/manifest.conf')
 
-const Config = require('../config/config')
+const Config = require('../config')
 
 const restHapiConfig = Config.get('/restHapiConfig')
 const USER_ROLES = Config.get('/constants/USER_ROLES')

@@ -5,7 +5,7 @@ const Boom = require('boom')
 const Chalk = require('chalk')
 const errorHelper = require('../utilities/errorHelper')
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 const auditLog = require('../policies/audit-log')
 
 const authStrategy = Config.get('/restHapiConfig/authStrategy')
