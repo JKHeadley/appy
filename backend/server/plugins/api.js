@@ -3,7 +3,7 @@
 const mongoose = require('mongoose')
 const RestHapi = require('rest-hapi')
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 
 module.exports = {
   plugin: {

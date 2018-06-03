@@ -8,7 +8,7 @@ const Hoek = require('hoek')
 const Markdown = require('nodemailer-markdown').markdown
 const Nodemailer = require('nodemailer')
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 
 const internals = {}
 

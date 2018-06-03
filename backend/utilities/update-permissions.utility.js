@@ -6,7 +6,7 @@ const path = require('path')
 const Mongoose = require('mongoose')
 const RestHapi = require('rest-hapi')
 
-const Config = require('../config/config')
+const Config = require('../config')
 
 const restHapiConfig = Config.get('/restHapiConfig')
 const USER_ROLES = Config.get('/constants/USER_ROLES')

@@ -6,7 +6,7 @@ const Chalk = require('chalk')
 const RestHapi = require('rest-hapi')
 const errorHelper = require('../utilities/errorHelper')
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 
 const CHAT_TYPES = Config.get('/constants/CHAT_TYPES')
 const authStrategy = Config.get('/restHapiConfig/authStrategy')

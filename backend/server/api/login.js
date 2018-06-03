@@ -7,7 +7,7 @@ const Chalk = require('chalk')
 const Jwt = require('jsonwebtoken')
 const RestHapi = require('rest-hapi')
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 const Token = require('../utilities/token')
 const errorHelper = require('../utilities/errorHelper')
 const auditLog = require('../policies/audit-log')

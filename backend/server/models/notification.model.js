@@ -5,7 +5,7 @@ const RestHapi = require('rest-hapi')
 const _ = require('lodash')
 const errorHelper = require('../utilities/errorHelper')
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 const notificationUpdateAuth = require('../policies/notificationAuth')
 
 const NOTIFICATION_TYPES = Config.get('/constants/NOTIFICATION_TYPES')

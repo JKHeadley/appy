@@ -1,7 +1,7 @@
 'use strict'
 
 const Jwt = require('jsonwebtoken')
-const Config = require('../../config/config')
+const Config = require('../../config')
 const errorHelper = require('../utilities/errorHelper')
 
 function createToken(user, session, scope, expirationPeriod, logger) {

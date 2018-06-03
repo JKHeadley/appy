@@ -2,7 +2,7 @@
 
 const nes = require('nes')
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 
 const authStrategy = Config.get('/restHapiConfig/authStrategy')
 
