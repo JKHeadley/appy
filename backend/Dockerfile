@@ -1,8 +1,5 @@
 FROM node:carbon
 
-# Intsall gulp globally first
-RUN npm install gulp -g
-
 # Create and set the working directory
 RUN mkdir /backend
 WORKDIR /backend
@@ -18,4 +15,4 @@ RUN npm install
 EXPOSE 8125
 
 # Run the start script when the container launches
-CMD ["gulp"]
+CMD ["npm", "run", "start"]
