@@ -3,10 +3,10 @@
 const Joi = require('joi')
 const Boom = require('boom')
 const Chalk = require('chalk')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const Config = require('../../config')
-const auditLog = require('../policies/audit-log')
+const auditLog = require('../policies/audit-log.policy')
 
 const authStrategy = Config.get('/restHapiConfig/authStrategy')
 

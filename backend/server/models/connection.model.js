@@ -2,9 +2,9 @@
 
 const RestHapi = require('rest-hapi')
 const Boom = require('boom')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
-const connectionUpdateAuth = require('../policies/connectionAuth')
+const connectionUpdateAuth = require('../policies/connection-auth.policy')
 
 module.exports = function(mongoose) {
   var modelName = 'connection'

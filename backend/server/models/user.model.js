@@ -3,12 +3,12 @@
 const Bcrypt = require('bcryptjs')
 const GeneratePassword = require('password-generator')
 const RestHapi = require('rest-hapi')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
-const permissionAuth = require('../policies/permissionAuth')
-const groupAuth = require('../policies/groupAuth')
-const rankAuth = require('../policies/roleAuth').rankAuth
-const promoteAuth = require('../policies/roleAuth').promoteAuth
+const permissionAuth = require('../policies/permission-auth.policy')
+const groupAuth = require('../policies/group-auth.policy')
+const rankAuth = require('../policies/role-auth.policy').rankAuth
+const promoteAuth = require('../policies/role-auth.policy').promoteAuth
 
 const Config = require('../../config')
 

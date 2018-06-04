@@ -3,10 +3,10 @@
 const Mongoose = require('mongoose')
 const Boom = require('boom')
 const RestHapi = require('rest-hapi')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const Config = require('../../config')
-const Token = require('../utilities/token')
+const Token = require('../utilities/create-token')
 
 const AUTH_STRATEGIES = Config.get('/constants/AUTH_STRATEGIES')
 const socialPassword = Config.get('/socialPassword')

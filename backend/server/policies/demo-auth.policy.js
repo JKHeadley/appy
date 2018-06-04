@@ -1,7 +1,7 @@
 'use strict'
 
 const Boom = require('boom')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const internals = {}
 

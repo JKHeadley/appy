@@ -8,10 +8,10 @@ const RestHapi = require('rest-hapi')
 const Bcrypt = require('bcryptjs')
 const _ = require('lodash')
 const GeneratePassword = require('password-generator')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const Config = require('../../config')
-const auditLog = require('../policies/audit-log')
+const auditLog = require('../policies/audit-log.policy')
 
 const USER_ROLES = Config.get('/constants/USER_ROLES')
 const WEB_TITLE = Config.get('/constants/WEB_TITLE')

@@ -2,7 +2,7 @@
 
 const Jwt = require('jsonwebtoken')
 const Config = require('../../config')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('./error-helper')
 
 function createToken(user, session, scope, expirationPeriod, logger) {
   const Log = logger.bind('token')

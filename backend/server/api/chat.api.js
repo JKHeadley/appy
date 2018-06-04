@@ -4,7 +4,7 @@ const Joi = require('joi')
 const Boom = require('boom')
 const Chalk = require('chalk')
 const RestHapi = require('rest-hapi')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const Config = require('../../config')
 

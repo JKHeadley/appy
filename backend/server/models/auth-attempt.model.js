@@ -1,7 +1,7 @@
 'use strict'
 
 const Config = require('../../config')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 module.exports = function(mongoose) {
   const modelName = 'authAttempt'

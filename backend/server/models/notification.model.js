@@ -3,10 +3,10 @@
 const Q = require('q')
 const RestHapi = require('rest-hapi')
 const _ = require('lodash')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const Config = require('../../config')
-const notificationUpdateAuth = require('../policies/notificationAuth')
+const notificationUpdateAuth = require('../policies/notification-auth.policy')
 
 const NOTIFICATION_TYPES = Config.get('/constants/NOTIFICATION_TYPES')
 
