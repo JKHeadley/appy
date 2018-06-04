@@ -10,6 +10,7 @@
     "start:local": "NODE_ENV=local nodemon index.js",
     "start:dev": "NODE_ENV=development nodemon index.js",
     "start:prod": "NODE_ENV=production node index.js",
+    "test": "jest --coverage",
     "seed": "node scripts/seed.js",
     "update-permissions": "node scripts/update-permissions.js",
     "precommit": "lint-staged",
@@ -69,8 +70,10 @@
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.1.0",
     "husky": "^0.14.3",
+    "jest": "^23.1.0",
     "lint-staged": "^7.1.0",
     "nodemon": "^1.17.5",
-    "prettier": "1.12.1"
+    "prettier": "1.12.1",
+    "rewire": "^4.0.1"
   }
 }
