@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
 const pickDeep = require('lodash-pickdeep')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 _.mixin({ pickDeep: pickDeep }, { chain: true })
 

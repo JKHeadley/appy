@@ -2,7 +2,7 @@
 
 const Boom = require('boom')
 const RestHapi = require('rest-hapi')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const internals = {}
 

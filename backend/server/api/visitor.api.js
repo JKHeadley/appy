@@ -5,7 +5,7 @@ const RestHapi = require('rest-hapi')
 
 const iplocation = require('iplocation')
 const useragent = require('useragent')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 module.exports = function(server, mongoose, logger) {
   // Record Visitor Endpoint

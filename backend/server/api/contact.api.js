@@ -2,7 +2,7 @@
 
 const Joi = require('joi')
 const Chalk = require('chalk')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const Config = require('../../config')
 

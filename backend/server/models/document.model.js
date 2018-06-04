@@ -1,7 +1,7 @@
 'use strict'
 
 const RestHapi = require('rest-hapi')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const Config = require('../../config')
 

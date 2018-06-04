@@ -6,10 +6,10 @@ const Chalk = require('chalk')
 const _ = require('lodash')
 const zxcvbn = require('zxcvbn')
 const RestHapi = require('rest-hapi')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const Config = require('../../config')
-const auditLog = require('../policies/audit-log')
+const auditLog = require('../policies/audit-log.policy')
 
 const USER_ROLES = Config.get('/constants/USER_ROLES')
 const REQUIRED_PASSWORD_STRENGTH = Config.get(
@@ -17,7 +17,7 @@ const REQUIRED_PASSWORD_STRENGTH = Config.get(
 )
 const authStrategy = Config.get('/restHapiConfig/authStrategy')
 
-const rankAuth = require('../policies/roleAuth').rankAuth
+const rankAuth = require('../policies/role-auth.policy').rankAuth
 
 const enableDemoAuth = Config.get('/enableDemoAuth')
 const demoAuth = enableDemoAuth ? 'demoAuth' : null

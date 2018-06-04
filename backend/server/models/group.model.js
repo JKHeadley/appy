@@ -1,8 +1,8 @@
 'use strict'
 
-const permissionAuth = require('../policies/permissionAuth')
-const groupAuth = require('../policies/groupAuth')
-const rankAuth = require('../policies/roleAuth').rankAuth
+const permissionAuth = require('../policies/permission-auth.policy')
+const groupAuth = require('../policies/group-auth.policy')
+const rankAuth = require('../policies/role-auth.policy').rankAuth
 
 const Config = require('../../config')
 

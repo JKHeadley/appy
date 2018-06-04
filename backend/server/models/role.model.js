@@ -3,8 +3,8 @@
 const _ = require('lodash')
 const Config = require('../../config')
 
-const permissionAuth = require('../policies/permissionAuth')
-const rankAuth = require('../policies/roleAuth').rankAuth
+const permissionAuth = require('../policies/permission-auth.policy')
+const rankAuth = require('../policies/role-auth.policy').rankAuth
 
 const enableDemoAuth = Config.get('/enableDemoAuth')
 const demoAuth = enableDemoAuth ? 'demoAuth' : null

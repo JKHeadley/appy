@@ -6,7 +6,7 @@ const Chalk = require('chalk')
 const Uuid = require('node-uuid')
 const im = require('imagemagick')
 const fs = require('fs')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const AWS = require('aws-sdk')
 

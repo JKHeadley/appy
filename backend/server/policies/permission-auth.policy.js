@@ -2,23 +2,23 @@
 
 const Boom = require('boom')
 const RestHapi = require('rest-hapi')
-const errorHelper = require('../utilities/errorHelper')
+const errorHelper = require('../utilities/error-helper')
 
 const internals = {}
 
 /**
- * Policy to enforce auth for assigning groups.
+ * Policy to enforce auth for assigning permissions.
  * @param mongoose
- * @param isOwner: True if group is the owner model, false otherwise.
- * @returns {groupAuth}
+ * @param isOwner: True if permission is the owner model, false otherwise.
+ * @returns {permissionAuth}
  */
-internals.groupAuth = function(mongoose, isOwner) {
-  const groupAuth = async function groupAuth(request, h) {
-    let Log = request.logger.bind('groupAuth')
+internals.permissionAuth = function(mongoose, isOwner) {
+  const permissionAuth = async function permissionAuth(request, h) {
+    let Log = request.logger.bind('permissionAuth')
 
     try {
-      // Return next if this isn't a group association
-      if (!isOwner && !request.path.includes('group')) {
+      // Return next if this isn't a permission association
+      if (!isOwner && !request.path.includes('permission')) {
         return h.continue
       }
       let userScope = request.auth.credentials.scope
@@ -45,12 +45,16 @@ internals.groupAuth = function(mongoose, isOwner) {
         )
         return internals.formatResponse(canAssign, h, Log)
       }
-      // Multiple groups are being assigned so we need to check each one.
+      // Multiple permissions are being assigned so we need to check each one.
       else {
-        const groupIds = request.payload.map(object => object.childId || object)
+        const permissionIds = request.payload.map(
+          object => object.childId || object
+        )
         let promises = []
-        groupIds.forEach(groupId =>
-          promises.push(internals.canAssign(groupId, userScope, mongoose, Log))
+        permissionIds.forEach(permissionId =>
+          promises.push(
+            internals.canAssign(permissionId, userScope, mongoose, Log)
+          )
         )
 
         let result = await Promise.all(promises)
@@ -65,33 +69,30 @@ internals.groupAuth = function(mongoose, isOwner) {
     }
   }
 
-  groupAuth.applyPoint = 'onPreHandler'
-  return groupAuth
+  permissionAuth.applyPoint = 'onPreHandler'
+  return permissionAuth
 }
-internals.groupAuth.applyPoint = 'onPreHandler'
+internals.permissionAuth.applyPoint = 'onPreHandler'
 
-internals.canAssign = async function(groupId, userScope, mongoose, logger) {
+internals.canAssign = async function(
+  permissionId,
+  userScope,
+  mongoose,
+  logger
+) {
   const Log = logger.bind()
-  try {
-    const Group = mongoose.model('group')
 
-    let group = await RestHapi.find(
-      Group,
-      groupId,
-      { $embed: ['permissions'], $flatten: true },
-      Log
-    )
-    for (let permission of group.permissions) {
-      // Check if the user scope intersects (contains values of) the assign scope.
-      if (
-        !userScope.filter(
-          scope => permission.assignScope.indexOf(scope) > -1
-        )[0]
-      ) {
-        return false
-      }
-    }
-    return true
+  try {
+    const Permission = mongoose.model('permission')
+
+    let result = await RestHapi.find(Permission, permissionId, {}, Log)
+    let assignScope = result.assignScope
+    // Check if the user scope intersects (contains values of) the assign scope.
+    let canAssign = !!userScope.filter(
+      scope => assignScope.indexOf(scope) > -1
+    )[0]
+
+    return canAssign
   } catch (err) {
     errorHelper.handleError(err, Log)
   }
@@ -99,6 +100,7 @@ internals.canAssign = async function(groupId, userScope, mongoose, logger) {
 
 internals.formatResponse = function(canAssign, h, logger) {
   const Log = logger.bind()
+
   try {
     if (canAssign.isBoom) {
       throw canAssign
@@ -107,11 +109,11 @@ internals.formatResponse = function(canAssign, h, logger) {
     if (canAssign) {
       return h.continue
     } else {
-      throw Boom.forbidden('Higher role required to assign group')
+      throw Boom.forbidden('Higher role required to assign permission')
     }
   } catch (err) {
     errorHelper.handleError(err, Log)
   }
 }
 
-module.exports = internals.groupAuth
+module.exports = internals.permissionAuth
