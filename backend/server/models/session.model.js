@@ -43,7 +43,7 @@ module.exports = function(mongoose) {
         const key = Uuid.v4()
 
         let salt = await Bcrypt.genSalt(10)
-        let hash = Bcrypt.hash(key, salt)
+        let hash = await Bcrypt.hash(key, salt)
 
         return { key, hash }
       } catch (err) {
