@@ -146,7 +146,7 @@ module.exports = function(server, mongoose, logger) {
                 Log
               )
             case AUTH_STRATEGIES.SESSION:
-              return null
+              return h.continue
             case AUTH_STRATEGIES.REFRESH:
               return Token(
                 request.pre.user,
@@ -165,7 +165,7 @@ module.exports = function(server, mongoose, logger) {
         method: function(request, h) {
           switch (authStrategy) {
             case AUTH_STRATEGIES.TOKEN:
-              return null
+              return h.continue
             case AUTH_STRATEGIES.SESSION:
               return Token(
                 null,
@@ -175,7 +175,7 @@ module.exports = function(server, mongoose, logger) {
                 Log
               )
             case AUTH_STRATEGIES.REFRESH:
-              return null
+              return h.continue
             default:
               return h.continue
           }
@@ -186,9 +186,9 @@ module.exports = function(server, mongoose, logger) {
         method: function(request, h) {
           switch (authStrategy) {
             case AUTH_STRATEGIES.TOKEN:
-              return null
+              return h.continue
             case AUTH_STRATEGIES.SESSION:
-              return null
+              return h.continue
             case AUTH_STRATEGIES.REFRESH:
               return Token(
                 null,
@@ -345,6 +345,7 @@ module.exports = function(server, mongoose, logger) {
             if (!request.pre.user.isActive) {
               throw Boom.unauthorized('Account is inactive.')
             }
+            return h.continue
           }
         },
         {
@@ -353,6 +354,7 @@ module.exports = function(server, mongoose, logger) {
             if (!request.pre.user.isEnabled) {
               throw Boom.unauthorized('Account is disabled.')
             }
+            return h.continue
           }
         },
         {
@@ -361,6 +363,7 @@ module.exports = function(server, mongoose, logger) {
             if (request.pre.user.isDeleted) {
               throw Boom.badRequest('Account is deleted.')
             }
+            return h.continue
           }
         },
         {
@@ -368,7 +371,7 @@ module.exports = function(server, mongoose, logger) {
           method: async function(request, h) {
             try {
               if (authStrategy === AUTH_STRATEGIES.TOKEN) {
-                return null
+                return h.continue
               } else {
                 return await Session.createInstance(request.pre.user, Log)
               }
@@ -400,7 +403,7 @@ module.exports = function(server, mongoose, logger) {
                   Log
                 )
               case AUTH_STRATEGIES.SESSION:
-                return null
+                return h.continue
               case AUTH_STRATEGIES.REFRESH:
                 return Token(
                   request.pre.user,
@@ -419,7 +422,7 @@ module.exports = function(server, mongoose, logger) {
           method: function(request, h) {
             switch (authStrategy) {
               case AUTH_STRATEGIES.TOKEN:
-                return null
+                return h.continue
               case AUTH_STRATEGIES.SESSION:
                 return Token(
                   null,
@@ -429,7 +432,7 @@ module.exports = function(server, mongoose, logger) {
                   Log
                 )
               case AUTH_STRATEGIES.REFRESH:
-                return null
+                return h.continue
               default:
                 break
             }
@@ -440,9 +443,9 @@ module.exports = function(server, mongoose, logger) {
           method: function(request, h) {
             switch (authStrategy) {
               case AUTH_STRATEGIES.TOKEN:
-                return null
+                return h.continue
               case AUTH_STRATEGIES.SESSION:
-                return null
+                return h.continue
               case AUTH_STRATEGIES.REFRESH:
                 return Token(
                   null,

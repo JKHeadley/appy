@@ -25,7 +25,7 @@ module.exports = function(server, mongoose, logger) {
 
         const visitor = Object.assign(result, { browser: agent.family })
 
-        await RestHapi.create(Visitor, visitor, Log)
+        return RestHapi.create(Visitor, visitor, Log)
       } catch (err) {
         errorHelper.handleError(err, Log)
       }
