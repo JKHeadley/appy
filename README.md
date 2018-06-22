@@ -30,7 +30,7 @@ $ cd appy
 
 > **NOTE**: Docker commands might take some time on the first build. After the first build they should be relatively quick.
 
-First seed the db:
+First seed the db with data (only required once):
 
 ```bash
 $ docker-compose build && docker-compose run --rm api npm run seed
