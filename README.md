@@ -12,6 +12,10 @@ Just want an API server? Try [appy-backend](https://github.com/JKHeadley/appy-ba
 
 ## Requirements
 
+Just [Docker](https://docs.docker.com/install)
+
+**OR**
+
 You need [Node.js](https://nodejs.org/en/) installed (>=8.10.0) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
 
 
@@ -23,6 +27,37 @@ Download from GitHub:
 $ git clone https://github.com/JKHeadley/appy.git
 $ cd appy
 ```
+
+## Using Docker
+
+> **NOTE**: Docker commands might take some time on the first build. After the first build they should be relatively quick.
+
+First seed the db:
+
+```bash
+docker-compose build && docker-compose run --rm api npm run seed
+```
+
+Once seeding is done, run the app:
+
+```bash
+$ docker-compose up --build
+```
+
+Point your browser to http://localhost:3000/ to view the app, http://localhost:8080/ to view the swagger docs, or click on one of the test accounts below to login:
+
+> **NOTE**: Password for all seed users is `root`.
+
+**<a href="http://localhost:3000/login?email=test@user.com&password=root" target="_blank">User</a>**
+
+**<a href="http://localhost:3000/login?email=test@admin.com&password=root" target="_blank">Admin</a>**
+
+**<a href="http://localhost:3000/login?email=test@superadmin.com&password=root" target="_blank">Super Admin</a>**
+
+
+...that's it, have fun!
+
+## Without Docker
 
 Install dependencies:
 
@@ -54,8 +89,7 @@ To seed your database with some data, run:
 $ npm run seed
 ```
 
-NOTE: The password for all seed users is ``root``.
-
+> **NOTE**: The password for all seed users is ``root``.
 
 ### Running appy
 
@@ -80,10 +114,6 @@ Point your browser to http://localhost:3000/ to view the app, or click on one of
 **<a href="http://localhost:3000/login?email=test@admin.com&password=root" target="_blank">Admin</a>**
 
 **<a href="http://localhost:3000/login?email=test@superadmin.com&password=root" target="_blank">Super Admin</a>**
-
-
-
-...that's it, have fun!
 
 
 Documentation
