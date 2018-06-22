@@ -35,7 +35,7 @@ $ cd appy
 First seed the db:
 
 ```bash
-docker-compose build && docker-compose run --rm api npm run seed
+$ docker-compose build && docker-compose run --rm api npm run seed
 ```
 
 Once seeding is done, run the app:
