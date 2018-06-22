@@ -1,5 +1,17 @@
 <p align="center"><a href="https://appyapp.io" target="_blank" rel="noopener noreferrer"><img width="262" height="295" src="https://user-images.githubusercontent.com/12631935/39099920-eaab3d3e-4636-11e8-9955-b53be05e1c13.png" alt="appy logo"></a></p>
 
+<p align="center">
+  <a href="https://github.com/vuejs/vue">
+    <img src="https://img.shields.io/badge/vue-2.5.16-brightgreen.svg" alt="vue">
+  </a>
+  <a href="https://github.com/JKHeadley/appy/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
+  </a>
+  <a href="https://github.com/JKHeadley/appy/releases">
+    <img src="https://img.shields.io/github/release/JKHeadley/appy/all.svg" alt="GitHub release">
+  </a>
+</p>
+
 **appy** is a full featured boilerplate web app designed as an end to end solution for mvp development. The front end is built on [Vue.js](https://vuejs.org) and utilizes the [AdminLTE](https://almsaeedstudio.com) UI template. The backend implements a hapi server (via [rest-hapi](https://github.com/JKHeadley/rest-hapi)) with a MongoDB datastore. 
 
 ![appy-dashboard](https://user-images.githubusercontent.com/12631935/39155220-f691c77e-4705-11e8-9b83-2129a07c6d35.png)
