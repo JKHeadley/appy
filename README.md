@@ -1,12 +1,12 @@
 <p align="center"><a href="https://appyapp.io" target="_blank" rel="noopener noreferrer"><img width="262" height="295" src="https://user-images.githubusercontent.com/12631935/39099920-eaab3d3e-4636-11e8-9955-b53be05e1c13.png" alt="appy logo"></a></p>
 
-**Live Demo**: https://appyapp.io/#live_demo
-
 **appy** is a full featured boilerplate web app designed as an end to end solution for mvp development. The front end is built on [Vue.js](https://vuejs.org) and utilizes the [AdminLTE](https://almsaeedstudio.com) UI template. The backend implements a hapi server (via [rest-hapi](https://github.com/JKHeadley/rest-hapi)) with a MongoDB datastore. 
 
 ![appy-dashboard](https://user-images.githubusercontent.com/12631935/39155220-f691c77e-4705-11e8-9b83-2129a07c6d35.png)
 
 Just want an API server? Try [appy-backend](https://github.com/JKHeadley/appy-backend)
+
+**Live Demo**: https://appyapp.io/#live_demo
 
 ## Requirements
 
