@@ -1,5 +1,3 @@
-**This project is undergoing a major update. Complete README and docs coming soon.**
-
 <p align="center"><a href="https://appyapp.io" target="_blank" rel="noopener noreferrer"><img width="262" height="295" src="https://user-images.githubusercontent.com/12631935/39099920-eaab3d3e-4636-11e8-9955-b53be05e1c13.png" alt="appy logo"></a></p>
 
 **Live Demo**: https://appyapp.io/#live_demo
@@ -120,4 +118,6 @@ Point your browser to http://localhost:3000/ to view the app, or click on one of
 License
 -------
 appy is an open source project by [Justin Headley](http://justinheadley.com) that is licensed under [MIT](http://opensource.org/licenses/MIT).
+
+**This project is undergoing a major update. Complete README and docs coming soon.**
 
