@@ -2,6 +2,7 @@
 
 const Bcrypt = require('bcryptjs')
 const Uuid = require('node-uuid')
+const errorHelper = require('../utilities/error-helper')
 
 module.exports = function(mongoose) {
   const modelName = 'session'
@@ -36,60 +37,57 @@ module.exports = function(mongoose) {
       }
     },
 
-    generateKeyHash: function(Log) {
-      const key = Uuid.v4()
+    generateKeyHash: async function(logger) {
+      const Log = logger.bind()
+      try {
+        const key = Uuid.v4()
 
-      return Bcrypt.genSalt(10)
-        .then(function(salt) {
-          return Bcrypt.hash(key, salt)
-        })
-        .then(function(hash) {
-          return { key, hash }
-        })
-    },
+        let salt = await Bcrypt.genSalt(10)
+        let hash = await Bcrypt.hash(key, salt)
 
-    createInstance: function(user, Log) {
-      let newSession = {}
-
-      const document = {
-        user: user._id,
-        key: Uuid.v4(),
-        passwordHash: user.password,
-        createdAt: Date.now()
+        return { key, hash }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
       }
-
-      return mongoose
-        .model('session')
-        .create(document)
-        .then(function(result) {
-          newSession = result
-
-          const query = {
-            user: user._id,
-            key: { $ne: document.key }
-          }
-
-          return mongoose.model('session').findOneAndRemove(query)
-        })
-        .then(function(result) {
-          return newSession
-        })
     },
 
-    findByCredentials: function(_id, key, Log) {
-      let session = {}
+    createInstance: async function(user, logger) {
+      const Log = logger.bind()
+      try {
+        const document = {
+          user: user._id,
+          key: Uuid.v4(),
+          passwordHash: user.password,
+          createdAt: Date.now()
+        }
 
-      return mongoose
-        .model('session')
-        .findById(_id)
-        .then(function(result) {
-          session = result
-          if (!session) {
-            return false
-          }
+        let newSession = await mongoose.model('session').create(document)
 
-          return session.key === key ? session : false
-        })
+        const query = {
+          user: user._id,
+          key: { $ne: document.key }
+        }
+
+        await mongoose.model('session').findOneAndRemove(query)
+
+        return newSession
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
+    },
+
+    findByCredentials: async function(_id, key, logger) {
+      const Log = logger.bind()
+      try {
+        let session = await mongoose.model('session').findById(_id)
+        if (!session) {
+          return false
+        }
+
+        return session.key === key ? session : false
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
   }
 

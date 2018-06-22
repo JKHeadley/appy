@@ -1,8 +1,10 @@
 'use strict'
 
 const RestHapi = require('rest-hapi')
+const Boom = require('boom')
+const errorHelper = require('../utilities/error-helper')
 
-const connectionUpdateAuth = require('../policies/connectionAuth')
+const connectionUpdateAuth = require('../policies/connection-auth.policy')
 
 module.exports = function(mongoose) {
   var modelName = 'connection'
@@ -55,112 +57,118 @@ module.exports = function(mongoose) {
         }
       },
       create: {
-        pre: function(payload, request, Log) {
-          const Connection = mongoose.model('connection')
-          const Notification = mongoose.model('notification')
-          // Connections must be made both ways
-          if (!payload.isSecondary) {
-            const secondaryPayload = {
-              isSecondary: true
-            }
-            if (payload.connectedUser) {
-              secondaryPayload.primaryUser = payload.connectedUser
-            }
-            if (payload.primaryUser) {
-              secondaryPayload.connectedUser = payload.primaryUser
-            }
-            if (payload.isContact) {
-              secondaryPayload.isContact = payload.isContact
-            }
-            if (payload.isFollowed) {
-              secondaryPayload.isFollowing = payload.isFollowed
-            }
-            if (payload.isFollowing) {
-              secondaryPayload.isFollowed = payload.isFollowing
-            }
-
-            return RestHapi.create(Connection, secondaryPayload, Log).then(
-              function(result) {
-                Notification.createConnectionNotification(
-                  payload,
-                  payload,
-                  request.server,
-                  Log
-                )
-                return payload
+        pre: async function(payload, request, logger) {
+          const Log = logger.bind()
+          try {
+            const Connection = mongoose.model('connection')
+            const Notification = mongoose.model('notification')
+            // Connections must be made both ways
+            if (!payload.isSecondary) {
+              const secondaryPayload = {
+                isSecondary: true
               }
-            )
-          } else {
-            delete payload.isSecondary
-            return payload
+              if (payload.connectedUser) {
+                secondaryPayload.primaryUser = payload.connectedUser
+              }
+              if (payload.primaryUser) {
+                secondaryPayload.connectedUser = payload.primaryUser
+              }
+              if (payload.isContact) {
+                secondaryPayload.isContact = payload.isContact
+              }
+              if (payload.isFollowed) {
+                secondaryPayload.isFollowing = payload.isFollowed
+              }
+              if (payload.isFollowing) {
+                secondaryPayload.isFollowed = payload.isFollowing
+              }
+
+              await RestHapi.create(Connection, secondaryPayload, Log)
+
+              Notification.createConnectionNotification(
+                payload,
+                payload,
+                request.server,
+                Log
+              )
+              return payload
+            } else {
+              delete payload.isSecondary
+              return payload
+            }
+          } catch (err) {
+            errorHelper.handleError(err, Log)
           }
         }
       },
       update: {
-        pre: function(_id, payload, request, Log) {
-          const Connection = mongoose.model('connection')
-          const Notification = mongoose.model('notification')
-          let primaryConnection = {}
-          // Connections must be updated both ways
-          if (!payload.isSecondary) {
-            const secondaryPayload = {
-              isSecondary: true
-            }
-            if (payload.connectedUser) {
-              secondaryPayload.primaryUser = payload.connectedUser
-            }
-            if (payload.primaryUser) {
-              secondaryPayload.connectedUser = payload.primaryUser
-            }
-            if (payload.isContact) {
-              secondaryPayload.isContact = payload.isContact
-            }
-            if (payload.isFollowed) {
-              secondaryPayload.isFollowing = payload.isFollowed
-            }
-            if (payload.isFollowing) {
-              secondaryPayload.isFollowed = payload.isFollowing
-            }
+        pre: async function(_id, payload, request, logger) {
+          const Log = logger.bind()
+          try {
+            const Connection = mongoose.model('connection')
+            const Notification = mongoose.model('notification')
+            // Connections must be updated both ways
+            if (!payload.isSecondary) {
+              const secondaryPayload = {
+                isSecondary: true
+              }
+              if (payload.connectedUser) {
+                secondaryPayload.primaryUser = payload.connectedUser
+              }
+              if (payload.primaryUser) {
+                secondaryPayload.connectedUser = payload.primaryUser
+              }
+              if (payload.isContact) {
+                secondaryPayload.isContact = payload.isContact
+              }
+              if (payload.isFollowed) {
+                secondaryPayload.isFollowing = payload.isFollowed
+              }
+              if (payload.isFollowing) {
+                secondaryPayload.isFollowed = payload.isFollowing
+              }
 
-            return RestHapi.find(Connection, _id, {}, Log)
-              .then(function(result) {
-                if (!result) {
-                  // TODO: Use actual error once rest-hapi supports it.
-                  throw 'Connection not found.' // eslint-disable-line no-throw-literal
-                }
-                primaryConnection = result
-                return RestHapi.list(
-                  Connection,
-                  {
-                    primaryUser: primaryConnection.connectedUser,
-                    connectedUser: primaryConnection.primaryUser
-                  },
-                  Log
-                )
-              })
-              .then(function(result) {
-                if (!result.docs[0]) {
-                  // TODO: Use actual error once rest-hapi supports it.
-                  throw 'Secondary connection not found.' // eslint-disable-line no-throw-literal
-                }
-                return RestHapi.update(
-                  Connection,
-                  result.docs[0]._id,
-                  secondaryPayload,
-                  Log
-                ).then(function(result) {
-                  Notification.createConnectionNotification(
-                    primaryConnection,
-                    payload,
-                    request.server,
-                    Log
-                  )
-                  return payload
-                })
-              })
-          } else {
-            delete payload.isSecondary
-            return payload
+              let primaryConnection = await RestHapi.find(
+                Connection,
+                _id,
+                {},
+                Log
+              )
+              if (!primaryConnection) {
+                throw Boom.badRequest('Connection not found.')
+              }
+              let result = await RestHapi.list(
+                Connection,
+                {
+                  primaryUser: primaryConnection.connectedUser,
+                  connectedUser: primaryConnection.primaryUser
+                },
+                Log
+              )
+
+              if (!result.docs[0]) {
+                throw Boom.badRequest('Secondary connection not found.')
+              }
+              await RestHapi.update(
+                Connection,
+                result.docs[0]._id,
+                secondaryPayload,
+                Log
+              )
+
+              Notification.createConnectionNotification(
+                primaryConnection,
+                payload,
+                request.server,
+                Log
+              )
+              return payload
+            } else {
+              delete payload.isSecondary
+              return payload
+            }
+          } catch (err) {
+            errorHelper.handleError(err, Log)
           }
         }
       }

@@ -1,6 +1,7 @@
 'use strict'
 
 const RestHapi = require('rest-hapi')
+const errorHelper = require('../utilities/error-helper')
 
 module.exports = function(mongoose) {
   var modelName = 'message'
@@ -41,17 +42,21 @@ module.exports = function(mongoose) {
         }
       },
       create: {
-        post: function(document, request, result, Log) {
-          const Conversation = mongoose.model('conversation')
-          // Every new message is set as the latest message in the conversation
-          return RestHapi.update(
-            Conversation,
-            document.conversation,
-            { lastMessage: document._id },
-            Log
-          ).then(function() {
+        post: async function(document, request, result, logger) {
+          const Log = logger.bind()
+          try {
+            const Conversation = mongoose.model('conversation')
+            // Every new message is set as the latest message in the conversation
+            await RestHapi.update(
+              Conversation,
+              document.conversation,
+              { lastMessage: document._id },
+              Log
+            )
             return document
-          })
+          } catch (err) {
+            errorHelper.handleError(err, Log)
+          }
         }
       }
     }

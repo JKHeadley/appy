@@ -1,6 +1,7 @@
 'use strict'
 
-const Config = require('../../config/config')
+const Config = require('../../config')
+const errorHelper = require('../utilities/error-helper')
 
 module.exports = function(mongoose) {
   const modelName = 'authAttempt'
@@ -28,60 +29,52 @@ module.exports = function(mongoose) {
     routeOptions: {
       alias: 'auth-attempt'
     },
-    createInstance: function(ip, email, Log) {
-      const document = {
-        ip,
-        email: email.toLowerCase(),
-        time: new Date()
-      }
+    createInstance: async function(ip, email, Log) {
+      try {
+        const document = {
+          ip,
+          email: email.toLowerCase(),
+          time: new Date()
+        }
 
-      return mongoose
-        .model('authAttempt')
-        .create(document)
-        .then(function(docs) {
-          return docs
-        })
+        return await mongoose.model('authAttempt').create(document)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     },
 
-    abuseDetected: function(ip, email, Log) {
-      const self = this
+    abuseDetected: async function(ip, email, Log) {
+      try {
+        const self = this
 
-      const LOCKOUT_PERIOD = Config.get('/constants/LOCKOUT_PERIOD')
-      const expirationDate = LOCKOUT_PERIOD
-        ? { $gt: Date.now() - LOCKOUT_PERIOD * 60000 }
-        : { $lt: Date.now() }
+        const LOCKOUT_PERIOD = Config.get('/constants/LOCKOUT_PERIOD')
+        const expirationDate = LOCKOUT_PERIOD
+          ? { $gt: Date.now() - LOCKOUT_PERIOD * 60000 }
+          : { $lt: Date.now() }
 
-      let abusiveIpCount = {}
-      let abusiveIpUserCount = {}
+        let query = {
+          ip,
+          time: expirationDate
+        }
 
-      const query = {
-        ip,
-        time: expirationDate
+        const abusiveIpCount = await self.count(query)
+        query = {
+          ip,
+          email: email.toLowerCase(),
+          time: expirationDate
+        }
+
+        const abusiveIpUserCount = await self.count(query)
+
+        const AUTH_ATTEMPTS = Config.get('/constants/AUTH_ATTEMPTS')
+        const ipLimitReached = abusiveIpCount >= AUTH_ATTEMPTS.FOR_IP
+        const ipUserLimitReached =
+          abusiveIpUserCount >= AUTH_ATTEMPTS.FOR_IP_AND_USER
+
+        return ipLimitReached || ipUserLimitReached
+      } catch (err) {
+        errorHelper.handleError(err, Log)
       }
-
-      return self
-        .count(query)
-        .then(function(result) {
-          abusiveIpCount = result
-
-          const query = {
-            ip,
-            email: email.toLowerCase(),
-            time: expirationDate
-          }
-
-          return self.count(query)
-        })
-        .then(function(result) {
-          abusiveIpUserCount = result
-
-          const AUTH_ATTEMPTS = Config.get('/constants/AUTH_ATTEMPTS')
-          const ipLimitReached = abusiveIpCount >= AUTH_ATTEMPTS.FOR_IP
-          const ipUserLimitReached =
-            abusiveIpUserCount >= AUTH_ATTEMPTS.FOR_IP_AND_USER
-
-          return ipLimitReached || ipUserLimitReached
-        })
     }
   }
 

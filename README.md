@@ -51,7 +51,7 @@ Also, update values in `config.js` as needed.
 To seed your database with some data, run:
 
 ```
-$ gulp seed
+$ npm run seed
 ```
 
 NOTE: The password for all seed users is ``root``.
@@ -62,24 +62,24 @@ NOTE: The password for all seed users is ``root``.
 #### Backend
 
 ``` bash
-$ gulp
+$ npm run start
 ```
 
-Point your browser to http://localhost:8125/ to view the Swagger docs.
+Point your browser to http://localhost:8080/ to view the Swagger docs.
 
 #### Frontend
 
 ``` bash
-$ npm run dev
+$ npm run start
 ```
 
-Point your browser to http://localhost:8080/ to view the app, or click on one of the test accounts below to login:
+Point your browser to http://localhost:3000/ to view the app, or click on one of the test accounts below to login:
 
-**<a href="http://localhost:8080/login?email=test@user.com&password=root" target="_blank">User</a>**
+**<a href="http://localhost:3000/login?email=test@user.com&password=root" target="_blank">User</a>**
 
-**<a href="http://localhost:8080/login?email=test@admin.com&password=root" target="_blank">Admin</a>**
+**<a href="http://localhost:3000/login?email=test@admin.com&password=root" target="_blank">Admin</a>**
 
-**<a href="http://localhost:8080/login?email=test@superadmin.com&password=root" target="_blank">Super Admin</a>**
+**<a href="http://localhost:3000/login?email=test@superadmin.com&password=root" target="_blank">Super Admin</a>**
 
 
 

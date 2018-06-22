@@ -3,9 +3,10 @@
 const Q = require('q')
 const RestHapi = require('rest-hapi')
 const _ = require('lodash')
+const errorHelper = require('../utilities/error-helper')
 
-const Config = require('../../config/config')
-const notificationUpdateAuth = require('../policies/notificationAuth')
+const Config = require('../../config')
+const notificationUpdateAuth = require('../policies/notification-auth.policy')
 
 const NOTIFICATION_TYPES = Config.get('/constants/NOTIFICATION_TYPES')
 
@@ -62,21 +63,61 @@ module.exports = function(mongoose) {
      * @param connnection: used to set the user properties
      * @param connectionPayload: used to determine the notification type
      * @param server
-     * @param Log
+     * @param logger
      */
-    createConnectionNotification(connnection, connectionPayload, server, Log) {
-      const Notification = mongoose.model('notification')
-      const User = mongoose.model('user')
-      let notification = {
-        primaryUser: connnection.connectedUser,
-        actingUser: connnection.primaryUser
+    async createConnectionNotification(
+      connnection,
+      connectionPayload,
+      server,
+      logger
+    ) {
+      const Log = logger.bind()
+      try {
+        const Notification = mongoose.model('notification')
+        const User = mongoose.model('user')
+        let notification = {
+          primaryUser: connnection.connectedUser,
+          actingUser: connnection.primaryUser
+        }
+        if (connectionPayload.isContact) {
+          notification.type = NOTIFICATION_TYPES.CONTACT
+        } else if (connectionPayload.isFollowing) {
+          notification.type = NOTIFICATION_TYPES.FOLLOW
+        }
+        if (notification.type) {
+          let promises = []
+          promises.push(RestHapi.create(Notification, notification, Log))
+          promises.push(
+            RestHapi.find(
+              User,
+              notification.actingUser,
+              { $select: ['firstName', 'lastName', 'profileImageUrl'] },
+              Log
+            )
+          )
+          let result = await Promise.all(promises)
+          let notification = result[0]
+          notification.actingUser = result[1]
+          server.publish(
+            '/notification/' + notification.primaryUser,
+            notification
+          )
+        }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
       }
-      if (connectionPayload.isContact) {
-        notification.type = NOTIFICATION_TYPES.CONTACT
-      } else if (connectionPayload.isFollowing) {
-        notification.type = NOTIFICATION_TYPES.FOLLOW
-      }
-      if (notification.type) {
+    },
+    /**
+     * Create a notification based on a shared document
+     * @param notification: object used to create the notification
+     * @param server
+     * @param logger
+     */
+    async createDocumentNotification(notification, server, logger) {
+      const Log = logger.bind()
+      try {
+        const Notification = mongoose.model('notification')
+        const User = mongoose.model('user')
         let promises = []
         promises.push(RestHapi.create(Notification, notification, Log))
         promises.push(
@@ -87,51 +128,16 @@ module.exports = function(mongoose) {
             Log
           )
         )
-        Q.all(promises)
-          .then(function(result) {
-            let notification = result[0]
-            notification.actingUser = result[1]
-            server.publish(
-              '/notification/' + notification.primaryUser,
-              notification
-            )
-          })
-          .catch(function(error) {
-            Log.error(error)
-          })
-      }
-    },
-    /**
-     * Create a notification based on a shared document
-     * @param notification: object used to create the notification
-     * @param server
-     * @param Log
-     */
-    createDocumentNotification(notification, server, Log) {
-      const Notification = mongoose.model('notification')
-      const User = mongoose.model('user')
-      let promises = []
-      promises.push(RestHapi.create(Notification, notification, Log))
-      promises.push(
-        RestHapi.find(
-          User,
-          notification.actingUser,
-          { $select: ['firstName', 'lastName', 'profileImageUrl'] },
-          Log
+        let result = await Promise.all(promises)
+        let notification = result[0]
+        notification.actingUser = result[1]
+        server.publish(
+          '/notification/' + notification.primaryUser,
+          notification
         )
-      )
-      Q.all(promises)
-        .then(function(result) {
-          let notification = result[0]
-          notification.actingUser = result[1]
-          server.publish(
-            '/notification/' + notification.primaryUser,
-            notification
-          )
-        })
-        .catch(function(error) {
-          Log.error(error)
-        })
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
   }
 

@@ -1,11 +1,11 @@
 'use strict'
 
 const RestHapi = require('rest-hapi')
-const Q = require('q')
-const Config = require('../../config/config')
+const errorHelper = require('../utilities/error-helper')
+const Config = require('../../config')
 
-const permissionAuth = require('../policies/permissionAuth')
-const rankAuth = require('../policies/roleAuth').rankAuth
+const permissionAuth = require('../policies/permission-auth.policy')
+const rankAuth = require('../policies/role-auth.policy').rankAuth
 
 const enableDemoAuth = Config.get('/enableDemoAuth')
 const demoAuth = enableDemoAuth ? 'demoAuth' : null
@@ -71,19 +71,20 @@ module.exports = function(mongoose) {
     /**
      * Gets the effective permissions for a user which are determined by the permissions hierarchy.
      * @param user
-     * @param Log
+     * @param logger
      * @returns {*|Promise|Promise.<TResult>}
      */
-    getEffectivePermissions: function(user, Log) {
-      const User = mongoose.model('user')
+    getEffectivePermissions: async function(user, logger) {
+      const Log = logger.bind('getEffectivePermissions')
+      try {
+        const User = mongoose.model('user')
 
-      return RestHapi.find(
-        User,
-        user._id,
-        { $embed: ['permissions', 'role.permissions', 'groups.permissions'] },
-        Log
-      ).then(function(result) {
-        let user = result
+        user = await RestHapi.find(
+          User,
+          user._id,
+          { $embed: ['permissions', 'role.permissions', 'groups.permissions'] },
+          Log
+        )
 
         // base permissions are set by the user's role
         const permissions = user.role.permissions
@@ -131,46 +132,53 @@ module.exports = function(mongoose) {
         })
 
         return permissions
-      })
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     },
 
     /**
      * Gets scope specific to the user. By default this is just 'user-{userId}'.
      * @param user
-     * @param Log
+     * @param logger
      * @returns {*|Promise|Promise.<TResult>}
      */
-    getSpecificScope: function(user, Log) {
-      const User = mongoose.model('user')
+    getSpecificScope: async function(user, logger) {
+      const Log = logger.bind('getSpecificScope')
+      try {
+        const User = mongoose.model('user')
 
-      return RestHapi.find(User, user._id, {}, Log).then(function(result) {
-        let user = result
+        user = await RestHapi.find(User, user._id, {}, Log)
 
         const scope = []
 
         scope.push('user-' + user._id)
 
         return scope
-      })
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     },
 
     /**
      * Gets the scope for a user, which consists of their role name, group names, effective permissions, and
      * any permissions specific to the user.
      * @param user
-     * @param Log
+     * @param logger
      * @returns {*|Promise|Promise.<TResult>}
      */
-    getScope: function(user, Log) {
-      const User = mongoose.model('user')
-      const promises = []
+    getScope: async function(user, logger) {
+      const Log = logger.bind('getScope')
+      try {
+        const User = mongoose.model('user')
+        const promises = []
 
-      promises.push(this.getEffectivePermissions(user, Log))
-      promises.push(
-        RestHapi.find(User, user._id, { $embed: ['role', 'groups'] }, Log)
-      )
-      promises.push(this.getSpecificScope(user, Log))
-      return Q.all(promises).then(function(result) {
+        promises.push(this.getEffectivePermissions(user, Log))
+        promises.push(
+          RestHapi.find(User, user._id, { $embed: ['role', 'groups'] }, Log)
+        )
+        promises.push(this.getSpecificScope(user, Log))
+        let result = await Promise.all(promises)
         const permissions = result[0]
         const role = result[1].role.name
         const groups = []
@@ -208,7 +216,9 @@ module.exports = function(mongoose) {
         scope = scope.concat(specificPermissions)
 
         return scope
-      })
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
   }
 

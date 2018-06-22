@@ -1,7 +1,7 @@
 var mongoose = require('mongoose')
 
 const _ = require('lodash')
-const Config = require('../../../config/config')
+const Config = require('../../../config')
 
 const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES')
 

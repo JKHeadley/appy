@@ -1,6 +1,7 @@
 'use strict'
 
 const RestHapi = require('rest-hapi')
+const errorHelper = require('../utilities/error-helper')
 
 module.exports = function(mongoose) {
   var modelName = 'image'
@@ -47,14 +48,16 @@ module.exports = function(mongoose) {
         }
       },
       create: {
-        pre: function(payload, request, Log) {
-          const Image = mongoose.model('image')
-          payload.owner = request.auth.credentials.user._id
-          return RestHapi.list(
-            Image,
-            { owner: payload.owner, $sort: ['index'] },
-            Log
-          ).then(function(result) {
+        pre: async function(payload, request, logger) {
+          const Log = logger.bind()
+          try {
+            const Image = mongoose.model('image')
+            payload.owner = request.auth.credentials.user._id
+            let result = await RestHapi.list(
+              Image,
+              { owner: payload.owner, $sort: ['index'] },
+              Log
+            )
             if (result.docs[0]) {
               payload.index = result.docs[0].index + 1
             } else {
@@ -62,7 +65,9 @@ module.exports = function(mongoose) {
             }
 
             return payload
-          })
+          } catch (err) {
+            errorHelper.handleError(err, Log)
+          }
         }
       }
     }

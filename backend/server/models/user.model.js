@@ -3,14 +3,14 @@
 const Bcrypt = require('bcryptjs')
 const GeneratePassword = require('password-generator')
 const RestHapi = require('rest-hapi')
-const Q = require('q')
+const errorHelper = require('../utilities/error-helper')
 
-const permissionAuth = require('../policies/permissionAuth')
-const groupAuth = require('../policies/groupAuth')
-const rankAuth = require('../policies/roleAuth').rankAuth
-const promoteAuth = require('../policies/roleAuth').promoteAuth
+const permissionAuth = require('../policies/permission-auth.policy')
+const groupAuth = require('../policies/group-auth.policy')
+const rankAuth = require('../policies/role-auth.policy').rankAuth
+const promoteAuth = require('../policies/role-auth.policy').promoteAuth
 
-const Config = require('../../config/config')
+const Config = require('../../config')
 
 const enableDemoAuth = Config.get('/enableDemoAuth')
 const demoAuth = enableDemoAuth ? 'demoAuth' : null
@@ -217,88 +217,94 @@ module.exports = function(mongoose) {
         }
       },
       create: {
-        pre: function(payload, request, Log) {
-          if (!payload.password) {
-            payload.password = GeneratePassword(10, false)
-          }
-          if (!payload.pin) {
-            payload.pin = GeneratePassword(4, false, /\d/)
-          }
+        pre: async function(payload, request, logger) {
+          const Log = logger.bind()
+          try {
+            if (!payload.password) {
+              payload.password = GeneratePassword(10, false)
+            }
+            if (!payload.pin) {
+              payload.pin = GeneratePassword(4, false, /\d/)
+            }
 
-          const promises = []
+            const promises = []
 
-          promises.push(
-            mongoose.model('user').generateHash(payload.password, Log)
-          )
-          promises.push(mongoose.model('user').generateHash(payload.pin, Log))
-          return Q.all(promises).then(function(result) {
+            promises.push(
+              mongoose.model('user').generateHash(payload.password, Log)
+            )
+            promises.push(mongoose.model('user').generateHash(payload.pin, Log))
+            let result = await Promise.all(promises)
             payload.password = result[0].hash
             payload.pin = result[1].hash
+
             return payload
-          })
+          } catch (err) {
+            errorHelper.handleError(err, Log)
+          }
         },
-        post: function(document, request, result, Log) {
-          const User = mongoose.model('user')
-          if (!document.profileImageUrl) {
-            let profileImageUrl =
-              'https://www.gravatar.com/avatar/' +
-              document._id +
-              '?r=PG&d=robohash'
-            return RestHapi.update(
-              User,
-              document._id,
-              { profileImageUrl },
-              Log
-            ).then(function(user) {
-              return user
-            })
-          } else {
-            return document
+        post: async function(document, request, result, logger) {
+          const Log = logger.bind()
+          try {
+            const User = mongoose.model('user')
+            if (!document.profileImageUrl) {
+              let profileImageUrl =
+                'https://www.gravatar.com/avatar/' +
+                document._id +
+                '?r=PG&d=robohash'
+              return await RestHapi.update(
+                User,
+                document._id,
+                { profileImageUrl },
+                Log
+              )
+            } else {
+              return document
+            }
+          } catch (err) {
+            errorHelper.handleError(err, Log)
           }
         }
       }
     },
 
-    generateHash: function(key, Log) {
-      return Bcrypt.genSalt(10)
-        .then(function(salt) {
-          return Bcrypt.hash(key, salt)
-        })
-        .then(function(hash) {
-          return { key, hash }
-        })
+    generateHash: async function(key, logger) {
+      const Log = logger.bind()
+      try {
+        let salt = await Bcrypt.genSalt(10)
+        let hash = await Bcrypt.hash(key, salt)
+        return { key, hash }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     },
 
-    findByCredentials: function(email, password, Log) {
-      const self = this
+    findByCredentials: async function(email, password, logger) {
+      const Log = logger.bind()
+      try {
+        const self = this
 
-      const query = {
-        email: email.toLowerCase(),
-        isDeleted: false
+        const query = {
+          email: email.toLowerCase(),
+          isDeleted: false
+        }
+
+        let mongooseQuery = self.findOne(query)
+
+        let user = await mongooseQuery.lean()
+
+        if (!user) {
+          return false
+        }
+
+        const source = user.password
+
+        let passwordMatch = await Bcrypt.compare(password, source)
+        if (passwordMatch) {
+          return user
+        }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
       }
-
-      let user = {}
-
-      var mongooseQuery = self.findOne(query)
-
-      return mongooseQuery
-        .lean()
-        .then(function(result) {
-          user = result
-
-          if (!user) {
-            return false
-          }
-
-          const source = user.password
-
-          return Bcrypt.compare(password, source)
-        })
-        .then(function(passwordMatch) {
-          if (passwordMatch) {
-            return user
-          }
-        })
     }
   }
 
