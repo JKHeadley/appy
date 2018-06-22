@@ -42,7 +42,7 @@ Once seeding is done, run the app:
 $ docker-compose up --build
 ```
 
-Point your browser to http://localhost:3000/ to view the app, http://localhost:8080/ to view the swagger docs, or click on one of the test accounts below to login:
+Point your browser to http://localhost:3000/ to view the app, http://localhost:8080/ to view the swagger API docs, or click on one of the test accounts below to login:
 
 > **NOTE**: Password for all seed users is `root`.
 
