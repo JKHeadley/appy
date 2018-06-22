@@ -333,13 +333,17 @@ const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES')
 
       visitor.browser = browser
 
-      return RestHapi.create(models.visitor, visitor, Log)
+      if (visitor.error || visitor.message) {
+        Log.debug("iplocation failed:", visitor)
+      } else {
+        return RestHapi.create(models.visitor, visitor, Log)
+      }
     }
 
     // Specify the iplocation hosts to prevent issues (Ex: docker cant ping "https://ipaip.co/" by default)
     let hosts = ['freegeoip.net', 'ipapi.co']
 
-    for (let i = 0; i <= 367; i++) {
+    for (let i = 0; i <= 50; i++) {
       promises.push(iplocation(faker.internet.ip(), hosts).then(addVisitor))
     }
 
@@ -611,6 +615,8 @@ const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES')
     )
 
     await Promise.all(promises)
+
+    Log.log("SEEDING DONE!")
 
     process.exit(0)
   } catch (err) {
