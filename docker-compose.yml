@@ -22,7 +22,7 @@ services:
   api:
     build: backend/
     ports:
-      - 8125:8125
+      - 8080:8080
     volumes:
       # Share the entire project except "node_modules". This prevents us from having to COPY the project files
       #   in the Dockerfile, while still keeping separate node dependency files.
@@ -38,7 +38,7 @@ services:
   web:
     build: frontend/
     ports:
-      - 8080:8080
+      - 3000:3000
     volumes:
       # Share the entire project except "node_modules". This prevents us from having to COPY the project files
       #   in the Dockerfile, while still keeping separate node dependency files.
