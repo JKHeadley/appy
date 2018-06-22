@@ -11,8 +11,8 @@ COPY ./package.json /frontend
 # Install node dependencies
 RUN npm install
 
-# Make port 8080 available to the world outside this container
-EXPOSE 8080
+# Make port 3000 available to the world outside this container
+EXPOSE 3000
 
 # Run the start script when the container launches
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]
