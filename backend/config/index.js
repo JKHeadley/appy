@@ -71,8 +71,8 @@ const config = {
   projectName: constants.API_TITLE,
   port: {
     $filter: 'env',
-    production: 8125,
-    $default: 8125
+    production: 8080,
+    $default: 8080
   },
   S3BucketName: {
     $filter: 'env',

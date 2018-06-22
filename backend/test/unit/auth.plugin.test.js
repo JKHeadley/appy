@@ -2,7 +2,7 @@ const rewire = require('rewire')
 
 let authPlugin = rewire('../../server/plugins/auth.plugin')
 
-describe('applyRefreshStrategy tests', () => {
+describe('applyRefreshStrategy ', () => {
   let applyRefreshStrategy
   let server
 
