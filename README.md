@@ -116,20 +116,6 @@ Point your browser to http://localhost:3000/ to view the app, or click on one of
 **<a href="http://localhost:3000/login?email=test@superadmin.com&password=root" target="_blank">Super Admin</a>**
 
 
-Documentation
--------------
-
-
-Browser Support
----------------
-
-
-Contribution
-------------
-
-
-TODOS
--------
 
 License
 -------
