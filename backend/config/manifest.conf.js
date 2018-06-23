@@ -1,6 +1,7 @@
 'use strict'
 const Confidence = require('confidence')
 const Config = require('./index')
+const RestHapi = require('rest-hapi')
 
 const criteria = {
   env: process.env.NODE_ENV
@@ -22,6 +23,12 @@ const manifest = {
     routes: {
       cors: {
         origin: ['*']
+      },
+      validate: {
+        failAction: async (request, h, err) => {
+          RestHapi.logger.error(err)
+          throw err
+        }
       }
     }
   },
