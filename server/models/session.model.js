@@ -1,25 +1,29 @@
-'use strict';
+'use strict'
 
-const Bcrypt = require('bcryptjs');
-const Uuid = require('node-uuid');
+const Bcrypt = require('bcryptjs')
+const Uuid = require('node-uuid')
+const errorHelper = require('../utilities/error-helper')
 
-module.exports = function (mongoose) {
-  const modelName = "session";
-  const Types = mongoose.Schema.Types;
-  const Schema = new mongoose.Schema({
-    user: {
-      type: Types.ObjectId,
-      ref: "user"
+module.exports = function(mongoose) {
+  const modelName = 'session'
+  const Types = mongoose.Schema.Types
+  const Schema = new mongoose.Schema(
+    {
+      user: {
+        type: Types.ObjectId,
+        ref: 'user'
+      },
+      key: {
+        type: Types.String,
+        required: true
+      },
+      passwordHash: {
+        type: Types.String,
+        required: true
+      }
     },
-    key: {
-      type: Types.String,
-      required: true
-    },
-    passwordHash: {
-      type: Types.String,
-      required: true
-    }
-  }, { collection: modelName });
+    { collection: modelName }
+  )
 
   Schema.statics = {
     collectionName: modelName,
@@ -27,67 +31,65 @@ module.exports = function (mongoose) {
     routeOptions: {
       associations: {
         user: {
-          type: "ONE_ONE",
-          model: "user"
+          type: 'ONE_ONE',
+          model: 'user'
         }
       }
     },
 
-    generateKeyHash: function (Log) {
+    generateKeyHash: async function(logger) {
+      const Log = logger.bind()
+      try {
+        const key = Uuid.v4()
 
-      const key = Uuid.v4();
+        let salt = await Bcrypt.genSalt(10)
+        let hash = await Bcrypt.hash(key, salt)
 
-      return Bcrypt.genSalt(10)
-        .then(function (salt) {
-          return Bcrypt.hash(key, salt);
-        })
-        .then(function (hash) {
-          return { key, hash };
-        });
+        return { key, hash }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     },
 
-    createInstance: function (user, Log) {
+    createInstance: async function(user, logger) {
+      const Log = logger.bind()
+      try {
+        const document = {
+          user: user._id,
+          key: Uuid.v4(),
+          passwordHash: user.password,
+          createdAt: Date.now()
+        }
 
-      let newSession = {};
+        let newSession = await mongoose.model('session').create(document)
 
-      const document = {
-        user: user._id,
-        key: Uuid.v4(),
-        passwordHash: user.password,
-        createdAt: Date.now()
-      };
+        const query = {
+          user: user._id,
+          key: { $ne: document.key }
+        }
 
-      return mongoose.model('session').create(document)
-        .then(function (result) {
-          newSession = result;
+        await mongoose.model('session').findOneAndRemove(query)
 
-          const query = {
-            user: user._id,
-            key: { $ne: document.key }
-          };
-
-          return mongoose.model('session').findOneAndRemove(query);
-        })
-        .then(function (result) {
-          return newSession;
-        });
+        return newSession
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     },
 
-    findByCredentials: function (_id, key, Log) {
+    findByCredentials: async function(_id, key, logger) {
+      const Log = logger.bind()
+      try {
+        let session = await mongoose.model('session').findById(_id)
+        if (!session) {
+          return false
+        }
 
-      let session = {};
-
-      return mongoose.model('session').findById(_id)
-        .then(function (result) {
-          session = result;
-          if (!session) {
-            return false;
-          }
-
-          return session.key === key ? session : false;
-        });
+        return session.key === key ? session : false
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
-  };
+  }
 
-  return Schema;
-};
+  return Schema
+}

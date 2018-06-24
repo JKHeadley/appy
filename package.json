@@ -1,39 +1,51 @@
 {
-  "name": "appy",
+  "name": "appy-backend",
   "version": "1.0.0",
   "description": "A user system leveraging rest-hapi to bootstrap your app.",
+  "author": "Justin Headley <headley.justin@gmail.com>",
+  "repository": "https://github.com/JKHeadley/appy-backend",
+  "license": "MIT",
   "scripts": {
-    "start": "gulp",
-    "test": "gulp test"
+    "start": "npm run start:local",
+    "start:local": "NODE_ENV=local nodemon index.js",
+    "start:dev": "NODE_ENV=development nodemon index.js",
+    "start:prod": "NODE_ENV=production node index.js",
+    "test": "jest --coverage",
+    "seed": "node scripts/seed.js",
+    "update-permissions": "node scripts/update-permissions.js",
+    "precommit": "lint-staged",
+    "lint": "eslint --fix **/*.js ./"
+  },
+  "lint-staged": {
+    "**/*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "engines": {
-    "node": "5.0.0",
-    "npm": "3.8.1"
+    "node": ">=8.10.0",
+    "npm": ">=3.8.1"
   },
   "dependencies": {
     "aws-sdk": "^2.175.0",
     "bcryptjs": "^2.4.0",
-    "bell": "8.9.0",
-    "boom": "2.9.0",
+    "bell": "^9.3.0",
+    "boom": "^7.2.0",
     "chalk": "*",
     "confidence": "^3.0.2",
     "dotenv": "^2.0.0",
     "faker": "^4.1.0",
-    "glue": "4.1.0",
-    "gulp": "^3.9.1",
-    "gulp-exit": "0.0.2",
-    "gulp-nodemon": "^2.0.6",
-    "gulp-util": "latest",
+    "glue": "^5.0.0",
     "handlebars": "^4.0.6",
-    "hapi-auth-jwt2": "7.2.4",
+    "hapi-auth-jwt2": "salzhrani/hapi-auth-jwt2#v-17",
     "imagemagick": "^0.1.3",
     "iplocation": "^5.0.0",
-    "joi": "^9.2.0",
+    "joi": "^13.3.0",
     "jsonwebtoken": "^7.1.9",
     "lodash": "~3.10.1",
     "lodash-pickdeep": "^1.0.2",
     "mongoose": "5.0.9",
-    "nes": "6.5.2",
+    "nes": "^8.1.0",
     "node-uuid": "^1.4.7",
     "nodemailer": "^2.6.4",
     "nodemailer-markdown": "^1.0.1",
@@ -42,8 +54,26 @@
     "q": "^1.4.1",
     "request-promise": "^4.2.2",
     "require-dir": "^0.3.2",
-    "rest-hapi": "latest",
+    "rest-hapi": "^1.2.0",
     "useragent": "^2.3.0",
     "zxcvbn": "^4.4.2"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.3",
+    "eslint": "^4.19.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-config-prettier-standard": "^2.0.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "husky": "^0.14.3",
+    "jest": "^23.1.0",
+    "lint-staged": "^7.1.0",
+    "nodemon": "^1.17.5",
+    "prettier": "1.12.1",
+    "rewire": "^4.0.1"
   }
 }

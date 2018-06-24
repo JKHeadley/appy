@@ -1,81 +1,82 @@
-'use strict';
+'use strict'
 
-const Config = require('../../config');
+const Config = require('../../config')
+const errorHelper = require('../utilities/error-helper')
 
-module.exports = function (mongoose) {
-  const modelName = "authAttempt";
-  const Types = mongoose.Schema.Types;
-  const Schema = new mongoose.Schema({
-    email: {
-      type: Types.String,
-      required: true
+module.exports = function(mongoose) {
+  const modelName = 'authAttempt'
+  const Types = mongoose.Schema.Types
+  const Schema = new mongoose.Schema(
+    {
+      email: {
+        type: Types.String,
+        required: true
+      },
+      ip: {
+        type: Types.String,
+        required: true
+      },
+      time: {
+        type: Types.Date,
+        required: true
+      }
     },
-    ip: {
-      type: Types.String,
-      required: true
-    },
-    time: {
-      type: Types.Date,
-      required: true
-    }
-  }, { collection: modelName });
+    { collection: modelName }
+  )
 
   Schema.statics = {
     collectionName: modelName,
     routeOptions: {
-      alias: "auth-attempt"
+      alias: 'auth-attempt'
     },
-    createInstance: function (ip, email, Log) {
+    createInstance: async function(ip, email, Log) {
+      try {
+        const document = {
+          ip,
+          email: email.toLowerCase(),
+          time: new Date()
+        }
 
-      const document = {
-        ip,
-        email: email.toLowerCase(),
-        time: new Date()
-      };
-
-      return mongoose.model('authAttempt').create(document)
-        .then(function (docs) {
-          return docs;
-        });
+        return await mongoose.model('authAttempt').create(document)
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     },
 
-    abuseDetected: function (ip, email, Log) {
-      const self = this;
+    abuseDetected: async function(ip, email, Log) {
+      try {
+        const self = this
 
-      const lockOutPeriod = Config.get('/lockOutPeriod');
-      const expirationDate = lockOutPeriod ? { $gt: Date.now() - lockOutPeriod * 60000 } : { $lt: Date.now() };
+        const LOCKOUT_PERIOD = Config.get('/constants/LOCKOUT_PERIOD')
+        const expirationDate = LOCKOUT_PERIOD
+          ? { $gt: Date.now() - LOCKOUT_PERIOD * 60000 }
+          : { $lt: Date.now() }
 
-      let abusiveIpCount = {};
-      let abusiveIpUserCount = {};
+        let query = {
+          ip,
+          time: expirationDate
+        }
 
-      const query = {
-        ip,
-        time: expirationDate
-      };
+        const abusiveIpCount = await self.count(query)
+        query = {
+          ip,
+          email: email.toLowerCase(),
+          time: expirationDate
+        }
 
-      return self.count(query)
-        .then(function (result) {
-          abusiveIpCount = result;
+        const abusiveIpUserCount = await self.count(query)
 
-          const query = {
-            ip,
-            email: email.toLowerCase(),
-            time: expirationDate
-          };
+        const AUTH_ATTEMPTS = Config.get('/constants/AUTH_ATTEMPTS')
+        const ipLimitReached = abusiveIpCount >= AUTH_ATTEMPTS.FOR_IP
+        const ipUserLimitReached =
+          abusiveIpUserCount >= AUTH_ATTEMPTS.FOR_IP_AND_USER
 
-          return self.count(query);
-        })
-        .then(function (result) {
-          abusiveIpUserCount = result;
-
-          const authAttemptsConfig = Config.get('/authAttempts');
-          const ipLimitReached = abusiveIpCount >= authAttemptsConfig.forIp;
-          const ipUserLimitReached = abusiveIpUserCount >= authAttemptsConfig.forIpAndUser;
-
-          return (ipLimitReached || ipUserLimitReached);
-        });
+        return ipLimitReached || ipUserLimitReached
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
-  };
+  }
 
-  return Schema;
-};
+  return Schema
+}

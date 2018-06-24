@@ -1,13 +1,12 @@
-var mongoose = require("mongoose");
+var mongoose = require('mongoose')
 
-const _ = require('lodash');
-const Config = require('../../../config');
+const _ = require('lodash')
+const Config = require('../../../config')
 
-const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES');
+const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES')
 
-module.exports = function () {
-
-  var Types = mongoose.Schema.Types;
+module.exports = function() {
+  var Types = mongoose.Schema.Types
 
   var Model = {
     Schema: {
@@ -16,10 +15,10 @@ module.exports = function () {
         enum: _.values(PERMISSION_STATES),
         required: true,
         default: PERMISSION_STATES.INCLUDED
-      },
+      }
     },
-    modelName: "group_permission"
-  };
+    modelName: 'group_permission'
+  }
 
-  return Model;
-};
+  return Model
+}
