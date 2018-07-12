@@ -170,6 +170,7 @@ module.exports = function(server, mongoose, logger) {
             if (results.score < requiredPasswordStrength) {
               throw Boom.badRequest('Stronger password required.')
             }
+            return h.continue
           } catch (err) {
             errorHelper.handleError(err, Log)
           }

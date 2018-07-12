@@ -301,6 +301,8 @@ module.exports = function(mongoose) {
         let passwordMatch = await Bcrypt.compare(password, source)
         if (passwordMatch) {
           return user
+        } else {
+          return false
         }
       } catch (err) {
         errorHelper.handleError(err, Log)
