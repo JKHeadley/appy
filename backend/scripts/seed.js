@@ -333,18 +333,24 @@ const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES')
 
       visitor.browser = browser
 
-      if (visitor.error || visitor.message) {
-        Log.debug("iplocation failed:", visitor)
+      if (visitor.error || visitor.message || !visitor.ip) {
+        Log.debug('iplocation failed:', visitor)
       } else {
         return RestHapi.create(models.visitor, visitor, Log)
       }
     }
 
     // Specify the iplocation hosts to prevent issues (Ex: docker cant ping "https://ipaip.co/" by default)
-    let hosts = ['freegeoip.net', 'ipapi.co']
+    // let hosts = ['freegeoip.net', 'ipapi.co']
+    // NOTE: Sign up for free access key at https://ipstack.com/
+    let host =
+      'http://api.ipstack.com/*?access_key=' +
+      Config.get('/ipstackAccessKey') +
+      '&format=1'
 
-    for (let i = 0; i <= 50; i++) {
-      promises.push(iplocation(faker.internet.ip(), hosts).then(addVisitor))
+    for (let i = 0; i <= 10; i++) {
+      let ip = faker.internet.ip()
+      promises.push(iplocation(ip, [host]).then(addVisitor))
     }
 
     await Promise.all(promises)
@@ -616,7 +622,7 @@ const PERMISSION_STATES = Config.get('/constants/PERMISSION_STATES')
 
     await Promise.all(promises)
 
-    Log.log("SEEDING DONE!")
+    Log.log('SEEDING DONE!')
 
     process.exit(0)
   } catch (err) {
