@@ -1,3 +1,5 @@
 **/node_modules
 **/assets
 **/.idea
+.gitignore
+.prettierrc

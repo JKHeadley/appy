@@ -1,3 +1,6 @@
 **/node_modules
 **/build
 **/test
+.prettierrc
+yarn.lock
+packge-lock.json
