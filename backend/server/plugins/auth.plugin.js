@@ -33,10 +33,13 @@ internals.applyTokenStrategy = function(server) {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'] },
 
-    validate: function(decodedToken, request, callback) {
-      let user = decodedToken.user
+    validate: function(decodedToken, request, h) {
+      let { user, scope } = decodedToken
 
-      callback(null, Boolean(user), { user, scope: decodedToken.scope })
+      return {
+        isValid: true,
+        credentials: { user, scope }
+      }
     }
   })
 }
@@ -62,46 +65,40 @@ internals.applySessionStrategy = function(server) {
     key: Config.get('/jwtSecret'),
     verifyOptions: { algorithms: ['HS256'] },
 
-    validate: function(decodedToken, request, callback) {
+    validate: async function(decodedToken, request, h) {
       const Session = Mongoose.model('session')
       const User = Mongoose.model('user')
 
-      const sessionId = decodedToken.sessionId
-      const sessionKey = decodedToken.sessionKey
-      const passwordHash = decodedToken.passwordHash
-      const scope = decodedToken.scope
       let session = {}
-      let user = {}
+      let { sessionId, sessionKey, passwordHash, scope } = decodedToken
 
-      Session.findByCredentials(sessionId, sessionKey, Log)
-        .then(function(result) {
-          session = result
+      try {
+        session = await Session.findByCredentials(sessionId, sessionKey, Log)
+        if (!session) {
+          return { isValid: false }
+        }
 
-          if (!session) {
-            return callback(null, false)
+        let user = await User.findById(session.user)
+
+        if (!user) {
+          return { isValid: false }
+        }
+
+        if (user.password !== passwordHash) {
+          return { isValid: false }
+        }
+
+        return {
+          isValid: true,
+          credentials: {
+            user,
+            session,
+            scope
           }
-
-          return User.findById(session.user)
-        })
-        .then(function(result) {
-          if (result === false) {
-            return result
-          }
-          user = result
-
-          if (!user) {
-            return callback(null, false)
-          }
-
-          if (user.password !== passwordHash) {
-            return callback(null, false)
-          }
-
-          callback(null, Boolean(user), { session, user, scope: scope })
-        })
-        .catch(function(error) {
-          Log.error(error)
-        })
+        }
+      } catch (err) {
+        errorHelper.handleError(err, Log)
+      }
     }
   })
 }
