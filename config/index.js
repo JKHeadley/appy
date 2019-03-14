@@ -115,6 +115,11 @@ const config = {
       github: process.env.GITHUB_SECRET
     }
   },
+  ipstackAccessKey: {
+    $filter: 'env',
+    production: process.env.IPSTACK_ACCESS_KEY,
+    $default: process.env.IPSTACK_ACCESS_KEY
+  },
   // Enable TLS for social login
   socialSecure: {
     $filter: 'env',
@@ -184,7 +189,7 @@ const config = {
   enableDemoAuth: {
     $filter: 'env',
     production: true,
-    $default: true
+    $default: false
   },
   // This is the config object passed into the rest-hapi plugin during registration:
   // https://github.com/JKHeadley/rest-hapi#configuration
