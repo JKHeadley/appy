@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/appy.iml" filepath="$PROJECT_DIR$/.idea/appy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/appy-clone.iml" filepath="$PROJECT_DIR$/.idea/appy-clone.iml" />
     </modules>
   </component>
 </project>
