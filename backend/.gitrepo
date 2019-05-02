@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/JKHeadley/appy-backend.git
 	branch = master
-	commit = 5d5d187f5529710d935805c4c5e07b693c0510f9
-	parent = 6d644bfcb32f8348736133d0dd96d382b3ed44f4
+	commit = 4e7b246f7b21ef65430d80d44bfc66cd699d3f7d
+	parent = ad2198c9a82a43f4a5d88f4ae96181199578b2af
 	method = merge
 	cmdver = 0.4.0
