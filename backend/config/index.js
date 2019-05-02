@@ -71,8 +71,8 @@ const config = {
   projectName: constants.API_TITLE,
   port: {
     $filter: 'env',
-    production: 8080,
-    $default: 8080
+    production: process.env.SERVER_PORT,
+    $default: process.env.SERVER_PORT
   },
   S3BucketName: {
     $filter: 'env',
@@ -212,6 +212,11 @@ const config = {
     apiPath: path.join(__dirname, '/../server/api'),
     absolutePolicyPath: true,
     policyPath: path.join(__dirname, '/../server/policies'),
+    swaggerHost: {
+      $filter: 'env',
+      production: process.env.SERVER_HOST,
+      $default: `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`
+    },
     authStrategy: {
       $filter: 'env',
       production: constants.AUTH_STRATEGIES.REFRESH,
