@@ -47,7 +47,7 @@ First seed the db with data (only required once):
 ```bash
 $ sh seed_data.sh
 ```
-
+ 
 Once seeding is done, run the app:
 
 ```bash
