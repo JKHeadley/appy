@@ -6,7 +6,6 @@ volumes:
 
 networks:
   backend:
-  frontend:
 
 services:
 
@@ -21,31 +20,17 @@ services:
     restart: always
 
   api:
-    build: backend/
+    build: ./
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     volumes:
       # Share the entire project except "node_modules". This prevents us from having to COPY the project files
       #   in the Dockerfile, while still keeping separate node dependency files.
-      - "./backend:/backend"
+      - "./:/backend"
       - "/backend/node_modules"
     networks:
       - backend
     depends_on:
       - mongo
     env_file:
-      - ./backend/.env-docker
-
-  web:
-    build: frontend/
-    ports:
-      - 3000:3000
-    volumes:
-      # Share the entire project except "node_modules". This prevents us from having to COPY the project files
-      #   in the Dockerfile, while still keeping separate node dependency files.
-      - "./frontend:/frontend"
-      - "/frontend/node_modules"
-    networks:
-      - frontend
-    depends_on:
-      - api
+      - ./.env-docker

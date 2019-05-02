@@ -45,13 +45,13 @@ $ cd appy
 First seed the db with data (only required once):
 
 ```bash
-$ docker-compose build && docker-compose run --rm api npm run seed
+$ sh seed_data.sh
 ```
 
 Once seeding is done, run the app:
 
 ```bash
-$ docker-compose up --build
+$ sh run_app.sh
 ```
 
 Point your browser to http://localhost:3000/ to view the app, http://localhost:8080/ to view the swagger API docs, or click on one of the test accounts below to login:
