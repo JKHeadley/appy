@@ -37,7 +37,7 @@ module.exports = function(mongoose) {
   Schema.statics = {
     collectionName: modelName,
     routeOptions: {
-      imageScope: {
+      documentScope: {
         rootScope: ['root']
       },
       authorizeImageCreator: true,
