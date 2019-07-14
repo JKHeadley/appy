@@ -26,7 +26,7 @@ Just [Docker](https://docs.docker.com/install)
 
 **OR**
 
-You need [Node.js](https://nodejs.org/en/) installed (>=8.10.0) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
+You need [Node.js](https://nodejs.org/en/) installed (>=12.x) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
 
 
 ## Getting Started
