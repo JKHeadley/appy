@@ -277,7 +277,7 @@ const config = {
       production: true,
       $default: false
     },
-    generateScopes: {
+    generateRouteScopes: {
       $filter: 'env',
       production: true,
       $default: true
@@ -289,8 +289,8 @@ const config = {
     },
     logScopes: {
       $filter: 'env',
-      production: false,
-      $default: false
+      production: true,
+      $default: true
     },
     loglevel: {
       $filter: 'env',
