@@ -446,18 +446,37 @@
 
         var pieChartCanvas = $('#pieChart');
 
+        function getRandomColor() {
+          var letters = '0123456789ABCDEF'.split('');
+          var color = '#';
+          for (var i = 0; i < 6; i++ ) {
+              color += letters[Math.floor(Math.random() * 16)];
+          }
+          return color;
+        }
+
+        let backgroundColor = visitors.map(v => getRandomColor())
+
+        // 1) combine the arrays:
+        let charData = [];
+        for (var j = 0; j < visitors.length; j++) 
+            charData.push({'visitor': visitors[j], 'browser': browsers[j]});
+
+        // 2) sort:
+        charData.sort(function(a, b) {
+            return ((a.visitor < b.visitor) ? 1 : ((a.visitor === b.visitor) ? 0 : -1));
+        });
+
+        // 3) separate them back out:
+        for (var k = 0; k < charData.length; k++) {
+            visitors[k] = charData[k].visitor;
+            browsers[k] = charData[k].browser;
+        }
+
         let data = {
           datasets: [{
             data: visitors,
-//            backgroundColor: color
-            backgroundColor: [
-              '#f56954',
-              '#00a65a',
-              '#f39c12',
-              '#00c0ef',
-              '#3c8dbc',
-              '#d2d6de'
-            ],
+            backgroundColor
           }],
           // These labels appear in the legend and in the tooltips when hovering different arcs
           labels: browsers
