@@ -439,23 +439,13 @@
         // Get context with jQuery - using jQuery's .get() method.
         let browsers = []
         let visitors = []
+        let other = []
         for (let browser in this.stats.totalVisitorsPerBrowser) {
           browsers.push(browser)
           visitors.push(this.stats.totalVisitorsPerBrowser[browser])
         }
 
         var pieChartCanvas = $('#pieChart');
-
-        function getRandomColor() {
-          var letters = '0123456789ABCDEF'.split('');
-          var color = '#';
-          for (var i = 0; i < 6; i++ ) {
-              color += letters[Math.floor(Math.random() * 16)];
-          }
-          return color;
-        }
-
-        let backgroundColor = visitors.map(v => getRandomColor())
 
         // 1) combine the arrays:
         let charData = [];
@@ -471,6 +461,26 @@
         for (var k = 0; k < charData.length; k++) {
             visitors[k] = charData[k].visitor;
             browsers[k] = charData[k].browser;
+        }
+        
+        const backgroundColor = [
+          '#f56954',
+          '#00a65a',
+          '#f39c12',
+          '#00c0ef',
+          '#3c8dbc',
+          '#d2d6de'
+        ]
+
+        const maxChartSize = backgroundColor.length - 1;
+
+        if (visitors.length > maxChartSize) {
+          other = visitors.slice(maxChartSize, visitors.length - 1)
+          visitors = visitors.slice(0, maxChartSize)
+          browsers = browsers.slice(0, maxChartSize)
+
+          visitors.push(other.reduce((prev, curr) => prev + curr))
+          browsers.push("Other")
         }
 
         let data = {
