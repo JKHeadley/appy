@@ -1,5 +1,5 @@
 import store from '../store'
-import Nes from 'nes/lib/client'
+import Nes from '@hapi/nes/lib/client'
 import config, { RESPONSE_MESSAGES } from '../config'
 
 const internals = {}

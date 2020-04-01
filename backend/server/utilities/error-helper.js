@@ -1,5 +1,5 @@
 'use strict'
-let Boom = require('boom')
+let Boom = require('@hapi/boom')
 
 function handleError(err, Log) {
   if (err.isBoom) {

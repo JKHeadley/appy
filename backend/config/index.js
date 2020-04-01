@@ -289,8 +289,8 @@ const config = {
     },
     logScopes: {
       $filter: 'env',
-      production: true,
-      $default: true
+      production: false,
+      $default: false
     },
     loglevel: {
       $filter: 'env',

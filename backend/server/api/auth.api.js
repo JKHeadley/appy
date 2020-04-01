@@ -1,6 +1,6 @@
 'use strict'
 
-const Boom = require('boom')
+const Boom = require('@hapi/boom')
 const Chalk = require('chalk')
 const Jwt = require('jsonwebtoken')
 const Uuid = require('node-uuid')

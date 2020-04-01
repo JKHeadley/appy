@@ -1,7 +1,7 @@
 'use strict'
 
 const Mongoose = require('mongoose')
-const Boom = require('boom')
+const Boom = require('@hapi/boom')
 const RestHapi = require('rest-hapi')
 const errorHelper = require('../utilities/error-helper')
 
@@ -220,7 +220,7 @@ internals.applyGoogleStrategy = function(server) {
 }
 
 internals.applyGithubStrategy = function(server) {
-  const googleOptions = {
+  const githubOptions = {
     provider: 'github',
     password: socialPassword,
     clientId: socialIds.github,
@@ -230,7 +230,7 @@ internals.applyGithubStrategy = function(server) {
   }
 
   // Setup the social GitHub login strategy
-  server.auth.strategy('github', 'bell', googleOptions)
+  server.auth.strategy('github', 'bell', githubOptions);
 }
 
 internals.customForbiddenMessage = function(server) {
