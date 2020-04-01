@@ -325,7 +325,7 @@ module.exports = function(server, mongoose, logger) {
             promises.push(User.findOne({ email: githubProfile.email }))
             promises.push(User.findOne({ githubId: githubProfile.id }))
 
-            let result = Promise.all(promises)
+            let result = await Promise.all(promises)
 
             user = result[0] ? result[0] : result[1]
             if (user) {
