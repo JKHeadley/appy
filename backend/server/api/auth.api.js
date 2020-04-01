@@ -122,17 +122,19 @@ module.exports = function(server, mongoose, logger) {
             // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
             // take advantage of duplicate fields so that roleName and roleRank are populated.
             // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
-            let request = {
+            let injectRequest = {
               method: 'POST',
               url: '/user',
               params: {},
               query: {},
               payload: user,
               credentials: { scope: ['root', USER_ROLES.SUPER_ADMIN] },
-              headers: { authorization: 'Bearer' }
-            }
+              headers: { authorization: 'Bearer' },
+            };
 
-            let injectOptions = RestHapi.testHelper.mockInjection(request)
+            let injectOptions = RestHapi.testHelper.mockInjection(
+              injectRequest,
+            );
 
             result = await server.inject(injectOptions)
 
@@ -310,7 +312,7 @@ module.exports = function(server, mongoose, logger) {
     const githubAuthPre = [
       {
         assign: 'user',
-        method: async function(request, h) {
+        method: async function (request, h) {
           try {
             const githubProfile = request.auth.credentials.profile
 
@@ -354,17 +356,19 @@ module.exports = function(server, mongoose, logger) {
             // We use the actual endpoint to take advantage of policies. Specifically in this case we need to
             // take advantage of duplicate fields so that roleName and roleRank are populated.
             // (see: https://github.com/JKHeadley/rest-hapi#policies-vs-middleware)
-            let request = {
+            let injectRequest = {
               method: 'POST',
               url: '/user',
               params: {},
               query: {},
               payload: user,
               credentials: { scope: ['root', USER_ROLES.SUPER_ADMIN] },
-              headers: { authorization: 'Bearer' }
-            }
+              headers: { authorization: 'Bearer' },
+            };
 
-            let injectOptions = RestHapi.testHelper.mockInjection(request)
+            let injectOptions = RestHapi.testHelper.mockInjection(
+              injectRequest,
+            );
 
             result = await server.inject(injectOptions)
 
