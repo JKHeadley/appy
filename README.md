@@ -26,7 +26,7 @@ Just [Docker](https://docs.docker.com/install)
 
 **OR**
 
-You need [Node.js](https://nodejs.org/en/) installed (>=8.10.0) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
+You need [Node.js](https://nodejs.org/en/) installed (>=12.x) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
 
 
 ## Getting Started
@@ -45,13 +45,13 @@ $ cd appy
 First seed the db with data (only required once):
 
 ```bash
-$ sh seed_data.sh
+$ bash seed_data.sh
 ```
  
 Once seeding is done, run the app:
 
 ```bash
-$ sh run_app.sh
+$ bash run_app.sh
 ```
 
 Point your browser to http://localhost:3000/ to view the app, http://localhost:8080/ to view the swagger API docs, or click on one of the test accounts below to login:

@@ -44,7 +44,7 @@
     "jsonwebtoken": "^7.1.9",
     "lodash": "~3.10.1",
     "lodash-pickdeep": "^1.0.2",
-    "mongoose": "5.0.9",
+    "mongoose": "5.6.4",
     "nes": "^8.1.0",
     "node-uuid": "^1.4.7",
     "nodemailer": "^2.6.4",
