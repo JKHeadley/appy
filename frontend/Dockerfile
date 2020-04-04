@@ -1,4 +1,4 @@
-FROM node:carbon
+FROM node:carbon-alpine
 
 # Create and set the working directory
 RUN mkdir /frontend
