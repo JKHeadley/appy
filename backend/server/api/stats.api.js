@@ -203,8 +203,8 @@ module.exports = function(server, mongoose, logger) {
 
         result = await Promise.all(promises)
 
-        stats.totalVisitorsPerCountry = result[0][0].totalVisitorsPerCountry
-        stats.totalVisitorsPerBrowser = result[1][0].totalVisitorsPerBrowser
+        stats.totalVisitorsPerCountry = result[0][0] ? result[0][0].totalVisitorsPerCountry : 0
+        stats.totalVisitorsPerBrowser = result[1][0] ? result[1][0].totalVisitorsPerBrowser : 0
 
         return { stats }
       } catch (err) {
