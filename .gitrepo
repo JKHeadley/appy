@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/JKHeadley/appy-backend.git
+	branch = master
+	commit = d53ced9c0fe9853a1b758841919520813653ae69
+	parent = 0267314bc1a91a532e9e92954b85e3e09e07f51b
+	method = merge
+	cmdver = 0.4.0

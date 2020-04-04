@@ -277,7 +277,7 @@ const config = {
       production: true,
       $default: false
     },
-    generateScopes: {
+    generateRouteScopes: {
       $filter: 'env',
       production: true,
       $default: true

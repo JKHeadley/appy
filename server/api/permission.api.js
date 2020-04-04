@@ -1,6 +1,6 @@
 'use strict'
 
-const Joi = require('joi')
+const Joi = require('@hapi/joi')
 const Chalk = require('chalk')
 const RestHapi = require('rest-hapi')
 const errorHelper = require('../utilities/error-helper')

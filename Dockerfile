@@ -1,4 +1,4 @@
-FROM node:carbon
+FROM node:erbium
 
 # Create and set the working directory
 RUN mkdir /backend

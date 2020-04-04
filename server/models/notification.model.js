@@ -1,6 +1,5 @@
 'use strict'
 
-const Q = require('q')
 const RestHapi = require('rest-hapi')
 const _ = require('lodash')
 const errorHelper = require('../utilities/error-helper')
