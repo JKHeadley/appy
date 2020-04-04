@@ -1,7 +1,7 @@
 'use strict'
 
-const Joi = require('joi')
-const Boom = require('boom')
+const Joi = require('@hapi/joi')
+const Boom = require('@hapi/boom')
 const Chalk = require('chalk')
 const Jwt = require('jsonwebtoken')
 const RestHapi = require('rest-hapi')
@@ -207,15 +207,15 @@ module.exports = function(server, mongoose, logger) {
                 email: Joi.string()
                   .email()
                   .required(),
-                role: Joi.any()
-                  .valid(_.values(USER_ROLES))
+                role: Joi.string()
+                  .valid(..._.values(USER_ROLES))
                   .required(),
                 password: Joi.string(),
                 pin: Joi.string()
               })
               .required(),
-            registerType: Joi.any()
-              .valid(['Register', 'Invite'])
+            registerType: Joi.string()
+              .valid(...['Register', 'Invite'])
               .required()
           }
         },

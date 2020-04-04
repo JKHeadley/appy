@@ -1,5 +1,5 @@
 'use strict'
-const Glue = require('glue')
+const Glue = require('@hapi/glue')
 const RestHapi = require('rest-hapi')
 const Manifest = require('./config/manifest.conf')
 

@@ -1,6 +1,6 @@
 'use strict'
 
-const Boom = require('boom')
+const Boom = require('@hapi/boom')
 const RestHapi = require('rest-hapi')
 const errorHelper = require('../utilities/error-helper')
 

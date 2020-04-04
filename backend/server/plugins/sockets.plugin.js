@@ -1,6 +1,6 @@
 'use strict'
 
-const nes = require('nes')
+const nes = require('@hapi/nes')
 
 const Config = require('../../config')
 
