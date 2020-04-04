@@ -26,7 +26,7 @@ Just [Docker](https://docs.docker.com/install)
 
 **OR**
 
-You need [Node.js](https://nodejs.org/en/) installed (>=8.10.0) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
+You need [Node.js](https://nodejs.org/en/) installed (>=12.14.1) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
 
 
 ## Getting Started
@@ -40,9 +40,16 @@ $ cd appy
 
 ## Using Docker
 
-> **NOTE**: Docker commands might take some time on the first build. After the first build they should be relatively quick.
+> **NOTE**: Docker commands might take some time on the first build. After the first build they
+> should be relatively quick.
 
-First seed the db with data (only required once):
+Rename `.env-docker-sample` to `.env-docker` and update any secrets or keys as needed (this is not
+required, but at minimum providing a valid `IPSTACK_ACCESS_KEY` will allow for proper dashboard
+data). **Never commit .env-docker to your repo**
+
+Also, update values in `backend/config/index.js` as needed.
+
+Seed the db with data (only required once):
 
 ```bash
 $ sh seed_data.sh
@@ -86,9 +93,11 @@ $ npm install
 ```
 
 ### Backend Configuration
-Rename `.env-sample` to `.env`. Update values as needed. **Never commit .env to your repo**
+Rename `.env-sample` to `.env` and update any secrets or keys as needed (this is not
+required, but at minimum providing a valid `IPSTACK_ACCESS_KEY` will allow for proper dashboard
+data). **Never commit .env to your repo**
 
-Also, update values in `config.js` as needed.
+Also, update values in `backend/config/index.js` as needed.
 
 ### First time setup
 **WARNING**: This will clear all data in the MongoDB database defined in ``restHapiConfig.mongo.URI`` (default ``mongodb://localhost/appy``).
