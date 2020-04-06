@@ -1,4 +1,4 @@
-# ![alt tag](https://github.com/JKHeadley/appy/blob/master/assets/appy.png)
+<p align="center"><a href="https://appyapp.io" target="_blank" rel="noopener noreferrer"><img width="262" height="295" src="https://user-images.githubusercontent.com/12631935/39099920-eaab3d3e-4636-11e8-9955-b53be05e1c13.png" alt="appy logo"></a></p>
 
 
 A user system leveraging [rest-hapi](https://github.com/JKHeadley/rest-hapi) to bootstrap your app.
@@ -27,19 +27,19 @@ http://ec2-52-25-112-131.us-west-2.compute.amazonaws.com:8125
 
 ### Starting appy
 
-![appy_start](https://cloud.githubusercontent.com/assets/12631935/22916596/365770d4-f234-11e6-93eb-ed1825c727df.gif)
+![appy_start](https://appy-cdn.s3-us-west-2.amazonaws.com/appy_start.gif)
 
 ### Logging in
 
-![alt tag](https://github.com/JKHeadley/appy/blob/master/assets/appy_login.gif)
+![appy_login](https://appy-cdn.s3-us-west-2.amazonaws.com/appy_login.gif)
 
 ### GET /users
 
-![alt tag](https://github.com/JKHeadley/appy/blob/master/assets/appy_get_users.gif)
+![appy_get_users](https://appy-cdn.s3-us-west-2.amazonaws.com/appy_get_users.gif)
 
 ### Filter Query and Populate Relationship
 
-![alt tag](https://github.com/JKHeadley/appy/blob/master/assets/appy_filter_permissions.gif)
+![appy_filter_permissionns](https://appy-cdn.s3-us-west-2.amazonaws.com/appy_filter_permissions.gif)
 
 ## Readme contents
 - [Requirements](#requirements)
