@@ -27,19 +27,19 @@ http://ec2-52-25-112-131.us-west-2.compute.amazonaws.com:8125
 
 ### Starting appy
 
-![appy_start](https://appy-cdn.s3-us-west-2.amazonaws.com/appy_start.gif)
+![appy_start](https://user-images.githubusercontent.com/12631935/79036262-7f96bb00-7b7b-11ea-9fb0-bed77cc9d043.gif)
 
 ### Logging in
 
-![appy_login](https://appy-cdn.s3-us-west-2.amazonaws.com/appy_login.gif)
+![appy_login](https://user-images.githubusercontent.com/12631935/79036503-a5bd5a80-7b7d-11ea-9964-737706a81467.gif)
 
 ### GET /users
 
-![appy_get_users](https://appy-cdn.s3-us-west-2.amazonaws.com/appy_get_users.gif)
+![appy_get_users](https://user-images.githubusercontent.com/12631935/79036809-a0154400-7b80-11ea-9824-4670ad349b64.gif)
 
 ### Filter Query and Populate Relationship
 
-![appy_filter_permissionns](https://appy-cdn.s3-us-west-2.amazonaws.com/appy_filter_permissions.gif)
+![appy_permissions_filter](https://user-images.githubusercontent.com/12631935/79037098-161aaa80-7b83-11ea-8fd5-5046e2d5fff7.gif)
 
 ## Readme contents
 - [Requirements](#requirements)
