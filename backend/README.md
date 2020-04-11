@@ -27,7 +27,7 @@ http://ec2-52-25-112-131.us-west-2.compute.amazonaws.com:8125
 
 ### Starting appy
 
-<p align="center"><a><img width="1024" height="640" src="https://user-images.githubusercontent.com/12631935/79036262-7f96bb00-7b7b-11ea-9fb0-bed77cc9d043.gif" alt="appy_start"></a></p>
+<p align="center"><a><img width="1024" height="480" src="https://user-images.githubusercontent.com/12631935/79036262-7f96bb00-7b7b-11ea-9fb0-bed77cc9d043.gif" alt="appy_start"></a></p>
 
 ### Logging in
 
