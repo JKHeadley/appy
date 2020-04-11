@@ -237,7 +237,7 @@ MIT
 [Back to top](#readme-contents)
 
 ## Questions?
-If you have any questions/issues/feature requests, please feel free to open an [issue](https://github.com/JKHeadley/appy_backend/issues/new). We'd love to hear from you!
+If you have any questions/issues/feature requests, please feel free to open an [issue](https://github.com/JKHeadley/appy-backend/issues/new). We'd love to hear from you!
 
 [Back to top](#readme-contents)
 
