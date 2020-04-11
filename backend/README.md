@@ -3,7 +3,7 @@
 
 A user system leveraging [rest-hapi](https://github.com/JKHeadley/rest-hapi) to bootstrap your app.
 
-appy_backend is a boilerplate user system that leverages the powerful [rest-hapi](https://github.com/JKHeadley/rest-hapi) API generator.  Inspired by the [frame](https://github.com/jedireza/frame) user system, the goal of appy_backend is to provide an easy to use user API that is also capable of supporting a wide range of applications.  appy_backend is a great resource for starting almost any app. By leveraging [rest-hapi](https://github.com/JKHeadley/rest-hapi), adding new endpoints is as simple as defining a new model, and model associations are a snap.  Bootstrapping your app has never been easier!
+appy-backend is the server portion of the [appy](https://appyappi.io) project. It provides a boilerplate user system that leverages the powerful [rest-hapi](https://github.com/JKHeadley/rest-hapi) API generator.  Inspired by the [frame](https://github.com/jedireza/frame) user system, the goal of appy-backend is to provide an easy to use user API that is also capable of supporting a wide range of applications.  appy-backend is a great resource for starting almost any app. By leveraging [rest-hapi](https://github.com/JKHeadley/rest-hapi), adding new endpoints is as simple as defining a new model, and model associations are a snap.  Bootstrapping your app has never been easier!
 
 ## Features
  
@@ -20,7 +20,7 @@ appy_backend is a boilerplate user system that leverages the powerful [rest-hapi
 
 ## Technologies
 
-appy_backend implements a [hapi](https://github.com/hapijs/hapi) framework server.  appy_backend's RESTful API endpoints are generated through [rest-hapi](https://github.com/JKHeadley/rest-hapi), which means models are based off of [mongoose](https://github.com/Automattic/mongoose) and data is stored in [MongoDB](www.mongodb.org).
+appy-backend implements a [hapi](https://github.com/hapijs/hapi) framework server.  appy-backend's RESTful API endpoints are generated through [rest-hapi](https://github.com/JKHeadley/rest-hapi), which means models are based off of [mongoose](https://github.com/Automattic/mongoose) and data is stored in [MongoDB](www.mongodb.org).
 
 ## Demos
 
@@ -28,7 +28,7 @@ View the swagger docs for the **live demo**:
 
 https://api.appyapp.io
 
-### Starting appy
+### Starting appy-backend
 
 <p align="center"><a><img width="1024" height="480" src="https://user-images.githubusercontent.com/12631935/79036262-7f96bb00-7b7b-11ea-9fb0-bed77cc9d043.gif" alt="appy_start"></a></p>
 
@@ -76,8 +76,8 @@ You need [Node.js](https://nodejs.org/en/) installed (>=12.14.1) and you'll need
 Download from GitHub:
 
 ```bash
-$ git clone https://github.com/JKHeadley/appy_backend.git
-$ cd appy_backend
+$ git clone https://github.com/JKHeadley/appy-backend.git
+$ cd appy-backend
 ```
 
 ## Installation
@@ -128,7 +128,7 @@ NOTE: The password for all seed users is ``root``.
 
 [Back to top](#readme-contents)
 
-## Running appy
+## Running appy-backend
 
 To quickly run the app locally, simply run:
 
@@ -150,7 +150,7 @@ Once the app is running point your browser to http://localhost:8080/ to view the
 
 ## Wiki
 
-For detailed explanations on many of the topics covered in this readme, including authentication, authorization, and logging in and testing endpoints, please refer to the [wiki pages](https://github.com/JKHeadley/appy_backend/wiki).
+For detailed explanations on many of the topics covered in this readme, including authentication, authorization, and logging in and testing endpoints, please refer to the [wiki pages](https://github.com/JKHeadley/appy-backend/wiki).
 
 
 [Back to top](#readme-contents)
@@ -171,7 +171,7 @@ There are three optional authentication strategies in appy and each make use of 
 
 The strategy used is determined by the ``restHapiConfig.authStrategy`` config property.
 
-For a more in-depth description of these strategies, please view the [wiki](https://github.com/JKHeadley/appy_backend/wiki/Authentication).
+For a more in-depth description of these strategies, please view the [wiki](https://github.com/JKHeadley/appy-backend/wiki/Authentication).
 
 [Back to top](#readme-contents)
 
@@ -227,7 +227,7 @@ Final User Scope:
 ['Admin','Managers','readUser','addUserPermissions']
 ``` 
 
-For a more in-depth description of authorization within appy, please view the [wiki](https://github.com/JKHeadley/appy_backend/wiki/Authorization)
+For a more in-depth description of authorization within appy, please view the [wiki](https://github.com/JKHeadley/appy-backend/wiki/Authorization)
 
 [Back to top](#readme-contents)
 
@@ -242,7 +242,7 @@ If you have any questions/issues/feature requests, please feel free to open an [
 [Back to top](#readme-contents)
 
 ## Contributing
-Please reference the contributing doc: https://github.com/JKHeadley/appy_backend/blob/master/CONTRIBUTING.md
+Please reference the contributing doc: https://github.com/JKHeadley/appy-backend/blob/master/CONTRIBUTING.md
 
 [Back to top](#readme-contents)
 
