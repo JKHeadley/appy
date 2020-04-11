@@ -247,4 +247,4 @@ Please reference the contributing doc: https://github.com/JKHeadley/appy-backend
 [Back to top](#readme-contents)
 
 ## Thanks!
-We hope you enjoy appy_backend!
+We hope you enjoy appy-backend!
