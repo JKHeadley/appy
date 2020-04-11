@@ -43,7 +43,7 @@ $ cd appy
 > **NOTE**: Docker commands might take some time on the first build. After the first build they
 > should be relatively quick.
 
-Rename `.env-docker-sample` to `.env-docker` and update any secrets or keys as needed (this is not
+Rename `backend/.env-docker-sample` to `backend/.env-docker` and update any secrets or keys as needed (this is not
 required, but at minimum providing a valid `IPSTACK_ACCESS_KEY` will allow for proper dashboard
 data). **Never commit .env-docker to your repo**
 
