@@ -13,7 +13,7 @@ appy_backend is a boilerplate user system that leverages the powerful [rest-hapi
 * Abusive login attempt detection
 * User permissions based on roles and groups
 * Three optional authentication strategies
-* Websocket chat vai [@hapi/nes](https://github.com/hapijs/nes)
+* Websocket chat via [@hapi/nes](https://github.com/hapijs/nes)
 * File upload api
 * Endpoint validation and query support
 * Swagger docs for easy endpoint access
@@ -47,7 +47,7 @@ https://api.appyapp.io
 ## Readme contents
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
-- [Installation](#getting-started)
+- [Installation](#installation)
 - [Configuration](#configuration)
 - [First time setup](#first-time-setup)
 - [Running appy](#running-appy)
