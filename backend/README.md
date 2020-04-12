@@ -5,6 +5,8 @@ A user system leveraging [rest-hapi](https://github.com/JKHeadley/rest-hapi) to 
 
 appy-backend is the server portion of the [appy](https://appyapp.io) project. It provides a boilerplate user system that leverages the powerful [rest-hapi](https://github.com/JKHeadley/rest-hapi) API generator.  Inspired by the [frame](https://github.com/jedireza/frame) user system, the goal of appy-backend is to provide an easy to use user API that is also capable of supporting a wide range of applications.  appy-backend is a great resource for starting almost any app. By leveraging [rest-hapi](https://github.com/JKHeadley/rest-hapi), adding new endpoints is as simple as defining a new model, and model associations are a snap.  Bootstrapping your app has never been easier!
 
+**NOTE:** For just the backend, make sure you visit [this repo](https://github.com/JKHeadley/appy-backend).
+
 ## Features
  
 * Registration and account activation flows
