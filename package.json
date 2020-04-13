@@ -1,0 +1,29 @@
+{
+  "name": "appy",
+  "version": "1.0.0",
+  "description": "A full stack boilerplate web app",
+  "main": "run_app.sh",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JKHeadley/appy.git"
+  },
+  "keywords": [
+    "vue",
+    "hapi",
+    "webapp",
+    "backend",
+    "fullstack"
+  ],
+  "author": "Justin Headley",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JKHeadley/appy/issues"
+  },
+  "homepage": "https://github.com/JKHeadley/appy#readme"
+}
