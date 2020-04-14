@@ -27,7 +27,7 @@ class HomeSplash extends React.Component {
     const docUrl = doc => `${baseUrl}${docsPart}${langPart}${doc}`;
 
     const SplashContainer = props => (
-      <div>
+      <div className="landing">
 
 
 
