@@ -61,7 +61,7 @@ class HomeSplash extends React.Component {
                 <a className="github-button" href="https://github.com/JKHeadley/appy" data-size="large" aria-label="Star JKHeadley/appy on GitHub">Star</a>
               </h1>
 
-              <p style={{ "fontSize": "0.9em" }}>Like the project? Give it a <span className="fa fa-star"></span>!</p>
+              <p style={{ "fontSize": "0.9em" }}>Like the project? Give it a <span className="icon fa-star"></span>!</p>
 
               <p>An open source web app targeted for mvp development. The goal of appy
               is to provide you with some of the most common features and functionality found in modern
@@ -260,7 +260,7 @@ class HomeSplash extends React.Component {
                 <li><a href="#" className="icon fa-facebook alt"><span className="label">Facebook</span></a></li>
                 <li><a href="#" className="icon fa-github alt"><span className="label">GitHub</span></a></li>
               </ul>
-              <p className="copyright">&copy; appy 2017-2018. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+              <p className="copyright">Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
             </footer>
 
           </div>
@@ -271,8 +271,6 @@ class HomeSplash extends React.Component {
           <script src="js/skel.min.js"></script>
           <script src="js/util.js"></script>
           <script src="js/main.js"></script>
-
-          <script async defer src="https://buttons.github.io/buttons.js"></script>
 
         </body>
 
