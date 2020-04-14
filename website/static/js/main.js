@@ -37,13 +37,13 @@
     success: function (response) {
       console.log("STATS RESPONSE:", response);
 
-      var statsElement = $('.statistics')
+      var statsElement = $('#live_demo_stats')
       console.log("EL:", statsElement)
-      statsElement[0].children[0].children[1].innerText = response.stats.visitorCount
-      statsElement[0].children[1].children[1].innerText = response.stats.userCount
-      statsElement[0].children[2].children[1].innerText = response.stats.messageCount
-      statsElement[0].children[3].children[1].innerText = response.stats.imageCount
-      statsElement[0].children[4].children[1].innerText = response.stats.documentCount
+    //   statsElement.context.children[0].children[1].innerText = response.stats.visitorCount
+    //   statsElement.context.children[1].children[1].innerText = response.stats.userCount
+    //   statsElement.context.children[2].children[1].innerText = response.stats.messageCount
+    //   statsElement.context.children[3].children[1].innerText = response.stats.imageCount
+    //   statsElement.context.children[4].children[1].innerText = response.stats.documentCount
     },
     error: function (xhr, status) {
       console.error("ERROR:", xhr, status);
