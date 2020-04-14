@@ -3,35 +3,113 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "A website for testing",
+    "tagline": "A full stack boilerplate web app",
     "docs": {
-      "doc1": {
-        "title": "Latin-ish",
-        "sidebar_label": "Example Page"
+      "associations": {
+        "title": "Associations",
+        "sidebar_label": "Assocations"
       },
-      "doc2": {
-        "title": "document number 2"
+      "audit-logs": {
+        "title": "Audit Logs",
+        "sidebar_label": "Audit Logs"
       },
-      "doc3": {
-        "title": "This is document number 3"
+      "authentication": {
+        "title": "Authentication",
+        "sidebar_label": "Authentication"
       },
-      "doc4": {
-        "title": "Other Document"
+      "authorization": {
+        "title": "Authorization",
+        "sidebar_label": "Authorization"
       },
-      "doc5": {
-        "title": "Fifth Document"
+      "configuration": {
+        "title": "Configuration",
+        "sidebar_label": "Configuration"
+      },
+      "creating-endpoints": {
+        "title": "Creating Endpoints",
+        "sidebar_label": "Creating Endpoints"
+      },
+      "duplicate-fields": {
+        "title": "Duplicate Fields",
+        "sidebar_label": "Duplicate Fields"
+      },
+      "introduction": {
+        "title": "Introduction",
+        "sidebar_label": "Introduction"
+      },
+      "metadata": {
+        "title": "Metadata",
+        "sidebar_label": "Metadata"
+      },
+      "middleware": {
+        "title": "Middleware",
+        "sidebar_label": "Middleware"
+      },
+      "misc": {
+        "title": "Miscellaneous",
+        "sidebar_label": "Miscellaneous"
+      },
+      "model-generation": {
+        "title": "Model Generation",
+        "sidebar_label": "Model Generation"
+      },
+      "mongoose-wrapper-methods": {
+        "title": "Mongoose Wrapper Methods",
+        "sidebar_label": "Mongoose Wrapper Methods"
+      },
+      "policies": {
+        "title": "Policies",
+        "sidebar_label": "Policies"
+      },
+      "querying": {
+        "title": "Querying",
+        "sidebar_label": "Querying"
+      },
+      "questions": {
+        "title": "Questions",
+        "sidebar_label": "Questions"
+      },
+      "quick-start": {
+        "title": "Quick Start",
+        "sidebar_label": "Quick Start"
+      },
+      "route-customization": {
+        "title": "Route Customization",
+        "sidebar_label": "Route Customization"
+      },
+      "soft-delete": {
+        "title": "Soft Delete",
+        "sidebar_label": "Soft Delete"
+      },
+      "support": {
+        "title": "Support",
+        "sidebar_label": "Support"
+      },
+      "swagger-documentation": {
+        "title": "Swagger Documentation",
+        "sidebar_label": "Swagger Documentation"
+      },
+      "testing": {
+        "title": "Testing",
+        "sidebar_label": "Testing"
+      },
+      "validation": {
+        "title": "Validation",
+        "sidebar_label": "Validation"
       }
     },
     "links": {
       "Docs": "Docs",
-      "API": "API",
       "Help": "Help",
-      "Blog": "Blog"
+      "Blog": "Blog",
+      "Users": "Users",
+      "GitHub": "GitHub"
     },
     "categories": {
-      "Docusaurus": "Docusaurus",
-      "First Category": "First Category",
-      "Second Category": "Second Category"
+      "Getting Started": "Getting Started",
+      "Usage": "Usage",
+      "Other": "Other",
+      "First Category": "First Category"
     }
   },
   "pages-strings": {

@@ -1,8 +1,33 @@
 {
   "docs": {
-    "Docusaurus": ["doc1"],
-    "First Category": ["doc2"],
-    "Second Category": ["doc3"]
+    "Getting Started": [
+      "quick-start",
+      "introduction",
+      "swagger-documentation"
+    ],
+    "Usage": [
+      "configuration",
+      "creating-endpoints",
+      "associations",
+      "route-customization",
+      "querying",
+      "duplicate-fields",
+      "validation",
+      "middleware",
+      "authentication",
+      "authorization",
+      "audit-logs",
+      "policies",
+      "mongoose-wrapper-methods",
+      "soft-delete",
+      "metadata",
+      "model-generation"
+    ],
+    "Other": [
+      "testing",
+      "questions",
+      "support"
+    ]
   },
   "docs-other": {
     "First Category": ["doc4", "doc5"]

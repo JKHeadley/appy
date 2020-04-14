@@ -21,27 +21,33 @@ const users = [
 ];
 
 const siteConfig = {
-  title: 'Test Site', // Title for your website.
-  tagline: 'A website for testing',
-  url: 'https://your-docusaurus-test-site.com', // Your website URL
+  title: 'appy', // Title for your website.
+  tagline: 'A full stack boilerplate web app',
+  url: 'https://appyapp.io', // Your website URL
   baseUrl: '/', // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
 
   // Used for publishing and more
-  projectName: 'test-site',
-  organizationName: 'facebook',
+  repoUrl: 'https://github.com/JKHeadley/appy',
+  projectName: 'appy',
+  organizationName: 'JKHeadley',
   // For top-level user or org sites, the organization is still the same.
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
   //   organizationName: 'JoelMarcey'
 
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
-    {doc: 'doc1', label: 'Docs'},
-    {doc: 'doc4', label: 'API'},
-    {page: 'help', label: 'Help'},
-    {blog: true, label: 'Blog'},
+    { doc: 'quick-start', label: 'Docs' },
+    // {doc: 'doc4', label: 'API'},
+    { page: 'help', label: 'Help' },
+    { blog: true, label: 'Blog' },
+    { page: 'users', label: 'Users' },
+    {
+      href: 'https://github.com/JKHeadley/appy',
+      label: 'GitHub'
+    }
   ],
 
   // If you have users set above, you add it here:
@@ -54,7 +60,7 @@ const siteConfig = {
 
   /* Colors for website */
   colors: {
-    primaryColor: '#15408d',
+    primaryColor: '#000000',
     secondaryColor: '#0e2c62',
   },
 
@@ -73,11 +79,11 @@ const siteConfig = {
   */
 
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-  copyright: `Copyright © ${new Date().getFullYear()} Your Name or Your Company Name`,
+  copyright: `Copyright © ${new Date().getFullYear()} Justin Headley`,
 
   highlight: {
     // Highlight.js theme to use for syntax highlighting in code blocks.
-    theme: 'default',
+    theme: 'atom-one-dark',
   },
 
   // Add custom scripts here that would be placed in <script> tags.
@@ -89,8 +95,8 @@ const siteConfig = {
   cleanUrl: true,
 
   // Open Graph and Twitter card images.
-  ogImage: 'img/undraw_online.svg',
-  twitterImage: 'img/undraw_tweetstorm.svg',
+  ogImage: 'img/logo.svg',
+  twitterImage: 'img/logo.svg',
 
   // For sites with a sizable amount of content, set collapsible to true.
   // Expand/collapse the links and subcategories under categories.

@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /**
  * Copyright (c) 2017-present, Facebook, Inc.
  *
@@ -5,23 +6,72 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const React = require('react');
+const React = require('react')
+
+const SocialFooter = props => (
+  <div>
+    <h5>Social</h5>
+    <div className="social">
+      <a
+        className="github-button" // part of the https://buttons.github.io/buttons.js script in siteConfig.js
+        href={`https://github.com/${props.config.organizationName}/${
+          props.config.projectName
+          }`}
+        data-count-href={`/${props.config.organizationName}/${
+          props.config.projectName
+          }/stargazers`}
+        data-show-count="true"
+        data-count-aria-label="# stargazers on GitHub"
+        aria-label="Star this project on GitHub">
+        {props.config.projectName}
+      </a>
+    </div>
+    <div className="social">
+      <a href="https://twitter.com/intent/tweet?text=Generate%20RESTful%20API%20endpoints%20with%20rest-hapi!&url=https://resthapi.com&via=resthapi&hashtags=mongoosejs,hapijs,nodejs,MongoDB">
+        <img alt="rest-hapi tweet" src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social"/>
+      </a>
+    </div>
+    {props.config.twitterUsername && (
+      <div className="social">
+        <a
+          href={`https://twitter.com/${props.config.twitterUsername}`}
+          className="twitter-follow-button">
+          Follow @{props.config.twitterUsername}
+        </a>
+      </div>
+    )}
+    {props.config.facebookAppId && (
+      <div className="social">
+        <div
+          className="fb-like"
+          data-href={props.config.url}
+          data-layout="standard"
+          data-share="true"
+          data-width="225"
+          data-show-faces="false"
+        />
+      </div>
+    )}
+  </div>
+);
+
+SocialFooter.propTypes = {
+  config: PropTypes.object,
+};
 
 class Footer extends React.Component {
   docUrl(doc, language) {
-    const baseUrl = this.props.config.baseUrl;
-    const docsUrl = this.props.config.docsUrl;
-    const docsPart = `${docsUrl ? `${docsUrl}/` : ''}`;
-    const langPart = `${language ? `${language}/` : ''}`;
-    return `${baseUrl}${docsPart}${langPart}${doc}`;
+    const baseUrl = this.props.config.baseUrl
+    return baseUrl + 'docs/' + (language ? language + '/' : '') + doc
   }
 
   pageUrl(doc, language) {
-    const baseUrl = this.props.config.baseUrl;
-    return baseUrl + (language ? `${language}/` : '') + doc;
+    const baseUrl = this.props.config.baseUrl
+    return baseUrl + (language ? language + '/' : '') + doc
   }
 
   render() {
+    const currentYear = new Date().getFullYear()
     return (
       <footer className="nav-footer" id="footer">
         <section className="sitemap">
@@ -37,15 +87,13 @@ class Footer extends React.Component {
           </a>
           <div>
             <h5>Docs</h5>
-            <a href={this.docUrl('doc1.html', this.props.language)}>
-              Getting Started (or other categories)
+            <a href={this.docUrl('quick-start.html', null)}>
+              Getting Started
             </a>
-            <a href={this.docUrl('doc2.html', this.props.language)}>
-              Guides (or other categories)
+            <a href={this.docUrl('configuration.html', null)}>
+              Usage
             </a>
-            <a href={this.docUrl('doc3.html', this.props.language)}>
-              API Reference (or other categories)
-            </a>
+            <a href={this.docUrl('testing.html', null)}>Other</a>
           </div>
           <div>
             <h5>Community</h5>
@@ -53,74 +101,21 @@ class Footer extends React.Component {
               User Showcase
             </a>
             <a
-              href="https://stackoverflow.com/questions/tagged/"
+              href="https://stackoverflow.com/search?q=rest-hapi"
               target="_blank"
               rel="noreferrer noopener">
               Stack Overflow
             </a>
-            <a href="https://discordapp.com/">Project Chat</a>
-            <a
-              href="https://twitter.com/"
-              target="_blank"
-              rel="noreferrer noopener">
-              Twitter
-            </a>
+            <a href="https://gitter.im/rest-hapi">Project Chat</a>
+            <a href="https://opencollective.com/rest-hapi">Donate</a>
+            <a href={this.props.config.baseUrl + 'blog'}>Blog</a>
           </div>
-          <div>
-            <h5>More</h5>
-            <a href={`${this.props.config.baseUrl}blog`}>Blog</a>
-            <a href="https://github.com/">GitHub</a>
-            <a
-              className="github-button"
-              href={this.props.config.repoUrl}
-              data-icon="octicon-star"
-              data-count-href="/facebook/docusaurus/stargazers"
-              data-show-count="true"
-              data-count-aria-label="# stargazers on GitHub"
-              aria-label="Star this project on GitHub">
-              Star
-            </a>
-            {this.props.config.twitterUsername && (
-              <div className="social">
-                <a
-                  href={`https://twitter.com/${this.props.config.twitterUsername}`}
-                  className="twitter-follow-button">
-                  Follow @{this.props.config.twitterUsername}
-                </a>
-              </div>
-            )}
-            {this.props.config.facebookAppId && (
-              <div className="social">
-                <div
-                  className="fb-like"
-                  data-href={this.props.config.url}
-                  data-colorscheme="dark"
-                  data-layout="standard"
-                  data-share="true"
-                  data-width="225"
-                  data-show-faces="false"
-                />
-              </div>
-            )}
-          </div>
+          <SocialFooter config={this.props.config} />
         </section>
-
-        <a
-          href="https://opensource.facebook.com/"
-          target="_blank"
-          rel="noreferrer noopener"
-          className="fbOpenSource">
-          <img
-            src={`${this.props.config.baseUrl}img/oss_logo.png`}
-            alt="Facebook Open Source"
-            width="170"
-            height="45"
-          />
-        </a>
         <section className="copyright">{this.props.config.copyright}</section>
       </footer>
-    );
+    )
   }
 }
 
-module.exports = Footer;
+module.exports = Footer
