@@ -55,7 +55,7 @@ class HomeSplash extends React.Component {
               <span className="logo"><img src="img/logo.svg" alt="" /></span>
               <h1 className="slogan">The most complete boilerplate app on the web.</h1>
               <a href="#live_demo" className="button big icon fa-chrome">LIVE DEMO</a>
-              <a href="https://github.com/JKHeadley/appy" target="_blank" className="button big icon fa-cloud-download" style={{ "margin-left": "4px" }}>DOWNLOAD</a>
+              <a href="https://github.com/JKHeadley/appy" target="_blank" className="button big icon fa-cloud-download" style={{ "marginLeft": "4px" }}>DOWNLOAD</a>
 
               <h1>
                 <a className="github-button" href="https://github.com/JKHeadley/appy" data-size="large" aria-label="Star JKHeadley/appy on GitHub">Star</a>

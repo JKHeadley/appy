@@ -1,6 +1,17 @@
 @import url(font-awesome.min.css);
 @import "https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400";
 
+
+/* Custom */
+
+.toc .toggleNav ul li a {
+    color: #c2d5f3;
+}
+.onPageNav a {
+    color: #c2d5f3;
+}
+
+
 /*
 	Stellar by HTML5 UP
 	html5up.net | @ajlkn
