@@ -7,10 +7,24 @@
 .toc .toggleNav ul li a {
     color: #c2d5f3;
 }
+
+.toc .toggleNav .navGroup .navGroupCategoryTitle {
+    color: #191646;
+}
+
 .onPageNav a {
     color: #c2d5f3;
 }
 
+blockquote {
+    color: #020406;
+    background-color: rgba(186, 171, 206, 0.41);
+    border-left: 8px solid #bbabce;
+}
+
+code {
+    background-color: rgba(27, 104, 181, 0.22);
+}
 
 /*
 	Stellar by HTML5 UP
@@ -1692,6 +1706,14 @@
 	  background-image: -ms-linear-gradient(45deg, #7814ee 15%, #3c9dda 85%);
 	  background-image: linear-gradient(45deg, #7814ee 15%, #3c9dda 85%);
   }
+
+  /* body {
+	background-color: #935d8c;
+	background-image: -moz-linear-gradient(45deg, #7814ee 15%, #3c9dda 85%);
+	background-image: -webkit-linear-gradient(45deg, #7814ee 15%, #3c9dda 85%);
+	background-image: -ms-linear-gradient(45deg, #7814ee 15%, #3c9dda 85%);
+	background-image: linear-gradient(45deg, #7814ee 15%, #3c9dda 85%);
+} */
   
   body.is-loading *, body.is-loading *:before, body.is-loading *:after {
 	  -moz-animation: none !important;
