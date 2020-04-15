@@ -7,6 +7,14 @@
     ],
     "Usage": [
       "configuration",
+      {
+        "type": "subcategory",
+        "label": "Backend",
+        "ids": [
+          "authentication",
+          "authorization"
+        ]
+      },
       "creating-endpoints",
       "associations",
       "route-customization",
@@ -14,8 +22,6 @@
       "duplicate-fields",
       "validation",
       "middleware",
-      "authentication",
-      "authorization",
       "audit-logs",
       "policies",
       "mongoose-wrapper-methods",

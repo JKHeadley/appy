@@ -21,6 +21,10 @@
         "title": "Authorization",
         "sidebar_label": "Authorization"
       },
+      "backend": {
+        "title": "Backend",
+        "sidebar_label": "Backend"
+      },
       "configuration": {
         "title": "Configuration",
         "sidebar_label": "Configuration"
