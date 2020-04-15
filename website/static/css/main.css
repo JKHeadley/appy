@@ -28,17 +28,16 @@ code {
 
 .headerWrapper {
 	font-family: sans-serif;
-	margin-left: 0px;
-	margin-right: 0px;
-	max-width: none !important;
+	max-width: 1400px;
 }
 
 li.siteNavGroupActive a {
     color: #fff;
 }
 
-
-
+.landing .button {
+	text-transform: none;
+}
 
 
 
