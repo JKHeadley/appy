@@ -137,6 +137,7 @@
               this.fileChosen = false
               this.percentCompleted = 0
               this.$snotify.success('Image uploaded', 'Success!')
+              this.$router.push('/images')
             })
             .catch((error) => {
               this.loading = false
