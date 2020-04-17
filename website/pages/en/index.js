@@ -51,7 +51,7 @@ class HomeSplash extends React.Component {
 
           <div id="wrapper">
 
-            <header id="header" className="alt">
+            <header id="header" className="alt" >
               <span className="logo"><img src="img/logo.svg" alt="" /></span>
               <h1 className="slogan">The most complete boilerplate app on the web.</h1>
               <a href="#live_demo" className="button big icon fa-chrome">LIVE DEMO</a>
@@ -63,10 +63,7 @@ class HomeSplash extends React.Component {
 
               <p style={{ "fontSize": "0.9em" }}>Like the project? Give it a <span className="icon fa-star"></span>!</p>
 
-              <p>appy is an open source web app targeted for mvp development. The goal of appy
-              is to provide you with some of the most common features and functionality found in modern
-              web apps. Use it as a launching point to build out your own app, or simply as a learning
-							tool to understand how technologies integrate. Now you can test out your ideas faster than ever!</p>
+              <p>appy is an open source web app targeted for mvp development. The goal of appy is to provide you with some of the most common features and functionality found in modern web apps. The frontend is built on <a href="https://vuejs.org" target="_blank">Vue.js</a> and utilizes the <a href="https://adminlte.io" target="_blank">AdminLTE</a> UI template. The <a href="https://github.com/JKHeadley/appy/tree/master/backend" target="_blank">backend</a> implements a hapi server (via <a href="https://github.com/JKHeadley/rest-hapi" target="_blank">rest-hapi</a>) with a MongoDB datastore. Use it as a launching point to build out your own app, or simply as a learning tool to understand how technologies integrate. Now you can test out your ideas faster than ever!</p>
             </header>
 
             <nav id="nav">

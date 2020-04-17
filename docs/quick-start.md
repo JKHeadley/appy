@@ -4,41 +4,121 @@ title: Quick Start
 sidebar_label: Quick Start
 ---
 
+![appy-dashboard](https://user-images.githubusercontent.com/12631935/39155220-f691c77e-4705-11e8-9b83-2129a07c6d35.png)
+
 ## Requirements
 
-You need [Node.js](https://nodejs.org/en/) ^12.14.1 installed and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
+Just [Docker](https://docs.docker.com/install)
 
-## Demo
+**OR**
 
-![rest-hapi-demo-alt](https://user-images.githubusercontent.com/12631935/41813206-0d2298a0-76e6-11e8-95d4-9b1e521c179e.gif)
+You need [Node.js](https://nodejs.org/en/) installed (>=12.14.1) and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
 
-The quickest way to get rest-hapi running on your machine is with the [rest-hapi-demo](https://github.com/JKHeadley/rest-hapi-demo) project:
 
-(**NOTE:** For an alternative quick start, check out his [awesome yeoman generator](https://github.com/vinaybedre/generator-resthapi) for rest-hapi.)
+## Getting Started
 
-1) Clone the repo
-```sh
-$ git clone https://github.com/JKHeadley/rest-hapi-demo.git
-$ cd rest-hapi-demo
+Download from GitHub:
+
+```bash
+$ git clone https://github.com/JKHeadley/appy.git
+$ cd appy
 ```
 
-2) Install the dependencies
-```sh
+## Using Docker
+
+> **NOTE**: Docker commands might take some time on the first build. After the first build they
+> should be relatively quick.
+
+Rename `backend/.env-docker-sample` to `backend/.env-docker` and update any secrets or keys as needed (this is not
+required, but at minimum providing a valid `IPSTACK_ACCESS_KEY` will allow for proper dashboard
+data). **Never commit .env-docker to your repo**
+
+Also, update values in `backend/config/index.js` as needed.
+
+Seed the db with data (only required once):
+
+```bash
+$ sh seed_data.sh
+```
+ 
+Once seeding is done, run the app:
+
+```bash
+$ sh run_app.sh
+```
+
+Point your browser to http://localhost:3000/ to view the app, http://localhost:8080/ to view the swagger API docs, or click on one of the test accounts below to login:
+
+> **NOTE**: Password for all seed users is `root`.
+
+**<a href="http://localhost:3000/login?email=test@user.com&password=root" target="_blank">User</a>**
+
+**<a href="http://localhost:3000/login?email=test@admin.com&password=root" target="_blank">Admin</a>**
+
+**<a href="http://localhost:3000/login?email=test@superadmin.com&password=root" target="_blank">Super Admin</a>**
+
+
+...that's it, have fun!
+
+## Without Docker
+
+Install dependencies:
+
+#### Backend
+
+``` bash
+$ cd backend
 $ npm install
 ```
 
-3) Seed the models
-```sh
-$ ./node_modules/.bin/rest-hapi-cli seed
+#### Frontend
+
+``` bash
+$ cd frontend
+$ npm install
 ```
 
-4) Start the server
-```sh
-$ npm start
+### Backend Configuration
+Rename `.env-sample` to `.env` and update any secrets or keys as needed (this is not
+required, but at minimum providing a valid `IPSTACK_ACCESS_KEY` will allow for proper dashboard
+data). **Never commit .env to your repo**
+
+Also, update values in `backend/config/index.js` as needed.
+
+### First time setup
+**WARNING**: This will clear all data in the MongoDB database defined in ``restHapiConfig.mongo.URI`` (default ``mongodb://localhost/appy``).
+
+To seed your database with some data, run:
+
+```
+$ npm run seed
 ```
 
-5) View the [API docs](swagger-documentation.md) at 
+> **NOTE**: The password for all seed users is ``root``.
 
-[http://localhost:8080/](http://localhost:8080/)
+### Running appy
+
+#### Backend
+
+``` bash
+$ npm run start
+```
+
+Point your browser to http://localhost:8080/ to view the Swagger docs.
+
+#### Frontend
+
+``` bash
+$ npm run start
+```
+
+Point your browser to http://localhost:3000/ to view the app, or click on one of the test accounts below to login:
+
+**<a href="http://localhost:3000/login?email=test@user.com&password=root" target="_blank">User</a>**
+
+**<a href="http://localhost:3000/login?email=test@admin.com&password=root" target="_blank">Admin</a>**
+
+**<a href="http://localhost:3000/login?email=test@superadmin.com&password=root" target="_blank">Super Admin</a>**
+
 
 ...have fun!

@@ -1,11 +1,10 @@
 {
   "docs": {
     "Getting Started": [
-      "quick-start",
       "introduction",
-      "swagger-documentation"
+      "quick-start"
     ],
-    "Usage": [
+    "Frontend": [
       "configuration",
       {
         "type": "subcategory",
@@ -29,7 +28,7 @@
       "metadata",
       "model-generation"
     ],
-    "Other": [
+    "Backend": [
       "testing",
       "questions",
       "support"

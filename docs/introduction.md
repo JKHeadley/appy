@@ -3,84 +3,71 @@ id: introduction
 title: Introduction
 sidebar_label: Introduction
 ---
+ 
+<p align="center"><a href="https://appyapp.io" target="_blank" rel="noopener noreferrer"><img width="262" height="295" src="https://user-images.githubusercontent.com/12631935/39099920-eaab3d3e-4636-11e8-9955-b53be05e1c13.png" alt="appy logo"></a></p>
 
-## Requirements
+## What is appy?
+appy is an open source fully featured full-stack web app + user system. It's purpose is two fold:
 
-You need [Node.js](https://nodejs.org/en/) ^12.14.1 installed and you'll need [MongoDB](https://docs.mongodb.com/manual/installation/) installed and running.
+1) Provide a bootstrapping platform to quickly implement and test out [mvp](https://en.wikipedia.org/wiki/Minimum_viable_product) ideas.
+2) Provide working examples of modern web-app features for those interested in learning how technologies can integrate.
 
-## Installation
+While there are other open source full-stack web apps out there, we couldn't find any that sufficiently meet these goals. appy is built with technologies that allow you to quickly adapt it to your specific needs. Our goal is to provide a working platform with easy to follow documentaion covering all of the major features so you can bootstrap your own awesome app! 😉
 
-In your project directory, run:
+While we feel appy is already a useful tool, there is awlays room for improvement. We aim to continue to improve appy and add more useful features as we go, and we would love for you to pitch in!
 
-```sh
-$ npm install rest-hapi
-```
+## Main Features
 
-## Using the plugin
+- **Frontend**: built with [Vue.js](https://vuejs.org)
+- **Backend**: built with [hapi.js](https://hapi.dev/) and [rest-hapi](https://rest-hapi.com)
+- **Datastore**: via MongoDB.
+- **Aesthetic UI**: based on the [AdminLTE](https://adminlte.io) template.
+- **Generated API**: based on [mongoose](http://mongoosejs.com/) schemas via [rest-hapi](https://rest-hapi.com)
+- **Login Flows**: social login, account activation, and password reset.
+- **Authorization**: user access based on roles, groups, and permissions.
+- **Admin Tools**: views to manage user accounts and view app activity.
+- **Swagger**: UI for easy api documentation and testing.
+- **Websockets**: real-time features such as notifications and chat.
+- **Social Network**: connect with and follow other users.
+- **User Content**: shareable docs and image uploads.
 
-As rest-hapi is a hapi plugin, you'll need to set up a hapi server to generate API endpoints.  You'll also need to set up a [mongoose](https://github.com/Automattic/mongoose) instance and include it in the plugin's options when you register. Create a new file ``api.js`` and add the following code to set up an API with rest-hapi:
+## Live Demo
 
-```javascript
-// api.js
-let Hapi = require('@hapi/hapi')
-let mongoose = require('mongoose')
-let RestHapi = require('rest-hapi')
+Want to see appy in action. Check out the live demo! [Create an account](https://demo.appyapp.io/register), [login with a social network](https://demo.appyapp.io/login), or try one of the demo accounts below.
 
-async function api(){
-  try {
-    let server = Hapi.Server({ port: 8080 })
-    
-    let config = {
-        appTitle: "My API",
-    };
-
-    await server.register({
-      plugin: RestHapi,
-      options: {
-        mongoose,
-        config
-      }
-    })
-
-    await server.start()
-
-    console.log("Server ready", server.info)
-    
-    return server
-  } catch (err) {
-    console.log("Error starting server:", err);
-  }
-}
-
-module.exports = api()
-```
-You can then run 
-
-```sh
-$ node api.js
-``` 
-
-and point your browser to [http://localhost:8080/](http://localhost:8080/) to view the swagger docs 
-
-> **NOTE**: API endpoints will only be generated if you have provided models. See [Example Data](#example-data) or [Creating endpoints](creating-endpoints.md).
-
-
-## Example Data
-
-**WARNING**: This will clear all data in the following MongoDB collections in the db defined in ``RestHapi.config`` (default ``mongodb://localhost:27017/rest_hapi``): ``users``, ``roles``.
-
-If you would like to seed your database with some demo models/data, run:
-
-```sh
-$ ./node_modules/.bin/rest-hapi-cli seed
-```
-
-If you need a db different than the default, you can add the URI as an argument to the command:
-
-```sh
-$ ./node_modules/.bin/rest-hapi-cli seed mongodb://localhost:27017/other_db
-```
-
-You can use these models as templates for your models or delete them later if you wish.
-
-For a ready-to-go demo project see [quick start](quick-start.md)
+<div class="landing">
+  <section class="main special">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Account</th>
+            <th>Description</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>User</td>
+            <td>They're everywhere! Users have access to all the standard features.</td>
+            <td><a href="https://demo.appyapp.io/login?email=test@user.com&password=root"
+              target="_blank" class="button special icon fa-sign-in">Try It!</a></td>
+          </tr>
+          <tr style="background-color: rgba(186, 171, 206, 0.41);">
+            <td>Admin</td>
+            <td>Taking care of business. Admins can manage user permissions and view audit
+          logs.</td>
+            <td><a href="https://demo.appyapp.io/login?email=test@admin.com&password=root"
+              target="_blank" class="button special icon fa-sign-in">Try It!</a></td>
+          </tr>
+          <tr>
+            <td>Super Admin</td>
+            <td>The big boss! A super admin has access to all views and actions.</td>
+            <td><a href="https://demo.appyapp.io/login?email=test@superadmin.com&password=root"
+              target="_blank" class="button special icon fa-sign-in">Try It!</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

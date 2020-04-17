@@ -111,8 +111,8 @@
     },
     "categories": {
       "Getting Started": "Getting Started",
-      "Usage": "Usage",
-      "Other": "Other",
+      "Frontend": "Frontend",
+      "Backend": "Backend",
       "First Category": "First Category"
     }
   },

@@ -39,7 +39,9 @@ li.siteNavGroupActive a {
 	text-transform: none;
 }
 
-
+a:hover {
+    color: #baabce;
+}
 
 
 
