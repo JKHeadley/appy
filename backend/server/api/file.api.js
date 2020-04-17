@@ -57,7 +57,7 @@ internals.formatImage = function(image, Log) {
                 name: image.name,
                 file: fs.readFileSync(image.name)
               }
-              fs.unlink(image.name)
+              fs.unlinkSync(image.name)
               resolve(resizedImage)
             }
           }
@@ -140,7 +140,8 @@ module.exports = function(server, mongoose, logger) {
           maxBytes: 30 * 1024 * 1024, // max 30 MB
           parse: true,
           allow: 'multipart/form-data',
-          timeout: false
+          timeout: false,
+          multipart: true
         },
         validate: {
           headers: headersValidation,
@@ -235,17 +236,18 @@ module.exports = function(server, mongoose, logger) {
           maxBytes: 30 * 1024 * 1024, // max 30 MB
           parse: true,
           allow: 'multipart/form-data',
-          timeout: false
+          timeout: false,
+          multipart: true
         },
         validate: {
           headers: headersValidation,
-          payload: {
+          payload: Joi.object({
             name: Joi.string().required(),
             file: Joi.any()
               .meta({ swaggerType: 'file' })
               .description('File Data')
               .required()
-          }
+          })
         },
         plugins: {
           'hapi-swagger': {

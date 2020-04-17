@@ -40,7 +40,7 @@ module.exports = function(mongoose) {
       documentScope: {
         rootScope: ['root']
       },
-      authorizeImageCreator: true,
+      authorizeDocumentCreator: true,
       associations: {
         owner: {
           type: 'MANY_ONE',
