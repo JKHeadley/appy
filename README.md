@@ -20,6 +20,11 @@ Just want an API server? Try [appy-backend](https://github.com/JKHeadley/appy-ba
 
 **Live Demo**: https://appyapp.io/#live_demo
 
+---
+
+<p align="center"><strong>appy</strong> is being sponsored by the following tool; please help to support us by taking a look and signing up to a free trial!</p>
+<p align="center"><a href="https://tracking.gitads.io/?repo=appy"><img src="https://images.gitads.io/appy" alt="GitAds"/></a></p>
+
 ## Requirements
 
 Just [Docker](https://docs.docker.com/install)
