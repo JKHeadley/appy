@@ -28,7 +28,7 @@
     "babel-runtime": "^5.8.0",
     "change-case": "^3.0.1",
     "chart.js": "2.3.0",
-    "datatables.net": "^1.10.11",
+    "datatables.net": "^1.10.22",
     "datatables.net-bs": "^1.10.11",
     "faker": "^3.1.0",
     "hideseek": "^0.7.0",
